@@ -20,3 +20,9 @@ Package.resolved
 # Python
 __pycache__/
 *.pyc
+
+# Godot
+godot/.godot/
+godot/bin/
+*.import
+*.uid
