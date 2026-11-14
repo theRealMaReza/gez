@@ -5,7 +5,7 @@ import Foundation
 /// standing armies on the map.
 enum MilitaryLoader {
     static func loadBundled(into world: inout World) throws {
-        guard let url = Bundle.module.url(forResource: "military1453", withExtension: "json") else {
+        guard let url = GezResources.url(forResource: "military1453", withExtension: "json") else {
             throw Scenario1453.LoadError.missingResource
         }
         try load(from: Data(contentsOf: url), into: &world)

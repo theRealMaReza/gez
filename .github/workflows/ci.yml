@@ -58,6 +58,26 @@ jobs:
         run: swift --version
       - name: Test GezCore
         run: swift test --package-path Packages/GezCore
+  godot-extension:
+    # The SwiftGodot extension that connects GezCore to the Godot screens.
+    name: Godot extension (macOS)
+    if: github.event_name != 'schedule' && inputs.only != 'profile' && inputs.only != 'windows'
+    runs-on: macos-26
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v5
+      - name: Toolchain
+        run: |
+          ls /Applications | grep -i xcode || true
+          swift --version
+      - name: Build and test GezGodot
+        run: |
+          if [ -d godot/swift ]; then
+            swift test --package-path godot/swift
+          else
+            echo "no godot/ folder on this branch"
+          fi
+
   long-tests-linux:
     # The decade-long simulations (skipped in the jobs above). Runs daily, on
     # every push to main, and by hand, so pull requests stay fast.

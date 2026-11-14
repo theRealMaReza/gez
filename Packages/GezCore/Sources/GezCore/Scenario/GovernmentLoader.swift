@@ -4,7 +4,7 @@ import Foundation
 /// rules, and each country's 1453 laws, reforms and estates.
 enum GovernmentLoader {
     static func loadBundled(into world: inout World) throws {
-        guard let url = Bundle.module.url(forResource: "government1453", withExtension: "json") else {
+        guard let url = GezResources.url(forResource: "government1453", withExtension: "json") else {
             throw Scenario1453.LoadError.missingResource
         }
         try load(from: Data(contentsOf: url), into: &world)

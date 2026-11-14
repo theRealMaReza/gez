@@ -401,20 +401,7 @@ struct ProvincePanel: View {
 
     /// "Monarchy · Vassal of Morocco", "Tribal confederation", ...
     private func countryStatus(_ country: CountryID, world: World) -> String {
-        let c = world.countries
-        var parts = [c.government[country.index].displayName]
-        if let lord = c.overlord[country.index], let kind = c.subjectType[country.index] {
-            switch kind {
-            case .personalUnion: parts.append("Personal union with \(c.name[lord.index])")
-            case .vassal: parts.append("Vassal of \(c.name[lord.index])")
-            case .tributary: parts.append("Tributary of \(c.name[lord.index])")
-            }
-        }
-        let subjects = c.subjects(of: country)
-        if !subjects.isEmpty {
-            parts.append("\(subjects.count) subject\(subjects.count == 1 ? "" : "s")")
-        }
-        return parts.joined(separator: " · ")
+        model.session.countryStatus(country)
     }
 }
 

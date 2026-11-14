@@ -1,0 +1,832 @@
+import Foundation
+
+/// Pure-Swift session controller shared between the Apple app and the Godot
+/// GDExtension. Owns the running `Simulation`, `GameClock`, speed/pause state,
+/// player country, map ID maps, labels, saves, player actions, and screen queries.
+public final class GameSession {
+    public private(set) var simulation: Simulation
+    public let idMap: ProvinceIDMap
+    public let seaMap: ProvinceIDMap
+    public let geometry: MapGeometryData
+
+    public private(set) var date: GameDate
+    public private(set) var revision: Int = 0
+
+    public var speed: GameSpeed = .paused {
+        didSet {
+            clock.speed = speed
+            if speed != .paused { lastRunningSpeed = speed }
+        }
+    }
+    public var playerCountry: CountryID?
+
+    public private(set) var selectedProvince: ProvinceID?
+    public private(set) var selectedSea: SeaZoneID?
+    public var selectedArmy: ArmyID?
+    public var moveModeForArmy: ArmyID?
+    public var viewedCharacter: CharacterID?
+    public var selectedDiplomacyCountry: CountryID?
+
+    public var savedGames: [SaveEntry] = []
+    public var lastSaveStatus: String?
+    public var lastAssaultResult: (province: ProvinceID, result: AssaultResult)?
+    public var autosaveFrequency: AutosaveFrequency = .yearly
+    public var savesDirectory: URL?
+
+    public private(set) var townIcons: [TownIconInfo] = []
+    public private(set) var provincePositions: [(x: Double, y: Double)] = []
+    public private(set) var marketCentrePoints: [(x: Double, y: Double)] = []
+    public private(set) var countryLabels: [MapLabelInfo] = []
+    public private(set) var provinceLabels: [MapLabelInfo] = []
+    public private(set) var seaLabels: [MapLabelInfo] = []
+
+    private var clock = GameClock()
+    private var lastRunningSpeed: GameSpeed = .two
+
+    public struct AdvanceOutcome: Sendable {
+        public let daysAdvanced: Int
+        public let monthChanged: Bool
+        public let warsCountChanged: Bool
+        public let didAutosave: Bool
+    }
+
+    public init(
+        tag: String = Scenario1453.defaultPlayerTag,
+        seed: UInt64 = 1453,
+        savesDirectory: URL? = nil
+    ) throws {
+        let sim = Simulation(world: Scenario1453.makeWorld(), startDate: Scenario1453.startDate, seed: seed)
+        let map = try ProvinceIDMap.loadBundled()
+        let seas = try ProvinceIDMap.loadBundledSeas()
+        self.simulation = sim
+        self.idMap = map
+        self.seaMap = seas
+        self.geometry = MapGeometryData(map: map, provinceCount: sim.world.provinces.count)
+        self.date = sim.date
+        self.savesDirectory = savesDirectory
+        let picked = sim.world.countries.id(forTag: tag) ?? sim.world.countries.id(forTag: Scenario1453.defaultPlayerTag)
+        self.playerCountry = picked
+        if let picked {
+            sim.world.humanCountries = [picked]
+        }
+        refreshSavedGames()
+        rebuildLabels()
+    }
+
+    public var playerTag: String? {
+        playerCountry.map { world.countries.tag[$0.index] }
+    }
+
+    public var world: World { simulation.world }
+
+    // MARK: - Time & Game Loop
+
+    public func togglePause() {
+        speed = (speed == .paused) ? lastRunningSpeed : .paused
+    }
+
+    public func faster() {
+        if let next = GameSpeed(rawValue: min(speed.rawValue + 1, GameSpeed.five.rawValue)) {
+            speed = next
+        }
+    }
+
+    public func slower() {
+        if let next = GameSpeed(rawValue: max(speed.rawValue - 1, GameSpeed.one.rawValue)) {
+            speed = next
+        }
+    }
+
+    /// Advances the simulation based on real elapsed seconds and current `speed`.
+    @discardableResult
+    public func advanceTime(elapsedSeconds: Double) -> AdvanceOutcome {
+        let days = clock.daysToAdvance(elapsedSeconds: elapsedSeconds)
+        return advanceDays(days)
+    }
+
+    /// Advances the simulation by an explicit number of days.
+    @discardableResult
+    public func advanceDays(_ days: Int) -> AdvanceOutcome {
+        guard days > 0 else {
+            return AdvanceOutcome(daysAdvanced: 0, monthChanged: false, warsCountChanged: false, didAutosave: false)
+        }
+        let prevMonth = simulation.date.month
+        let prevWars = simulation.world.diplomacy.wars.count
+        var didAutosave = false
+        for _ in 0..<days {
+            simulation.tick()
+            if autosaveFrequency.shouldAutosave(on: simulation.date) {
+                if (try? SaveStorage.autosave(simulation, playerTag: playerTag, in: savesDirectory)) != nil {
+                    didAutosave = true
+                }
+            }
+        }
+        date = simulation.date
+        if didAutosave {
+            lastSaveStatus = "Autosaved (\(date))"
+            refreshSavedGames()
+        }
+        revision &+= 1
+        return AdvanceOutcome(
+            daysAdvanced: days,
+            monthChanged: date.month != prevMonth,
+            warsCountChanged: simulation.world.diplomacy.wars.count != prevWars,
+            didAutosave: didAutosave
+        )
+    }
+
+    // MARK: - Map Selection & Labels
+
+    public func select(province: ProvinceID?, keepSea: Bool = false) {
+        if !keepSea && selectedSea != nil {
+            selectedSea = nil
+        }
+        selectedProvince = province
+    }
+
+    public func select(sea: SeaZoneID?) {
+        selectedSea = sea
+        if sea != nil {
+            select(province: nil, keepSea: true)
+        }
+    }
+
+    public func rebuildTownIcons() {
+        let built = MapStyling.buildTownIcons(world: world, idMap: idMap)
+        townIcons = built.townIcons
+        provincePositions = built.provincePositions
+        marketCentrePoints = built.marketCentres
+    }
+
+    public func rebuildLabels() {
+        rebuildTownIcons()
+        let built = MapStyling.buildLabels(world: world, idMap: idMap, seaMap: seaMap, geometry: geometry)
+        countryLabels = built.countryLabels
+        provinceLabels = built.provinceLabels
+        seaLabels = built.seaLabels
+    }
+
+    // MARK: - Buildings
+
+    @discardableResult
+    public func build(_ type: BuildingTypeID, in province: ProvinceID) -> BuildingSystem.Refusal? {
+        guard let player = playerCountry else { return .notOwner }
+        let result = BuildingSystem.start(&simulation.world, player, province, type)
+        revision &+= 1
+        return result
+    }
+
+    // MARK: - Budget & Finance
+
+    public func setTax(_ c: TaxClass, level: Double) {
+        guard let p = playerCountry else { return }
+        simulation.world.countries.taxLevel[p.index][c.rawValue] = min(Finance.maxTaxLevel, max(0, level))
+        revision &+= 1
+    }
+
+    public func borrow(from bank: BankID, amount: Double) {
+        guard let p = playerCountry else { return }
+        FinanceSystem.borrow(&simulation.world, p, from: bank, amount: amount)
+        revision &+= 1
+    }
+
+    public func repay(loan index: Int) {
+        FinanceSystem.repay(&simulation.world, loan: index)
+        revision &+= 1
+    }
+
+    @discardableResult
+    public func debaseOnce() -> Double {
+        guard let p = playerCountry else { return 0 }
+        let amount = FinanceSystem.debaseOnce(&simulation.world, p)
+        revision &+= 1
+        return amount
+    }
+
+    public func setDebasing(_ on: Bool) {
+        guard let p = playerCountry,
+              simulation.world.countries.bankruptMonthsLeft[p.index] == 0 || !on,
+              GovernmentSystem.canDebase(simulation.world, p) || !on else { return }
+        simulation.world.countries.debasing[p.index] = on
+        revision &+= 1
+    }
+
+    // MARK: - Court & Characters
+
+    public func appoint(_ seat: CouncilSeat, _ who: CharacterID?) {
+        guard let p = playerCountry else { return }
+        CharacterSystem.appoint(&simulation.world, p, seat, who)
+        revision &+= 1
+    }
+
+    public func appointNewcomer(_ seat: CouncilSeat) {
+        guard let p = playerCountry else { return }
+        var rng = GameRandom(seed: UInt64(simulation.world.people.characters.count) &* 7919 &+ UInt64(date.ordinal))
+        let home = simulation.world.provinces(ownedBy: p).first.map { "of \(simulation.world.provinces.name[$0.index])" }
+        let who = CharacterSystem.invent(&simulation.world, court: p, date: date, random: &rng, dynasty: home)
+        CharacterSystem.appoint(&simulation.world, p, seat, who)
+        revision &+= 1
+    }
+
+    public func marriageCandidates(for x: CharacterID) -> [CharacterID] {
+        guard let p = playerCountry else { return [] }
+        let w = world
+        var pool: [CharacterID] = []
+        for c in w.countries.ids where c != p {
+            pool += CharacterSystem.marriageableFamily(w, c, date: date)
+        }
+        return pool
+            .filter { CharacterSystem.marriageRefusal(w, x, $0, date: date) == nil }
+            .sorted { a, b in
+                let pa = w.people.characters.court[a.index].map { w.provinces(ownedBy: $0).count } ?? 0
+                let pb = w.people.characters.court[b.index].map { w.provinces(ownedBy: $0).count } ?? 0
+                return pa != pb ? pa > pb : a.index < b.index
+            }
+            .prefix(10).map { $0 }
+    }
+
+    public func propose(_ a: CharacterID, _ b: CharacterID) {
+        guard CharacterSystem.marriageRefusal(world, a, b, date: date) == nil else { return }
+        CharacterSystem.marry(&simulation.world, a, b)
+        revision &+= 1
+    }
+
+    // MARK: - Government, Laws & Estates
+
+    public func raiseStability() {
+        guard let p = playerCountry else { return }
+        GovernmentSystem.raiseStability(&simulation.world, p)
+        revision &+= 1
+    }
+
+    @discardableResult
+    public func changeLaw(area: Int, option: Int) -> GovernmentSystem.LawRefusal? {
+        guard let p = playerCountry else { return .notAllowed }
+        let r = GovernmentSystem.changeLaw(&simulation.world, p, area: area, option: option, date: date)
+        revision &+= 1
+        return r
+    }
+
+    public func grantPrivilege(_ privilege: Int) {
+        guard let p = playerCountry else { return }
+        GovernmentSystem.grantPrivilege(&simulation.world, p, privilege, date: date)
+        revision &+= 1
+    }
+
+    public func revokePrivilege(_ privilege: Int) {
+        guard let p = playerCountry else { return }
+        GovernmentSystem.revokePrivilege(&simulation.world, p, privilege, date: date)
+        revision &+= 1
+    }
+
+    public func adoptReform(_ option: Int) {
+        guard let p = playerCountry else { return }
+        GovernmentSystem.adoptReform(&simulation.world, p, option: option, date: date)
+        revision &+= 1
+    }
+
+    // MARK: - Vassals
+
+    public func grant(_ province: ProvinceID, to x: CharacterID) {
+        guard let p = playerCountry, world.provinces.owner[province.index] == p else { return }
+        VassalSystem.grant(&simulation.world, province, to: x, date: date)
+        revision &+= 1
+    }
+
+    public func revoke(_ province: ProvinceID) {
+        guard let p = playerCountry, world.provinces.owner[province.index] == p else { return }
+        VassalSystem.revoke(&simulation.world, province, date: date)
+        revision &+= 1
+    }
+
+    // MARK: - Military
+
+    @discardableResult
+    public func recruitProfessional(_ unit: UnitTypeID, in province: ProvinceID, into army: ArmyID? = nil) -> ArmyRefusal? {
+        guard let p = playerCountry else { return .notOwner }
+        let res = ArmySystem.recruitProfessional(&simulation.world, p, in: province, unit: unit, intoArmy: army)
+        revision &+= 1
+        switch res {
+        case .success(let aid):
+            selectedArmy = aid
+            return nil
+        case .failure(let err):
+            return err
+        }
+    }
+
+    @discardableResult
+    public func hireMercenary(_ unit: UnitTypeID, in province: ProvinceID, into army: ArmyID? = nil) -> ArmyRefusal? {
+        guard let p = playerCountry else { return .notOwner }
+        let res = ArmySystem.hireMercenary(&simulation.world, p, in: province, unit: unit, intoArmy: army)
+        revision &+= 1
+        switch res {
+        case .success(let aid):
+            selectedArmy = aid
+            return nil
+        case .failure(let err):
+            return err
+        }
+    }
+
+    @discardableResult
+    public func raiseLevies(in province: ProvinceID) -> ArmyRefusal? {
+        guard let p = playerCountry else { return .notOwner }
+        let res = ArmySystem.raiseLevies(&simulation.world, p, in: province)
+        revision &+= 1
+        switch res {
+        case .success(let aid):
+            selectedArmy = aid
+            return nil
+        case .failure(let err):
+            return err
+        }
+    }
+
+    public func raiseAllLevies() {
+        guard let p = playerCountry else { return }
+        ArmySystem.raiseAllLevies(&simulation.world, p)
+        revision &+= 1
+    }
+
+    public func disbandLevies() {
+        guard let p = playerCountry else { return }
+        ArmySystem.disbandLevies(&simulation.world, of: p)
+        revision &+= 1
+    }
+
+    public func disband(army: ArmyID) {
+        guard let p = playerCountry else { return }
+        let i = Int(army.rawValue)
+        guard i >= 0 && i < world.military.armies.count && world.military.armies.owner[i] == p else { return }
+        ArmySystem.disband(&simulation.world, army: army)
+        if selectedArmy == army { selectedArmy = nil }
+        if moveModeForArmy == army { moveModeForArmy = nil }
+        revision &+= 1
+    }
+
+    public func assignCommander(_ commander: CharacterID?, to army: ArmyID) {
+        guard let p = playerCountry else { return }
+        let i = Int(army.rawValue)
+        guard i >= 0 && i < world.military.armies.count && world.military.armies.owner[i] == p else { return }
+        ArmySystem.assignCommander(&simulation.world, army: army, commander: commander)
+        revision &+= 1
+    }
+
+    public func mergeArmies(into army: ArmyID) {
+        guard let p = playerCountry else { return }
+        let i = Int(army.rawValue)
+        guard i >= 0 && i < world.military.armies.count && world.military.armies.owner[i] == p else { return }
+        ArmySystem.mergeArmiesInProvince(&simulation.world, into: army)
+        revision &+= 1
+    }
+
+    public func split(army: ArmyID) {
+        guard let p = playerCountry else { return }
+        let i = Int(army.rawValue)
+        guard i >= 0 && i < world.military.armies.count && world.military.armies.owner[i] == p else { return }
+        if let created = ArmySystem.splitArmy(&simulation.world, army: army) {
+            selectedArmy = created
+        }
+        revision &+= 1
+    }
+
+    public func orderMove(army: ArmyID, to destination: ProvinceID) {
+        guard let p = playerCountry else { return }
+        let i = Int(army.rawValue)
+        guard i >= 0 && i < world.military.armies.count && world.military.armies.owner[i] == p
+            && !world.military.armies.isRebel[i] else { return }
+        ArmySystem.orderMove(&simulation.world, army: army, to: destination)
+        moveModeForArmy = nil
+        revision &+= 1
+    }
+
+    // MARK: - Trade
+
+    @discardableResult
+    public func createRoute(good: GoodID, from: MarketID, to: MarketID, volume: Double) -> TradeSystem.Refusal? {
+        guard let p = playerCountry else { return .noPath }
+        let r = TradeSystem.create(&simulation.world, owner: p, good: good, from: from, to: to, volume: volume)
+        revision &+= 1
+        return r
+    }
+
+    public func cancelRoute(_ index: Int) {
+        TradeSystem.cancel(&simulation.world, route: index)
+        revision &+= 1
+    }
+
+    public func setTollPolicy(_ policy: TollPolicy) {
+        guard let p = playerCountry else { return }
+        simulation.world.countries.tollPolicy[p.index] = policy
+        TradeSystem.refreshPaths(&simulation.world)
+        revision &+= 1
+    }
+
+    public func toggleEmbargo(_ c: CountryID) {
+        guard let p = playerCountry, c != p else { return }
+        if simulation.world.countries.embargoes[p.index].contains(c) {
+            simulation.world.countries.embargoes[p.index].remove(c)
+        } else {
+            simulation.world.countries.embargoes[p.index].insert(c)
+        }
+        TradeSystem.refreshPaths(&simulation.world)
+        revision &+= 1
+    }
+
+    // MARK: - Diplomacy & War
+
+    public func toggleAlliance(with target: CountryID) {
+        guard let p = playerCountry, target != p else { return }
+        if world.diplomacy.areAllies(p, target) {
+            simulation.world.diplomacy.removeTreaty(.alliance, between: p, and: target)
+        } else {
+            guard world.diplomacy.opinion(of: p, by: target) >= 0,
+                  !world.diplomacy.isAtWar(p, target),
+                  !world.diplomacy.hasTruce(p, target) else { return }
+            simulation.world.diplomacy.addTreaty(Treaty(first: p, second: target, type: .alliance, note: "Player Alliance"))
+        }
+        revision &+= 1
+    }
+
+    public func toggleGuarantee(with target: CountryID) {
+        guard let p = playerCountry, target != p else { return }
+        if world.diplomacy.hasTreaty(.guarantee, between: p, and: target) {
+            simulation.world.diplomacy.removeTreaty(.guarantee, between: p, and: target)
+        } else {
+            simulation.world.diplomacy.addTreaty(Treaty(first: p, second: target, type: .guarantee, note: "Guarantee"))
+        }
+        revision &+= 1
+    }
+
+    public func toggleNonAggression(with target: CountryID) {
+        guard let p = playerCountry, target != p else { return }
+        if world.diplomacy.hasTreaty(.nonAggression, between: p, and: target) {
+            simulation.world.diplomacy.removeTreaty(.nonAggression, between: p, and: target)
+        } else if world.diplomacy.opinion(of: p, by: target) >= -10 {
+            simulation.world.diplomacy.addTreaty(Treaty(first: p, second: target, type: .nonAggression, note: "Non-Aggression Pact"))
+        }
+        revision &+= 1
+    }
+
+    public func toggleMilitaryAccess(with target: CountryID) {
+        guard let p = playerCountry, target != p else { return }
+        if world.diplomacy.hasTreaty(.militaryAccess, between: p, and: target) {
+            simulation.world.diplomacy.removeTreaty(.militaryAccess, between: p, and: target)
+        } else {
+            simulation.world.diplomacy.addTreaty(Treaty(first: p, second: target, type: .militaryAccess, note: "Military Access"))
+        }
+        revision &+= 1
+    }
+
+    public func improveRelations(with target: CountryID) {
+        guard let p = playerCountry, target != p else { return }
+        let cur = world.diplomacy.opinion(of: p, by: target)
+        guard cur < 100 else { return }
+        simulation.world.diplomacy.modifyOpinion(of: p, by: target, delta: 15)
+        revision &+= 1
+    }
+
+    @discardableResult
+    public func declareWar(on target: CountryID, cb: CasusBelliInstance, breakTruce: Bool = false) -> Result<War, WarDeclarationError> {
+        guard let p = playerCountry else { return .failure(.invalid(reason: "No player country")) }
+        let res = simulation.world.declareWar(
+            attacker: p,
+            defender: target,
+            casusBelli: cb.type,
+            warGoal: cb.warGoal,
+            breakTruce: breakTruce,
+            date: date
+        )
+        if case .success(let war) = res {
+            for other in simulation.world.countries.ids where other != p && other != target {
+                if simulation.world.diplomacy.areAllies(target, other)
+                    || simulation.world.diplomacy.hasTreaty(.guarantee, between: other, and: target) {
+                    _ = simulation.world.callToArms(caller: target, ally: other, warID: war.id)
+                }
+            }
+            if let latest = simulation.world.diplomacy.wars.first(where: { $0.id == war.id }) {
+                for def in latest.defenders where !simulation.world.humanCountries.contains(def) {
+                    _ = ArmySystem.raiseAllLevies(&simulation.world, def)
+                }
+            }
+        }
+        revision &+= 1
+        return res
+    }
+
+    @discardableResult
+    public func callAllyToWar(_ ally: CountryID, warID: String) -> CallToArmsResult {
+        guard let p = playerCountry else { return .declined(reasons: ["No player country"]) }
+        let res = simulation.world.callToArms(caller: p, ally: ally, warID: warID)
+        revision &+= 1
+        return res
+    }
+
+    @discardableResult
+    public func proposePeace(_ offer: PeaceOffer) -> Result<Int, PeaceTreatyError> {
+        let res = simulation.world.executePeaceTreaty(offer, date: date, forceAccept: false)
+        if case .success = res {
+            rebuildTownIcons()
+        }
+        revision &+= 1
+        return res
+    }
+
+    public func respondToPendingPeaceOffer(_ offer: PeaceOffer, accept: Bool) {
+        if accept {
+            _ = simulation.world.executePeaceTreaty(offer, date: date, forceAccept: true)
+            rebuildTownIcons()
+        } else {
+            simulation.world.diplomacy.pendingPeaceOffers.removeAll { $0.warID == offer.warID }
+        }
+        revision &+= 1
+    }
+
+    // MARK: - Sieges, Saves & Nation Selection
+
+    @discardableResult
+    public func assaultFort(in province: ProvinceID) -> AssaultResult {
+        guard let player = playerCountry else {
+            return AssaultResult(
+                captured: false,
+                attackerLosses: 0,
+                garrisonLosses: 0,
+                remainingGarrison: world.provinces.fortGarrison[province.index],
+                refusalReason: "No player country"
+            )
+        }
+        let result = simulation.assaultFort(in: province, attacker: player)
+        lastAssaultResult = (province, result)
+        revision &+= 1
+        return result
+    }
+
+    public func switchPlayer(to country: CountryID) {
+        playerCountry = country
+        simulation.world.humanCountries = [country]
+        selectedArmy = nil
+        moveModeForArmy = nil
+        revision &+= 1
+    }
+
+    public func startNewGame(tag: String, seed: UInt64 = 1453) {
+        speed = .paused
+        let freshWorld = Scenario1453.makeWorld()
+        let sim = Simulation(world: freshWorld, startDate: Scenario1453.startDate, seed: seed)
+        simulation = sim
+        date = sim.date
+        let picked = sim.world.countries.id(forTag: tag) ?? sim.world.countries.id(forTag: Scenario1453.defaultPlayerTag)
+        playerCountry = picked
+        if let picked {
+            simulation.world.humanCountries = [picked]
+        }
+        resetSelection()
+        lastSaveStatus = nil
+        rebuildLabels()
+        revision &+= 1
+    }
+
+    public func refreshSavedGames() {
+        savedGames = SaveStorage.listSaves(in: savesDirectory)
+    }
+
+    @discardableResult
+    public func saveGame(named name: String) -> URL? {
+        do {
+            let url = try SaveStorage.save(simulation, name: name, playerTag: playerTag, in: savesDirectory)
+            lastSaveStatus = "Saved '\(name)'"
+            refreshSavedGames()
+            revision &+= 1
+            return url
+        } catch {
+            lastSaveStatus = "Save failed: \(error.localizedDescription)"
+            revision &+= 1
+            return nil
+        }
+    }
+
+    @discardableResult
+    public func quickSave() -> URL? {
+        let tag = playerTag ?? "GEZ"
+        return saveGame(named: "Quick Save - \(tag)")
+    }
+
+    @discardableResult
+    public func loadGame(_ entry: SaveEntry) -> Bool {
+        speed = .paused
+        do {
+            let loaded = try SaveStorage.load(from: entry.url)
+            simulation = loaded.simulation
+            date = loaded.simulation.date
+            if let tag = loaded.metadata.playerTag,
+               let id = loaded.simulation.world.countries.id(forTag: tag) {
+                playerCountry = id
+            } else {
+                playerCountry = loaded.simulation.world.humanCountries.first
+                    ?? loaded.simulation.world.countries.id(forTag: Scenario1453.defaultPlayerTag)
+            }
+            if let player = playerCountry {
+                simulation.world.humanCountries = [player]
+            }
+            resetSelection()
+            lastSaveStatus = "Loaded '\(entry.metadata.name)'"
+            rebuildLabels()
+            revision &+= 1
+            return true
+        } catch {
+            lastSaveStatus = "Load failed: \(error.localizedDescription)"
+            revision &+= 1
+            return false
+        }
+    }
+
+    public func deleteSave(_ entry: SaveEntry) {
+        do {
+            try SaveStorage.deleteSave(at: entry.url)
+            lastSaveStatus = "Deleted '\(entry.metadata.name)'"
+            refreshSavedGames()
+        } catch {
+            lastSaveStatus = "Delete failed: \(error.localizedDescription)"
+        }
+        revision &+= 1
+    }
+
+    private func resetSelection() {
+        selectedDiplomacyCountry = nil
+        selectedArmy = nil
+        moveModeForArmy = nil
+        viewedCharacter = nil
+        lastAssaultResult = nil
+        select(province: nil)
+    }
+
+    // MARK: - Queries for Screens
+
+    /// Playable country summaries sorted by development descending.
+    public func countrySummaries() -> [CountrySummaryInfo] {
+        let w = world
+        var provCount = [Int](repeating: 0, count: w.countries.count)
+        var devSum = [Int](repeating: 0, count: w.countries.count)
+        for p in 0..<w.provinces.count {
+            if let owner = w.provinces.owner[p] {
+                provCount[owner.index] += 1
+                devSum[owner.index] += w.provinces.development[p]
+            }
+        }
+        return (0..<w.countries.count).compactMap { idx in
+            guard provCount[idx] > 0 else { return nil }
+            return CountrySummaryInfo(
+                id: CountryID(idx),
+                tag: w.countries.tag[idx],
+                name: w.countries.name[idx],
+                provinces: provCount[idx],
+                development: devSum[idx]
+            )
+        }
+        .sorted { lhs, rhs in
+            if lhs.development != rhs.development { return lhs.development > rhs.development }
+            return lhs.name < rhs.name
+        }
+    }
+
+    /// Active alerts for the player country.
+    public func activeAlerts() -> [GameAlertInfo] {
+        guard let player = playerCountry else { return [] }
+        let w = world
+        var out: [GameAlertInfo] = []
+
+        // 1. Pending peace offers to player
+        let peaceOffers = w.diplomacy.pendingPeaceOffers.filter { $0.loser == player }
+        if !peaceOffers.isEmpty {
+            out.append(GameAlertInfo(
+                id: "peace-offer",
+                kind: .peaceOffer,
+                label: "Peace Offer (\(peaceOffers.count))",
+                warID: peaceOffers.first?.warID
+            ))
+        }
+
+        // 2. Breached enemy fort ready to assault
+        if let breachedSiege = w.military.sieges.first(where: { $0.besieger == player && $0.breached }) {
+            let name = w.provinces.name[breachedSiege.province.index]
+            out.append(GameAlertInfo(
+                id: "breach-\(breachedSiege.province.index)",
+                kind: .breach,
+                label: "Breach: \(name)",
+                province: breachedSiege.province
+            ))
+        }
+
+        // 3. Friendly forts / provinces under enemy siege
+        let friendlySieges = w.military.sieges.filter { w.provinces.owner[$0.province.index] == player }
+        if let firstBesieged = friendlySieges.first {
+            let name = w.provinces.name[firstBesieged.province.index]
+            let label = friendlySieges.count == 1
+                ? "Under Siege: \(name)"
+                : "\(friendlySieges.count) Provinces Under Siege"
+            out.append(GameAlertInfo(
+                id: "under-siege",
+                kind: .underSiege,
+                label: label,
+                province: firstBesieged.province
+            ))
+        }
+
+        // 4. Coalition formed against player
+        if let coalition = w.diplomacy.coalitions[player], !coalition.isEmpty {
+            out.append(GameAlertInfo(
+                id: "coalition",
+                kind: .coalition,
+                label: "Coalition (\(coalition.count))"
+            ))
+        }
+
+        // 5. Low stability (< 0)
+        if w.government.stability[player.index] < 0 {
+            out.append(GameAlertInfo(
+                id: "low-stability",
+                kind: .lowStability,
+                label: "Low Stability (\(w.government.stability[player.index]))"
+            ))
+        }
+
+        // 6. Disloyal estates (< 30%)
+        let estates = w.government.estates[player.index]
+        let disloyalEstates = estates.indices.filter { w.government.loyalty[player.index][$0] < 0.30 }
+        if !disloyalEstates.isEmpty {
+            out.append(GameAlertInfo(
+                id: "disloyal-estate",
+                kind: .disloyalEstate,
+                label: "Disloyal Estate\(disloyalEstates.count > 1 ? "s" : "")"
+            ))
+        }
+
+        // 7. Refusing internal vassals
+        var refusingVassals = 0
+        for idx in 0..<w.provinces.count where w.provinces.owner[idx] == player {
+            if let holder = w.provinces.holder[idx], w.people.refusing.contains(holder) {
+                refusingVassals += 1
+            }
+        }
+        if refusingVassals > 0 {
+            out.append(GameAlertInfo(
+                id: "refusing-vassal",
+                kind: .refusingVassal,
+                label: "\(refusingVassals) Defiant Vassal\(refusingVassals > 1 ? "s" : "")"
+            ))
+        }
+
+        // 8. Bankruptcy or High Inflation
+        if w.countries.bankruptMonthsLeft[player.index] > 0 {
+            out.append(GameAlertInfo(
+                id: "bankrupt",
+                kind: .bankrupt,
+                label: "Bankrupt (\(w.countries.bankruptMonthsLeft[player.index])m)"
+            ))
+        } else if w.countries.inflation[player.index] >= 0.10 {
+            out.append(GameAlertInfo(
+                id: "inflation",
+                kind: .highInflation,
+                label: String(format: "High Inflation %.0f%%", w.countries.inflation[player.index] * 100)
+            ))
+        }
+
+        return out
+    }
+
+    /// Top bar status values for the active player country.
+    public func playerTopBarStatus() -> (name: String, treasury: Double, monthlyNet: Double, stability: Int, armyMen: Int, manpower: Double, activeWars: Int, pendingPeaceOffers: Int, inflation: Double)? {
+        guard let player = playerCountry else { return nil }
+        let w = world
+        let c = w.countries
+        let name = c.name[player.index]
+        let treasury = c.treasury[player.index]
+        let net = c.lastMonthlyIncome[player.index] - c.lastMonthlyExpenses[player.index]
+        let stability = w.government.stability[player.index]
+        let armyMen = w.military.totalMen(of: player)
+        let manpower = w.military.manpower[player.index]
+        let wars = w.diplomacy.activeWars(for: player).count
+        let peace = w.diplomacy.pendingPeaceOffers.filter { $0.loser == player }.count
+        let inflation = c.inflation[player.index]
+        return (name, treasury, net, stability, armyMen, manpower, wars, peace, inflation)
+    }
+
+    /// Country status string such as "Monarchy · Vassal of Morocco".
+    public func countryStatus(_ country: CountryID) -> String {
+        let c = world.countries
+        var parts = [c.government[country.index].displayName]
+        if let lord = c.overlord[country.index], let kind = c.subjectType[country.index] {
+            switch kind {
+            case .personalUnion: parts.append("Personal union with \(c.name[lord.index])")
+            case .vassal: parts.append("Vassal of \(c.name[lord.index])")
+            case .tributary: parts.append("Tributary of \(c.name[lord.index])")
+            }
+        }
+        let subjects = c.subjects(of: country)
+        if !subjects.isEmpty {
+            parts.append("\(subjects.count) subject\(subjects.count == 1 ? "" : "s")")
+        }
+        return parts.joined(separator: " · ")
+    }
+}

@@ -53,140 +53,75 @@ struct AlertsBanner: View {
     }
 
     private func collectAlerts() -> [GameAlert] {
-        guard let player = model.playerCountry else { return [] }
-        let w = model.world
-        var out: [GameAlert] = []
-
-        // 1. Pending peace offers to player
-        let peaceOffers = w.diplomacy.pendingPeaceOffers.filter { $0.loser == player }
-        if !peaceOffers.isEmpty {
-            out.append(GameAlert(
-                id: "peace-offer",
-                label: "Peace Offer (\(peaceOffers.count))",
-                systemImage: "envelope.badge",
-                tint: .orange
-            ) {
-                model.showWars = true
-                model.showPeaceForWarID = peaceOffers.first?.warID
-            })
+        model.session.activeAlerts().map { info in
+            let systemImage: String
+            let tint: Color
+            let action: () -> Void
+            switch info.kind {
+            case .peaceOffer:
+                systemImage = "envelope.badge"
+                tint = .orange
+                action = {
+                    model.showWars = true
+                    model.showPeaceForWarID = info.warID
+                }
+            case .breach:
+                systemImage = "flame.fill"
+                tint = .orange
+                action = {
+                    if let p = info.province { model.select(province: p) }
+                }
+            case .underSiege:
+                systemImage = "shield.slash.fill"
+                tint = .red
+                action = {
+                    if let p = info.province { model.select(province: p) }
+                }
+            case .coalition:
+                systemImage = "exclamationmark.triangle.fill"
+                tint = .red
+                action = {
+                    model.openDiplomacy()
+                }
+            case .lowStability:
+                systemImage = "building.columns"
+                tint = .brown
+                action = {
+                    model.showGovernment = true
+                }
+            case .disloyalEstate:
+                systemImage = "person.2.slash"
+                tint = .orange
+                action = {
+                    model.showGovernment = true
+                }
+            case .refusingVassal:
+                systemImage = "crown"
+                tint = .brown
+                action = {
+                    model.showCourt = true
+                }
+            case .bankrupt:
+                systemImage = "dollarsign.circle.fill"
+                tint = .red
+                action = {
+                    model.showBudget = true
+                }
+            case .highInflation:
+                systemImage = "chart.line.uptrend.xyaxis"
+                tint = .brown
+                action = {
+                    model.showBudget = true
+                }
+            }
+            return GameAlert(
+                id: info.id,
+                label: info.label,
+                systemImage: systemImage,
+                tint: tint,
+                action: action
+            )
         }
-
-        // 2. Breached enemy fort ready to assault
-        if let breachedSiege = w.military.sieges.first(where: { $0.besieger == player && $0.breached }) {
-            let name = w.provinces.name[breachedSiege.province.index]
-            out.append(GameAlert(
-                id: "breach-\(breachedSiege.province.index)",
-                label: "Breach: \(name)",
-                systemImage: "flame.fill",
-                tint: .orange
-            ) {
-                model.select(province: breachedSiege.province)
-            })
-        }
-
-        // 3. Friendly forts / provinces under enemy siege
-        let friendlySieges = w.military.sieges.filter { w.provinces.owner[$0.province.index] == player }
-        if let firstBesieged = friendlySieges.first {
-            let name = w.provinces.name[firstBesieged.province.index]
-            let label = friendlySieges.count == 1
-                ? "Under Siege: \(name)"
-                : "\(friendlySieges.count) Provinces Under Siege"
-            out.append(GameAlert(
-                id: "under-siege",
-                label: label,
-                systemImage: "shield.slash.fill",
-                tint: .red
-            ) {
-                model.select(province: firstBesieged.province)
-            })
-        }
-
-        // 4. Coalition formed against player
-        if let coalition = w.diplomacy.coalitions[player], !coalition.isEmpty {
-            out.append(GameAlert(
-                id: "coalition",
-                label: "Coalition (\(coalition.count))",
-                systemImage: "exclamationmark.triangle.fill",
-                tint: .red
-            ) {
-                model.openDiplomacy()
-            })
-        }
-
-        // 5. Low stability (< 0)
-        if w.government.stability[player.index] < 0 {
-            out.append(GameAlert(
-                id: "low-stability",
-                label: "Low Stability (\(w.government.stability[player.index]))",
-                systemImage: "building.columns",
-                tint: .brown
-            ) {
-                model.showGovernment = true
-            })
-        }
-
-        // 6. Disloyal estates (< 30%)
-        let estates = w.government.estates[player.index]
-        let disloyalEstates = estates.indices.filter { w.government.loyalty[player.index][$0] < 0.30 }
-        if !disloyalEstates.isEmpty {
-            out.append(GameAlert(
-                id: "disloyal-estate",
-                label: "Disloyal Estate\(disloyalEstates.count > 1 ? "s" : "")",
-                systemImage: "person.2.slash",
-                tint: .orange
-            ) {
-                model.showGovernment = true
-            })
-        }
-
-        // 7. Refusing internal vassals
-        let refusingVassals = w.provinces.indices(ownedBy: player).filter { idx in
-            guard let holder = w.provinces.holder[idx] else { return false }
-            return w.people.refusing.contains(holder)
-        }.count
-        if refusingVassals > 0 {
-            out.append(GameAlert(
-                id: "refusing-vassal",
-                label: "\(refusingVassals) Defiant Vassal\(refusingVassals > 1 ? "s" : "")",
-                systemImage: "crown",
-                tint: .brown
-            ) {
-                model.showCourt = true
-            })
-        }
-
-        // 8. Bankruptcy or High Inflation
-        if w.countries.bankruptMonthsLeft[player.index] > 0 {
-            out.append(GameAlert(
-                id: "bankrupt",
-                label: "Bankrupt (\(w.countries.bankruptMonthsLeft[player.index])m)",
-                systemImage: "dollarsign.circle.fill",
-                tint: .red
-            ) {
-                model.showBudget = true
-            })
-        } else if w.countries.inflation[player.index] >= 0.10 {
-            out.append(GameAlert(
-                id: "inflation",
-                label: String(format: "High Inflation %.0f%%", w.countries.inflation[player.index] * 100),
-                systemImage: "chart.line.uptrend.xyaxis",
-                tint: .brown
-            ) {
-                model.showBudget = true
-            })
-        }
-
-        return out
-    }
-}
-
-private extension ProvinceTable {
-    func indices(ownedBy country: CountryID) -> [Int] {
-        var result: [Int] = []
-        for i in 0..<count where owner[i] == country {
-            result.append(i)
-        }
-        return result
     }
 }
 
@@ -474,21 +409,12 @@ struct NationPickerPanel: View {
     @State private var search = ""
     @State private var selectedTag: String = Scenario1453.defaultPlayerTag
 
-    private static let featuredTags = [
-        "TUR", "FRA", "ENG", "CAS", "ARA", "HAB", "POL", "VEN",
-        "MLO", "MAM", "TIM", "DLH", "VIJ", "MOS", "HUN", "POR"
-    ]
+    private static let featuredTags = CountrySummaryInfo.featuredTags
 
-    private struct CountrySummary: Identifiable {
-        let id: CountryID
-        let tag: String
-        let name: String
-        let provinces: Int
-        let development: Int
-    }
+    private typealias CountrySummary = CountrySummaryInfo
 
     var body: some View {
-        let summaries = buildSummaries()
+        let summaries = model.session.countrySummaries()
         let filtered = summaries.filter { entry in
             let q = search.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
             return q.isEmpty || entry.name.lowercased().contains(q) || entry.tag.lowercased().contains(q)
@@ -627,32 +553,6 @@ struct NationPickerPanel: View {
             if let current = model.playerTag {
                 selectedTag = current
             }
-        }
-    }
-
-    private func buildSummaries() -> [CountrySummary] {
-        let w = model.world
-        var provCount = [Int](repeating: 0, count: w.countries.count)
-        var devSum = [Int](repeating: 0, count: w.countries.count)
-        for p in 0..<w.provinces.count {
-            if let owner = w.provinces.owner[p] {
-                provCount[owner.index] += 1
-                devSum[owner.index] += w.provinces.development[p]
-            }
-        }
-        return (0..<w.countries.count).compactMap { idx in
-            guard provCount[idx] > 0 else { return nil }
-            return CountrySummary(
-                id: CountryID(idx),
-                tag: w.countries.tag[idx],
-                name: w.countries.name[idx],
-                provinces: provCount[idx],
-                development: devSum[idx]
-            )
-        }
-        .sorted { lhs, rhs in
-            if lhs.development != rhs.development { return lhs.development > rhs.development }
-            return lhs.name < rhs.name
         }
     }
 }
