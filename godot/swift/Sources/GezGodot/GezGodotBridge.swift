@@ -139,6 +139,13 @@ public final class GezGodotController {
         session?.date.description ?? "30 May 1453"
     }
 
+    public var topBarArmiesText: String {
+        guard let s = session, let p = s.playerCountry else { return "Armies 0k · MP 0k" }
+        let menK = (s.world.military.totalMen(of: p) + 500) / 1_000
+        let mpK = Int((s.world.military.manpower[p.index] / 1_000.0).rounded())
+        return "Armies \(menK)k · MP \(mpK)k"
+    }
+
     public var isPaused: Bool {
         guard let s = session else { return true }
         return s.speed == .paused
@@ -174,12 +181,20 @@ public final class GezGodotController {
     /// Returns a bitmask:
     /// - bit 0 (`1`): one or more days advanced
     /// - bit 1 (`2`): month changed
-    /// - bit 2 (`4`): wars count changed (styles/labels should refresh)
+    /// - bit 2 (`4`): wars count or occupation changed (styles/labels should refresh)
+    /// - bit 3 (`8`): autosave occurred
     public func tickFrame(deltaSeconds: Double) -> Int {
         guard let s = session else { return 0 }
+        let prevOccupiedCount = s.world.provinces.occupiedBy.reduce(0) { $0 + ($1 != nil ? 1 : 0) }
         let outcome = s.advanceTime(elapsedSeconds: deltaSeconds)
         var mask = 0
-        if outcome.daysAdvanced > 0 { mask |= 1 }
+        if outcome.daysAdvanced > 0 {
+            mask |= 1
+            let newOccupiedCount = s.world.provinces.occupiedBy.reduce(0) { $0 + ($1 != nil ? 1 : 0) }
+            if newOccupiedCount != prevOccupiedCount {
+                mask |= 4
+            }
+        }
         if outcome.monthChanged { mask |= 2 }
         if outcome.warsCountChanged {
             s.rebuildLabels()
@@ -501,15 +516,72 @@ public final class GezGodotController {
         let hasRaisedLevies = ArmySystem.hasRaisedLevies(w, in: province)
         let availLevy = ArmySystem.availableLevyMen(w, in: province)
         let canRaiseLevy = isPlayerOwned && !hasRaisedLevies && availLevy >= ArmyModel.minLevyMen
+        let levyRefusal: String
+        if !isPlayerOwned {
+            levyRefusal = ArmyRefusal.notOwner.reason
+        } else if hasRaisedLevies {
+            levyRefusal = ArmyRefusal.leviesAlreadyRaised.reason
+        } else if let h = holder, w.people.refusing.contains(h) {
+            levyRefusal = ArmyRefusal.vassalRefusing.reason
+        } else if availLevy < ArmyModel.minLevyMen {
+            levyRefusal = ArmyRefusal.tooFewPeople.reason
+        } else {
+            levyRefusal = ""
+        }
         let levyText = hasRaisedLevies ? "Raised" : "\(availLevy) men"
+        let canDisbandLevies = isPlayerOwned && s.playerCountry.map { w.military.totalMen(of: $0, origin: .levy) > 0 } == true
 
         let garrison = p.fortGarrison[i]
         let maxGarrison = p.maxGarrison(of: province)
         let siege = w.military.siege(in: province)
         var siegeText = ""
+        var siegeBesiegerTag = ""
+        var siegeBesiegerName = ""
+        var siegePhaseDaysRemaining = 0
+        var siegeProgress = 0
+        var siegeBreached = false
+        var siegeBlockaded = false
+        var siegePortStatusText = ""
+        var siegeLastRollText = ""
+        var siegeIsPlayerBesieger = false
+        var siegeCanAssault = false
         if let siege {
-            let besiegerName = c.name[siege.besieger.index]
-            siegeText = "Besieged by \(besiegerName) · Progress \(siege.progress)\(siege.breached ? " (BREACHED)" : "")"
+            siegeBesiegerTag = c.tag[siege.besieger.index]
+            siegeBesiegerName = c.name[siege.besieger.index]
+            siegePhaseDaysRemaining = siege.phaseDaysRemaining
+            siegeProgress = siege.progress
+            siegeBreached = siege.breached
+            siegeBlockaded = siege.blockaded
+            siegeText = "Besieged by \(siegeBesiegerName) · Progress \(siege.progress)\(siege.breached ? " (BREACHED)" : "")"
+            if p.isCoastal[i] {
+                siegePortStatusText = siege.blockaded ? "Blockaded" : "Open port (-2)"
+            }
+            if let outcome = siege.lastOutcome, let roll = siege.lastRoll {
+                let modStr = siege.lastModifier >= 0 ? "+\(siege.lastModifier)" : "\(siege.lastModifier)"
+                siegeLastRollText = "Last roll: \(roll) (\(modStr)) · \(outcome.rawValue)"
+            }
+            siegeIsPlayerBesieger = (siege.besieger == s.playerCountry)
+            siegeCanAssault = siegeIsPlayerBesieger && siege.breached
+        }
+
+        var assaultResultText = ""
+        var assaultResultStatus = ""
+        if let last = s.lastAssaultResult, last.province == province {
+            if let refusal = last.result.refusalReason {
+                assaultResultText = refusal
+                assaultResultStatus = "refused"
+            } else if last.result.captured {
+                assaultResultText = "Assault captured fort (-\(last.result.attackerLosses) attackers)"
+                assaultResultStatus = "captured"
+            } else {
+                assaultResultText = "Assault repelled (-\(last.result.attackerLosses) attackers, -\(last.result.garrisonLosses) garrison)"
+                assaultResultStatus = "repelled"
+            }
+        }
+
+        var recruitUnits: [[String: Any]] = []
+        if isPlayerOwned, let player = s.playerCountry {
+            recruitUnits = Self.buildRecruitUnitsList(world: w, country: player, province: province)
         }
 
         // Buildings
@@ -679,11 +751,27 @@ public final class GezGodotController {
             "hasRaisedLevies": hasRaisedLevies,
             "availableLevyMen": availLevy,
             "canRaiseLevy": canRaiseLevy,
+            "levyRefusal": levyRefusal,
             "levyText": levyText,
+            "canDisbandLevies": canDisbandLevies,
+            "recruitUnits": recruitUnits,
             "fortGarrison": garrison,
             "maxGarrison": maxGarrison,
             "isBesieged": siege != nil,
             "siegeText": siegeText,
+            "siegeBesiegerTag": siegeBesiegerTag,
+            "siegeBesiegerName": siegeBesiegerName,
+            "siegePhaseDaysRemaining": siegePhaseDaysRemaining,
+            "siegeProgress": siegeProgress,
+            "siegeBreached": siegeBreached,
+            "siegeIsCoastal": p.isCoastal[i],
+            "siegeBlockaded": siegeBlockaded,
+            "siegePortStatusText": siegePortStatusText,
+            "siegeLastRollText": siegeLastRollText,
+            "siegeIsPlayerBesieger": siegeIsPlayerBesieger,
+            "siegeCanAssault": siegeCanAssault,
+            "assaultResultText": assaultResultText,
+            "assaultResultStatus": assaultResultStatus,
             "slotsUsed": slotsUsed,
             "slotsTotal": slotsTotal,
             "slotsText": slotsText,
@@ -816,6 +904,781 @@ public final class GezGodotController {
             "categories": categories,
             "goods": goodsRows
         ]
+    }
+
+    // MARK: - Step 3b: Armies, Map Counters, Recruitment & Sieges
+
+    @discardableResult
+    public func selectProvinceByIndex(_ provinceIndex: Int) -> Int {
+        guard let s = session,
+              provinceIndex >= 0 && provinceIndex < s.world.provinces.count else {
+            return 0
+        }
+        s.select(province: ProvinceID(provinceIndex))
+        return provinceIndex + 2
+    }
+
+    public var selectedArmyId: Int {
+        guard let s = session, let aid = s.selectedArmy else { return -1 }
+        let idx = Int(aid.rawValue)
+        guard idx >= 0 && idx < s.world.military.armies.count && s.world.military.armies.alive[idx] else {
+            s.selectedArmy = nil
+            return -1
+        }
+        return idx
+    }
+
+    public var moveModeArmyId: Int {
+        guard let s = session, let aid = s.moveModeForArmy else { return -1 }
+        let idx = Int(aid.rawValue)
+        guard idx >= 0 && idx < s.world.military.armies.count && s.world.military.armies.alive[idx] else {
+            s.moveModeForArmy = nil
+            return -1
+        }
+        return idx
+    }
+
+    @discardableResult
+    public func selectArmy(armyId: Int) -> Bool {
+        guard let s = session else { return false }
+        let armies = s.world.military.armies
+        guard armyId >= 0 && armyId < armies.count && armies.alive[armyId] else {
+            return false
+        }
+        let aid = ArmyID(Int32(armyId))
+        s.selectedArmy = aid
+        if s.moveModeForArmy != nil && s.moveModeForArmy != aid {
+            s.moveModeForArmy = nil
+        }
+        return true
+    }
+
+    public func clearSelectedArmy() {
+        session?.selectedArmy = nil
+        session?.moveModeForArmy = nil
+    }
+
+    @discardableResult
+    public func setMoveModeForArmy(armyId: Int) -> Bool {
+        guard let s = session else { return false }
+        if armyId < 0 {
+            s.moveModeForArmy = nil
+            return false
+        }
+        let armies = s.world.military.armies
+        guard armyId >= 0 && armyId < armies.count && armies.alive[armyId],
+              let player = s.playerCountry,
+              armies.owner[armyId] == player && !armies.isRebel[armyId],
+              !s.world.military.isInBattle(ArmyID(Int32(armyId))),
+              !armies.isRetreating[armyId] else {
+            s.moveModeForArmy = nil
+            return false
+        }
+        let aid = ArmyID(Int32(armyId))
+        s.selectedArmy = aid
+        s.moveModeForArmy = aid
+        return true
+    }
+
+    /// Data for `MapArmiesLayer.gd`: one counter per living army plus active marching routes.
+    public func mapArmiesData() -> [String: Any] {
+        guard let s = session else {
+            return ["selectedArmyId": -1, "moveModeArmyId": -1, "counters": [], "routes": []]
+        }
+        let w = s.world
+        let armies = w.military.armies
+        let positions = s.provincePositions
+        let curSelectedId = selectedArmyId
+        let curMoveId = moveModeArmyId
+
+        var livingByProvince: [Int: [Int]] = [:]
+        for i in 0..<armies.count where armies.alive[i] {
+            let pIdx = armies.province[i].index
+            livingByProvince[pIdx, default: []].append(i)
+        }
+
+        var counters: [[String: Any]] = []
+        var routes: [[String: Any]] = []
+
+        for i in 0..<armies.count where armies.alive[i] {
+            let aid = ArmyID(Int32(i))
+            let men = armies.totalMen(of: aid)
+            guard men > 0 else { continue }
+            let prov = armies.province[i]
+            guard prov.index >= 0 && prov.index < positions.count else { continue }
+            let pos = positions[prov.index]
+            let owner = armies.owner[i]
+            let isRebel = armies.isRebel[i]
+            let isPlayer = (owner == s.playerCountry && !isRebel)
+            let isEnemy = s.playerCountry.map { w.diplomacy.isAtWar($0, owner) } ?? false
+            let rgb = w.countries.color[owner.index]
+
+            let inBattle = w.military.isInBattle(aid)
+            let isBesieging = !isRebel && w.military.sieges.contains {
+                $0.province == prov && $0.besieger == owner
+            }
+            let isRetreating = armies.isRetreating[i]
+            let marker: String
+            if inBattle {
+                marker = "B"
+            } else if isBesieging {
+                marker = "S"
+            } else if isRetreating {
+                marker = "R"
+            } else {
+                marker = ""
+            }
+
+            let menText = men >= 1_000 ? "\((men + 500) / 1_000)k" : "\(men)"
+            let stackList = livingByProvince[prov.index] ?? [i]
+            let stackIndex = stackList.firstIndex(of: i) ?? 0
+
+            counters.append([
+                "armyId": i,
+                "name": armies.name[i],
+                "provinceIndex": prov.index,
+                "x": pos.x,
+                "y": pos.y,
+                "stackIndex": stackIndex,
+                "stackCount": stackList.count,
+                "men": men,
+                "menText": menText,
+                "ownerTag": w.countries.tag[owner.index],
+                "colorR": Int(rgb.r),
+                "colorG": Int(rgb.g),
+                "colorB": Int(rgb.b),
+                "isPlayer": isPlayer,
+                "isEnemy": isEnemy,
+                "isRebel": isRebel,
+                "isSelected": (i == curSelectedId),
+                "isInBattle": inBattle,
+                "isBesieging": isBesieging,
+                "isRetreating": isRetreating,
+                "marker": marker
+            ])
+
+            let path = armies.path[i]
+            if !path.isEmpty {
+                var pts: [Double] = [pos.x, pos.y]
+                for hop in path where hop.index >= 0 && hop.index < positions.count {
+                    pts.append(positions[hop.index].x)
+                    pts.append(positions[hop.index].y)
+                }
+                if pts.count >= 4 {
+                    routes.append([
+                        "armyId": i,
+                        "isPlayer": isPlayer,
+                        "isRebel": isRebel,
+                        "isSelected": (i == curSelectedId),
+                        "points": pts
+                    ])
+                }
+            }
+        }
+
+        return [
+            "selectedArmyId": curSelectedId,
+            "moveModeArmyId": curMoveId,
+            "counters": counters,
+            "routes": routes
+        ]
+    }
+
+    /// Detailed breakdown for the currently selected army (`session.selectedArmy`).
+    public func selectedArmyDetails() -> [String: Any] {
+        guard let s = session else { return ["hasSelection": false] }
+        let idx = selectedArmyId
+        guard idx >= 0 else { return ["hasSelection": false] }
+        let w = s.world
+        let armies = w.military.armies
+        let aid = ArmyID(Int32(idx))
+        let owner = armies.owner[idx]
+        let isRebel = armies.isRebel[idx]
+        let isPlayerOwned = (owner == s.playerCountry && !isRebel)
+        let prov = armies.province[idx]
+        let provName = w.provinces.name[prov.index]
+        let rgb = w.countries.color[owner.index]
+
+        let regs = armies.regiments[idx]
+        var totalMen = 0
+        var maxMen = 0
+        var weightedMorale = 0.0
+        var weightedMaxMorale = 0.0
+        var regimentRows: [[String: Any]] = []
+        for (rIndex, reg) in regs.enumerated() {
+            let u = w.military.unit(reg.type)
+            totalMen += reg.men
+            maxMen += u.maxMen
+            let weight = Double(max(1, reg.men))
+            weightedMorale += reg.morale * weight
+            weightedMaxMorale += u.morale * weight
+            let homeName = reg.homeProvince.map { w.provinces.name[$0.index] } ?? ""
+            regimentRows.append([
+                "index": rIndex,
+                "unitTypeIndex": Int(reg.type.rawValue),
+                "unitName": u.name,
+                "category": u.category.displayName,
+                "origin": reg.origin.displayName,
+                "originKey": reg.origin.rawValue,
+                "men": reg.men,
+                "maxMen": u.maxMen,
+                "morale": reg.morale,
+                "maxMorale": u.morale,
+                "moraleText": String(format: "%.2f / %.2f", reg.morale, u.morale),
+                "homeProvinceName": homeName
+            ])
+        }
+        let denom = Double(max(1, totalMen))
+        let avgMorale = weightedMorale / denom
+        let avgMaxMorale = weightedMaxMorale / denom
+        let power = ArmySystem.combatPower(w, aid)
+        let upkeep = ArmySystem.armyUpkeep(w, aid)
+
+        let inProv = ArmySystem.soldiersInProvince(w, prov)
+        let limit = ArmySystem.supplyLimit(w, in: prov)
+        let overSupply = inProv > limit
+        let attritionRatePct: Double
+        if overSupply {
+            let overRatio = Double(inProv - limit) / Double(max(1, limit))
+            let terrain = w.provinces.terrain[prov.index]
+            let diseaseExtra = (terrain == .desert || terrain == .marsh) ? 0.01 : 0.0
+            attritionRatePct = min(0.15, 0.02 + overRatio * 0.05 + diseaseExtra) * 100.0
+        } else {
+            attritionRatePct = 0.0
+        }
+        let attritionText = overSupply
+            ? String(format: "Over supply! ~%.1f%%/mo attrition", attritionRatePct)
+            : "Within supply limit (0% attrition)"
+
+        let inBattle = w.military.isInBattle(aid)
+        let siege = w.military.siege(in: prov)
+        let isBesieging = !isRebel && siege?.besieger == owner
+        let isRetreating = armies.isRetreating[idx]
+        let path = armies.path[idx]
+        let nextHopName = path.first.map { w.provinces.name[$0.index] } ?? ""
+        let destName = path.last.map { w.provinces.name[$0.index] } ?? ""
+        let daysLeft = path.isEmpty ? 0 : max(1, Int((armies.moveStepDays[idx] - armies.moveProgressDays[idx]).rounded(.up)))
+
+        let statusText: String
+        if inBattle {
+            statusText = "Fighting battle in \(provName)"
+        } else if isRetreating && !destName.isEmpty {
+            statusText = "Retreating to \(destName) (next: \(nextHopName), \(daysLeft)d)"
+        } else if !path.isEmpty {
+            statusText = "Marching to \(destName) (next: \(nextHopName), \(daysLeft)d)"
+        } else if isBesieging, let siege {
+            statusText = "Besieging \(provName) (Progress \(siege.progress)\(siege.breached ? ", BREACHED" : ""))"
+        } else {
+            statusText = "Stationed in \(provName)"
+        }
+
+        let cmd = armies.commander[idx]
+        let cmdName = cmd.map { w.people.characters.fullName($0) } ?? ""
+        let cmdMartial = cmd.map { w.people.characters.skill($0, .martial) } ?? 0
+        let cmdText = cmd != nil ? "\(cmdName) (Martial \(cmdMartial))" : "No commander"
+
+        var commanderCandidates: [[String: Any]] = []
+        if isPlayerOwned {
+            for cand in ArmySystem.commanderCandidates(w, owner, date: s.date) {
+                let mSkill = w.people.characters.skill(cand, .martial)
+                let cName = w.people.characters.fullName(cand)
+                commanderCandidates.append([
+                    "characterIndex": cand.index,
+                    "name": cName,
+                    "martial": mSkill,
+                    "label": "\(cName) (Martial \(mSkill))"
+                ])
+            }
+        }
+
+        let othersHere = w.military.armies(in: prov).filter { other in
+            let oIdx = Int(other.rawValue)
+            return other != aid && armies.owner[oIdx] == owner && !armies.isRebel[oIdx]
+        }
+
+        return [
+            "hasSelection": true,
+            "armyId": idx,
+            "name": armies.name[idx],
+            "ownerTag": w.countries.tag[owner.index],
+            "ownerName": w.countries.name[owner.index],
+            "ownerColorR": Int(rgb.r),
+            "ownerColorG": Int(rgb.g),
+            "ownerColorB": Int(rgb.b),
+            "isPlayerOwned": isPlayerOwned,
+            "isRebel": isRebel,
+            "provinceIndex": prov.index,
+            "provinceName": provName,
+            "totalMen": totalMen,
+            "maxMen": maxMen,
+            "strengthText": "\(totalMen) / \(maxMen) men",
+            "morale": avgMorale,
+            "maxMorale": avgMaxMorale,
+            "moraleText": String(format: "%.2f / %.2f", avgMorale, avgMaxMorale),
+            "combatPower": power,
+            "combatPowerText": String(format: "%.1f", power),
+            "upkeep": upkeep,
+            "upkeepText": String(format: "%.1f ducats/mo", upkeep),
+            "supplyInProvince": inProv,
+            "supplyLimit": limit,
+            "overSupply": overSupply,
+            "supplyText": "\(inProv) / \(limit) men",
+            "attritionRatePercent": attritionRatePct,
+            "attritionText": attritionText,
+            "statusText": statusText,
+            "isInBattle": inBattle,
+            "isBesieging": isBesieging,
+            "isRetreating": isRetreating,
+            "isMoving": !path.isEmpty,
+            "destinationName": destName,
+            "nextHopName": nextHopName,
+            "daysLeft": daysLeft,
+            "isMoveMode": (moveModeArmyId == idx),
+            "commanderIndex": cmd?.index ?? -1,
+            "commanderName": cmdName,
+            "commanderMartial": cmdMartial,
+            "commanderText": cmdText,
+            "commanderCandidates": commanderCandidates,
+            "regimentSummary": Self.regimentSummary(w, regiments: regs),
+            "regiments": regimentRows,
+            "canMove": isPlayerOwned && !inBattle && !isRetreating,
+            "canSplit": isPlayerOwned && !inBattle && regs.count >= 2,
+            "canMerge": isPlayerOwned && !inBattle && !othersHere.isEmpty,
+            "mergeCount": othersHere.count,
+            "canDisband": isPlayerOwned && !inBattle,
+            "canAssignCommander": isPlayerOwned
+        ]
+    }
+
+    /// Data for the top-bar Armies window (`App/Shared/ArmyView.swift`).
+    public func armiesWindowDetails() -> [String: Any] {
+        guard let s = session, let player = s.playerCountry else {
+            return ["valid": false]
+        }
+        let w = s.world
+        let armies = w.military.armies
+        let mp = Int(w.military.manpower[player.index].rounded())
+        let maxMP = Int(w.military.maxManpower[player.index].rounded())
+        let gain = Int(ArmySystem.monthlyManpowerGain(w, player).rounded())
+        let standing = w.military.totalMen(of: player, origin: .professional)
+        let levies = w.military.totalMen(of: player, origin: .levy)
+        let mercs = w.military.totalMen(of: player, origin: .mercenary)
+        let mercLimit = ArmySystem.mercenaryLimit(w, player)
+        let fieldArmies = w.military.armies(of: player)
+        let upkeep = fieldArmies.reduce(0.0) { $0 + ArmySystem.armyUpkeep(w, $1) }
+        let attrition = w.military.lastAttritionLosses[player.index]
+        let canRaiseAll = w.provinces(ownedBy: player).contains {
+            ArmySystem.availableLevyMen(w, in: $0) >= ArmyModel.minLevyMen
+        }
+
+        let curSelectedId = selectedArmyId
+        let curMoveId = moveModeArmyId
+        let moveModeName = (curMoveId >= 0 && curMoveId < armies.count) ? armies.name[curMoveId] : ""
+
+        var commanderCandidates: [[String: Any]] = []
+        for cand in ArmySystem.commanderCandidates(w, player, date: s.date) {
+            let mSkill = w.people.characters.skill(cand, .martial)
+            let cName = w.people.characters.fullName(cand)
+            commanderCandidates.append([
+                "characterIndex": cand.index,
+                "name": cName,
+                "martial": mSkill,
+                "label": "\(cName) (Martial \(mSkill))"
+            ])
+        }
+
+        var armyCards: [[String: Any]] = []
+        for aid in fieldArmies {
+            let i = Int(aid.rawValue)
+            let prov = armies.province[i]
+            let provName = w.provinces.name[prov.index]
+            let men = armies.totalMen(of: aid)
+            let limit = ArmySystem.supplyLimit(w, in: prov)
+            let inProv = ArmySystem.soldiersInProvince(w, prov)
+            let overSupply = inProv > limit
+            let path = armies.path[i]
+            let nextHopName = path.first.map { w.provinces.name[$0.index] } ?? ""
+            let destName = path.last.map { w.provinces.name[$0.index] } ?? ""
+            let daysLeft = path.isEmpty ? 0 : max(1, Int((armies.moveStepDays[i] - armies.moveProgressDays[i]).rounded(.up)))
+            let cmd = armies.commander[i]
+            let cmdName = cmd.map { w.people.characters.fullName($0) } ?? ""
+            let cmdMartial = cmd.map { w.people.characters.skill($0, .martial) } ?? 0
+            let cmdText = cmd != nil ? "\(cmdName) (Martial \(cmdMartial))" : "Assign commander…"
+            let othersHere = w.military.armies(in: prov).filter {
+                $0 != aid && armies.owner[Int($0.rawValue)] == player && !armies.isRebel[Int($0.rawValue)]
+            }
+            let inBattle = w.military.isInBattle(aid)
+
+            armyCards.append([
+                "armyId": i,
+                "name": armies.name[i],
+                "men": men,
+                "upkeepText": String(format: "%.1f/mo", ArmySystem.armyUpkeep(w, aid)),
+                "provinceIndex": prov.index,
+                "provinceName": provName,
+                "isMoving": !path.isEmpty,
+                "destinationName": destName,
+                "nextHopName": nextHopName,
+                "daysLeft": daysLeft,
+                "supplyInProvince": inProv,
+                "supplyLimit": limit,
+                "overSupply": overSupply,
+                "supplyText": "Supply \(inProv / 1_000)k/\(limit / 1_000)k",
+                "commanderIndex": cmd?.index ?? -1,
+                "commanderName": cmdName,
+                "commanderMartial": cmdMartial,
+                "commanderText": cmdText,
+                "regimentSummary": Self.regimentSummary(w, regiments: armies.regiments[i]),
+                "canMove": !inBattle && !armies.isRetreating[i],
+                "canSplit": !inBattle && armies.regiments[i].count >= 2,
+                "canMerge": !inBattle && !othersHere.isEmpty,
+                "canDisband": !inBattle,
+                "isMoveMode": (i == curMoveId),
+                "isSelected": (i == curSelectedId)
+            ])
+        }
+
+        var rebelCards: [[String: Any]] = []
+        for rid in w.military.rebelArmies(of: player) {
+            let i = Int(rid.rawValue)
+            let prov = armies.province[i]
+            rebelCards.append([
+                "armyId": i,
+                "name": armies.name[i],
+                "men": armies.totalMen(of: rid),
+                "provinceIndex": prov.index,
+                "provinceName": w.provinces.name[prov.index]
+            ])
+        }
+
+        // Target muster province: selected province if player-owned, else player's capital, else first owned province.
+        let targetProv: ProvinceID? = {
+            if let sel = s.selectedProvince, w.provinces.owner[sel.index] == player {
+                return sel
+            }
+            if let cap = w.countries.capital[player.index], w.provinces.owner[cap.index] == player {
+                return cap
+            }
+            return w.provinces(ownedBy: player).first
+        }()
+
+        var musterProvinceIndex = -1
+        var musterProvinceName = ""
+        var musterAvailableLevy = 0
+        var musterCanRaiseLevy = false
+        var musterHasRaisedLevies = false
+        var musterLevyRefusal = ""
+        var recruitUnits: [[String: Any]] = []
+
+        if let p = targetProv, w.provinces.owner[p.index] == player {
+            musterProvinceIndex = p.index
+            musterProvinceName = w.provinces.name[p.index]
+            musterHasRaisedLevies = ArmySystem.hasRaisedLevies(w, in: p)
+            musterAvailableLevy = ArmySystem.availableLevyMen(w, in: p)
+            musterCanRaiseLevy = !musterHasRaisedLevies && musterAvailableLevy >= ArmyModel.minLevyMen
+            if musterHasRaisedLevies {
+                musterLevyRefusal = ArmyRefusal.leviesAlreadyRaised.reason
+            } else if let h = w.provinces.holder[p.index], w.people.refusing.contains(h) {
+                musterLevyRefusal = ArmyRefusal.vassalRefusing.reason
+            } else if musterAvailableLevy < ArmyModel.minLevyMen {
+                musterLevyRefusal = ArmyRefusal.tooFewPeople.reason
+            }
+            recruitUnits = Self.buildRecruitUnitsList(world: w, country: player, province: p)
+        }
+
+        return [
+            "valid": true,
+            "manpower": mp,
+            "maxManpower": maxMP,
+            "monthlyManpowerGain": gain,
+            "manpowerText": "\(mp) / \(maxMP) (+\(gain)/mo)",
+            "standingMen": standing,
+            "levyMen": levies,
+            "mercenaryMen": mercs,
+            "mercenaryLimit": mercLimit,
+            "mercenaryText": "\(mercs) / \(mercLimit) men",
+            "totalUpkeep": upkeep,
+            "upkeepText": String(format: "−%.1f / month", upkeep),
+            "lastAttritionLosses": attrition,
+            "canRaiseAllLevies": canRaiseAll,
+            "canDisbandLevies": levies > 0,
+            "selectedArmyId": curSelectedId,
+            "moveModeArmyId": curMoveId,
+            "moveModeArmyName": moveModeName,
+            "commanderCandidates": commanderCandidates,
+            "armies": armyCards,
+            "rebelArmies": rebelCards,
+            "musterProvinceIndex": musterProvinceIndex,
+            "musterProvinceName": musterProvinceName,
+            "musterAvailableLevy": musterAvailableLevy,
+            "musterCanRaiseLevy": musterCanRaiseLevy,
+            "musterHasRaisedLevies": musterHasRaisedLevies,
+            "musterLevyRefusal": musterLevyRefusal,
+            "recruitUnits": recruitUnits
+        ]
+    }
+
+    // MARK: - Step 3b: Army & Recruitment Actions
+
+    @discardableResult
+    public func orderArmyMove(armyId: Int, provinceIndex: Int) -> Bool {
+        guard let s = session,
+              let player = s.playerCountry else { return false }
+        let armies = s.world.military.armies
+        guard armyId >= 0 && armyId < armies.count && armies.alive[armyId],
+              provinceIndex >= 0 && provinceIndex < s.world.provinces.count,
+              armies.owner[armyId] == player && !armies.isRebel[armyId],
+              !s.world.military.isInBattle(ArmyID(Int32(armyId))),
+              !armies.isRetreating[armyId] else {
+            return false
+        }
+        let aid = ArmyID(Int32(armyId))
+        let dest = ProvinceID(provinceIndex)
+        s.orderMove(army: aid, to: dest)
+        return s.world.military.armies.province[armyId] == dest
+            || !s.world.military.armies.path[armyId].isEmpty
+    }
+
+    @discardableResult
+    public func orderArmyMoveAt(armyId: Int, mapX: Int, mapY: Int) -> Bool {
+        guard let s = session,
+              let hit = s.idMap.province(x: mapX, y: mapY) else {
+            return false
+        }
+        return orderArmyMove(armyId: armyId, provinceIndex: hit.index)
+    }
+
+    @discardableResult
+    public func splitArmy(armyId: Int) -> Int {
+        guard let s = session,
+              let player = s.playerCountry else { return -1 }
+        let armies = s.world.military.armies
+        guard armyId >= 0 && armyId < armies.count && armies.alive[armyId],
+              armies.owner[armyId] == player && !armies.isRebel[armyId],
+              armies.regiments[armyId].count >= 2,
+              !s.world.military.isInBattle(ArmyID(Int32(armyId))) else {
+            return -1
+        }
+        let countBefore = s.world.military.armies.count
+        s.split(army: ArmyID(Int32(armyId)))
+        guard s.world.military.armies.count > countBefore,
+              let created = s.selectedArmy else {
+            return -1
+        }
+        return Int(created.rawValue)
+    }
+
+    @discardableResult
+    public func mergeArmies(armyId: Int) -> Bool {
+        guard let s = session,
+              let player = s.playerCountry else { return false }
+        let armies = s.world.military.armies
+        guard armyId >= 0 && armyId < armies.count && armies.alive[armyId],
+              armies.owner[armyId] == player && !armies.isRebel[armyId],
+              !s.world.military.isInBattle(ArmyID(Int32(armyId))) else {
+            return false
+        }
+        let aid = ArmyID(Int32(armyId))
+        let prov = armies.province[armyId]
+        let others = s.world.military.armies(in: prov).filter {
+            $0 != aid && armies.owner[Int($0.rawValue)] == player && !armies.isRebel[Int($0.rawValue)]
+        }
+        guard !others.isEmpty else { return false }
+        s.mergeArmies(into: aid)
+        s.selectedArmy = aid
+        return true
+    }
+
+    @discardableResult
+    public func disbandArmy(armyId: Int) -> Bool {
+        guard let s = session,
+              let player = s.playerCountry else { return false }
+        let armies = s.world.military.armies
+        guard armyId >= 0 && armyId < armies.count && armies.alive[armyId],
+              armies.owner[armyId] == player && !armies.isRebel[armyId],
+              !s.world.military.isInBattle(ArmyID(Int32(armyId))) else {
+            return false
+        }
+        s.disband(army: ArmyID(Int32(armyId)))
+        return !s.world.military.armies.alive[armyId]
+    }
+
+    @discardableResult
+    public func assignArmyCommander(armyId: Int, characterIndex: Int) -> Bool {
+        guard let s = session,
+              let player = s.playerCountry else { return false }
+        let armies = s.world.military.armies
+        guard armyId >= 0 && armyId < armies.count && armies.alive[armyId],
+              armies.owner[armyId] == player && !armies.isRebel[armyId] else {
+            return false
+        }
+        let aid = ArmyID(Int32(armyId))
+        if characterIndex < 0 {
+            s.assignCommander(nil, to: aid)
+            return s.world.military.armies.commander[armyId] == nil
+        }
+        guard characterIndex < s.world.people.characters.count else { return false }
+        let cid = CharacterID(characterIndex)
+        let validCandidates = ArmySystem.commanderCandidates(s.world, player, date: s.date)
+        guard validCandidates.contains(cid) else { return false }
+        s.assignCommander(cid, to: aid)
+        return s.world.military.armies.commander[armyId] == cid
+    }
+
+    @discardableResult
+    public func raiseAllLevies() -> Bool {
+        guard let s = session, let player = s.playerCountry else { return false }
+        let before = s.world.military.totalMen(of: player, origin: .levy)
+        s.raiseAllLevies()
+        let after = s.world.military.totalMen(of: player, origin: .levy)
+        return after > before
+    }
+
+    @discardableResult
+    public func disbandAllLevies() -> Bool {
+        guard let s = session, let player = s.playerCountry else { return false }
+        let before = s.world.military.totalMen(of: player, origin: .levy)
+        guard before > 0 else { return false }
+        s.disbandLevies()
+        return s.world.military.totalMen(of: player, origin: .levy) == 0
+    }
+
+    @discardableResult
+    public func raiseLeviesInProvince(provinceIndex: Int) -> Bool {
+        guard let s = session,
+              provinceIndex >= 0 && provinceIndex < s.world.provinces.count else {
+            return false
+        }
+        return s.raiseLevies(in: ProvinceID(provinceIndex)) == nil
+    }
+
+    @discardableResult
+    public func recruitProfessionalInProvince(unitTypeIndex: Int, provinceIndex: Int) -> Bool {
+        guard let s = session,
+              unitTypeIndex >= 0 && unitTypeIndex < s.world.military.unitTypes.count,
+              provinceIndex >= 0 && provinceIndex < s.world.provinces.count else {
+            return false
+        }
+        let uid = UnitTypeID(UInt8(unitTypeIndex))
+        let pid = ProvinceID(provinceIndex)
+        return s.recruitProfessional(uid, in: pid) == nil
+    }
+
+    @discardableResult
+    public func hireMercenaryInProvince(unitTypeIndex: Int, provinceIndex: Int) -> Bool {
+        guard let s = session,
+              unitTypeIndex >= 0 && unitTypeIndex < s.world.military.unitTypes.count,
+              provinceIndex >= 0 && provinceIndex < s.world.provinces.count else {
+            return false
+        }
+        let uid = UnitTypeID(UInt8(unitTypeIndex))
+        guard s.world.military.unit(uid).category != .artillery else { return false }
+        let pid = ProvinceID(provinceIndex)
+        return s.hireMercenary(uid, in: pid) == nil
+    }
+
+    // MARK: - Step 3b: Siege Storm Assault
+
+    public func assaultSelectedProvinceFort() -> [String: Any] {
+        guard let s = session, let province = s.selectedProvince else {
+            return [
+                "captured": false,
+                "attackerLosses": 0,
+                "garrisonLosses": 0,
+                "remainingGarrison": 0,
+                "refusalReason": "No province selected",
+                "summaryText": "No province selected"
+            ]
+        }
+        return assaultFort(provinceIndex: province.index)
+    }
+
+    public func assaultFort(provinceIndex: Int) -> [String: Any] {
+        guard let s = session,
+              provinceIndex >= 0 && provinceIndex < s.world.provinces.count else {
+            return [
+                "captured": false,
+                "attackerLosses": 0,
+                "garrisonLosses": 0,
+                "remainingGarrison": 0,
+                "refusalReason": "Invalid province",
+                "summaryText": "Invalid province"
+            ]
+        }
+        let pid = ProvinceID(provinceIndex)
+        let res = s.assaultFort(in: pid)
+        let summaryText: String
+        if let refusal = res.refusalReason {
+            summaryText = refusal
+        } else if res.captured {
+            summaryText = "Assault captured fort (-\(res.attackerLosses) attackers)"
+        } else {
+            summaryText = "Assault repelled (-\(res.attackerLosses) attackers, -\(res.garrisonLosses) garrison)"
+        }
+        return [
+            "captured": res.captured,
+            "attackerLosses": res.attackerLosses,
+            "garrisonLosses": res.garrisonLosses,
+            "remainingGarrison": res.remainingGarrison,
+            "refusalReason": res.refusalReason ?? "",
+            "summaryText": summaryText
+        ]
+    }
+
+    private static func buildRecruitUnitsList(world w: World, country: CountryID, province: ProvinceID) -> [[String: Any]] {
+        let units = ArmySystem.availableUnits(w, for: country)
+        let currentMercs = w.military.totalMen(of: country, origin: .mercenary)
+        let mercLimit = ArmySystem.mercenaryLimit(w, country)
+        let treasury = w.countries.treasury[country.index]
+
+        return units.map { u in
+            let profCost = Int(ArmySystem.recruitmentCost(w, country, province, u.id).rounded())
+            let mercCost = Int(ArmySystem.mercenaryCost(w, country, u.id).rounded())
+            let profRefusal = ArmySystem.recruitRefusal(w, country, in: province, unit: u.id)
+            let mercAllowed = (u.category != .artillery)
+            let mercRefusal: String
+            if !mercAllowed {
+                mercRefusal = "Artillery cannot be hired as mercenaries"
+            } else if currentMercs + u.maxMen > mercLimit {
+                mercRefusal = ArmyRefusal.mercenaryCapReached.reason
+            } else if treasury < Double(mercCost) {
+                mercRefusal = ArmyRefusal.cannotAfford.reason
+            } else {
+                mercRefusal = ""
+            }
+            return [
+                "unitTypeIndex": Int(u.id.rawValue),
+                "key": u.key,
+                "name": u.name,
+                "category": u.category.displayName,
+                "maxMen": u.maxMen,
+                "statsText": String(format: "Atk %.0f · Def %.0f · Spd %.2f · %d men", u.attack, u.defence, u.speed, u.maxMen),
+                "profCost": profCost,
+                "canRecruitProf": profRefusal == nil,
+                "profRefusal": profRefusal?.reason ?? "",
+                "mercAllowed": mercAllowed,
+                "mercCost": mercCost,
+                "canHireMerc": mercAllowed && mercRefusal.isEmpty,
+                "mercRefusal": mercRefusal
+            ]
+        }
+    }
+
+    public static func regimentSummary(_ w: World, regiments: [Regiment]) -> String {
+        var counts: [UnitTypeID: (count: Int, men: Int, origins: Set<RegimentOrigin>)] = [:]
+        for r in regiments {
+            var entry = counts[r.type] ?? (0, 0, [])
+            entry.count += 1
+            entry.men += r.men
+            entry.origins.insert(r.origin)
+            counts[r.type] = entry
+        }
+        return counts.keys.sorted(by: { $0.rawValue < $1.rawValue }).map { uid in
+            let info = counts[uid]!
+            let uName = w.military.unit(uid).name
+            let tag = info.origins.contains(.levy) ? " [levy]" : (info.origins.contains(.mercenary) ? " [merc]" : "")
+            return "\(info.count)× \(uName)\(tag) (\(info.men))"
+        }.joined(separator: ", ")
     }
 
     // MARK: - Formatting Helpers (matching App/Shared/ContentView.swift & EconomyViews.swift)
@@ -1233,6 +2096,123 @@ public final class GezGodotBridge: RefCounted {
         Self.toVariantDictionary(controller.marketDetails(marketIndex: marketIndex, categoryKey: categoryKey))
     }
 
+    // MARK: - Step 3b: Armies, Map Counters, Recruitment & Sieges
+
+    @Callable
+    public func getTopBarArmiesText() -> String {
+        controller.topBarArmiesText
+    }
+
+    @Callable
+    public func selectProvinceByIndex(provinceIndex: Int) -> Int {
+        controller.selectProvinceByIndex(provinceIndex)
+    }
+
+    @Callable
+    public func getSelectedArmyId() -> Int {
+        controller.selectedArmyId
+    }
+
+    @Callable
+    public func getMoveModeArmyId() -> Int {
+        controller.moveModeArmyId
+    }
+
+    @Callable
+    public func selectArmy(armyId: Int) -> Bool {
+        controller.selectArmy(armyId: armyId)
+    }
+
+    @Callable
+    public func clearSelectedArmy() {
+        controller.clearSelectedArmy()
+    }
+
+    @Callable
+    public func setMoveModeForArmy(armyId: Int) -> Bool {
+        controller.setMoveModeForArmy(armyId: armyId)
+    }
+
+    @Callable
+    public func getMapArmiesData() -> VariantDictionary {
+        Self.toVariantDictionary(controller.mapArmiesData())
+    }
+
+    @Callable
+    public func getSelectedArmyDetails() -> VariantDictionary {
+        Self.toVariantDictionary(controller.selectedArmyDetails())
+    }
+
+    @Callable
+    public func getArmiesWindowDetails() -> VariantDictionary {
+        Self.toVariantDictionary(controller.armiesWindowDetails())
+    }
+
+    @Callable
+    public func orderArmyMove(armyId: Int, provinceIndex: Int) -> Bool {
+        controller.orderArmyMove(armyId: armyId, provinceIndex: provinceIndex)
+    }
+
+    @Callable
+    public func orderArmyMoveAt(armyId: Int, mapX: Int, mapY: Int) -> Bool {
+        controller.orderArmyMoveAt(armyId: armyId, mapX: mapX, mapY: mapY)
+    }
+
+    @Callable
+    public func splitArmy(armyId: Int) -> Int {
+        controller.splitArmy(armyId: armyId)
+    }
+
+    @Callable
+    public func mergeArmies(armyId: Int) -> Bool {
+        controller.mergeArmies(armyId: armyId)
+    }
+
+    @Callable
+    public func disbandArmy(armyId: Int) -> Bool {
+        controller.disbandArmy(armyId: armyId)
+    }
+
+    @Callable
+    public func assignArmyCommander(armyId: Int, characterIndex: Int) -> Bool {
+        controller.assignArmyCommander(armyId: armyId, characterIndex: characterIndex)
+    }
+
+    @Callable
+    public func raiseAllLevies() -> Bool {
+        controller.raiseAllLevies()
+    }
+
+    @Callable
+    public func disbandAllLevies() -> Bool {
+        controller.disbandAllLevies()
+    }
+
+    @Callable
+    public func raiseLeviesInProvince(provinceIndex: Int) -> Bool {
+        controller.raiseLeviesInProvince(provinceIndex: provinceIndex)
+    }
+
+    @Callable
+    public func recruitProfessionalInProvince(unitTypeIndex: Int, provinceIndex: Int) -> Bool {
+        controller.recruitProfessionalInProvince(unitTypeIndex: unitTypeIndex, provinceIndex: provinceIndex)
+    }
+
+    @Callable
+    public func hireMercenaryInProvince(unitTypeIndex: Int, provinceIndex: Int) -> Bool {
+        controller.hireMercenaryInProvince(unitTypeIndex: unitTypeIndex, provinceIndex: provinceIndex)
+    }
+
+    @Callable
+    public func assaultSelectedProvinceFort() -> VariantDictionary {
+        Self.toVariantDictionary(controller.assaultSelectedProvinceFort())
+    }
+
+    @Callable
+    public func assaultFort(provinceIndex: Int) -> VariantDictionary {
+        Self.toVariantDictionary(controller.assaultFort(provinceIndex: provinceIndex))
+    }
+
     // MARK: - Variant Conversion Helpers
 
     private static func toVariantDictionary(_ dict: [String: Any]) -> VariantDictionary {
@@ -1270,6 +2250,12 @@ public final class GezGodotBridge: RefCounted {
         case let strArr as [String]:
             let arr = VariantArray()
             for item in strArr {
+                arr.append(Variant(item))
+            }
+            return Variant(arr)
+        case let dblArr as [Double]:
+            let arr = VariantArray()
+            for item in dblArr {
                 arr.append(Variant(item))
             }
             return Variant(arr)

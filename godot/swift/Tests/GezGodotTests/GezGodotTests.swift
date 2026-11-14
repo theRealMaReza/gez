@@ -292,4 +292,179 @@ struct GezGodotTests {
         #expect(controller.selectedProvinceValue == 0)
         #expect(controller.selectedProvinceDetails()["hasSelection"] as? Bool == false)
     }
+
+    @Test("Army counters, selecting an army, moving, splitting, merging, disbanding, and assigning commanders")
+    func mapArmiesSelectionAndActions() {
+        let controller = GezGodotController()
+        #expect(controller.setup(dataDirectoryPath: "", tag: "TUR"))
+        #expect(controller.topBarArmiesText.hasPrefix("Armies "))
+
+        let mapArmies = controller.mapArmiesData()
+        let counters = mapArmies["counters"] as? [[String: Any]] ?? []
+        #expect(counters.count >= 30)
+
+        let playerCounters = counters.filter { ($0["isPlayer"] as? Bool) == true }
+        #expect(!playerCounters.isEmpty)
+        let firstArmyId = playerCounters[0]["armyId"] as? Int ?? -1
+        let startProvIdx = playerCounters[0]["provinceIndex"] as? Int ?? -1
+        #expect(firstArmyId >= 0)
+        #expect(startProvIdx >= 0)
+
+        // Out-of-range army indices are safely rejected.
+        #expect(!controller.selectArmy(armyId: -1))
+        #expect(!controller.selectArmy(armyId: 999_999))
+
+        // Select the player's army.
+        #expect(controller.selectArmy(armyId: firstArmyId))
+        #expect(controller.selectedArmyId == firstArmyId)
+
+        let details = controller.selectedArmyDetails()
+        #expect(details["hasSelection"] as? Bool == true)
+        #expect(details["armyId"] as? Int == firstArmyId)
+        #expect(details["isPlayerOwned"] as? Bool == true)
+        #expect((details["totalMen"] as? Int ?? 0) > 0)
+        #expect((details["regiments"] as? [[String: Any]])?.isEmpty == false)
+        #expect((details["supplyLimit"] as? Int ?? 0) > 0)
+
+        // Assign commander (and unassign with -1).
+        let candidates = details["commanderCandidates"] as? [[String: Any]] ?? []
+        #expect(!candidates.isEmpty)
+        if let firstCand = candidates.first, let cIdx = firstCand["characterIndex"] as? Int {
+            #expect(controller.assignArmyCommander(armyId: firstArmyId, characterIndex: cIdx))
+            #expect(controller.selectedArmyDetails()["commanderIndex"] as? Int == cIdx)
+            #expect(controller.assignArmyCommander(armyId: firstArmyId, characterIndex: -1))
+            #expect(controller.selectedArmyDetails()["commanderIndex"] as? Int == -1)
+        }
+
+        // Toggle move mode and order a march to an adjacent land province.
+        #expect(controller.setMoveModeForArmy(armyId: firstArmyId))
+        #expect(controller.moveModeArmyId == firstArmyId)
+        if let s = controller.session,
+           let neighbor = s.world.provinces.neighbors[startProvIdx].first {
+            #expect(controller.orderArmyMove(armyId: firstArmyId, provinceIndex: neighbor.index))
+            #expect(controller.moveModeArmyId == -1)
+            let movingDetails = controller.selectedArmyDetails()
+            #expect(movingDetails["isMoving"] as? Bool == true)
+
+            let routes = controller.mapArmiesData()["routes"] as? [[String: Any]] ?? []
+            #expect(routes.contains { ($0["armyId"] as? Int) == firstArmyId })
+        }
+
+        // Split the army into two in the same province, then merge them back, then disband.
+        let splitNewId = controller.splitArmy(armyId: firstArmyId)
+        #expect(splitNewId >= 0)
+        #expect(controller.selectedArmyId == splitNewId)
+        #expect(controller.selectedArmyDetails()["canMerge"] as? Bool == true)
+
+        #expect(controller.mergeArmies(armyId: firstArmyId))
+        #expect(controller.selectedArmyId == firstArmyId)
+
+        #expect(controller.disbandArmy(armyId: firstArmyId))
+        #expect(controller.selectedArmyId == -1)
+        #expect(controller.selectedArmyDetails()["hasSelection"] as? Bool == false)
+    }
+
+    @Test("Armies window, raising/disbanding levies, recruiting professionals and mercenaries, and siege Storm Assault")
+    func recruitmentAndSiegeAssault() {
+        let controller = GezGodotController()
+        #expect(controller.setup(dataDirectoryPath: "", tag: "TUR"))
+
+        let win = controller.armiesWindowDetails()
+        #expect(win["valid"] as? Bool == true)
+        #expect((win["manpower"] as? Int ?? 0) > 0)
+        #expect((win["maxManpower"] as? Int ?? 0) > 0)
+        let musterProvIdx = win["musterProvinceIndex"] as? Int ?? -1
+        #expect(musterProvIdx >= 0)
+
+        let recruitUnits = win["recruitUnits"] as? [[String: Any]] ?? []
+        #expect(!recruitUnits.isEmpty)
+
+        // Recruit a professional regiment and hire a mercenary regiment in the muster province.
+        if let firstProf = recruitUnits.first(where: { ($0["canRecruitProf"] as? Bool) == true }),
+           let uIdx = firstProf["unitTypeIndex"] as? Int {
+            let menBefore = win["standingMen"] as? Int ?? 0
+            #expect(controller.recruitProfessionalInProvince(unitTypeIndex: uIdx, provinceIndex: musterProvIdx))
+            let menAfter = controller.armiesWindowDetails()["standingMen"] as? Int ?? 0
+            #expect(menAfter > menBefore)
+        }
+        if let firstMerc = recruitUnits.first(where: { ($0["canHireMerc"] as? Bool) == true }),
+           let uIdx = firstMerc["unitTypeIndex"] as? Int {
+            #expect(controller.hireMercenaryInProvince(unitTypeIndex: uIdx, provinceIndex: musterProvIdx))
+            let afterWin = controller.armiesWindowDetails()
+            #expect((afterWin["mercenaryMen"] as? Int ?? 0) > 0)
+        }
+
+        // Raise levies in one province, raise all levies, and disband all levies.
+        if (win["musterCanRaiseLevy"] as? Bool) == true {
+            #expect(controller.raiseLeviesInProvince(provinceIndex: musterProvIdx))
+        }
+        #expect(controller.raiseAllLevies())
+        #expect((controller.armiesWindowDetails()["levyMen"] as? Int ?? 0) > 0)
+        #expect(controller.disbandAllLevies())
+        #expect((controller.armiesWindowDetails()["levyMen"] as? Int ?? 0) == 0)
+
+        // Siege inspection & Storm Assault in a besieged fortified province.
+        if let s = controller.session, let player = s.playerCountry {
+            // Find an enemy or foreign fortified province (or give one a level-1 fort) and start a siege by player.
+            let targetIdx = s.world.provinces.ids.first {
+                s.world.provinces.owner[$0.index] != nil
+                    && s.world.provinces.owner[$0.index] != player
+                    && s.world.provinces.fortLevel[$0.index] > 0
+            }?.index ?? 10
+            let targetPid = ProvinceID(targetIdx)
+            let enemy = s.world.provinces.owner[targetIdx]!
+            if !s.world.diplomacy.isAtWar(player, enemy) {
+                let cbs = s.world.diplomacy.availableCasusBelli(attacker: player, defender: enemy, in: s.world)
+                if let cb = cbs.first {
+                    _ = s.declareWar(on: enemy, cb: cb, breakTruce: true)
+                }
+            }
+            if s.world.provinces.fortLevel[targetIdx] == 0 {
+                s.simulation.world.provinces.fortLevel[targetIdx] = 1
+                s.simulation.world.provinces.fortGarrison[targetIdx] = 1_000
+            }
+            // Place a large player army in targetPid and create a breached siege.
+            let inf = s.world.military.unit("infantry")!
+            let regs = (0..<8).map { _ in Regiment(type: inf.id, origin: .professional, men: 1_000, morale: inf.morale) }
+            _ = s.simulation.world.military.armies.append(
+                name: "Siege Host",
+                owner: player,
+                province: targetPid,
+                regiments: regs
+            )
+            var siege = Siege(
+                province: targetPid,
+                besieger: player,
+                startDate: s.date,
+                progress: 5,
+                breached: false,
+                blockaded: true,
+                lastRoll: 6,
+                lastModifier: 2,
+                lastOutcome: .foodShortage,
+                phaseDaysRemaining: 14
+            )
+            s.simulation.world.military.sieges.removeAll { $0.province == targetPid }
+            s.simulation.world.military.sieges.append(siege)
+
+            #expect(controller.selectProvinceByIndex(targetIdx) == targetIdx + 2)
+            let siegeDetailsBeforeBreach = controller.selectedProvinceDetails()
+            #expect(siegeDetailsBeforeBreach["isBesieged"] as? Bool == true)
+            #expect(siegeDetailsBeforeBreach["siegeBreached"] as? Bool == false)
+            #expect(siegeDetailsBeforeBreach["siegeCanAssault"] as? Bool == false)
+            #expect((siegeDetailsBeforeBreach["siegeLastRollText"] as? String)?.contains("Food Shortage") == true)
+
+            // Breach walls and execute Storm Assault.
+            siege.breached = true
+            s.simulation.world.military.sieges[s.simulation.world.military.sieges.count - 1] = siege
+            let siegeDetailsBreached = controller.selectedProvinceDetails()
+            #expect(siegeDetailsBreached["siegeBreached"] as? Bool == true)
+            #expect(siegeDetailsBreached["siegeCanAssault"] as? Bool == true)
+
+            let assaultRes = controller.assaultSelectedProvinceFort()
+            #expect((assaultRes["summaryText"] as? String)?.isEmpty == false)
+            let afterAssault = controller.selectedProvinceDetails()
+            #expect((afterAssault["assaultResultText"] as? String)?.isEmpty == false)
+        }
+    }
 }
