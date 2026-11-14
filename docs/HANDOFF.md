@@ -165,6 +165,12 @@ unidentified developer" steps to the page.
   Artifact downloads are blocked by the proxy; use the branch. Buttons and
   menus show as yellow placeholder boxes in snapshots (an `ImageRenderer`
   limit); they are fine in the real app.
+- **Checking Godot scripts from the workspace:** GitHub release downloads
+  work, so fetch `Godot_v4.7.2-stable_linux.x86_64.zip` from
+  `github.com/godotengine/godot/releases`, then in `godot/` run
+  `--headless --import` once and `--headless --check-only --script
+  scripts/Main.gd`. "GDExtension not found" errors are expected (no Linux
+  build of the Swift extension); any `SCRIPT ERROR: Parse Error` is real.
 - **Anything needing internet** runs as a GitHub Actions job that commits
   its output (`terrain.yml` fetches elevation, `heraldry.yml` fetches arms).
 
