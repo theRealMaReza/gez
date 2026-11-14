@@ -15,19 +15,31 @@ public enum Scenario1453 {
         case unknownValue(String)
     }
 
-    /// Loads the bundled 1453 scenario. The file is read once; every call
-    /// returns a fresh copy of the starting world.
+    private static let cacheLock = NSLock()
+    nonisolated(unsafe) private static var cachedStart: (dir: URL?, result: Result<World, Error>)?
+
+    /// Loads the bundled 1453 scenario. The file is read once per data directory;
+    /// every call returns a fresh copy of the starting world.
     public static func makeWorld() -> World {
-        switch cachedStart {
+        let dir = GezResources.dataDirectory
+        cacheLock.lock()
+        let entry: Result<World, Error>
+        if let existing = cachedStart, existing.dir == dir {
+            entry = existing.result
+        } else {
+            let loaded = Result { try loadBundled() }
+            cachedStart = (dir, loaded)
+            entry = loaded
+        }
+        cacheLock.unlock()
+        switch entry {
         case .success(let world): return world
         case .failure(let error): preconditionFailure("Could not load scenario1453.json: \(error)")
         }
     }
 
-    private static let cachedStart: Result<World, Error> = Result { try loadBundled() }
-
     public static func loadBundled() throws -> World {
-        guard let url = Bundle.module.url(forResource: "scenario1453", withExtension: "json") else {
+        guard let url = GezResources.url(forResource: "scenario1453", withExtension: "json") else {
             throw LoadError.missingResource
         }
         var world = try load(from: Data(contentsOf: url))

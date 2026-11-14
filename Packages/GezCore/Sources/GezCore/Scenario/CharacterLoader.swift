@@ -4,7 +4,7 @@ import Foundation
 /// country's ruler, heir, council and succession law.
 enum CharacterLoader {
     static func loadBundled(into world: inout World) throws {
-        guard let url = Bundle.module.url(forResource: "characters1453", withExtension: "json") else {
+        guard let url = GezResources.url(forResource: "characters1453", withExtension: "json") else {
             throw Scenario1453.LoadError.missingResource
         }
         try load(from: Data(contentsOf: url), into: &world)
