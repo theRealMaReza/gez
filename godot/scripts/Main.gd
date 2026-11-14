@@ -2,6 +2,8 @@ extends Control
 
 const MapShader := preload("res://shaders/map.gdshader")
 const LabelsLayerScript := preload("res://scripts/MapLabelsLayer.gd")
+const ArmiesLayerScript := preload("res://scripts/MapArmiesLayer.gd")
+const ArmyPanelScript := preload("res://scripts/ArmyPanel.gd")
 
 var bridge: RefCounted = null
 var warned_missing_methods: Dictionary = {}
@@ -9,12 +11,15 @@ var warned_missing_methods: Dictionary = {}
 var map_rect: ColorRect
 var map_material: ShaderMaterial
 var labels_layer: Control
+var armies_layer: Control
+var army_ui: Control
 
 # Top bar widgets
 var top_country_btn: Button
 var top_arms_rect: TextureRect
 var country_label: Label
 var ducats_label: Label
+var armies_btn: Button
 var date_label: Label
 var selection_label: Label
 var fps_label: Label
@@ -141,6 +146,14 @@ func _build_scene_ui() -> void:
 	labels_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(labels_layer)
 
+	# 2b. Army counters & marching arrows layer (redrawn only when armies or camera change)
+	armies_layer = Control.new()
+	armies_layer.name = "ArmiesLayer"
+	armies_layer.set_script(ArmiesLayerScript)
+	armies_layer.set_anchors_preset(Control.PRESET_FULL_RECT)
+	armies_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(armies_layer)
+
 	# 3. Top bar panel
 	_build_top_bar()
 
@@ -153,6 +166,15 @@ func _build_scene_ui() -> void:
 	# 6. Province panel & Sea panel (bottom-left)
 	_build_province_panel()
 	_build_sea_panel()
+
+	# 6b. Army panels (Selected Army inspector & Top-Bar Armies window)
+	army_ui = Control.new()
+	army_ui.name = "ArmyUI"
+	army_ui.set_script(ArmyPanelScript)
+	army_ui.set_anchors_preset(Control.PRESET_FULL_RECT)
+	army_ui.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(army_ui)
+	army_ui.call("setup", self)
 
 	# 7. Market panel (bottom-right, left of zoom buttons)
 	_build_market_panel()
@@ -217,6 +239,18 @@ func _build_top_bar() -> void:
 
 	ducats_label = _make_label("0 (+0.0/mo)", Color(0.96, 0.82, 0.32), 15)
 	hbox.add_child(ducats_label)
+
+	hbox.add_child(_make_separator())
+
+	armies_btn = Button.new()
+	armies_btn.text = "Armies 0 · MP 0"
+	armies_btn.custom_minimum_size = Vector2(140.0, 30.0)
+	armies_btn.tooltip_text = "Armies & Recruitment (Levies, Professionals, Mercenaries)"
+	armies_btn.pressed.connect(func() -> void:
+		if army_ui != null:
+			army_ui.call("toggle_armies_window")
+	)
+	hbox.add_child(armies_btn)
 
 	hbox.add_child(_make_separator())
 
@@ -828,6 +862,7 @@ func _init_bridge_and_map() -> void:
 	_refresh_all_labels()
 	_populate_autosave_options()
 	_refresh_top_bar()
+	_refresh_armies()
 
 func _refresh_all_labels() -> void:
 	if bridge == null:
@@ -874,6 +909,10 @@ func _process(delta: float) -> void:
 	var mask: int = int(_call_bridge("tickFrame", [delta], 0))
 	if mask != 0:
 		_refresh_top_bar()
+		if (mask & 1) != 0:
+			_refresh_armies()
+			if province_panel.visible and current_prov_tab == "overview":
+				_refresh_province_panel()
 		if (mask & 2) != 0:
 			# Monthly tick updated economy, constructions, populations, or markets
 			if province_panel.visible:
@@ -910,6 +949,8 @@ func _refresh_top_bar() -> void:
 	top_country_btn.text = "%s (%s)" % [c_name, c_tag]
 	top_arms_rect.texture = _get_country_arms_texture(c_tag)
 	ducats_label.text = str(_call_bridge("getDucatsText", [], "0 (+0.0/mo)"))
+	if armies_btn != null:
+		armies_btn.text = str(_call_bridge("getTopBarArmiesText", [], "Armies 0 · MP 0"))
 	date_label.text = str(_call_bridge("getDateText", [], "30 May 1453"))
 
 	var paused: bool = bool(_call_bridge("isPaused", [], true))
@@ -1063,6 +1104,30 @@ func _after_world_replaced() -> void:
 	_refresh_styles_and_country_labels()
 	_refresh_top_bar()
 	_refresh_play_as_button()
+	_refresh_armies()
+
+func _refresh_armies() -> void:
+	if bridge == null:
+		return
+	if armies_layer != null:
+		armies_layer.call("set_armies_data", _call_bridge("getMapArmiesData", [], {}))
+	if army_ui != null:
+		army_ui.call("refresh_all")
+
+func _after_army_action() -> void:
+	_refresh_armies()
+	_refresh_top_bar()
+	if province_panel.visible:
+		_refresh_province_panel()
+
+func _select_province_by_index(prov_idx: int) -> void:
+	var sel_id: int = int(_call_bridge("selectProvinceByIndex", [prov_idx], 0))
+	if sel_id >= 2:
+		map_material.set_shader_parameter("selected", sel_id)
+		map_material.set_shader_parameter("selected_sea", 0)
+		prov_show_build = false
+		_refresh_province_panel()
+		_refresh_play_as_button()
 
 # MARK: - Nation Picker
 
@@ -1165,6 +1230,7 @@ func _on_picker_switch_pressed() -> void:
 		_refresh_styles_and_country_labels()
 		_refresh_top_bar()
 		_refresh_play_as_button()
+		_refresh_armies()
 		if province_panel.visible:
 			_refresh_province_panel()
 
@@ -1288,33 +1354,8 @@ func _build_province_overview_tab(d: Dictionary) -> void:
 		_add_kv_row(prov_content_box, "River borders", river_txt)
 	_add_kv_row(prov_content_box, "Supply limit", str(d.get("supplyText", "")))
 
-	if is_mine:
-		var levy_row := HBoxContainer.new()
-		prov_content_box.add_child(levy_row)
-		var l_title := _make_label("Province levy", Color(0.80, 0.75, 0.66), 13)
-		l_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		levy_row.add_child(l_title)
-		if bool(d.get("canRaiseLevy", false)):
-			var avail: int = int(d.get("availableLevyMen", 0))
-			var raise_btn := Button.new()
-			raise_btn.text = "Raise %d men" % avail
-			raise_btn.pressed.connect(func() -> void:
-				if bool(_call_bridge("raiseSelectedProvinceLevies", [], false)):
-					_refresh_province_panel()
-					_refresh_top_bar()
-			)
-			levy_row.add_child(raise_btn)
-		else:
-			levy_row.add_child(_make_label(str(d.get("levyText", "0 men")), Color(0.95, 0.92, 0.84), 13))
-
-	var fort_lvl: int = int(d.get("fortLevel", 0))
-	var is_besieged: bool = bool(d.get("isBesieged", false))
-	if fort_lvl > 0 or is_besieged:
-		prov_content_box.add_child(HSeparator.new())
-		if fort_lvl > 0:
-			_add_kv_row(prov_content_box, "Fortress (Lv %d)" % fort_lvl, "%d / %d garrison" % [int(d.get("fortGarrison", 0)), int(d.get("maxGarrison", 0))])
-		if is_besieged:
-			prov_content_box.add_child(_make_label(str(d.get("siegeText", "")), Color(0.96, 0.48, 0.40), 12))
+	if army_ui != null:
+		army_ui.call("append_province_military_sections", prov_content_box, d)
 
 	prov_content_box.add_child(HSeparator.new())
 
@@ -1686,6 +1727,8 @@ func _sync_camera_uniforms() -> void:
 	map_material.set_shader_parameter("tint", tint)
 	if labels_layer != null:
 		labels_layer.call("update_camera", zoom, offset)
+	if armies_layer != null:
+		armies_layer.call("update_camera", zoom, offset)
 
 func _on_viewport_resized() -> void:
 	if zoom <= 0.0:
@@ -1697,7 +1740,11 @@ func _on_viewport_resized() -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
 		if event.keycode == KEY_ESCAPE:
-			_toggle_game_menu()
+			if int(_call_bridge("getMoveModeArmyId", [], -1)) >= 0:
+				_call_bridge("setMoveModeForArmy", [-1], false)
+				_after_army_action()
+			else:
+				_toggle_game_menu()
 			get_viewport().set_input_as_handled()
 			return
 
@@ -1783,6 +1830,15 @@ func _unhandled_input(event: InputEvent) -> void:
 			_zoom_by(1.0 / 1.12, event.position)
 			get_viewport().set_input_as_handled()
 			return
+		if event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
+			var sel_army: int = int(_call_bridge("getSelectedArmyId", [], -1))
+			if sel_army >= 0 and zoom > 0.0:
+				var r_map_x := int(floor((event.position.x - offset.x) / zoom))
+				var r_map_y := int(floor((event.position.y - offset.y) / zoom))
+				if bool(_call_bridge("orderArmyMoveAt", [sel_army, r_map_x, r_map_y], false)):
+					_after_army_action()
+				get_viewport().set_input_as_handled()
+				return
 		if event.button_index == MOUSE_BUTTON_LEFT:
 			if event.pressed:
 				is_pointer_down = true
@@ -1811,6 +1867,23 @@ func _handle_map_click(screen_pos: Vector2) -> void:
 		return
 	var map_x := int(floor((screen_pos.x - offset.x) / zoom))
 	var map_y := int(floor((screen_pos.y - offset.y) / zoom))
+
+	# 1. If an army is in Move target-picking mode, clicking a province orders a move there.
+	var move_army_id: int = int(_call_bridge("getMoveModeArmyId", [], -1))
+	if move_army_id >= 0:
+		_call_bridge("orderArmyMoveAt", [move_army_id, map_x, map_y], false)
+		_call_bridge("setMoveModeForArmy", [-1], false)
+		_after_army_action()
+		return
+
+	# 2. Check if the click hit an army counter on the map.
+	if not nation_picker_panel.visible and armies_layer != null:
+		var hit_army: int = int(armies_layer.call("pick_army_at", screen_pos))
+		if hit_army >= 0:
+			_call_bridge("selectArmy", [hit_army], false)
+			_after_army_action()
+			return
+
 	var sel_id: int = int(_call_bridge("selectAt", [map_x, map_y], 0))
 	var sel_sea: int = int(_call_bridge("getSelectedSeaValue", [], 0))
 	map_material.set_shader_parameter("selected", sel_id)
@@ -1848,6 +1921,7 @@ func _on_play_as_pressed() -> void:
 		_refresh_styles_and_country_labels()
 		_refresh_top_bar()
 		_refresh_play_as_button()
+		_refresh_armies()
 		if province_panel.visible:
 			_refresh_province_panel()
 
