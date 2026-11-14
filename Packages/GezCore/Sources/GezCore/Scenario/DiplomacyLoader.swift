@@ -4,7 +4,7 @@ import Foundation
 /// historical treaties, active starting wars, baseline opinions, and trust.
 enum DiplomacyLoader {
     static func loadBundled(into world: inout World) throws {
-        guard let url = Bundle.module.url(forResource: "diplomacy1453", withExtension: "json") else {
+        guard let url = GezResources.url(forResource: "diplomacy1453", withExtension: "json") else {
             throw Scenario1453.LoadError.missingResource
         }
         try load(from: Data(contentsOf: url), into: &world)

@@ -71,7 +71,7 @@ public struct ProvinceIDMap: Sendable {
     }
 
     static func loadBundled(named name: String) throws -> ProvinceIDMap {
-        guard let url = Bundle.module.url(forResource: name, withExtension: "idmap") else {
+        guard let url = GezResources.url(forResource: name, withExtension: "idmap") else {
             throw LoadError.missingResource
         }
         return try ProvinceIDMap(data: Data(contentsOf: url))

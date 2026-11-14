@@ -2,49 +2,12 @@ import CoreGraphics
 import Foundation
 import GezCore
 
-/// Per-province facts about the ID map that the app needs often:
-/// pixel bounding boxes (for the selection highlight) and pixel counts
-/// (to decide which names fit on screen).
-struct MapGeometry {
-    var minX: [Int]
-    var minY: [Int]
-    var maxX: [Int]
-    var maxY: [Int]
-    var pixelCount: [Int]
+typealias MapGeometry = MapGeometryData
 
-    init(map: ProvinceIDMap, provinceCount n: Int) {
-        var minX = [Int](repeating: Int.max, count: n)
-        var minY = [Int](repeating: Int.max, count: n)
-        var maxX = [Int](repeating: -1, count: n)
-        var maxY = [Int](repeating: -1, count: n)
-        var count = [Int](repeating: 0, count: n)
-        let w = map.width
-        map.values.withUnsafeBufferPointer { ids in
-            for y in 0..<map.height {
-                let row = y * w
-                for x in 0..<w {
-                    let v = Int(ids[row + x])
-                    guard v >= 2 else { continue }
-                    let p = v - 2
-                    if x < minX[p] { minX[p] = x }
-                    if x > maxX[p] { maxX[p] = x }
-                    if y < minY[p] { minY[p] = y }
-                    if y > maxY[p] { maxY[p] = y }
-                    count[p] += 1
-                }
-            }
-        }
-        self.minX = minX
-        self.minY = minY
-        self.maxX = maxX
-        self.maxY = maxY
-        self.pixelCount = count
-    }
-
+extension MapGeometryData {
     func bounds(of province: ProvinceID) -> CGRect? {
-        let i = province.index
-        guard maxX[i] >= 0 else { return nil }
-        return CGRect(x: minX[i], y: minY[i], width: maxX[i] - minX[i] + 1, height: maxY[i] - minY[i] + 1)
+        guard let b = pixelBounds(of: province) else { return nil }
+        return CGRect(x: b.x, y: b.y, width: b.width, height: b.height)
     }
 }
 
@@ -67,18 +30,7 @@ enum MapRenderer {
     }
 
     static func keys(world: World) -> (owner: [Int32], state: [Int32]) {
-        let n = world.provinces.count
-        var owner = [Int32](repeating: -1, count: n + 2)
-        var state = [Int32](repeating: -1, count: n + 2)
-        owner[0] = -2
-        owner[1] = -3
-        state[0] = -2
-        state[1] = -3
-        for i in 0..<n {
-            owner[i + 2] = world.provinces.owner[i].map { Int32($0.index) } ?? -1
-            state[i + 2] = Int32(world.provinces.state[i].index)
-        }
-        return (owner, state)
+        MapStyling.keys(world: world)
     }
 
     static func render(_ input: Input) -> CGImage? {

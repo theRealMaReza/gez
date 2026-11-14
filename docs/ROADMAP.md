@@ -190,7 +190,7 @@ screens on Mac, Windows, Linux (and iPad later); the whole simulation
 stays the existing Swift `GezCore`, loaded into Godot through SwiftGodot
 (a GDExtension). The Apple app in `App/` keeps working until the Godot
 version matches it; the owner decides when to retire it.
-1. **Prepare GezCore.** Move player actions and queries out of
+1. **Prepare GezCore.** ✅ Move player actions and queries out of
    `App/Shared/GameModel.swift` (Apple-only) into a pure-Swift
    `GameSession` in GezCore (start/load/save, speed and pause, recruit,
    build, declare war, offer peace, laws...), so both front-ends share
