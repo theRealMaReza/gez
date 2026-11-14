@@ -62,10 +62,14 @@ jobs:
     # The SwiftGodot extension that connects GezCore to the Godot screens.
     name: Godot extension (macOS)
     if: github.event_name != 'schedule' && inputs.only != 'profile' && inputs.only != 'windows'
-    runs-on: macos-15
+    runs-on: macos-26
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v5
+      - name: Toolchain
+        run: |
+          ls /Applications | grep -i xcode || true
+          swift --version
       - name: Build and test GezGodot
         run: |
           if [ -d godot/swift ]; then
