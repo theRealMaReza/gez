@@ -22,9 +22,9 @@ Last updated: session 6 (13 November 2026). Phases 0–8 are done (Gemini wrote 
   real families; invent people **only** where history records no one.
 - Platforms: **Mac and iPad** (owner has an M1 Mac and an M5 iPad).
   Swift / Xcode. **Windows might come later**, so keep `Packages/GezCore`
-  pure Swift. (13 Nov: owner asked about moving to Godot; advised staying
-  with Xcode for now. Decision point before Phase 9: switch the screens to
-  Godot then if Windows/Linux matter, else finish on Apple tools.)
+  pure Swift. **14 Nov: the owner decided to move the screens to Godot
+  before Phase 9** (ROADMAP Phase 8.5); GezCore stays the simulation,
+  loaded through SwiftGodot. CI tests GezCore on macOS, Linux and Windows.
 - Start date: **30 May 1453**, the day after Mehmed II took Constantinople.
 - Map: Europe, North Africa, Horn of Africa, Middle East, Central Asia to
   the modern China border, Indian subcontinent.
@@ -66,14 +66,16 @@ events, sound, menus, settings, multiplayer.
 
 ## What to do next
 
-1. **Play-test the first playable version** with the owner (Phase 8 says so
-   before going on): pick a country, run a few decades, fight a war, save
-   and load. Fix balance from what they report.
-2. **Decision point before Phase 9:** stay on Apple tools, or move the
-   screens to Godot (keeps the Swift simulation) if Windows/Linux matter.
-3. **Phase 9: battle view.** Owner's choices are already in the roadmap.
-   Model advice given to the owner (no Carbon available, weekly limit):
-   Argon for the core battle engine, Gemini 4 Hydrogen for the rest.
+1. **Phase 8.5: move the screens to Godot** (ROADMAP). Step 1 (GameSession
+   in GezCore, settable data directory) and step 2 (proof of concept) come
+   first; the owner judges the proof of concept before the full port.
+   Recommended model for Gemini: Argon for steps 1–2.
+2. The owner should still **play-test the first playable version** (the
+   Apple app works today) to catch balance problems.
+3. Then **Phase 9: battle view**, built in Godot.
+4. Follow-ups from the Phase 7–8 review: the monthly diplomacy AI is the
+   slowest system (~0.75 s per call in debug builds); army table slots are
+   never reused (fine now, since daily systems index by province once).
 
 Phase 7 history additions by Claude's review: the Albanian–Ottoman war and
 the Delhi–Jaunpur war were active on 30 May 1453 and are now in

@@ -52,7 +52,7 @@ Decided by the owner on 13 November 2026 (session 6, on claude.ai).
 | 27 | Map size | **Split India first** (about 95 to about 250 provinces), then other thin areas if needed |
 | 28 | Audio | **Sound effects and ambience only, no music or instruments** |
 | 29 | Multiplayer | **Epic Online Services (EOS) with join codes** (changed session 6, replacing Game Center); own free server as backup. Host chooses per game what happens when someone fights a battle manually |
-| 30 | Windows | **Decide later**; keep the simulation portable |
+| 30 | Windows | **Yes, through Godot** (decided 14 Nov 2026): the screens move to Godot before Phase 9 (Phase 8.5); the Swift simulation stays |
 | + | Help | **Tooltips only** (no guided tutorial) |
 | + | Chronicle | **History book, graphs and timelapse near the end** |
 
@@ -182,6 +182,33 @@ Owner's choices:
 3. **First playable milestone**: a complete game loop (economy, armies,
    war, peace, sieges) as any country. Play-test with the owner and fix
    balance before going on.
+
+### Phase 8.5: Move the screens to Godot
+Decided by the owner on 14 November 2026, before Phase 9, so the battle
+view, 3D map and art pass are built once, in Godot. Godot 4.7 runs the
+screens on Mac, Windows, Linux (and iPad later); the whole simulation
+stays the existing Swift `GezCore`, loaded into Godot through SwiftGodot
+(a GDExtension). The Apple app in `App/` keeps working until the Godot
+version matches it; the owner decides when to retire it.
+1. **Prepare GezCore.** Move player actions and queries out of
+   `App/Shared/GameModel.swift` (Apple-only) into a pure-Swift
+   `GameSession` in GezCore (start/load/save, speed and pause, recruit,
+   build, declare war, offer peace, laws...), so both front-ends share
+   them. Make resource loading work outside SwiftPM bundles (a settable
+   data directory instead of only `Bundle.module`). Keep the macOS, Linux
+   and Windows test jobs green.
+2. **Proof of concept** in `godot/`: the 1453 world loaded through
+   SwiftGodot, the political map (port `MapShaders.metal` to Godot's
+   shading language, same textures and ID maps), pan and zoom, the top
+   bar, pause and speeds. The owner checks look and speed on the Mac:
+   go or no-go for the full port.
+3. **Port every screen**: province panel, map modes, army counters,
+   budget, trade, court, government, armies, diplomacy, war and peace,
+   sieges, game menu (new, load, save), nation picker, alerts.
+4. **Builds**: Godot headless exports for Mac, Windows and Linux on CI;
+   screenshot tests replace the Apple snapshot job; downloads on the
+   website and itch.io.
+5. **Retire `App/`** once the Godot version is at parity (owner decides).
 
 ### Phase 9: Battle view (2D, real-time with pause)
 Owner's choices:
@@ -315,6 +342,6 @@ it to `tools/uiart/` when this phase starts. Never use Paradox art.
 After Phase 20: the **alpha build "Kayser"** (see "Build names" above).
 
 ### Backlog (decide later)
-- **Windows** version: decide later; the simulation stays portable.
+- **Windows** version: decided, through Godot (Phase 8.5).
 - Playable naval battles, iCloud saves, guided tutorial, music: not wanted
   for now.

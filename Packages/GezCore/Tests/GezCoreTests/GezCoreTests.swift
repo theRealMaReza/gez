@@ -383,7 +383,8 @@ final class HeraldryTests: XCTestCase {
         let text = try String(contentsOf: repo.appendingPathComponent("data/heraldry/choices.txt"), encoding: .utf8)
         let world = Scenario1453.makeWorld()
         var seen = Set<String>()
-        for line in text.split(separator: "\n") where !line.hasPrefix("#") && !line.isEmpty {
+        // isNewline also splits Windows "\r\n" line endings.
+        for line in text.split(whereSeparator: \.isNewline) where !line.hasPrefix("#") && !line.isEmpty {
             let parts = line.split(separator: "|").map { $0.trimmingCharacters(in: .whitespaces) }
             XCTAssertGreaterThanOrEqual(parts.count, 2, String(line))
             let tag = parts[0]
