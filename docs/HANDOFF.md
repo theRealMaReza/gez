@@ -66,10 +66,14 @@ events, sound, menus, settings, multiplayer.
 
 ## What to do next
 
-1. **Phase 8.5: move the screens to Godot** (ROADMAP). Step 1 (GameSession
-   in GezCore, settable data directory) and step 2 (proof of concept) come
-   first; the owner judges the proof of concept before the full port.
-   Recommended model for Gemini: Argon for steps 1–2.
+1. **Phase 8.5: move the screens to Godot** (ROADMAP). Steps 1–2 merged
+   (#17, 14 Nov): the owner said go; map looks right, a bit sluggish.
+   Next: step 3a–e, one Gemini PR each (Gemini 4 Hydrogen, high). Running
+   it on the Mac: `git pull`, `godot/build_mac.sh`, then quit Godot with
+   Cmd+Q and reopen (it loads the Swift extension only at startup; a stale
+   extension shows "Nonexistent function" errors).
+   Open PR #15 (Phase 8 step 4, 53 files) predates #14 and is unreviewed;
+   likely conflicts. Ask the owner before reviewing or closing it.
 2. The owner should still **play-test the first playable version** (the
    Apple app works today) to catch balance problems.
 3. Then **Phase 9: battle view**, built in Godot.

@@ -201,10 +201,17 @@ version matches it; the owner decides when to retire it.
    SwiftGodot, the political map (port `MapShaders.metal` to Godot's
    shading language, same textures and ID maps), pan and zoom, the top
    bar, pause and speeds. The owner checks look and speed on the Mac:
-   go or no-go for the full port.
+   go or no-go for the full port. ✅ Go (14 Nov 2026): the map looks
+   right; it feels a bit sluggish, to tune later (step 3e).
 3. **Port every screen**: province panel, map modes, army counters,
    budget, trade, court, government, armies, diplomacy, war and peace,
-   sieges, game menu (new, load, save), nation picker, alerts.
+   sieges, game menu (new, load, save), nation picker, alerts. One pull
+   request per part:
+   a. Game menu (new, load, save), nation picker, province panel, map modes.
+   b. Armies: counters on the map, select, move, recruit, sieges.
+   c. Economy: budget, trade, buildings.
+   d. Court, government and laws; diplomacy, war and peace; alerts.
+   e. Speed: find and fix the sluggishness the owner noticed.
 4. **Builds**: Godot headless exports for Mac, Windows and Linux on CI;
    screenshot tests replace the Apple snapshot job; downloads on the
    website and itch.io.
