@@ -477,12 +477,18 @@ func _handle_map_click(screen_pos: Vector2) -> void:
 func _refresh_play_as_button() -> void:
 	if bridge == null or play_as_btn == null:
 		return
+	# An old copy of the Swift connector (built before Play as existed) lacks
+	# this function. Hide the button and say how to fix it instead of stopping.
+	if not bridge.has_method("getSelectedOwnerName"):
+		play_as_btn.visible = false
+		push_warning("GezGodot is out of date: run godot/build_mac.sh, then quit and reopen Godot.")
+		return
 	var owner_name: String = bridge.call("getSelectedOwnerName")
 	play_as_btn.visible = not owner_name.is_empty()
 	play_as_btn.text = "Play as " + owner_name
 
 func _on_play_as_pressed() -> void:
-	if bridge == null:
+	if bridge == null or not bridge.has_method("playAsSelectedOwner"):
 		return
 	var switched: bool = bridge.call("playAsSelectedOwner")
 	if switched:
