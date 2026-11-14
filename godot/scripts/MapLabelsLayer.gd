@@ -2,6 +2,7 @@ extends Control
 
 var map_zoom: float = 1.0
 var map_offset: Vector2 = Vector2.ZERO
+var map_mode: String = "political"
 
 var country_texts: PackedStringArray = PackedStringArray()
 var country_metrics: PackedFloat32Array = PackedFloat32Array()
@@ -17,6 +18,12 @@ func update_camera(new_zoom: float, new_offset: Vector2) -> void:
 		return
 	map_zoom = new_zoom
 	map_offset = new_offset
+	queue_redraw()
+
+func set_map_mode(mode_key: String) -> void:
+	if map_mode == mode_key:
+		return
+	map_mode = mode_key
 	queue_redraw()
 
 func set_country_labels(texts: PackedStringArray, metrics: PackedFloat32Array) -> void:
@@ -74,9 +81,11 @@ func _draw() -> void:
 		draw_string_outline(font, baseline, label_text, HORIZONTAL_ALIGNMENT_CENTER, w, font_size, 2, sea_shadow)
 		draw_string(font, baseline, label_text, HORIZONTAL_ALIGNMENT_CENTER, w, font_size, sea_col)
 
-	# 2. Country names when zoomed out, province names when zoomed in.
+	# 2. Country names when zoomed out (political mode), province names when zoomed in.
 	placed.clear()
 	var show_provinces := map_zoom >= 1.1
+	if not show_provinces and map_mode != "political":
+		return
 	var texts := province_texts if show_provinces else country_texts
 	var metrics := province_metrics if show_provinces else country_metrics
 	var count := texts.size()
