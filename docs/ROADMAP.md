@@ -211,7 +211,10 @@ version matches it; the owner decides when to retire it.
    b. Armies: counters on the map, select, move, recruit, sieges. ✅
    c. Economy: budget, trade, buildings.
    d. Court, government and laws; diplomacy, war and peace; alerts.
-   e. Speed: find and fix the sluggishness the owner noticed.
+   e. Speed: find and fix the sluggishness the owner noticed. Reuse the
+      ideas in closed PR #15 (commit bd4221e on branch
+      `gemini/phase8-balance-and-docs`): tick speed-ups and the fix that
+      stops the 1453 wars from making peace on day 2.
 4. **Builds**: Godot headless exports for Mac, Windows and Linux on CI;
    screenshot tests replace the Apple snapshot job; downloads on the
    website and itch.io.

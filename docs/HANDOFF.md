@@ -74,8 +74,8 @@ events, sound, menus, settings, multiplayer.
    it on the Mac: `git pull`, `godot/build_mac.sh`, then quit Godot with
    Cmd+Q and reopen (it loads the Swift extension only at startup; a stale
    extension shows "Nonexistent function" errors).
-   Open PR #15 (Phase 8 step 4, 53 files) predates #14 and is unreviewed;
-   likely conflicts. Ask the owner before reviewing or closing it.
+   PR #15 (old Phase 8 step 4) was closed with the owner's agreement; its
+   speed-ups and war-stalemate fix (commit bd4221e) go into step 3e.
 2. The owner should still **play-test the first playable version** (the
    Apple app works today) to catch balance problems.
 3. Then **Phase 9: battle view**, built in Godot.
