@@ -147,6 +147,26 @@ public final class GezGodotController {
         }
     }
 
+    /// Name of the country owning the selected province, or "" when nothing
+    /// is selected, the province is unowned, or it is already the player's.
+    public var selectedOwnerName: String {
+        guard let s = session, let p = s.selectedProvince,
+              let owner = s.world.provinces.owner[p.index],
+              owner != s.playerCountry else { return "" }
+        return s.world.countries.name[owner.index]
+    }
+
+    /// Makes the owner of the selected province the player's country.
+    /// Returns true when the player switched.
+    @discardableResult
+    public func playAsSelectedOwner() -> Bool {
+        guard let s = session, let p = s.selectedProvince,
+              let owner = s.world.provinces.owner[p.index],
+              owner != s.playerCountry else { return false }
+        s.switchPlayer(to: owner)
+        return true
+    }
+
     public func provinceSummaryAt(mapX x: Int, mapY y: Int) -> String {
         guard let s = session else { return "" }
         let w = s.world
@@ -329,6 +349,12 @@ public final class GezGodotBridge: RefCounted {
     public func getProvinceSummaryAt(mapX: Int, mapY: Int) -> String {
         controller.provinceSummaryAt(mapX: mapX, mapY: mapY)
     }
+
+    @Callable
+    public func getSelectedOwnerName() -> String { controller.selectedOwnerName }
+
+    @Callable
+    public func playAsSelectedOwner() -> Bool { controller.playAsSelectedOwner() }
 
     @Callable
     public func getStyleTextureWidth() -> Int { GezGodotController.styleTextureWidth }

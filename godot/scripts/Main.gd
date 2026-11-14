@@ -15,6 +15,7 @@ var date_label: Label
 var selection_label: Label
 var fps_label: Label
 var pause_btn: Button
+var play_as_btn: Button
 var speed_buttons: Array[Button] = []
 
 # Map dimensions & GPU textures
@@ -37,6 +38,10 @@ var pointer_down_pos: Vector2 = Vector2.ZERO
 var drag_start_offset: Vector2 = Vector2.ZERO
 
 func _ready() -> void:
+	# The root Control covers the whole window. With the default mouse filter
+	# (STOP) it swallowed every click, drag and scroll before they reached
+	# _unhandled_input, so the map could not be clicked, dragged or zoomed.
+	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_build_scene_ui()
 	_init_bridge_and_map()
 	resized.connect(_on_viewport_resized)
@@ -98,6 +103,12 @@ func _build_scene_ui() -> void:
 	selection_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	hbox.add_child(selection_label)
 
+	play_as_btn = Button.new()
+	play_as_btn.visible = false
+	play_as_btn.tooltip_text = "Switch to the country that owns the selected province"
+	play_as_btn.pressed.connect(_on_play_as_pressed)
+	hbox.add_child(play_as_btn)
+
 	date_label = _make_top_label("30 May 1453", Color(0.96, 0.93, 0.86), 15)
 	date_label.custom_minimum_size = Vector2(130.0, 0.0)
 	date_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
@@ -135,8 +146,6 @@ func _build_scene_ui() -> void:
 	# 4. Bottom-right zoom buttons (+, -, Fit)
 	var zoom_box := VBoxContainer.new()
 	zoom_box.name = "ZoomButtons"
-	zoom_box.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
-	zoom_box.position = Vector2(-54.0, -140.0)
 	zoom_box.add_theme_constant_override("separation", 6)
 	add_child(zoom_box)
 
@@ -160,6 +169,9 @@ func _build_scene_ui() -> void:
 	btn_fit.tooltip_text = "Show Whole Map (F)"
 	btn_fit.pressed.connect(_show_whole_map)
 	zoom_box.add_child(btn_fit)
+	# Anchor to the bottom-right corner, 16 px in. (Setting `position` after
+	# the anchor preset placed the buttons outside the window.)
+	zoom_box.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT, Control.PRESET_MODE_MINSIZE, 16)
 
 func _make_top_label(txt: String, col: Color, fsize: int) -> Label:
 	var lbl := Label.new()
@@ -460,6 +472,23 @@ func _handle_map_click(screen_pos: Vector2) -> void:
 	map_material.set_shader_parameter("selected_sea", sel_sea)
 	var summary: String = bridge.call("getProvinceSummaryAt", map_x, map_y)
 	selection_label.text = summary if not summary.is_empty() else "Deep Sea"
+	_refresh_play_as_button()
+
+func _refresh_play_as_button() -> void:
+	if bridge == null or play_as_btn == null:
+		return
+	var owner_name: String = bridge.call("getSelectedOwnerName")
+	play_as_btn.visible = not owner_name.is_empty()
+	play_as_btn.text = "Play as " + owner_name
+
+func _on_play_as_pressed() -> void:
+	if bridge == null:
+		return
+	var switched: bool = bridge.call("playAsSelectedOwner")
+	if switched:
+		_refresh_styles_and_country_labels()
+		_refresh_top_bar()
+		_refresh_play_as_button()
 
 func _on_pause_pressed() -> void:
 	if bridge == null:

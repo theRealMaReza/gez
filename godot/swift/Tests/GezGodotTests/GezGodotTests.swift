@@ -50,4 +50,22 @@ struct GezGodotTests {
         #expect((mask & 1) != 0)
         #expect(controller.dateText != "30 May 1453")
     }
+
+    @Test("Clicking a foreign province offers it, and Play as switches the player")
+    func playAsSelectedOwner() {
+        let controller = GezGodotController()
+        #expect(controller.setup(dataDirectoryPath: "", tag: "TUR"))
+        #expect(controller.selectedOwnerName.isEmpty)
+
+        // Paris, owned by France.
+        let paris = controller.focusPoint(latitude: 48.86, longitude: 2.35)
+        controller.selectAt(mapX: Int(paris.x), mapY: Int(paris.y))
+        #expect(controller.selectedOwnerName.contains("France"))
+
+        #expect(controller.playAsSelectedOwner())
+        #expect(controller.countryTag == "FRA")
+        // Already the player's own province now: nothing more to offer.
+        #expect(controller.selectedOwnerName.isEmpty)
+        #expect(!controller.playAsSelectedOwner())
+    }
 }
