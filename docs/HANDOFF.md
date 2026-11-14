@@ -68,7 +68,8 @@ events, sound, menus, settings, multiplayer.
 
 1. **Phase 8.5: move the screens to Godot** (ROADMAP). Steps 1–2 merged
    (#17, 14 Nov): the owner said go; map looks right, a bit sluggish.
-   Next: step 3a–e, one Gemini PR each (Gemini 4 Hydrogen, high). Running
+   Step 3a (game menu, nation picker, province panel with Overview/Economy/People tabs and market panel, map modes Q–I) is built in `godot/`.
+   Next: steps 3b–e, one Gemini PR each (Gemini 4 Hydrogen, high). Running
    it on the Mac: `git pull`, `godot/build_mac.sh`, then quit Godot with
    Cmd+Q and reopen (it loads the Swift extension only at startup; a stale
    extension shows "Nonexistent function" errors).

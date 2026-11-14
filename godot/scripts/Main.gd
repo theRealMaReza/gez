@@ -4,11 +4,15 @@ const MapShader := preload("res://shaders/map.gdshader")
 const LabelsLayerScript := preload("res://scripts/MapLabelsLayer.gd")
 
 var bridge: RefCounted = null
+var warned_missing_methods: Dictionary = {}
+
 var map_rect: ColorRect
 var map_material: ShaderMaterial
 var labels_layer: Control
 
 # Top bar widgets
+var top_country_btn: Button
+var top_arms_rect: TextureRect
 var country_label: Label
 var ducats_label: Label
 var date_label: Label
@@ -16,7 +20,69 @@ var selection_label: Label
 var fps_label: Label
 var pause_btn: Button
 var play_as_btn: Button
+var menu_btn: Button
 var speed_buttons: Array[Button] = []
+
+# Map mode bar widgets
+var map_mode_buttons: Dictionary = {}
+var current_map_mode: String = "political"
+
+# Province panel & Sea panel widgets (bottom-left)
+var province_panel: PanelContainer
+var prov_title_label: Label
+var prov_subtitle_label: Label
+var prov_owner_arms: TextureRect
+var prov_owner_label: Label
+var prov_capital_label: Label
+var prov_occupied_label: Label
+var prov_status_label: Label
+var prov_tab_buttons: Dictionary = {}
+var prov_content_box: VBoxContainer
+var current_prov_tab: String = "overview"
+var prov_show_build: bool = false
+var prov_build_category: String = "production"
+var prov_people_show_state: bool = false
+
+var sea_panel: PanelContainer
+var sea_title_label: Label
+var sea_neighbors_label: Label
+var sea_coast_title_label: Label
+var sea_coast_label: Label
+
+# Market panel widgets (bottom-right)
+var market_panel: PanelContainer
+var market_title_label: Label
+var market_subtitle_label: Label
+var market_cat_box: HBoxContainer
+var market_goods_box: VBoxContainer
+var open_market_index: int = -1
+var current_market_category: String = ""
+
+# Game menu widgets (center modal)
+var game_menu_panel: PanelContainer
+var menu_playing_label: Label
+var menu_status_label: Label
+var save_name_input: LineEdit
+var autosave_option_btn: OptionButton
+var autosave_keys: Array[String] = []
+var saves_list_box: VBoxContainer
+
+# Nation picker widgets
+var nation_picker_panel: PanelContainer
+var picker_featured_flow: HFlowContainer
+var picker_search_input: LineEdit
+var picker_list_box: VBoxContainer
+var picker_arms_rect: TextureRect
+var picker_name_label: Label
+var picker_meta_label: Label
+var picker_ruler_label: Label
+var picker_treasury_label: Label
+var picker_provinces_label: Label
+var selected_picker_tag: String = "TUR"
+var cached_all_countries: Array = []
+
+# Heraldry cache (tag -> Texture2D)
+var arms_cache: Dictionary = {}
 
 # Map dimensions & GPU textures
 var map_size := Vector2(3936.0, 2384.0)
@@ -38,14 +104,23 @@ var pointer_down_pos: Vector2 = Vector2.ZERO
 var drag_start_offset: Vector2 = Vector2.ZERO
 
 func _ready() -> void:
-	# The root Control covers the whole window. With the default mouse filter
-	# (STOP) it swallowed every click, drag and scroll before they reached
-	# _unhandled_input, so the map could not be clicked, dragged or zoomed.
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_build_scene_ui()
 	_init_bridge_and_map()
 	resized.connect(_on_viewport_resized)
 	call_deferred("_reset_to_start_camera")
+
+# Safe bridge caller that always checks bridge.has_method() first so an
+# out-of-date GDExtension binary logs a clear warning instead of crashing.
+func _call_bridge(method_name: String, args: Array = [], fallback: Variant = null) -> Variant:
+	if bridge == null:
+		return fallback
+	if not bridge.has_method(method_name):
+		if not warned_missing_methods.has(method_name):
+			warned_missing_methods[method_name] = true
+			push_warning("GezGodot is missing '%s': run godot/build_mac.sh, then quit (Cmd+Q) and reopen Godot." % method_name)
+		return fallback
+	return bridge.callv(method_name, args)
 
 func _build_scene_ui() -> void:
 	# 1. Fullscreen shaded map ColorRect
@@ -66,7 +141,41 @@ func _build_scene_ui() -> void:
 	labels_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(labels_layer)
 
-	# 3. Top bar panel (country, ducats, date, pause & speeds 1–5)
+	# 3. Top bar panel
+	_build_top_bar()
+
+	# 4. Map mode bar (top-right, below top bar)
+	_build_map_mode_bar()
+
+	# 5. Bottom-right zoom buttons (+, -, Fit)
+	_build_zoom_buttons()
+
+	# 6. Province panel & Sea panel (bottom-left)
+	_build_province_panel()
+	_build_sea_panel()
+
+	# 7. Market panel (bottom-right, left of zoom buttons)
+	_build_market_panel()
+
+	# 8. Nation picker panel (top-left, below top bar so map stays clickable)
+	_build_nation_picker_panel()
+
+	# 9. Game menu panel (center)
+	_build_game_menu_panel()
+
+func _make_panel_style(bg := Color(0.14, 0.11, 0.08, 0.96)) -> StyleBoxFlat:
+	var s := StyleBoxFlat.new()
+	s.bg_color = bg
+	s.border_color = Color(0.68, 0.55, 0.28, 0.85)
+	s.set_border_width_all(1)
+	s.set_corner_radius_all(8)
+	s.content_margin_left = 14.0
+	s.content_margin_right = 14.0
+	s.content_margin_top = 12.0
+	s.content_margin_bottom = 12.0
+	return s
+
+func _build_top_bar() -> void:
 	var top_bar := PanelContainer.new()
 	top_bar.name = "TopBar"
 	top_bar.set_anchors_preset(Control.PRESET_TOP_WIDE)
@@ -83,23 +192,35 @@ func _build_scene_ui() -> void:
 	add_child(top_bar)
 
 	var hbox := HBoxContainer.new()
-	hbox.add_theme_constant_override("separation", 18)
+	hbox.add_theme_constant_override("separation", 14)
 	top_bar.add_child(hbox)
 
-	country_label = _make_top_label("Ottoman Empire (TUR)", Color(0.97, 0.88, 0.62), 16)
-	hbox.add_child(country_label)
+	top_arms_rect = TextureRect.new()
+	top_arms_rect.custom_minimum_size = Vector2(28.0, 24.0)
+	top_arms_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	top_arms_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	hbox.add_child(top_arms_rect)
+
+	top_country_btn = Button.new()
+	top_country_btn.text = "Ottoman Empire (TUR)"
+	top_country_btn.flat = true
+	top_country_btn.tooltip_text = "Choose nation / New Game"
+	top_country_btn.add_theme_color_override("font_color", Color(0.97, 0.88, 0.62))
+	top_country_btn.add_theme_font_size_override("font_size", 16)
+	top_country_btn.pressed.connect(_toggle_nation_picker)
+	hbox.add_child(top_country_btn)
 
 	hbox.add_child(_make_separator())
 
-	var ducats_prefix := _make_top_label("Ducats:", Color(0.80, 0.75, 0.65), 14)
+	var ducats_prefix := _make_label("Ducats:", Color(0.80, 0.75, 0.65), 14)
 	hbox.add_child(ducats_prefix)
 
-	ducats_label = _make_top_label("0 (+0.0/mo)", Color(0.96, 0.82, 0.32), 15)
+	ducats_label = _make_label("0 (+0.0/mo)", Color(0.96, 0.82, 0.32), 15)
 	hbox.add_child(ducats_label)
 
 	hbox.add_child(_make_separator())
 
-	selection_label = _make_top_label("Click a province to inspect", Color(0.86, 0.83, 0.76), 13)
+	selection_label = _make_label("Click a province to inspect", Color(0.86, 0.83, 0.76), 13)
 	selection_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	hbox.add_child(selection_label)
 
@@ -109,14 +230,21 @@ func _build_scene_ui() -> void:
 	play_as_btn.pressed.connect(_on_play_as_pressed)
 	hbox.add_child(play_as_btn)
 
-	date_label = _make_top_label("30 May 1453", Color(0.96, 0.93, 0.86), 15)
-	date_label.custom_minimum_size = Vector2(130.0, 0.0)
+	menu_btn = Button.new()
+	menu_btn.text = "Menu"
+	menu_btn.custom_minimum_size = Vector2(68.0, 30.0)
+	menu_btn.tooltip_text = "Game Menu (Esc): New Game, Save, Load, Autosave, Quit"
+	menu_btn.pressed.connect(_toggle_game_menu)
+	hbox.add_child(menu_btn)
+
+	date_label = _make_label("30 May 1453", Color(0.96, 0.93, 0.86), 15)
+	date_label.custom_minimum_size = Vector2(124.0, 0.0)
 	date_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	hbox.add_child(date_label)
 
 	pause_btn = Button.new()
 	pause_btn.text = "PAUSED"
-	pause_btn.custom_minimum_size = Vector2(86.0, 30.0)
+	pause_btn.custom_minimum_size = Vector2(82.0, 30.0)
 	pause_btn.tooltip_text = "Toggle Pause (Space)"
 	pause_btn.pressed.connect(_on_pause_pressed)
 	hbox.add_child(pause_btn)
@@ -129,7 +257,7 @@ func _build_scene_ui() -> void:
 	for s in range(1, 6):
 		var b := Button.new()
 		b.text = str(s)
-		b.custom_minimum_size = Vector2(30.0, 30.0)
+		b.custom_minimum_size = Vector2(28.0, 30.0)
 		b.tooltip_text = "Speed %d (Key %d)" % [s, s]
 		var spd := s
 		b.pressed.connect(func() -> void: _on_speed_selected(spd))
@@ -138,12 +266,51 @@ func _build_scene_ui() -> void:
 
 	hbox.add_child(_make_separator())
 
-	fps_label = _make_top_label("60 FPS", Color(0.72, 0.82, 0.72), 13)
-	fps_label.custom_minimum_size = Vector2(64.0, 0.0)
+	fps_label = _make_label("60 FPS", Color(0.72, 0.82, 0.72), 13)
+	fps_label.custom_minimum_size = Vector2(58.0, 0.0)
 	fps_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	hbox.add_child(fps_label)
 
-	# 4. Bottom-right zoom buttons (+, -, Fit)
+func _build_map_mode_bar() -> void:
+	var mode_panel := PanelContainer.new()
+	mode_panel.name = "MapModeBar"
+	mode_panel.add_theme_stylebox_override("panel", _make_panel_style(Color(0.15, 0.12, 0.09, 0.92)))
+	add_child(mode_panel)
+
+	var hbox := HBoxContainer.new()
+	hbox.add_theme_constant_override("separation", 4)
+	mode_panel.add_child(hbox)
+
+	var modes_spec := [
+		{"key": "political", "title": "Political", "shortcut": "Q"},
+		{"key": "diplomatic", "title": "Diplomatic", "shortcut": "O"},
+		{"key": "states", "title": "States", "shortcut": "W"},
+		{"key": "terrain", "title": "Terrain", "shortcut": "E"},
+		{"key": "religion", "title": "Religion", "shortcut": "R"},
+		{"key": "culture", "title": "Culture", "shortcut": "T"},
+		{"key": "development", "title": "Development", "shortcut": "Y"},
+		{"key": "goods", "title": "Goods", "shortcut": "U"},
+		{"key": "markets", "title": "Markets", "shortcut": "I"}
+	]
+	map_mode_buttons.clear()
+	for m in modes_spec:
+		var k: String = m["key"]
+		var title: String = m["title"]
+		var sc: String = m["shortcut"]
+		var btn := Button.new()
+		btn.text = "%s (%s)" % [title, sc]
+		btn.tooltip_text = "%s Map Mode (Key %s)" % [title, sc]
+		btn.custom_minimum_size = Vector2(0.0, 28.0)
+		var mode_key := k
+		btn.pressed.connect(func() -> void: _select_map_mode(mode_key))
+		hbox.add_child(btn)
+		map_mode_buttons[k] = btn
+
+	mode_panel.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT, Control.PRESET_MODE_MINSIZE, 12)
+	mode_panel.offset_top = 60.0
+	_update_map_mode_button_styles()
+
+func _build_zoom_buttons() -> void:
 	var zoom_box := VBoxContainer.new()
 	zoom_box.name = "ZoomButtons"
 	zoom_box.add_theme_constant_override("separation", 6)
@@ -169,11 +336,403 @@ func _build_scene_ui() -> void:
 	btn_fit.tooltip_text = "Show Whole Map (F)"
 	btn_fit.pressed.connect(_show_whole_map)
 	zoom_box.add_child(btn_fit)
-	# Anchor to the bottom-right corner, 16 px in. (Setting `position` after
-	# the anchor preset placed the buttons outside the window.)
 	zoom_box.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT, Control.PRESET_MODE_MINSIZE, 16)
 
-func _make_top_label(txt: String, col: Color, fsize: int) -> Label:
+func _build_province_panel() -> void:
+	province_panel = PanelContainer.new()
+	province_panel.name = "ProvincePanel"
+	province_panel.visible = false
+	province_panel.custom_minimum_size = Vector2(330.0, 0.0)
+	province_panel.add_theme_stylebox_override("panel", _make_panel_style())
+	add_child(province_panel)
+
+	var vbox := VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 6)
+	province_panel.add_child(vbox)
+
+	# Title + close button
+	var header := HBoxContainer.new()
+	vbox.add_child(header)
+	prov_title_label = _make_label("Province", Color(0.97, 0.90, 0.68), 18)
+	prov_title_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	header.add_child(prov_title_label)
+	var close_btn := Button.new()
+	close_btn.text = "X"
+	close_btn.tooltip_text = "Close province panel"
+	close_btn.pressed.connect(_clear_selection)
+	header.add_child(close_btn)
+
+	prov_subtitle_label = _make_label("State · Region", Color(0.80, 0.75, 0.66), 12)
+	vbox.add_child(prov_subtitle_label)
+
+	# Owner row
+	var owner_row := HBoxContainer.new()
+	owner_row.add_theme_constant_override("separation", 6)
+	vbox.add_child(owner_row)
+	prov_owner_arms = TextureRect.new()
+	prov_owner_arms.custom_minimum_size = Vector2(24.0, 20.0)
+	prov_owner_arms.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	prov_owner_arms.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	owner_row.add_child(prov_owner_arms)
+	prov_owner_label = _make_label("Owner", Color(0.95, 0.92, 0.85), 14)
+	prov_owner_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	owner_row.add_child(prov_owner_label)
+	prov_capital_label = _make_label("★ Capital", Color(0.98, 0.84, 0.32), 12)
+	owner_row.add_child(prov_capital_label)
+
+	prov_occupied_label = _make_label("", Color(0.95, 0.42, 0.38), 12)
+	prov_occupied_label.visible = false
+	vbox.add_child(prov_occupied_label)
+
+	prov_status_label = _make_label("", Color(0.78, 0.73, 0.64), 12)
+	vbox.add_child(prov_status_label)
+
+	# Tabs: Overview, Economy, People
+	var tabs_row := HBoxContainer.new()
+	tabs_row.add_theme_constant_override("separation", 4)
+	vbox.add_child(tabs_row)
+	prov_tab_buttons.clear()
+	for tab_spec in [["overview", "Overview"], ["economy", "Economy"], ["people", "People"]]:
+		var tk: String = tab_spec[0]
+		var tt: String = tab_spec[1]
+		var tb := Button.new()
+		tb.text = tt
+		tb.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		var tab_key := tk
+		tb.pressed.connect(func() -> void:
+			current_prov_tab = tab_key
+			_refresh_province_panel()
+		)
+		tabs_row.add_child(tb)
+		prov_tab_buttons[tk] = tb
+
+	vbox.add_child(HSeparator.new())
+
+	var scroll := ScrollContainer.new()
+	scroll.custom_minimum_size = Vector2(310.0, 270.0)
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	vbox.add_child(scroll)
+
+	prov_content_box = VBoxContainer.new()
+	prov_content_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	prov_content_box.add_theme_constant_override("separation", 5)
+	scroll.add_child(prov_content_box)
+
+	province_panel.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT, Control.PRESET_MODE_MINSIZE, 12)
+
+func _build_sea_panel() -> void:
+	sea_panel = PanelContainer.new()
+	sea_panel.name = "SeaPanel"
+	sea_panel.visible = false
+	sea_panel.custom_minimum_size = Vector2(300.0, 0.0)
+	sea_panel.add_theme_stylebox_override("panel", _make_panel_style())
+	add_child(sea_panel)
+
+	var vbox := VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 6)
+	sea_panel.add_child(vbox)
+
+	var header := HBoxContainer.new()
+	vbox.add_child(header)
+	sea_title_label = _make_label("Sea Zone", Color(0.86, 0.93, 0.98), 17)
+	sea_title_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	header.add_child(sea_title_label)
+	var close_btn := Button.new()
+	close_btn.text = "X"
+	close_btn.pressed.connect(_clear_selection)
+	header.add_child(close_btn)
+
+	vbox.add_child(_make_label("Sea zone", Color(0.75, 0.82, 0.88), 12))
+	vbox.add_child(HSeparator.new())
+	vbox.add_child(_make_label("Connects to", Color(0.95, 0.90, 0.78), 13))
+	sea_neighbors_label = _make_label("", Color(0.85, 0.83, 0.78), 12)
+	sea_neighbors_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	vbox.add_child(sea_neighbors_label)
+
+	sea_coast_title_label = _make_label("Coast", Color(0.95, 0.90, 0.78), 13)
+	vbox.add_child(sea_coast_title_label)
+	sea_coast_label = _make_label("", Color(0.85, 0.83, 0.78), 12)
+	sea_coast_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	vbox.add_child(sea_coast_label)
+
+	sea_panel.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT, Control.PRESET_MODE_MINSIZE, 12)
+
+func _build_market_panel() -> void:
+	market_panel = PanelContainer.new()
+	market_panel.name = "MarketPanel"
+	market_panel.visible = false
+	market_panel.custom_minimum_size = Vector2(390.0, 0.0)
+	market_panel.add_theme_stylebox_override("panel", _make_panel_style())
+	add_child(market_panel)
+
+	var vbox := VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 6)
+	market_panel.add_child(vbox)
+
+	var header := HBoxContainer.new()
+	vbox.add_child(header)
+	market_title_label = _make_label("Market", Color(0.97, 0.90, 0.68), 17)
+	market_title_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	header.add_child(market_title_label)
+	var close_btn := Button.new()
+	close_btn.text = "X"
+	close_btn.pressed.connect(func() -> void:
+		open_market_index = -1
+		market_panel.visible = false
+	)
+	header.add_child(close_btn)
+
+	market_subtitle_label = _make_label("", Color(0.80, 0.75, 0.66), 12)
+	vbox.add_child(market_subtitle_label)
+
+	market_cat_box = HBoxContainer.new()
+	market_cat_box.add_theme_constant_override("separation", 4)
+	vbox.add_child(market_cat_box)
+
+	var cols := HBoxContainer.new()
+	cols.add_theme_constant_override("separation", 6)
+	vbox.add_child(cols)
+	var g_hdr := _make_label("Good", Color(0.82, 0.78, 0.68), 12)
+	g_hdr.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	cols.add_child(g_hdr)
+	var p_hdr := _make_label("Price", Color(0.82, 0.78, 0.68), 12)
+	p_hdr.custom_minimum_size = Vector2(68.0, 0.0)
+	p_hdr.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	cols.add_child(p_hdr)
+	var s_hdr := _make_label("Supply", Color(0.82, 0.78, 0.68), 12)
+	s_hdr.custom_minimum_size = Vector2(64.0, 0.0)
+	s_hdr.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	cols.add_child(s_hdr)
+	var d_hdr := _make_label("Demand", Color(0.82, 0.78, 0.68), 12)
+	d_hdr.custom_minimum_size = Vector2(64.0, 0.0)
+	d_hdr.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	cols.add_child(d_hdr)
+
+	vbox.add_child(HSeparator.new())
+
+	var scroll := ScrollContainer.new()
+	scroll.custom_minimum_size = Vector2(364.0, 260.0)
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	vbox.add_child(scroll)
+
+	market_goods_box = VBoxContainer.new()
+	market_goods_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	market_goods_box.add_theme_constant_override("separation", 3)
+	scroll.add_child(market_goods_box)
+
+	market_panel.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT, Control.PRESET_MODE_MINSIZE, 12)
+	market_panel.offset_right = -68.0
+	market_panel.offset_left = -458.0
+
+func _build_nation_picker_panel() -> void:
+	nation_picker_panel = PanelContainer.new()
+	nation_picker_panel.name = "NationPickerPanel"
+	nation_picker_panel.visible = false
+	nation_picker_panel.custom_minimum_size = Vector2(470.0, 0.0)
+	nation_picker_panel.add_theme_stylebox_override("panel", _make_panel_style())
+	add_child(nation_picker_panel)
+
+	var vbox := VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 8)
+	nation_picker_panel.add_child(vbox)
+
+	var header := HBoxContainer.new()
+	vbox.add_child(header)
+	var title := _make_label("Choose Nation (1453)", Color(0.97, 0.90, 0.68), 18)
+	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	header.add_child(title)
+	var close_btn := Button.new()
+	close_btn.text = "X"
+	close_btn.pressed.connect(func() -> void: nation_picker_panel.visible = false)
+	header.add_child(close_btn)
+
+	vbox.add_child(_make_label("Click any country on the map, or pick a featured 1453 power below:", Color(0.82, 0.78, 0.68), 12))
+
+	picker_featured_flow = HFlowContainer.new()
+	picker_featured_flow.add_theme_constant_override("h_separation", 5)
+	picker_featured_flow.add_theme_constant_override("v_separation", 5)
+	vbox.add_child(picker_featured_flow)
+
+	picker_search_input = LineEdit.new()
+	picker_search_input.placeholder_text = "Search all countries by name or tag..."
+	picker_search_input.text_changed.connect(func(_new_text: String) -> void: _refresh_picker_country_list())
+	vbox.add_child(picker_search_input)
+
+	var scroll := ScrollContainer.new()
+	scroll.custom_minimum_size = Vector2(440.0, 170.0)
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	vbox.add_child(scroll)
+
+	picker_list_box = VBoxContainer.new()
+	picker_list_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	picker_list_box.add_theme_constant_override("separation", 3)
+	scroll.add_child(picker_list_box)
+
+	vbox.add_child(HSeparator.new())
+
+	# Selected country details: name, coat of arms, ruler, treasury, provinces
+	var card := HBoxContainer.new()
+	card.add_theme_constant_override("separation", 12)
+	vbox.add_child(card)
+
+	picker_arms_rect = TextureRect.new()
+	picker_arms_rect.custom_minimum_size = Vector2(54.0, 46.0)
+	picker_arms_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	picker_arms_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	card.add_child(picker_arms_rect)
+
+	var info_box := VBoxContainer.new()
+	info_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	info_box.add_theme_constant_override("separation", 2)
+	card.add_child(info_box)
+
+	picker_name_label = _make_label("Ottoman Empire (TUR)", Color(0.98, 0.90, 0.65), 16)
+	info_box.add_child(picker_name_label)
+	picker_meta_label = _make_label("Monarchy · Sunni", Color(0.80, 0.75, 0.65), 12)
+	info_box.add_child(picker_meta_label)
+	picker_ruler_label = _make_label("Ruler: Mehmed II", Color(0.92, 0.89, 0.82), 13)
+	info_box.add_child(picker_ruler_label)
+
+	var stats_row := HBoxContainer.new()
+	stats_row.add_theme_constant_override("separation", 16)
+	info_box.add_child(stats_row)
+	picker_treasury_label = _make_label("Treasury: 0 ducats", Color(0.96, 0.82, 0.34), 13)
+	stats_row.add_child(picker_treasury_label)
+	picker_provinces_label = _make_label("Provinces: 0", Color(0.88, 0.85, 0.78), 13)
+	stats_row.add_child(picker_provinces_label)
+
+	var actions_row := HBoxContainer.new()
+	actions_row.add_theme_constant_override("separation", 10)
+	vbox.add_child(actions_row)
+
+	var switch_btn := Button.new()
+	switch_btn.text = "Switch Nation Now"
+	switch_btn.tooltip_text = "Switch player country in the current campaign"
+	switch_btn.pressed.connect(_on_picker_switch_pressed)
+	actions_row.add_child(switch_btn)
+
+	var spacer := Control.new()
+	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	actions_row.add_child(spacer)
+
+	var start_btn := Button.new()
+	start_btn.text = "Start"
+	start_btn.custom_minimum_size = Vector2(120.0, 34.0)
+	start_btn.tooltip_text = "Start a new 1453 game as the selected country"
+	start_btn.pressed.connect(_on_picker_start_pressed)
+	actions_row.add_child(start_btn)
+
+	# Dock top-left below the top bar so the map stays exposed for clicking countries.
+	nation_picker_panel.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT, Control.PRESET_MODE_MINSIZE, 12)
+	nation_picker_panel.offset_top = 60.0
+
+func _build_game_menu_panel() -> void:
+	game_menu_panel = PanelContainer.new()
+	game_menu_panel.name = "GameMenuPanel"
+	game_menu_panel.visible = false
+	game_menu_panel.custom_minimum_size = Vector2(460.0, 0.0)
+	game_menu_panel.add_theme_stylebox_override("panel", _make_panel_style())
+	add_child(game_menu_panel)
+
+	var vbox := VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 10)
+	game_menu_panel.add_child(vbox)
+
+	var header := HBoxContainer.new()
+	vbox.add_child(header)
+	var title := _make_label("Game Menu", Color(0.97, 0.90, 0.68), 18)
+	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	header.add_child(title)
+	var close_btn := Button.new()
+	close_btn.text = "X"
+	close_btn.pressed.connect(func() -> void: game_menu_panel.visible = false)
+	header.add_child(close_btn)
+
+	menu_playing_label = _make_label("Playing as Ottoman Empire · 30 May 1453", Color(0.90, 0.86, 0.78), 14)
+	vbox.add_child(menu_playing_label)
+
+	menu_status_label = _make_label("", Color(0.96, 0.84, 0.42), 12)
+	menu_status_label.visible = false
+	vbox.add_child(menu_status_label)
+
+	var new_game_btn := Button.new()
+	new_game_btn.text = "New Game / Choose Nation..."
+	new_game_btn.custom_minimum_size = Vector2(0.0, 32.0)
+	new_game_btn.pressed.connect(func() -> void:
+		game_menu_panel.visible = false
+		_open_nation_picker()
+	)
+	vbox.add_child(new_game_btn)
+
+	vbox.add_child(HSeparator.new())
+
+	# Save & Quick Save
+	vbox.add_child(_make_label("Save Game", Color(0.95, 0.88, 0.70), 14))
+	var save_row := HBoxContainer.new()
+	save_row.add_theme_constant_override("separation", 6)
+	vbox.add_child(save_row)
+
+	save_name_input = LineEdit.new()
+	save_name_input.placeholder_text = "Save name (optional)"
+	save_name_input.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	save_row.add_child(save_name_input)
+
+	var save_btn := Button.new()
+	save_btn.text = "Save"
+	save_btn.pressed.connect(_on_save_pressed)
+	save_row.add_child(save_btn)
+
+	var quick_save_btn := Button.new()
+	quick_save_btn.text = "Quick Save"
+	quick_save_btn.pressed.connect(_on_quick_save_pressed)
+	save_row.add_child(quick_save_btn)
+
+	# Autosave frequency
+	var auto_row := HBoxContainer.new()
+	auto_row.add_theme_constant_override("separation", 8)
+	vbox.add_child(auto_row)
+	var auto_lbl := _make_label("Autosave frequency:", Color(0.84, 0.80, 0.72), 13)
+	auto_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	auto_row.add_child(auto_lbl)
+
+	autosave_option_btn = OptionButton.new()
+	autosave_option_btn.item_selected.connect(_on_autosave_selected)
+	auto_row.add_child(autosave_option_btn)
+
+	vbox.add_child(HSeparator.new())
+
+	# Load Game list
+	var load_hdr := HBoxContainer.new()
+	vbox.add_child(load_hdr)
+	var load_title := _make_label("Load Game", Color(0.95, 0.88, 0.70), 14)
+	load_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	load_hdr.add_child(load_title)
+	var refresh_btn := Button.new()
+	refresh_btn.text = "Refresh"
+	refresh_btn.pressed.connect(_refresh_game_menu)
+	load_hdr.add_child(refresh_btn)
+
+	var scroll := ScrollContainer.new()
+	scroll.custom_minimum_size = Vector2(430.0, 180.0)
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	vbox.add_child(scroll)
+
+	saves_list_box = VBoxContainer.new()
+	saves_list_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	saves_list_box.add_theme_constant_override("separation", 4)
+	scroll.add_child(saves_list_box)
+
+	vbox.add_child(HSeparator.new())
+
+	var quit_btn := Button.new()
+	quit_btn.text = "Quit Game"
+	quit_btn.custom_minimum_size = Vector2(0.0, 32.0)
+	quit_btn.pressed.connect(func() -> void: get_tree().quit())
+	vbox.add_child(quit_btn)
+
+	game_menu_panel.set_anchors_and_offsets_preset(Control.PRESET_CENTER, Control.PRESET_MODE_MINSIZE)
+
+func _make_label(txt: String, col: Color, fsize: int) -> Label:
 	var lbl := Label.new()
 	lbl.text = txt
 	lbl.add_theme_color_override("font_color", col)
@@ -185,6 +744,43 @@ func _make_separator() -> VSeparator:
 	sep.modulate = Color(0.68, 0.55, 0.28, 0.5)
 	return sep
 
+func _clear_children(node: Node) -> void:
+	if node == null:
+		return
+	for c in node.get_children():
+		node.remove_child(c)
+		c.queue_free()
+
+# Loads arms_<TAG>.png from App/Resources/Heraldry/ or creates a fallback banner in the country's colour.
+func _get_country_arms_texture(tag: String, r: int = 180, g: int = 140, b: int = 80) -> Texture2D:
+	var cache_key := tag if not tag.is_empty() else ("rgb_%d_%d_%d" % [r, g, b])
+	if arms_cache.has(cache_key):
+		return arms_cache[cache_key]
+
+	if not tag.is_empty():
+		var path := ProjectSettings.globalize_path("res://../App/Resources/Heraldry/arms_%s.png" % tag)
+		if FileAccess.file_exists(path):
+			var img := Image.load_from_file(path)
+			if img != null:
+				var tex := ImageTexture.create_from_image(img)
+				arms_cache[cache_key] = tex
+				return tex
+
+	# Fallback plain banner in the country's map colour
+	var fallback_img := Image.create(28, 20, false, Image.FORMAT_RGBA8)
+	var fill_col := Color(float(r) / 255.0, float(g) / 255.0, float(b) / 255.0, 1.0)
+	var border_col := Color(0.12, 0.10, 0.08, 1.0)
+	fallback_img.fill(fill_col)
+	for x in range(28):
+		fallback_img.set_pixel(x, 0, border_col)
+		fallback_img.set_pixel(x, 19, border_col)
+	for y in range(20):
+		fallback_img.set_pixel(0, y, border_col)
+		fallback_img.set_pixel(27, y, border_col)
+	var fallback_tex := ImageTexture.create_from_image(fallback_img)
+	arms_cache[cache_key] = fallback_tex
+	return fallback_tex
+
 func _init_bridge_and_map() -> void:
 	if not ClassDB.class_exists(&"GezGodotBridge"):
 		selection_label.text = "ERROR: GezGodotBridge GDExtension not loaded. Run ./build_mac.sh first."
@@ -193,27 +789,27 @@ func _init_bridge_and_map() -> void:
 
 	bridge = ClassDB.instantiate(&"GezGodotBridge")
 	var data_dir := ProjectSettings.globalize_path("res://../Packages/GezCore/Sources/GezCore/Resources")
-	var ok: bool = bridge.call("setup", data_dir, "TUR")
+	var ok: bool = bool(_call_bridge("setup", [data_dir, "TUR"], false))
 	if not ok:
 		selection_label.text = "Failed to load 1453 scenario from " + data_dir
 		push_error("GezGodotBridge.setup failed for path: " + data_dir)
 		return
 
-	var w: int = bridge.call("getMapWidth")
-	var h: int = bridge.call("getMapHeight")
+	var w: int = int(_call_bridge("getMapWidth", [], 3936))
+	var h: int = int(_call_bridge("getMapHeight", [], 2384))
 	map_size = Vector2(float(w), float(h))
-	style_tex_width = bridge.call("getStyleTextureWidth")
+	style_tex_width = int(_call_bridge("getStyleTextureWidth", [], 2048))
 
 	# Build ID map, sea map, and style textures.
-	var id_bytes: PackedByteArray = bridge.call("getProvinceIDBytes")
+	var id_bytes: PackedByteArray = _call_bridge("getProvinceIDBytes", [], PackedByteArray())
 	var id_img := Image.create_from_data(w, h, false, Image.FORMAT_RG8, id_bytes)
 	id_tex = ImageTexture.create_from_image(id_img)
 
-	var sea_bytes: PackedByteArray = bridge.call("getSeaIDBytes")
+	var sea_bytes: PackedByteArray = _call_bridge("getSeaIDBytes", [], PackedByteArray())
 	var sea_img := Image.create_from_data(w, h, false, Image.FORMAT_RG8, sea_bytes)
 	sea_tex = ImageTexture.create_from_image(sea_img)
 
-	var style_bytes: PackedByteArray = bridge.call("getStyleBytes")
+	var style_bytes: PackedByteArray = _call_bridge("getStyleBytes", [], PackedByteArray())
 	var style_img := Image.create_from_data(style_tex_width, 2, false, Image.FORMAT_RGBA8, style_bytes)
 	style_tex = ImageTexture.create_from_image(style_img)
 
@@ -229,81 +825,797 @@ func _init_bridge_and_map() -> void:
 	if terrain_tex != null:
 		map_material.set_shader_parameter("terrain_tex", terrain_tex)
 
-	# Populate map labels.
+	_refresh_all_labels()
+	_populate_autosave_options()
+	_refresh_top_bar()
+
+func _refresh_all_labels() -> void:
+	if bridge == null:
+		return
 	labels_layer.call(
 		"set_country_labels",
-		bridge.call("getCountryLabelTexts"),
-		bridge.call("getCountryLabelMetrics")
+		_call_bridge("getCountryLabelTexts", [], PackedStringArray()),
+		_call_bridge("getCountryLabelMetrics", [], PackedFloat32Array())
 	)
 	labels_layer.call(
 		"set_province_labels",
-		bridge.call("getProvinceLabelTexts"),
-		bridge.call("getProvinceLabelMetrics")
+		_call_bridge("getProvinceLabelTexts", [], PackedStringArray()),
+		_call_bridge("getProvinceLabelMetrics", [], PackedFloat32Array())
 	)
 	labels_layer.call(
 		"set_sea_labels",
-		bridge.call("getSeaLabelTexts"),
-		bridge.call("getSeaLabelMetrics")
+		_call_bridge("getSeaLabelTexts", [], PackedStringArray()),
+		_call_bridge("getSeaLabelMetrics", [], PackedFloat32Array())
 	)
-
-	_refresh_top_bar()
 
 func _process(delta: float) -> void:
 	elapsed_time += delta
 	map_material.set_shader_parameter("time_sec", elapsed_time)
 	fps_label.text = "%d FPS" % Engine.get_frames_per_second()
 
-	# Keyboard panning (WASD / Arrow keys)
-	var pan_dir := Vector2.ZERO
-	if Input.is_key_pressed(KEY_LEFT) or Input.is_key_pressed(KEY_A):
-		pan_dir.x += 1.0
-	if Input.is_key_pressed(KEY_RIGHT) or Input.is_key_pressed(KEY_D):
-		pan_dir.x -= 1.0
-	if Input.is_key_pressed(KEY_UP) or Input.is_key_pressed(KEY_W):
-		pan_dir.y += 1.0
-	if Input.is_key_pressed(KEY_DOWN) or Input.is_key_pressed(KEY_S):
-		pan_dir.y -= 1.0
-	if pan_dir != Vector2.ZERO and zoom > 0.0:
-		offset = _clamped_offset(offset + pan_dir.normalized() * 650.0 * delta, zoom)
-		_sync_camera_uniforms()
+	# Arrow-key panning when no text input is focused
+	if not _is_text_input_focused():
+		var pan_dir := Vector2.ZERO
+		if Input.is_key_pressed(KEY_LEFT):
+			pan_dir.x += 1.0
+		if Input.is_key_pressed(KEY_RIGHT):
+			pan_dir.x -= 1.0
+		if Input.is_key_pressed(KEY_UP):
+			pan_dir.y += 1.0
+		if Input.is_key_pressed(KEY_DOWN):
+			pan_dir.y -= 1.0
+		if pan_dir != Vector2.ZERO and zoom > 0.0:
+			offset = _clamped_offset(offset + pan_dir.normalized() * 650.0 * delta, zoom)
+			_sync_camera_uniforms()
 
 	if bridge == null:
 		return
 
-	var mask: int = bridge.call("tickFrame", delta)
+	var mask: int = int(_call_bridge("tickFrame", [delta], 0))
 	if mask != 0:
 		_refresh_top_bar()
+		if (mask & 2) != 0:
+			# Monthly tick updated economy, constructions, populations, or markets
+			if province_panel.visible:
+				_refresh_province_panel()
+			if market_panel.visible:
+				_refresh_market_panel()
 		if (mask & 4) != 0:
 			_refresh_styles_and_country_labels()
+		if (mask & 8) != 0 and game_menu_panel.visible:
+			_refresh_game_menu()
+
+func _is_text_input_focused() -> bool:
+	var focused := get_viewport().gui_get_focus_owner()
+	return focused is LineEdit
 
 func _refresh_styles_and_country_labels() -> void:
 	if bridge == null:
 		return
-	var style_bytes: PackedByteArray = bridge.call("getStyleBytes")
-	var style_img := Image.create_from_data(style_tex_width, 2, false, Image.FORMAT_RGBA8, style_bytes)
-	style_tex.update(style_img)
+	var style_bytes: PackedByteArray = _call_bridge("getStyleBytes", [], PackedByteArray())
+	if not style_bytes.is_empty():
+		var style_img := Image.create_from_data(style_tex_width, 2, false, Image.FORMAT_RGBA8, style_bytes)
+		style_tex.update(style_img)
 	labels_layer.call(
 		"set_country_labels",
-		bridge.call("getCountryLabelTexts"),
-		bridge.call("getCountryLabelMetrics")
+		_call_bridge("getCountryLabelTexts", [], PackedStringArray()),
+		_call_bridge("getCountryLabelMetrics", [], PackedFloat32Array())
 	)
 
 func _refresh_top_bar() -> void:
 	if bridge == null:
 		return
-	var c_name: String = bridge.call("getCountryName")
-	var c_tag: String = bridge.call("getCountryTag")
-	country_label.text = "%s (%s)" % [c_name, c_tag]
-	ducats_label.text = bridge.call("getDucatsText")
-	date_label.text = bridge.call("getDateText")
+	var c_name: String = str(_call_bridge("getCountryName", [], "Observer"))
+	var c_tag: String = str(_call_bridge("getCountryTag", [], "OBS"))
+	top_country_btn.text = "%s (%s)" % [c_name, c_tag]
+	top_arms_rect.texture = _get_country_arms_texture(c_tag)
+	ducats_label.text = str(_call_bridge("getDucatsText", [], "0 (+0.0/mo)"))
+	date_label.text = str(_call_bridge("getDateText", [], "30 May 1453"))
 
-	var paused: bool = bridge.call("isPaused")
-	var spd: int = bridge.call("getSpeed")
+	var paused: bool = bool(_call_bridge("isPaused", [], true))
+	var spd: int = int(_call_bridge("getSpeed", [], 0))
 	pause_btn.text = "PAUSED" if paused else "RUNNING"
 	pause_btn.modulate = Color(1.0, 0.78, 0.45) if paused else Color(0.75, 1.0, 0.78)
 	for i in range(speed_buttons.size()):
 		var active := (not paused) and (spd == i + 1)
 		speed_buttons[i].modulate = Color(1.0, 0.88, 0.40) if active else Color(0.85, 0.85, 0.85)
+
+# MARK: - Map Modes (Q to I)
+
+func _select_map_mode(mode_key: String) -> void:
+	if bridge == null:
+		return
+	var ok: bool = bool(_call_bridge("setMapMode", [mode_key], false))
+	if not ok:
+		return
+	current_map_mode = str(_call_bridge("getMapMode", [], mode_key))
+	var shader_mode: int = int(_call_bridge("getShaderModeIndex", [], 0))
+	map_material.set_shader_parameter("mode", shader_mode)
+	if labels_layer != null and labels_layer.has_method("set_map_mode"):
+		labels_layer.call("set_map_mode", current_map_mode)
+	_update_map_mode_button_styles()
+	_sync_camera_uniforms()
+	_refresh_styles_and_country_labels()
+
+func _update_map_mode_button_styles() -> void:
+	for k in map_mode_buttons.keys():
+		var btn: Button = map_mode_buttons[k]
+		var active: bool = (str(k) == current_map_mode)
+		btn.modulate = Color(1.0, 0.88, 0.40) if active else Color(0.86, 0.84, 0.78)
+
+# MARK: - Game Menu (Esc & Top-Bar Button)
+
+func _populate_autosave_options() -> void:
+	if autosave_option_btn == null:
+		return
+	autosave_option_btn.clear()
+	autosave_keys.clear()
+	var opts: Array = _call_bridge("getAutosaveOptions", [], [])
+	if opts.is_empty():
+		opts = [
+			{"key": "monthly", "title": "Monthly"},
+			{"key": "every_three_months", "title": "Every 3 months"},
+			{"key": "every_six_months", "title": "Every 6 months"},
+			{"key": "yearly", "title": "Yearly"},
+			{"key": "never", "title": "Never"}
+		]
+	for item in opts:
+		if item is Dictionary:
+			var k: String = str(item.get("key", ""))
+			var t: String = str(item.get("title", k))
+			autosave_keys.append(k)
+			autosave_option_btn.add_item(t)
+
+func _toggle_game_menu() -> void:
+	if game_menu_panel.visible:
+		game_menu_panel.visible = false
+	else:
+		nation_picker_panel.visible = false
+		game_menu_panel.visible = true
+		_refresh_game_menu()
+
+func _refresh_game_menu() -> void:
+	if bridge == null or game_menu_panel == null:
+		return
+	var c_name: String = str(_call_bridge("getCountryName", [], "Observer"))
+	var d_text: String = str(_call_bridge("getDateText", [], "30 May 1453"))
+	menu_playing_label.text = "Playing as %s · %s" % [c_name, d_text]
+
+	var status: String = str(_call_bridge("getLastSaveStatus", [], ""))
+	menu_status_label.text = status
+	menu_status_label.visible = not status.is_empty()
+
+	var cur_freq: String = str(_call_bridge("getAutosaveFrequency", [], "never"))
+	var freq_idx := autosave_keys.find(cur_freq)
+	if freq_idx >= 0 and freq_idx < autosave_option_btn.item_count:
+		autosave_option_btn.selected = freq_idx
+
+	_clear_children(saves_list_box)
+	var saves: Array = _call_bridge("getSavedGames", [], [])
+	if saves.is_empty():
+		saves_list_box.add_child(_make_label("No saved games found yet.", Color(0.75, 0.72, 0.65), 12))
+		return
+
+	for entry in saves:
+		if not (entry is Dictionary):
+			continue
+		var idx: int = int(entry.get("index", 0))
+		var s_name: String = str(entry.get("name", "Save"))
+		var s_date: String = str(entry.get("gameDate", ""))
+		var s_player: String = str(entry.get("playerName", "Unknown"))
+		var is_auto: bool = bool(entry.get("isAutosave", false))
+
+		var row := HBoxContainer.new()
+		row.add_theme_constant_override("separation", 8)
+		saves_list_box.add_child(row)
+
+		var text_col := VBoxContainer.new()
+		text_col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		row.add_child(text_col)
+
+		var title_line := s_name + (" [AUTO]" if is_auto else "")
+		text_col.add_child(_make_label(title_line, Color(0.96, 0.92, 0.82), 13))
+		text_col.add_child(_make_label("%s · %s" % [s_player, s_date], Color(0.78, 0.74, 0.66), 11))
+
+		var load_btn := Button.new()
+		load_btn.text = "Load"
+		var save_idx := idx
+		load_btn.pressed.connect(func() -> void: _on_load_save_pressed(save_idx))
+		row.add_child(load_btn)
+
+		var del_btn := Button.new()
+		del_btn.text = "Delete"
+		del_btn.pressed.connect(func() -> void: _on_delete_save_pressed(save_idx))
+		row.add_child(del_btn)
+
+func _on_save_pressed() -> void:
+	var custom_name := save_name_input.text
+	_call_bridge("saveGame", [custom_name], false)
+	save_name_input.text = ""
+	_refresh_game_menu()
+
+func _on_quick_save_pressed() -> void:
+	_call_bridge("quickSave", [], false)
+	_refresh_game_menu()
+
+func _on_autosave_selected(idx: int) -> void:
+	if idx >= 0 and idx < autosave_keys.size():
+		_call_bridge("setAutosaveFrequency", [autosave_keys[idx]], false)
+
+func _on_load_save_pressed(idx: int) -> void:
+	var loaded: bool = bool(_call_bridge("loadSavedGame", [idx], false))
+	if loaded:
+		_after_world_replaced()
+		_refresh_game_menu()
+
+func _on_delete_save_pressed(idx: int) -> void:
+	_call_bridge("deleteSavedGame", [idx], false)
+	_refresh_game_menu()
+
+func _after_world_replaced() -> void:
+	map_material.set_shader_parameter("selected", 0)
+	map_material.set_shader_parameter("selected_sea", 0)
+	province_panel.visible = false
+	sea_panel.visible = false
+	open_market_index = -1
+	market_panel.visible = false
+	_refresh_all_labels()
+	_refresh_styles_and_country_labels()
+	_refresh_top_bar()
+	_refresh_play_as_button()
+
+# MARK: - Nation Picker
+
+func _toggle_nation_picker() -> void:
+	if nation_picker_panel.visible:
+		nation_picker_panel.visible = false
+	else:
+		_open_nation_picker()
+
+func _open_nation_picker() -> void:
+	game_menu_panel.visible = false
+	nation_picker_panel.visible = true
+	var cur_tag: String = str(_call_bridge("getCountryTag", [], "TUR"))
+	if not cur_tag.is_empty() and cur_tag != "OBS":
+		selected_picker_tag = cur_tag
+
+	# Populate featured 1453 powers
+	_clear_children(picker_featured_flow)
+	var featured: Array = _call_bridge("getFeaturedCountries", [], [])
+	for item in featured:
+		if not (item is Dictionary):
+			continue
+		var tag: String = str(item.get("tag", ""))
+		var cname: String = str(item.get("name", tag))
+		var btn := Button.new()
+		btn.text = cname
+		var t := tag
+		btn.pressed.connect(func() -> void: _select_picker_country(t, true))
+		picker_featured_flow.add_child(btn)
+
+	cached_all_countries = _call_bridge("getAllCountries", [], [])
+	_refresh_picker_country_list()
+	_refresh_picker_selected_details()
+
+func _refresh_picker_country_list() -> void:
+	_clear_children(picker_list_box)
+	var q := picker_search_input.text.strip_edges().to_lower()
+	for item in cached_all_countries:
+		if not (item is Dictionary):
+			continue
+		var tag: String = str(item.get("tag", ""))
+		var cname: String = str(item.get("name", ""))
+		if not q.is_empty() and not cname.to_lower().contains(q) and not tag.to_lower().contains(q):
+			continue
+		var provs: int = int(item.get("provinces", 0))
+		var dev: int = int(item.get("development", 0))
+		var btn := Button.new()
+		btn.text = "%s (%s) — %d prov, %d dev" % [cname, tag, provs, dev]
+		btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		if tag == selected_picker_tag:
+			btn.modulate = Color(1.0, 0.88, 0.42)
+		var t := tag
+		btn.pressed.connect(func() -> void: _select_picker_country(t, true))
+		picker_list_box.add_child(btn)
+
+func _select_picker_country(tag: String, pan_to_country: bool = false) -> void:
+	if tag.is_empty():
+		return
+	selected_picker_tag = tag
+	_refresh_picker_country_list()
+	var details: Dictionary = _call_bridge("getCountryDetails", [tag], {})
+	_apply_picker_details(details)
+	if pan_to_country and details.has("focusX") and details.has("focusY") and zoom > 0.0:
+		var fx := float(details["focusX"])
+		var fy := float(details["focusY"])
+		offset = _clamped_offset(Vector2(size.x * 0.5 - fx * zoom, size.y * 0.5 - fy * zoom), zoom)
+		_sync_camera_uniforms()
+
+func _refresh_picker_selected_details() -> void:
+	var details: Dictionary = _call_bridge("getCountryDetails", [selected_picker_tag], {})
+	_apply_picker_details(details)
+
+func _apply_picker_details(details: Dictionary) -> void:
+	if details.is_empty():
+		return
+	var tag: String = str(details.get("tag", selected_picker_tag))
+	var cname: String = str(details.get("name", tag))
+	var gov: String = str(details.get("government", ""))
+	var rel: String = str(details.get("religion", ""))
+	var ruler: String = str(details.get("ruler", "Interregnum"))
+	var treasury_txt: String = str(details.get("treasuryText", "0 ducats"))
+	var provs: int = int(details.get("provinces", 0))
+	var dev: int = int(details.get("development", 0))
+	var cr: int = int(details.get("colorR", 180))
+	var cg: int = int(details.get("colorG", 140))
+	var cb: int = int(details.get("colorB", 80))
+
+	picker_arms_rect.texture = _get_country_arms_texture(tag, cr, cg, cb)
+	picker_name_label.text = "%s (%s)" % [cname, tag]
+	picker_meta_label.text = "%s · %s" % [gov, rel]
+	picker_ruler_label.text = "Ruler: %s" % ruler
+	picker_treasury_label.text = "Treasury: %s" % treasury_txt
+	picker_provinces_label.text = "Provinces: %d (%d dev)" % [provs, dev]
+
+func _on_picker_switch_pressed() -> void:
+	var ok: bool = bool(_call_bridge("switchPlayer", [selected_picker_tag], false))
+	if ok:
+		nation_picker_panel.visible = false
+		_refresh_styles_and_country_labels()
+		_refresh_top_bar()
+		_refresh_play_as_button()
+		if province_panel.visible:
+			_refresh_province_panel()
+
+func _on_picker_start_pressed() -> void:
+	var details: Dictionary = _call_bridge("getCountryDetails", [selected_picker_tag], {})
+	var ok: bool = bool(_call_bridge("startNewGame", [selected_picker_tag], false))
+	if ok:
+		nation_picker_panel.visible = false
+		_after_world_replaced()
+		if details.has("focusX") and details.has("focusY") and zoom > 0.0:
+			var fx := float(details["focusX"])
+			var fy := float(details["focusY"])
+			offset = _clamped_offset(Vector2(size.x * 0.5 - fx * zoom, size.y * 0.5 - fy * zoom), zoom)
+			_sync_camera_uniforms()
+
+# MARK: - Province Panel, Sea Panel & Market Panel
+
+func _clear_selection() -> void:
+	_call_bridge("clearSelection")
+	map_material.set_shader_parameter("selected", 0)
+	map_material.set_shader_parameter("selected_sea", 0)
+	province_panel.visible = false
+	sea_panel.visible = false
+	selection_label.text = "Click a province to inspect"
+	_refresh_play_as_button()
+
+func _refresh_province_panel() -> void:
+	var d: Dictionary = _call_bridge("getSelectedProvinceDetails", [prov_people_show_state], {})
+	if not bool(d.get("hasSelection", false)):
+		province_panel.visible = false
+		return
+
+	sea_panel.visible = false
+	province_panel.visible = true
+
+	prov_title_label.text = str(d.get("name", "Province"))
+	prov_subtitle_label.text = str(d.get("subtitle", ""))
+
+	var owner_tag: String = str(d.get("ownerTag", ""))
+	var owner_name: String = str(d.get("ownerName", "Unclaimed land"))
+	var cr: int = int(d.get("ownerColorR", 196))
+	var cg: int = int(d.get("ownerColorG", 182))
+	var cb: int = int(d.get("ownerColorB", 150))
+	prov_owner_arms.texture = _get_country_arms_texture(owner_tag, cr, cg, cb)
+	prov_owner_label.text = owner_name
+	prov_capital_label.visible = bool(d.get("isCapital", false))
+
+	var occ: String = str(d.get("occupiedByName", ""))
+	prov_occupied_label.visible = not occ.is_empty()
+	prov_occupied_label.text = "Occupied by " + occ
+
+	var status: String = str(d.get("countryStatus", ""))
+	prov_status_label.visible = not status.is_empty()
+	prov_status_label.text = status
+
+	for k in prov_tab_buttons.keys():
+		var btn: Button = prov_tab_buttons[k]
+		btn.modulate = Color(1.0, 0.88, 0.40) if k == current_prov_tab else Color(0.86, 0.84, 0.78)
+
+	_clear_children(prov_content_box)
+	match current_prov_tab:
+		"overview":
+			_build_province_overview_tab(d)
+		"economy":
+			_build_province_economy_tab(d)
+		"people":
+			_build_province_people_tab(d)
+
+func _add_kv_row(parent: VBoxContainer, label_txt: String, value_txt: String) -> void:
+	var row := HBoxContainer.new()
+	parent.add_child(row)
+	var l := _make_label(label_txt, Color(0.80, 0.75, 0.66), 13)
+	l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(l)
+	var v := _make_label(value_txt, Color(0.95, 0.92, 0.84), 13)
+	row.add_child(v)
+
+func _build_province_overview_tab(d: Dictionary) -> void:
+	var is_mine: bool = bool(d.get("isPlayerOwned", false))
+	var holder_name: String = str(d.get("holderName", "The crown"))
+	var stance: String = str(d.get("holderStance", ""))
+	var has_holder: bool = bool(d.get("hasHolder", false))
+
+	var holder_row := HBoxContainer.new()
+	holder_row.add_theme_constant_override("separation", 6)
+	prov_content_box.add_child(holder_row)
+	var h_lbl := _make_label("Held by: " + holder_name + (" (%s)" % stance if not stance.is_empty() else ""), Color(0.92, 0.88, 0.78), 13)
+	h_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	holder_row.add_child(h_lbl)
+
+	if is_mine:
+		if has_holder:
+			var rev_btn := Button.new()
+			rev_btn.text = "Revoke"
+			rev_btn.tooltip_text = "Take the province back from its vassal holder"
+			rev_btn.pressed.connect(func() -> void:
+				if bool(_call_bridge("revokeSelectedProvince", [], false)):
+					_refresh_province_panel()
+			)
+			holder_row.add_child(rev_btn)
+		else:
+			var cands: Array = d.get("grantCandidates", [])
+			if not cands.is_empty():
+				var grant_menu := MenuButton.new()
+				grant_menu.text = "Grant..."
+				grant_menu.flat = false
+				var popup := grant_menu.get_popup()
+				for idx in range(cands.size()):
+					var c_item: Dictionary = cands[idx]
+					popup.add_item(str(c_item.get("label", "Vassal")), int(c_item.get("characterIndex", 0)))
+				popup.id_pressed.connect(func(char_id: int) -> void:
+					if bool(_call_bridge("grantSelectedProvince", [char_id], false)):
+						_refresh_province_panel()
+				)
+				holder_row.add_child(grant_menu)
+
+	_add_kv_row(prov_content_box, "Development", str(d.get("developmentText", "")))
+	_add_kv_row(prov_content_box, "Land", str(d.get("landText", "")))
+	var river_txt: String = str(d.get("riverBordersText", ""))
+	if not river_txt.is_empty():
+		_add_kv_row(prov_content_box, "River borders", river_txt)
+	_add_kv_row(prov_content_box, "Supply limit", str(d.get("supplyText", "")))
+
+	if is_mine:
+		var levy_row := HBoxContainer.new()
+		prov_content_box.add_child(levy_row)
+		var l_title := _make_label("Province levy", Color(0.80, 0.75, 0.66), 13)
+		l_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		levy_row.add_child(l_title)
+		if bool(d.get("canRaiseLevy", false)):
+			var avail: int = int(d.get("availableLevyMen", 0))
+			var raise_btn := Button.new()
+			raise_btn.text = "Raise %d men" % avail
+			raise_btn.pressed.connect(func() -> void:
+				if bool(_call_bridge("raiseSelectedProvinceLevies", [], false)):
+					_refresh_province_panel()
+					_refresh_top_bar()
+			)
+			levy_row.add_child(raise_btn)
+		else:
+			levy_row.add_child(_make_label(str(d.get("levyText", "0 men")), Color(0.95, 0.92, 0.84), 13))
+
+	var fort_lvl: int = int(d.get("fortLevel", 0))
+	var is_besieged: bool = bool(d.get("isBesieged", false))
+	if fort_lvl > 0 or is_besieged:
+		prov_content_box.add_child(HSeparator.new())
+		if fort_lvl > 0:
+			_add_kv_row(prov_content_box, "Fortress (Lv %d)" % fort_lvl, "%d / %d garrison" % [int(d.get("fortGarrison", 0)), int(d.get("maxGarrison", 0))])
+		if is_besieged:
+			prov_content_box.add_child(_make_label(str(d.get("siegeText", "")), Color(0.96, 0.48, 0.40), 12))
+
+	prov_content_box.add_child(HSeparator.new())
+
+	# Buildings section
+	_add_kv_row(prov_content_box, "Buildings", str(d.get("slotsText", "0 / 0 slots")))
+	var built_arr: Array = d.get("builtBuildings", [])
+	if built_arr.is_empty():
+		prov_content_box.add_child(_make_label("None built", Color(0.70, 0.66, 0.58), 12))
+	else:
+		var built_lbl := _make_label(", ".join(PackedStringArray(built_arr)), Color(0.94, 0.90, 0.80), 12)
+		built_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		prov_content_box.add_child(built_lbl)
+
+	var constructions: Array = d.get("constructions", [])
+	for con in constructions:
+		if con is Dictionary:
+			var cname: String = str(con.get("name", ""))
+			var clvl: int = int(con.get("level", 1))
+			var cmo: int = int(con.get("monthsLeft", 0))
+			var cprog: float = float(con.get("progress", 0.0)) * 100.0
+			prov_content_box.add_child(_make_label("Building %s %d (%d%% · %d mo left)" % [cname, clvl, int(cprog), cmo], Color(0.96, 0.84, 0.42), 12))
+
+	if is_mine:
+		var build_toggle := Button.new()
+		build_toggle.text = "Hide Build Menu" if prov_show_build else "Build..."
+		build_toggle.pressed.connect(func() -> void:
+			prov_show_build = not prov_show_build
+			_refresh_province_panel()
+		)
+		prov_content_box.add_child(build_toggle)
+
+		if prov_show_build:
+			var cat_row := HBoxContainer.new()
+			cat_row.add_theme_constant_override("separation", 4)
+			prov_content_box.add_child(cat_row)
+			var cats: Array = d.get("buildCategories", [])
+			for cat in cats:
+				if cat is Dictionary:
+					var ck: String = str(cat.get("key", ""))
+					var ct: String = str(cat.get("title", ck))
+					var cbtn := Button.new()
+					cbtn.text = ct
+					cbtn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+					if ck == prov_build_category:
+						cbtn.modulate = Color(1.0, 0.88, 0.40)
+					var cat_key := ck
+					cbtn.pressed.connect(func() -> void:
+						prov_build_category = cat_key
+						_refresh_province_panel()
+					)
+					cat_row.add_child(cbtn)
+
+			var options: Array = d.get("buildableOptions", [])
+			for opt in options:
+				if not (opt is Dictionary):
+					continue
+				if str(opt.get("category", "")) != prov_build_category:
+					continue
+				var t_idx: int = int(opt.get("typeIndex", -1))
+				var b_name: String = str(opt.get("name", ""))
+				var b_cost: int = int(opt.get("cost", 0))
+				var b_months: int = int(opt.get("months", 0))
+				var can_build: bool = bool(opt.get("canBuild", false))
+				var refusal: String = str(opt.get("refusalReason", ""))
+				var effect: String = str(opt.get("effectText", ""))
+
+				var b_btn := Button.new()
+				b_btn.text = "%s — %dd · %d mo" % [b_name, b_cost, b_months]
+				b_btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
+				b_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+				b_btn.disabled = not can_build
+				b_btn.tooltip_text = refusal if not refusal.is_empty() else effect
+				var build_idx := t_idx
+				b_btn.pressed.connect(func() -> void:
+					if bool(_call_bridge("buildInSelectedProvince", [build_idx], false)):
+						_refresh_province_panel()
+						_refresh_top_bar()
+				)
+				prov_content_box.add_child(b_btn)
+
+func _build_province_economy_tab(d: Dictionary) -> void:
+	var hdr := HBoxContainer.new()
+	prov_content_box.add_child(hdr)
+	var e_lbl := _make_label("Economy", Color(0.96, 0.90, 0.72), 14)
+	e_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	hdr.add_child(e_lbl)
+
+	var m_idx: int = int(d.get("marketIndex", -1))
+	var m_name: String = str(d.get("marketName", ""))
+	if m_idx >= 0 and not m_name.is_empty():
+		var m_btn := Button.new()
+		m_btn.text = "%s market" % m_name
+		m_btn.tooltip_text = "Show prices, supply and demand in this market"
+		var market_id := m_idx
+		m_btn.pressed.connect(func() -> void: _open_market_panel(market_id))
+		hdr.add_child(m_btn)
+
+	var goods: Array = d.get("goodsProduced", [])
+	for g in goods:
+		if not (g is Dictionary):
+			continue
+		var row := HBoxContainer.new()
+		row.add_theme_constant_override("separation", 6)
+		prov_content_box.add_child(row)
+
+		var swatch := ColorRect.new()
+		swatch.custom_minimum_size = Vector2(10.0, 10.0)
+		swatch.color = Color(
+			float(int(g.get("colorR", 180))) / 255.0,
+			float(int(g.get("colorG", 180))) / 255.0,
+			float(int(g.get("colorB", 180))) / 255.0
+		)
+		row.add_child(swatch)
+
+		var g_name := str(g.get("name", "")) + (" [Workshop]" if bool(g.get("isWorkshop", false)) else "")
+		var n_lbl := _make_label(g_name, Color(0.94, 0.90, 0.82), 12)
+		n_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		row.add_child(n_lbl)
+
+		row.add_child(_make_label(str(g.get("amountText", "")), Color(0.76, 0.72, 0.64), 12))
+		var v_lbl := _make_label(str(g.get("valueText", "")), Color(0.96, 0.86, 0.52), 12)
+		v_lbl.custom_minimum_size = Vector2(44.0, 0.0)
+		v_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		row.add_child(v_lbl)
+
+	prov_content_box.add_child(HSeparator.new())
+	_add_kv_row(prov_content_box, "Worth", str(d.get("worthText", "")))
+
+	var sats: Array = d.get("classSatisfactions", [])
+	if not sats.is_empty():
+		var sat_row := HBoxContainer.new()
+		sat_row.add_theme_constant_override("separation", 10)
+		prov_content_box.add_child(sat_row)
+		for s in sats:
+			if s is Dictionary:
+				var col := VBoxContainer.new()
+				col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+				sat_row.add_child(col)
+				col.add_child(_make_label(str(s.get("percentText", "")), Color(0.95, 0.92, 0.84), 12))
+				col.add_child(_make_label(str(s.get("name", "")), Color(0.75, 0.70, 0.62), 11))
+
+func _build_province_people_tab(d: Dictionary) -> void:
+	var hdr := HBoxContainer.new()
+	prov_content_box.add_child(hdr)
+	var p_lbl := _make_label(str(d.get("peopleTitle", "People")), Color(0.96, 0.90, 0.72), 14)
+	p_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	hdr.add_child(p_lbl)
+
+	var btn_prov := Button.new()
+	btn_prov.text = "Province"
+	btn_prov.modulate = Color(1.0, 0.88, 0.40) if not prov_people_show_state else Color(0.85, 0.85, 0.85)
+	btn_prov.pressed.connect(func() -> void:
+		prov_people_show_state = false
+		_refresh_province_panel()
+	)
+	hdr.add_child(btn_prov)
+
+	var btn_state := Button.new()
+	btn_state.text = "State"
+	btn_state.modulate = Color(1.0, 0.88, 0.40) if prov_people_show_state else Color(0.85, 0.85, 0.85)
+	btn_state.pressed.connect(func() -> void:
+		prov_people_show_state = true
+		_refresh_province_panel()
+	)
+	hdr.add_child(btn_state)
+
+	_add_kv_row(prov_content_box, "Population", str(d.get("populationText", "0")))
+
+	prov_content_box.add_child(_make_label("Cultures", Color(0.84, 0.78, 0.66), 12))
+	var cultures: Array = d.get("cultures", [])
+	for c_item in cultures:
+		if c_item is Dictionary:
+			_add_kv_row(prov_content_box, str(c_item.get("name", "")), str(c_item.get("percentText", "")))
+
+	prov_content_box.add_child(HSeparator.new())
+	prov_content_box.add_child(_make_label("Religions", Color(0.84, 0.78, 0.66), 12))
+	var religions: Array = d.get("religions", [])
+	for r_item in religions:
+		if r_item is Dictionary:
+			var row := HBoxContainer.new()
+			row.add_theme_constant_override("separation", 6)
+			prov_content_box.add_child(row)
+			var swatch := ColorRect.new()
+			swatch.custom_minimum_size = Vector2(10.0, 10.0)
+			swatch.color = Color(
+				float(int(r_item.get("colorR", 180))) / 255.0,
+				float(int(r_item.get("colorG", 180))) / 255.0,
+				float(int(r_item.get("colorB", 180))) / 255.0
+			)
+			row.add_child(swatch)
+			var rl := _make_label(str(r_item.get("name", "")), Color(0.94, 0.90, 0.82), 12)
+			rl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			row.add_child(rl)
+			row.add_child(_make_label(str(r_item.get("percentText", "")), Color(0.95, 0.92, 0.84), 12))
+
+	prov_content_box.add_child(HSeparator.new())
+	var classes: Array = d.get("classes", [])
+	if not classes.is_empty():
+		var cls_row := HBoxContainer.new()
+		cls_row.add_theme_constant_override("separation", 8)
+		prov_content_box.add_child(cls_row)
+		for cl in classes:
+			if cl is Dictionary:
+				var col := VBoxContainer.new()
+				col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+				cls_row.add_child(col)
+				col.add_child(_make_label(str(cl.get("percentText", "")), Color(0.95, 0.92, 0.84), 12))
+				col.add_child(_make_label(str(cl.get("name", "")), Color(0.75, 0.70, 0.62), 11))
+
+	var sufi_txt: String = str(d.get("sufiText", ""))
+	if not sufi_txt.is_empty():
+		var s_lbl := _make_label(sufi_txt, Color(0.82, 0.78, 0.68), 12)
+		s_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		prov_content_box.add_child(s_lbl)
+
+func _refresh_sea_panel() -> void:
+	var d: Dictionary = _call_bridge("getSelectedSeaDetails", [], {})
+	if not bool(d.get("hasSelection", false)):
+		sea_panel.visible = false
+		return
+	province_panel.visible = false
+	sea_panel.visible = true
+	sea_title_label.text = str(d.get("name", "Sea Zone"))
+	sea_neighbors_label.text = str(d.get("neighborsText", ""))
+	sea_coast_title_label.text = "Coast (%d provinces)" % int(d.get("coastCount", 0))
+	sea_coast_label.text = str(d.get("coastText", ""))
+
+func _open_market_panel(market_idx: int) -> void:
+	open_market_index = market_idx
+	current_market_category = ""
+	market_panel.visible = true
+	_refresh_market_panel()
+
+func _refresh_market_panel() -> void:
+	if open_market_index < 0:
+		market_panel.visible = false
+		return
+	var d: Dictionary = _call_bridge("getMarketDetails", [open_market_index, current_market_category], {})
+	if not bool(d.get("valid", false)):
+		market_panel.visible = false
+		return
+
+	market_title_label.text = str(d.get("name", "Market"))
+	market_subtitle_label.text = str(d.get("subtitle", ""))
+
+	_clear_children(market_cat_box)
+	var cats: Array = d.get("categories", [])
+	for cat in cats:
+		if cat is Dictionary:
+			var ck: String = str(cat.get("key", ""))
+			var ct: String = str(cat.get("title", "All"))
+			var btn := Button.new()
+			btn.text = ct
+			if ck == current_market_category:
+				btn.modulate = Color(1.0, 0.88, 0.40)
+			var cat_key := ck
+			btn.pressed.connect(func() -> void:
+				current_market_category = cat_key
+				_refresh_market_panel()
+			)
+			market_cat_box.add_child(btn)
+
+	_clear_children(market_goods_box)
+	var goods: Array = d.get("goods", [])
+	for g in goods:
+		if not (g is Dictionary):
+			continue
+		var row := HBoxContainer.new()
+		row.add_theme_constant_override("separation", 6)
+		market_goods_box.add_child(row)
+
+		var swatch := ColorRect.new()
+		swatch.custom_minimum_size = Vector2(10.0, 10.0)
+		swatch.color = Color(
+			float(int(g.get("colorR", 180))) / 255.0,
+			float(int(g.get("colorG", 180))) / 255.0,
+			float(int(g.get("colorB", 180))) / 255.0
+		)
+		row.add_child(swatch)
+
+		var n_lbl := _make_label(str(g.get("name", "")), Color(0.94, 0.90, 0.82), 12)
+		n_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		row.add_child(n_lbl)
+
+		var trend: String = str(g.get("trend", "·"))
+		var price_col := Color(0.95, 0.52, 0.45) if trend == "▲" else (Color(0.55, 0.92, 0.58) if trend == "▼" else Color(0.92, 0.89, 0.82))
+		var p_lbl := _make_label("%s %s" % [str(g.get("priceText", "0.0")), trend], price_col, 12)
+		p_lbl.custom_minimum_size = Vector2(68.0, 0.0)
+		p_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		p_lbl.tooltip_text = "%d%% of normal price" % int(g.get("ratioPercent", 100))
+		row.add_child(p_lbl)
+
+		var s_lbl := _make_label(str(g.get("supplyText", "")), Color(0.84, 0.80, 0.72), 12)
+		s_lbl.custom_minimum_size = Vector2(64.0, 0.0)
+		s_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		row.add_child(s_lbl)
+
+		var d_lbl := _make_label(str(g.get("demandText", "")), Color(0.84, 0.80, 0.72), 12)
+		d_lbl.custom_minimum_size = Vector2(64.0, 0.0)
+		d_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		row.add_child(d_lbl)
 
 # MARK: - Camera & Input (matches App/Shared/Map/MapCanvasView.swift)
 
@@ -323,9 +1635,7 @@ func _reset_to_start_camera() -> void:
 		return
 	var fit := _fit_zoom()
 	zoom = minf(fit * 3.0, _max_zoom())
-	var focus := Vector2(2150.0, 820.0)
-	if bridge != null:
-		focus = bridge.call("getFocusPoint", 41.0, 29.0)
+	var focus: Vector2 = _call_bridge("getFocusPoint", [41.0, 29.0], Vector2(2150.0, 820.0))
 	var x := size.x * 0.5 - focus.x * zoom
 	var y := size.y * 0.5 - focus.y * zoom
 	offset = _clamped_offset(Vector2(x, y), zoom)
@@ -371,8 +1681,8 @@ func _sync_camera_uniforms() -> void:
 	map_material.set_shader_parameter("view_size", size)
 	map_material.set_shader_parameter("offset", offset)
 	map_material.set_shader_parameter("zoom", zoom)
-	# Stronger colour tint when zoomed out, lighter when zoomed in so terrain shows through.
-	var tint := clampf(0.72 - 0.2 * zoom, 0.38, 0.66)
+	var default_tint := clampf(0.72 - 0.2 * zoom, 0.38, 0.66)
+	var tint: float = float(_call_bridge("getTintForZoom", [zoom], default_tint))
 	map_material.set_shader_parameter("tint", tint)
 	if labels_layer != null:
 		labels_layer.call("update_camera", zoom, offset)
@@ -386,6 +1696,14 @@ func _on_viewport_resized() -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
+		if event.keycode == KEY_ESCAPE:
+			_toggle_game_menu()
+			get_viewport().set_input_as_handled()
+			return
+
+		if _is_text_input_focused():
+			return
+
 		match event.keycode:
 			KEY_SPACE:
 				_on_pause_pressed()
@@ -413,6 +1731,33 @@ func _unhandled_input(event: InputEvent) -> void:
 				get_viewport().set_input_as_handled()
 			KEY_F:
 				_show_whole_map()
+				get_viewport().set_input_as_handled()
+			KEY_Q:
+				_select_map_mode("political")
+				get_viewport().set_input_as_handled()
+			KEY_O:
+				_select_map_mode("diplomatic")
+				get_viewport().set_input_as_handled()
+			KEY_W:
+				_select_map_mode("states")
+				get_viewport().set_input_as_handled()
+			KEY_E:
+				_select_map_mode("terrain")
+				get_viewport().set_input_as_handled()
+			KEY_R:
+				_select_map_mode("religion")
+				get_viewport().set_input_as_handled()
+			KEY_T:
+				_select_map_mode("culture")
+				get_viewport().set_input_as_handled()
+			KEY_Y:
+				_select_map_mode("development")
+				get_viewport().set_input_as_handled()
+			KEY_U:
+				_select_map_mode("goods")
+				get_viewport().set_input_as_handled()
+			KEY_I:
+				_select_map_mode("markets")
 				get_viewport().set_input_as_handled()
 		return
 
@@ -466,44 +1811,50 @@ func _handle_map_click(screen_pos: Vector2) -> void:
 		return
 	var map_x := int(floor((screen_pos.x - offset.x) / zoom))
 	var map_y := int(floor((screen_pos.y - offset.y) / zoom))
-	var sel_id: int = bridge.call("selectAt", map_x, map_y)
-	var sel_sea: int = bridge.call("getSelectedSeaValue")
+	var sel_id: int = int(_call_bridge("selectAt", [map_x, map_y], 0))
+	var sel_sea: int = int(_call_bridge("getSelectedSeaValue", [], 0))
 	map_material.set_shader_parameter("selected", sel_id)
 	map_material.set_shader_parameter("selected_sea", sel_sea)
-	var summary: String = bridge.call("getProvinceSummaryAt", map_x, map_y)
+	var summary: String = str(_call_bridge("getProvinceSummaryAt", [map_x, map_y], ""))
 	selection_label.text = summary if not summary.is_empty() else "Deep Sea"
 	_refresh_play_as_button()
+
+	# If Nation Picker is open, clicking any country on the map selects it in the Nation Picker.
+	if nation_picker_panel.visible and sel_id >= 2:
+		var clicked_tag: String = str(_call_bridge("getSelectedProvinceOwnerTag", [], ""))
+		if not clicked_tag.is_empty():
+			_select_picker_country(clicked_tag, false)
+		return
+
+	if sel_id >= 2:
+		prov_show_build = false
+		_refresh_province_panel()
+	elif sel_sea > 0:
+		_refresh_sea_panel()
+	else:
+		province_panel.visible = false
+		sea_panel.visible = false
 
 func _refresh_play_as_button() -> void:
 	if bridge == null or play_as_btn == null:
 		return
-	# An old copy of the Swift connector (built before Play as existed) lacks
-	# this function. Hide the button and say how to fix it instead of stopping.
-	if not bridge.has_method("getSelectedOwnerName"):
-		play_as_btn.visible = false
-		push_warning("GezGodot is out of date: run godot/build_mac.sh, then quit and reopen Godot.")
-		return
-	var owner_name: String = bridge.call("getSelectedOwnerName")
+	var owner_name: String = str(_call_bridge("getSelectedOwnerName", [], ""))
 	play_as_btn.visible = not owner_name.is_empty()
 	play_as_btn.text = "Play as " + owner_name
 
 func _on_play_as_pressed() -> void:
-	if bridge == null or not bridge.has_method("playAsSelectedOwner"):
-		return
-	var switched: bool = bridge.call("playAsSelectedOwner")
+	var switched: bool = bool(_call_bridge("playAsSelectedOwner", [], false))
 	if switched:
 		_refresh_styles_and_country_labels()
 		_refresh_top_bar()
 		_refresh_play_as_button()
+		if province_panel.visible:
+			_refresh_province_panel()
 
 func _on_pause_pressed() -> void:
-	if bridge == null:
-		return
-	bridge.call("togglePause")
+	_call_bridge("togglePause")
 	_refresh_top_bar()
 
 func _on_speed_selected(spd: int) -> void:
-	if bridge == null:
-		return
-	bridge.call("setSpeed", spd)
+	_call_bridge("setSpeed", [spd])
 	_refresh_top_bar()

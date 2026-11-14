@@ -207,7 +207,7 @@ version matches it; the owner decides when to retire it.
    budget, trade, court, government, armies, diplomacy, war and peace,
    sieges, game menu (new, load, save), nation picker, alerts. One pull
    request per part:
-   a. Game menu (new, load, save), nation picker, province panel, map modes.
+   a. Game menu (new, load, save), nation picker, province panel, map modes. ✅
    b. Armies: counters on the map, select, move, recruit, sieges.
    c. Economy: budget, trade, buildings.
    d. Court, government and laws; diplomacy, war and peace; alerts.
