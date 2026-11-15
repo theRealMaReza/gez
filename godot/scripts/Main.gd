@@ -7,6 +7,8 @@ const RoutesLayerScript := preload("res://scripts/MapRoutesLayer.gd")
 const ArmyPanelScript := preload("res://scripts/ArmyPanel.gd")
 const BudgetPanelScript := preload("res://scripts/BudgetPanel.gd")
 const TradePanelScript := preload("res://scripts/TradePanel.gd")
+const CourtPanelScript := preload("res://scripts/CourtPanel.gd")
+const GovernmentPanelScript := preload("res://scripts/GovernmentPanel.gd")
 
 var bridge: RefCounted = null
 var warned_missing_methods: Dictionary = {}
@@ -19,6 +21,8 @@ var routes_layer: Control
 var army_ui: Control
 var budget_ui: Control
 var trade_ui: Control
+var court_ui: Control
+var gov_ui: Control
 
 # Top bar widgets
 var top_country_btn: Button
@@ -26,6 +30,8 @@ var top_arms_rect: TextureRect
 var country_label: Label
 var treasury_btn: Button
 var trade_btn: Button
+var court_btn: Button
+var stability_btn: Button
 var armies_btn: Button
 var date_label: Label
 var selection_label: Label
@@ -209,6 +215,23 @@ func _build_scene_ui() -> void:
 	add_child(trade_ui)
 	trade_ui.call("setup", self)
 
+	# 6d. Court & Government windows
+	court_ui = Control.new()
+	court_ui.name = "CourtUI"
+	court_ui.set_script(CourtPanelScript)
+	court_ui.set_anchors_preset(Control.PRESET_FULL_RECT)
+	court_ui.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(court_ui)
+	court_ui.call("setup", self)
+
+	gov_ui = Control.new()
+	gov_ui.name = "GovernmentUI"
+	gov_ui.set_script(GovernmentPanelScript)
+	gov_ui.set_anchors_preset(Control.PRESET_FULL_RECT)
+	gov_ui.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(gov_ui)
+	gov_ui.call("setup", self)
+
 	# 7. Market panel (bottom-right, left of zoom buttons)
 	_build_market_panel()
 
@@ -247,7 +270,7 @@ func _build_top_bar() -> void:
 	add_child(top_bar)
 
 	var hbox := HBoxContainer.new()
-	hbox.add_theme_constant_override("separation", 14)
+	hbox.add_theme_constant_override("separation", 10)
 	top_bar.add_child(hbox)
 
 	top_arms_rect = TextureRect.new()
@@ -278,10 +301,28 @@ func _build_top_bar() -> void:
 
 	trade_btn = Button.new()
 	trade_btn.text = "Trade"
-	trade_btn.custom_minimum_size = Vector2(68.0, 30.0)
+	trade_btn.custom_minimum_size = Vector2(60.0, 30.0)
 	trade_btn.tooltip_text = "Trade routes, merchant capacity, tolls & embargoes"
 	trade_btn.pressed.connect(_toggle_trade_window)
 	hbox.add_child(trade_btn)
+
+	hbox.add_child(_make_separator())
+
+	court_btn = Button.new()
+	court_btn.text = "Court"
+	court_btn.custom_minimum_size = Vector2(60.0, 30.0)
+	court_btn.tooltip_text = "Ruler, family, council, vassals & marriages"
+	court_btn.pressed.connect(_toggle_court_window)
+	hbox.add_child(court_btn)
+
+	hbox.add_child(_make_separator())
+
+	stability_btn = Button.new()
+	stability_btn.text = "Stability +0"
+	stability_btn.custom_minimum_size = Vector2(92.0, 30.0)
+	stability_btn.tooltip_text = "Government: stability, estates, laws & reforms"
+	stability_btn.pressed.connect(_toggle_government_window)
+	hbox.add_child(stability_btn)
 
 	hbox.add_child(_make_separator())
 
@@ -840,17 +881,29 @@ func _get_country_arms_texture(tag: String, r: int = 180, g: int = 140, b: int =
 				arms_cache[cache_key] = tex
 				return tex
 
-	# Fallback plain banner in the country's map colour
-	var fallback_img := Image.create(28, 20, false, Image.FORMAT_RGBA8)
+	# Fallback plain swallow-tailed banner in the country's map colour (matches PlainBannerView)
+	var w := 42
+	var h := 30
+	var fallback_img := Image.create(w, h, false, Image.FORMAT_RGBA8)
+	fallback_img.fill(Color(0.0, 0.0, 0.0, 0.0))
 	var fill_col := Color(float(r) / 255.0, float(g) / 255.0, float(b) / 255.0, 1.0)
-	var border_col := Color(0.12, 0.10, 0.08, 1.0)
-	fallback_img.fill(fill_col)
-	for x in range(28):
-		fallback_img.set_pixel(x, 0, border_col)
-		fallback_img.set_pixel(x, 19, border_col)
-	for y in range(20):
-		fallback_img.set_pixel(0, y, border_col)
-		fallback_img.set_pixel(27, y, border_col)
+	var border_col := Color(0.10, 0.08, 0.06, 0.90)
+	var notch_x := float(w) * 0.78
+	for y in range(h):
+		var yn := absf(float(y) / float(h - 1) - 0.5) * 2.0
+		var max_x := int(round(lerpf(notch_x, float(w - 1), yn)))
+		for x in range(max_x + 1):
+			var is_edge := (y == 0 or y == h - 1 or x == 0 or x >= max_x - 1)
+			if is_edge:
+				fallback_img.set_pixel(x, y, border_col)
+			else:
+				var shade := 1.08 - 0.16 * (float(x) / float(w) * 0.5 + float(y) / float(h) * 0.5)
+				fallback_img.set_pixel(x, y, Color(
+					clampf(fill_col.r * shade, 0.0, 1.0),
+					clampf(fill_col.g * shade, 0.0, 1.0),
+					clampf(fill_col.b * shade, 0.0, 1.0),
+					1.0
+				))
 	var fallback_tex := ImageTexture.create_from_image(fallback_img)
 	arms_cache[cache_key] = fallback_tex
 	return fallback_tex
@@ -965,6 +1018,10 @@ func _process(delta: float) -> void:
 				trade_ui.call("refresh_if_open")
 				if bool(trade_ui.call("is_open")):
 					_refresh_trade_routes()
+			if court_ui != null:
+				court_ui.call("refresh_if_open")
+			if gov_ui != null:
+				gov_ui.call("refresh_if_open")
 		if (mask & 4) != 0:
 			_refresh_styles_and_country_labels()
 		if (mask & 8) != 0 and game_menu_panel.visible:
@@ -990,14 +1047,23 @@ func _refresh_styles_and_country_labels() -> void:
 func _refresh_top_bar() -> void:
 	if bridge == null:
 		return
-	var c_name: String = str(_call_bridge("getCountryName", [], "Observer"))
-	var c_tag: String = str(_call_bridge("getCountryTag", [], "OBS"))
+	var top_var: Variant = _call_bridge("getPlayerTopBarDetails", [], {})
+	var top: Dictionary = top_var if top_var is Dictionary else {}
+	var c_name: String = str(top.get("name", _call_bridge("getCountryName", [], "Observer")))
+	var c_tag: String = str(top.get("tag", _call_bridge("getCountryTag", [], "OBS")))
+	var cr: int = int(top.get("colorR", 180))
+	var cg: int = int(top.get("colorG", 140))
+	var cb: int = int(top.get("colorB", 80))
 	top_country_btn.text = "%s (%s)" % [c_name, c_tag]
-	top_arms_rect.texture = _get_country_arms_texture(c_tag)
+	top_arms_rect.texture = _get_country_arms_texture(c_tag, cr, cg, cb)
 	if treasury_btn != null:
-		treasury_btn.text = "Ducats: %s" % str(_call_bridge("getDucatsText", [], "0 (+0.0/mo)"))
+		treasury_btn.text = "Ducats: %s" % str(top.get("ducatsText", _call_bridge("getDucatsText", [], "0 (+0.0/mo)")))
+	if stability_btn != null:
+		var stab: int = int(top.get("stability", 0))
+		stability_btn.text = str(top.get("stabilityText", "Stability +0"))
+		stability_btn.modulate = Color(0.98, 0.55, 0.50) if stab < 0 else Color(0.95, 0.92, 0.85)
 	if armies_btn != null:
-		armies_btn.text = str(_call_bridge("getTopBarArmiesText", [], "Armies 0 · MP 0"))
+		armies_btn.text = str(top.get("armiesText", _call_bridge("getTopBarArmiesText", [], "Armies 0 · MP 0")))
 	date_label.text = str(_call_bridge("getDateText", [], "30 May 1453"))
 
 	var paused: bool = bool(_call_bridge("isPaused", [], true))
@@ -1360,15 +1426,32 @@ func _add_kv_row(parent: VBoxContainer, label_txt: String, value_txt: String) ->
 func _build_province_overview_tab(d: Dictionary) -> void:
 	var is_mine: bool = bool(d.get("isPlayerOwned", false))
 	var holder_name: String = str(d.get("holderName", "The crown"))
+	var holder_idx: int = int(d.get("holderIndex", -1))
 	var stance: String = str(d.get("holderStance", ""))
 	var has_holder: bool = bool(d.get("hasHolder", false))
 
 	var holder_row := HBoxContainer.new()
 	holder_row.add_theme_constant_override("separation", 6)
 	prov_content_box.add_child(holder_row)
-	var h_lbl := _make_label("Held by: " + holder_name + (" (%s)" % stance if not stance.is_empty() else ""), Color(0.92, 0.88, 0.78), 13)
-	h_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	holder_row.add_child(h_lbl)
+	if has_holder and holder_idx >= 0:
+		holder_row.add_child(_make_label("Held by:", Color(0.92, 0.88, 0.78), 13))
+		var h_btn := Button.new()
+		h_btn.text = holder_name + (" (%s)" % stance if not stance.is_empty() else "")
+		h_btn.flat = true
+		h_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		h_btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		h_btn.add_theme_color_override("font_color", Color(0.97, 0.88, 0.62))
+		h_btn.add_theme_font_size_override("font_size", 13)
+		h_btn.pressed.connect(func() -> void:
+			if court_ui != null:
+				_close_top_left_windows("court")
+				court_ui.call("open_window", holder_idx)
+		)
+		holder_row.add_child(h_btn)
+	else:
+		var h_lbl := _make_label("Held by: " + holder_name + (" (%s)" % stance if not stance.is_empty() else ""), Color(0.92, 0.88, 0.78), 13)
+		h_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		holder_row.add_child(h_lbl)
 
 	if is_mine:
 		if has_holder:
@@ -2066,6 +2149,10 @@ func _close_top_left_windows(except_key: String = "") -> void:
 		budget_ui.call("close_window")
 	if except_key != "trade" and trade_ui != null:
 		trade_ui.call("close_window")
+	if except_key != "court" and court_ui != null:
+		court_ui.call("close_window")
+	if except_key != "government" and gov_ui != null:
+		gov_ui.call("close_window")
 	if except_key != "armies" and army_ui != null:
 		var aw: Variant = army_ui.get("armies_window_panel")
 		if aw is Control:
@@ -2086,6 +2173,22 @@ func _toggle_trade_window() -> void:
 	if opening:
 		_close_top_left_windows("trade")
 	trade_ui.call("toggle_window")
+
+func _toggle_court_window() -> void:
+	if court_ui == null:
+		return
+	var opening: bool = not bool(court_ui.call("is_open"))
+	if opening:
+		_close_top_left_windows("court")
+	court_ui.call("toggle_window")
+
+func _toggle_government_window() -> void:
+	if gov_ui == null:
+		return
+	var opening: bool = not bool(gov_ui.call("is_open"))
+	if opening:
+		_close_top_left_windows("government")
+	gov_ui.call("toggle_window")
 
 func _toggle_armies_window() -> void:
 	if army_ui == null:
@@ -2118,7 +2221,20 @@ func _after_economy_action() -> void:
 	if trade_ui != null:
 		trade_ui.call("refresh_if_open")
 		_refresh_trade_routes()
+	if court_ui != null:
+		court_ui.call("refresh_if_open")
+	if gov_ui != null:
+		gov_ui.call("refresh_if_open")
 	if province_panel.visible:
 		_refresh_province_panel()
 	if market_panel.visible:
 		_refresh_market_panel()
+
+func _after_court_or_gov_action() -> void:
+	_refresh_top_bar()
+	if court_ui != null:
+		court_ui.call("refresh_if_open")
+	if gov_ui != null:
+		gov_ui.call("refresh_if_open")
+	if province_panel.visible:
+		_refresh_province_panel()

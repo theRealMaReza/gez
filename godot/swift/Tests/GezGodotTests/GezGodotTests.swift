@@ -715,4 +715,145 @@ struct GezGodotTests {
             #expect((matching?["refusalReason"] as? String)?.isEmpty == false)
         }
     }
+
+    @Test("Court bridge exposes ruler, family tree, council, vassals, marriages, chronicle, and bounds checks")
+    func courtBridge() {
+        let controller = GezGodotController()
+        #expect(controller.setup(dataDirectoryPath: "", tag: "TUR"))
+
+        let topBar = controller.playerTopBarDetails()
+        #expect(topBar["tag"] as? String == "TUR")
+        #expect((topBar["stabilityText"] as? String)?.hasPrefix("Stability") == true)
+
+        let court = controller.courtDetails()
+        #expect(court["valid"] as? Bool == true)
+        #expect(court["playerTag"] as? String == "TUR")
+        #expect(court["showingRuler"] as? Bool == true)
+
+        let charDict = court["character"] as? [String: Any] ?? [:]
+        #expect(charDict["valid"] as? Bool == true)
+        #expect(!(charDict["fullName"] as? String ?? "").isEmpty)
+        let skills = charDict["skills"] as? [[String: Any]] ?? []
+        #expect(skills.count == 5)
+        let familyTree = court["familyTree"] as? [[String: Any]] ?? []
+        #expect(!familyTree.isEmpty)
+
+        // Character inspection + back to ruler + out-of-range check
+        #expect(!controller.setViewedCharacter(characterIndex: 999_999))
+        if let firstNode = familyTree.last,
+           let cIdx = firstNode["characterIndex"] as? Int {
+            #expect(controller.setViewedCharacter(characterIndex: cIdx))
+            let inspected = controller.courtDetails()
+            let inspChar = inspected["character"] as? [String: Any] ?? [:]
+            #expect(inspChar["characterIndex"] as? Int == cIdx)
+        }
+        #expect(controller.setViewedCharacter(characterIndex: -1))
+        #expect(controller.courtDetails()["showingRuler"] as? Bool == true)
+
+        // Council seats, appoint newcomer, leave empty, appoint candidate
+        let seats = court["councilSeats"] as? [[String: Any]] ?? []
+        #expect(seats.count == 5)
+        #expect(!controller.appointCouncilSeat(seatIndex: 99, characterIndex: 0))
+        #expect(!controller.appointCouncilSeat(seatIndex: 0, characterIndex: 999_999))
+        #expect(!controller.appointCouncilNewcomer(seatIndex: 99))
+        #expect(controller.appointCouncilNewcomer(seatIndex: 0))
+        let afterNewcomer = controller.courtDetails()["councilSeats"] as? [[String: Any]] ?? []
+        #expect((afterNewcomer[0]["holderIndex"] as? Int ?? -1) >= 0)
+        #expect(controller.appointCouncilSeat(seatIndex: 0, characterIndex: -1))
+        let afterEmpty = controller.courtDetails()["councilSeats"] as? [[String: Any]] ?? []
+        #expect(afterEmpty[0]["holderIndex"] as? Int == -1)
+
+        // Marriage candidates & propose (switch to FRA or check TUR family)
+        let family = court["marriageableFamily"] as? [[String: Any]] ?? []
+        if let famIdx = family.first?["characterIndex"] as? Int {
+            let withCands = controller.courtDetails(marryingCharacterIndex: famIdx)
+            let cands = withCands["marriageCandidates"] as? [[String: Any]] ?? []
+            if let candIdx = cands.first?["characterIndex"] as? Int {
+                #expect(controller.proposeMarriage(familyCharacterIndex: famIdx, candidateCharacterIndex: candIdx))
+            }
+        }
+        #expect(!controller.proposeMarriage(familyCharacterIndex: 999_999, candidateCharacterIndex: 0))
+
+        // Grant and revoke land from Court
+        #expect(!controller.grantProvinceToCharacter(provinceIndex: 999_999, characterIndex: 0))
+        #expect(!controller.revokeProvinceHolder(provinceIndex: 999_999))
+        let unheld = court["unheldProvinces"] as? [[String: Any]] ?? []
+        let grantCands = court["grantCandidates"] as? [[String: Any]] ?? []
+        if let pIdx = unheld.first?["provinceIndex"] as? Int,
+           let cIdx = grantCands.first?["characterIndex"] as? Int {
+            #expect(controller.grantProvinceToCharacter(provinceIndex: pIdx, characterIndex: cIdx))
+            let afterGrant = controller.courtDetails()
+            let vassals = afterGrant["vassals"] as? [[String: Any]] ?? []
+            #expect(!vassals.isEmpty)
+            #expect(controller.revokeProvinceHolder(provinceIndex: pIdx))
+            let afterRevoke = controller.courtDetails()
+            let chronicle = afterRevoke["chronicle"] as? [[String: Any]] ?? []
+            #expect(!chronicle.isEmpty)
+        }
+    }
+
+    @Test("Government bridge exposes stability, 11 law areas, estates, privileges, and reforms")
+    func governmentBridge() {
+        let controller = GezGodotController()
+        #expect(controller.setup(dataDirectoryPath: "", tag: "TUR"))
+        guard let s = controller.session, let player = s.playerCountry else {
+            Issue.record("Missing session or player")
+            return
+        }
+
+        // Give enough treasury and reform progress to test actions cleanly
+        s.simulation.world.countries.treasury[player.index] = 5_000
+        s.simulation.world.government.stability[player.index] = 0
+        s.simulation.world.government.reformProgress[player.index] = 500
+
+        let gov = controller.governmentDetails()
+        #expect(gov["valid"] as? Bool == true)
+        #expect(!(gov["governmentName"] as? String ?? "").isEmpty)
+        let laws = gov["laws"] as? [[String: Any]] ?? []
+        #expect(laws.count == 11)
+        let estates = gov["estates"] as? [[String: Any]] ?? []
+        #expect(!estates.isEmpty)
+
+        // Raise stability
+        #expect(gov["canRaiseStability"] as? Bool == true)
+        #expect(controller.raiseStability())
+        #expect(controller.governmentDetails()["stability"] as? Int == 1)
+
+        // Change law + refusal on second change while pending + out-of-range
+        let badLaw = controller.changeLaw(areaIndex: 99, optionIndex: 0)
+        #expect(badLaw["ok"] as? Bool == false)
+        if let area = laws.first,
+           let areaIdx = area["areaIndex"] as? Int,
+           let opt = (area["options"] as? [[String: Any]])?.first,
+           let optIdx = opt["optionIndex"] as? Int {
+            let res = controller.changeLaw(areaIndex: areaIdx, optionIndex: optIdx)
+            #expect(res["ok"] as? Bool == true)
+            let updatedLaws = controller.governmentDetails()["laws"] as? [[String: Any]] ?? []
+            #expect(updatedLaws[areaIdx]["hasPending"] as? Bool == true)
+
+            let secondRes = controller.changeLaw(areaIndex: areaIdx, optionIndex: optIdx)
+            #expect(secondRes["ok"] as? Bool == false)
+            #expect(!(secondRes["reason"] as? String ?? "").isEmpty)
+        }
+
+        // Grant and revoke privilege
+        #expect(!controller.grantPrivilege(privilegeIndex: 999_999))
+        #expect(!controller.revokePrivilege(privilegeIndex: 999_999))
+        if let firstEst = estates.first,
+           let privs = firstEst["privileges"] as? [[String: Any]],
+           let ungranted = privs.first(where: { $0["granted"] as? Bool == false }),
+           let pid = ungranted["privilegeIndex"] as? Int {
+            #expect(controller.grantPrivilege(privilegeIndex: pid))
+            #expect(controller.revokePrivilege(privilegeIndex: pid))
+        }
+
+        // Adopt reform
+        #expect(!controller.adoptReform(optionIndex: 999_999))
+        let nextOpts = gov["nextReformOptions"] as? [[String: Any]] ?? []
+        if let firstOptIdx = nextOpts.first?["optionIndex"] as? Int {
+            #expect(controller.adoptReform(optionIndex: firstOptIdx))
+            let adopted = controller.governmentDetails()["adoptedReforms"] as? [[String: Any]] ?? []
+            #expect(!adopted.isEmpty)
+        }
+    }
 }
