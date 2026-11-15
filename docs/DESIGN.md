@@ -153,12 +153,44 @@ turned into game files by `tools/mapgen/mapgen.py`.
   (`GameRandom`), terrain/river penalties, cavalry flanking, shattered
   retreat/stackwipe, unfortified province occupation, and wartime/diplomatic AI.
 
-### Sieges & forts (planned, Phases 8–9)
-- Fort levels; forts exert zone of control and block movement.
-- Daily siege progress affected by artillery, fort level, terrain, supply,
-  disease and a random siege roll.
-- Player can **assault** (casualties, fast) or **starve** (slow).
-- Assaults can be fought in the battle view.
+- **War AI** (`Systems/DiplomacyAISystem.swift`): idle wartime armies march
+  to the nearest target by marching time (war goal first, then unoccupied
+  enemy land, then their own occupied land), found in one path search;
+  armies standing on enemy land they occupy, or on their own occupied land
+  they are freeing, hold position. The stalemate white peace (48 months
+  under 15% war score) counts months from 30 May 1453 at the earliest, so
+  the wars already under way in 1453 do not end on the first monthly tick.
+- **Army AI in peacetime** (`ArmySystem.runAI`): idle stacks standing in
+  the same province merge, and new standing regiments join the army
+  already in the capital instead of forming a new one.
+
+### Sieges & forts (Phase 8)
+- **Forts & Zone of Control** (`Systems/SiegeSystem.swift`): fort levels
+  1–5 hold 1,000 garrison per level, recover garrison monthly when
+  unbesieged, and project hostile Zone of Control into adjacent provinces
+  so enemy armies cannot march past a fort without besieging it.
+- **Sieges & storm assaults**: a siege needs at least 1,000 besiegers per
+  fort level and advances in 30-day phases, rolling `GameRandom` modified
+  by artillery, commander Martial, fort level, blockade and breaches
+  (Supplies Holding, Food/Water Shortage, Defender Desertion, Disease
+  Outbreak, Wall Breach, Surrender). Once breached, the besieger may order
+  a costly **Storm Assault**; Phase 9 makes assaults playable.
+
+### Save, load & first playable game (Phase 8)
+- **Deterministic saves** (`Core/SaveGame.swift`): versioned JSON snapshots
+  of the mutable `World`, date, tick count and exact `GameRandom` state.
+- **Local storage & autosave**: named saves, Quick Save and one rotating
+  autosave file, frequency monthly / 3 months / 6 months / yearly / never.
+- **First playable UI**: nation picker over all 266 countries plus featured
+  1453 powers, New Game / Load / Save / Switch Country menu, alerts row,
+  10-year headless balance test.
+
+### Speed (Phase 8.5 step 3e)
+- Daily and monthly systems build per-country and per-province lookups
+  once per call instead of scanning every province or army repeatedly.
+  The `FingerprintTests` checksum (printed by the by-hand "profile" CI job)
+  proved these give exactly the same world as before over two game years;
+  the release tick went from about 5.7 to 3.9 ms per day on CI.
 
 ### Battles (planned, Phase 9)
 - Triggered when hostile armies end up in the same province.
@@ -340,8 +372,9 @@ Data in `data/military/` → `tools/military/milgen.py` →
 | Layer | Tech | Notes |
 |---|---|---|
 | Simulation (`Packages/GezCore`) | Pure Swift | No Apple-only frameworks. Fully unit-tested. Portable. |
-| App shell | SwiftUI | Menus, panels, top bar, input. One codebase for Mac and iPad. |
-| Map renderer | Metal | Province-ID texture + baked terrain texture + one shader for all map modes (CPU fallback kept). |
+| Screens (`godot/`) | Godot 4.7 + SwiftGodot | Main front-end from Phase 8.5: map shader, panels, input on Mac, Windows and Linux. GezCore loads as a GDExtension (`godot/swift`, `GezGodotBridge`). |
+| Old app shell (`App/`) | SwiftUI | Apple-only; kept until the owner retires it. |
+| Old map renderer | Metal | Province-ID texture + baked terrain texture + one shader for all map modes (ported to Godot's shading language). |
 | Battle view | Metal or SpriteKit | Instanced 2D sprites for thousands of soldiers. |
 
 Principles:
