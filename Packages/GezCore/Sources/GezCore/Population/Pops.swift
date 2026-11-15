@@ -98,6 +98,166 @@ public struct PopTable: Sendable {
         let r = ranges[ranges.count - 1]
         ranges[ranges.count - 1] = r.lowerBound..<(r.upperBound + 1)
     }
+
+    public struct Row: Sendable {
+        public var province: ProvinceID
+        public var culture: CultureID
+        public var religion: Religion
+        public var sect: Sect?
+        public var socialClass: SocialClass
+        public var size: Double
+        public var satisfaction: Double
+
+        public init(
+            province: ProvinceID,
+            culture: CultureID,
+            religion: Religion,
+            sect: Sect?,
+            socialClass: SocialClass,
+            size: Double,
+            satisfaction: Double
+        ) {
+            self.province = province
+            self.culture = culture
+            self.religion = religion
+            self.sect = sect
+            self.socialClass = socialClass
+            self.size = size
+            self.satisfaction = satisfaction
+        }
+    }
+
+    /// Rebuilds the SoA pop table deterministically from live rows plus any newly split rows,
+    /// pruning depleted rows (`size <= 1e-9`) and merging matching identities cleanly.
+    public mutating func rebuild(provinceCount: Int, extraRows: [Row] = []) {
+        struct Key: Hashable {
+            let province: Int
+            let culture: Int
+            let religion: Religion
+            let sect: Sect?
+            let socialClass: SocialClass
+        }
+        var grouped: [Key: (size: Double, satWeighted: Double)] = [:]
+        grouped.reserveCapacity(count + extraRows.count)
+
+        @inline(__always)
+        func accumulate(province: ProvinceID, culture: CultureID, religion: Religion, sect: Sect?, socialClass: SocialClass, size: Double, satisfaction: Double) {
+            guard size > 1e-9 else { return }
+            let key = Key(province: province.index, culture: culture.index, religion: religion, sect: sect, socialClass: socialClass)
+            if let existing = grouped[key] {
+                grouped[key] = (existing.size + size, existing.satWeighted + satisfaction * size)
+            } else {
+                grouped[key] = (size, satisfaction * size)
+            }
+        }
+
+        for i in 0..<count {
+            accumulate(
+                province: province[i],
+                culture: culture[i],
+                religion: religion[i],
+                sect: sect[i],
+                socialClass: socialClass[i],
+                size: size[i],
+                satisfaction: satisfaction[i]
+            )
+        }
+        for row in extraRows {
+            accumulate(
+                province: row.province,
+                culture: row.culture,
+                religion: row.religion,
+                sect: row.sect,
+                socialClass: row.socialClass,
+                size: row.size,
+                satisfaction: row.satisfaction
+            )
+        }
+
+        let sorted = grouped.sorted { lhs, rhs in
+            if lhs.key.province != rhs.key.province { return lhs.key.province < rhs.key.province }
+            if lhs.key.culture != rhs.key.culture { return lhs.key.culture < rhs.key.culture }
+            if lhs.key.religion.rawValue != rhs.key.religion.rawValue { return lhs.key.religion.rawValue < rhs.key.religion.rawValue }
+            if (lhs.key.sect?.rawValue ?? "") != (rhs.key.sect?.rawValue ?? "") {
+                return (lhs.key.sect?.rawValue ?? "") < (rhs.key.sect?.rawValue ?? "")
+            }
+            return lhs.key.socialClass.rawValue < rhs.key.socialClass.rawValue
+        }
+
+        var newProvince: [ProvinceID] = []
+        var newCulture: [CultureID] = []
+        var newReligion: [Religion] = []
+        var newSect: [Sect?] = []
+        var newClass: [SocialClass] = []
+        var newSize: [Double] = []
+        var newSatisfaction: [Double] = []
+        newProvince.reserveCapacity(sorted.count)
+        newCulture.reserveCapacity(sorted.count)
+        newReligion.reserveCapacity(sorted.count)
+        newSect.reserveCapacity(sorted.count)
+        newClass.reserveCapacity(sorted.count)
+        newSize.reserveCapacity(sorted.count)
+        newSatisfaction.reserveCapacity(sorted.count)
+
+        var newRanges = Array(repeating: 0..<0, count: provinceCount)
+        var cursor = 0
+        var p = 0
+        while p < provinceCount {
+            let start = cursor
+            while cursor < sorted.count && sorted[cursor].key.province == p {
+                let item = sorted[cursor]
+                newProvince.append(ProvinceID(p))
+                newCulture.append(CultureID(item.key.culture))
+                newReligion.append(item.key.religion)
+                newSect.append(item.key.sect)
+                newClass.append(item.key.socialClass)
+                newSize.append(item.value.size)
+                newSatisfaction.append(item.value.size > 0 ? item.value.satWeighted / item.value.size : 0.5)
+                cursor += 1
+            }
+            newRanges[p] = start..<cursor
+            p += 1
+        }
+
+        self.province = newProvince
+        self.culture = newCulture
+        self.religion = newReligion
+        self.sect = newSect
+        self.socialClass = newClass
+        self.size = newSize
+        self.satisfaction = newSatisfaction
+        self.ranges = newRanges
+    }
+
+    /// Restores full SoA pop rows from a save snapshot and rebuilds province ranges.
+    public mutating func restore(
+        provinceCount: Int,
+        province: [ProvinceID],
+        culture: [CultureID],
+        religion: [Religion],
+        sect: [Sect?],
+        socialClass: [SocialClass],
+        size: [Double],
+        satisfaction: [Double]
+    ) {
+        self.province = province
+        self.culture = culture
+        self.religion = religion
+        self.sect = sect
+        self.socialClass = socialClass
+        self.size = size
+        self.satisfaction = satisfaction
+        var rebuiltRanges = Array(repeating: 0..<0, count: provinceCount)
+        var idx = 0
+        for p in 0..<provinceCount {
+            let start = idx
+            while idx < province.count && province[idx].index == p {
+                idx += 1
+            }
+            rebuiltRanges[p] = start..<idx
+        }
+        self.ranges = rebuiltRanges
+    }
 }
 
 /// Who lives somewhere, summed up.

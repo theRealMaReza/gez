@@ -114,12 +114,18 @@ public enum GovernmentSystem {
         if case .socialClass(let cls) = def.source, let tc = TaxClass(cls) {
             t -= (world.countries.taxLevel[c.index][tc.rawValue] - 1) * 20
         }
+        if case .socialClass(let cls) = def.source, cls == .clergy,
+           c.index < world.faith.holySiteCountHeld.count {
+            let sites = world.faith.holySiteCountHeld[c.index]
+            t += min(FaithModel.maxHolySiteClergyLoyalty, Double(sites) * FaithModel.holySiteClergyLoyalty)
+        }
         return max(0, min(100, t))
     }
 
     /// Brings power, loyalty and effects to their settled values (game start).
     public static func settle(_ world: inout World) {
         guard world.government.count == world.countries.count else { return }
+        FaithSystem.refreshHolySiteCounts(&world)
         for c in world.countries.ids {
             for _ in 0..<3 {
                 refreshEffects(&world, c)
@@ -190,7 +196,9 @@ public enum GovernmentSystem {
     public static func stabilityCost(_ world: World, _ c: CountryID) -> Double {
         let s = world.government.stability[c.index]
         let base = max(25, world.countries.lastMonthlyIncome[c.index] * GovernmentModel.stabilityCostMonths)
-        return base * (1 + 0.5 * Double(max(0, s))) * max(0.3, 1 + world.government.modifier(c, .stabilityCost))
+        let sites = c.index < world.faith.holySiteCountHeld.count ? world.faith.holySiteCountHeld[c.index] : 0
+        let holyDiscount = min(FaithModel.maxHolySiteStabilityDiscount, Double(sites) * FaithModel.holySiteStabilityDiscount)
+        return base * (1 + 0.5 * Double(max(0, s))) * max(0.3, 1 + world.government.modifier(c, .stabilityCost) - holyDiscount)
     }
 
     public static func lawChangeCost(_ world: World, _ c: CountryID) -> Double {

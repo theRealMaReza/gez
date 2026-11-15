@@ -125,6 +125,12 @@ public struct SaveSnapshot: Sendable, Codable {
         public var occupiedBy: [CountryID?]
         public var occupationTarget: [CountryID?]
         public var occupationProgressDays: [Int]
+        public var religiousUnrest: [Double]?
+        public var conversionProgress: [Double]?
+        public var assimilationProgress: [Double]?
+        public var devastation: [Double]?
+        public var famine: [Double]?
+        public var lastNetMigration: [Double]?
     }
 
     public struct CountriesSnapshot: Sendable, Codable {
@@ -155,9 +161,17 @@ public struct SaveSnapshot: Sendable, Codable {
         public var lastTrade: [Double]
         public var lastTolls: [Double]
         public var lastVassalTax: [Double]
+        public var prestige: [Double]?
+        public var primaryCulture: [CultureID]?
+        public var acceptedCultures: [Set<CultureID>]?
     }
 
     public struct PopsSnapshot: Sendable, Codable {
+        public var province: [ProvinceID]
+        public var culture: [CultureID]
+        public var religion: [Religion]
+        public var sect: [Sect?]
+        public var socialClass: [SocialClass]
         public var size: [Double]
         public var satisfaction: [Double]
     }
@@ -246,6 +260,7 @@ public struct SaveSnapshot: Sendable, Codable {
     public var military: MilitarySnapshot
     public var navy: NavySnapshot?
     public var diplomacy: Diplomacy
+    public var faith: FaithState?
 
     public init(capturing simulation: Simulation) {
         let w = simulation.world
@@ -271,7 +286,13 @@ public struct SaveSnapshot: Sendable, Codable {
             claims: w.provinces.claims,
             occupiedBy: w.provinces.occupiedBy,
             occupationTarget: w.provinces.occupationTarget,
-            occupationProgressDays: w.provinces.occupationProgressDays
+            occupationProgressDays: w.provinces.occupationProgressDays,
+            religiousUnrest: w.provinces.religiousUnrest,
+            conversionProgress: w.provinces.conversionProgress,
+            assimilationProgress: w.provinces.assimilationProgress,
+            devastation: w.provinces.devastation,
+            famine: w.provinces.famine,
+            lastNetMigration: w.provinces.lastNetMigration
         )
 
         self.countries = CountriesSnapshot(
@@ -301,10 +322,18 @@ public struct SaveSnapshot: Sendable, Codable {
             succession: w.countries.succession,
             lastTrade: w.countries.lastTrade,
             lastTolls: w.countries.lastTolls,
-            lastVassalTax: w.countries.lastVassalTax
+            lastVassalTax: w.countries.lastVassalTax,
+            prestige: w.countries.prestige,
+            primaryCulture: w.countries.primaryCulture,
+            acceptedCultures: w.countries.acceptedCultures
         )
 
         self.pops = PopsSnapshot(
+            province: w.pops.province,
+            culture: w.pops.culture,
+            religion: w.pops.religion,
+            sect: w.pops.sect,
+            socialClass: w.pops.socialClass,
             size: w.pops.size,
             satisfaction: w.pops.satisfaction
         )
@@ -379,6 +408,7 @@ public struct SaveSnapshot: Sendable, Codable {
         )
 
         self.diplomacy = w.diplomacy
+        self.faith = w.faith
     }
 
     /// Rebuilds an identical `Simulation` using a freshly created static base `World`.
@@ -394,8 +424,13 @@ public struct SaveSnapshot: Sendable, Codable {
         guard countries.treasury.count == w.countries.count else {
             throw SaveGameError.incompatibleWorldData("country count mismatch (\(countries.treasury.count) vs \(w.countries.count))")
         }
-        guard pops.size.count == w.pops.count else {
-            throw SaveGameError.incompatibleWorldData("pop row count mismatch (\(pops.size.count) vs \(w.pops.count))")
+        guard pops.province.count == pops.size.count,
+              pops.culture.count == pops.size.count,
+              pops.religion.count == pops.size.count,
+              pops.sect.count == pops.size.count,
+              pops.socialClass.count == pops.size.count,
+              pops.satisfaction.count == pops.size.count else {
+            throw SaveGameError.incompatibleWorldData("pop row array length mismatch")
         }
         guard economy.producerOutput.count == w.economy.producers.count else {
             throw SaveGameError.incompatibleWorldData("producer row count mismatch")
@@ -425,6 +460,12 @@ public struct SaveSnapshot: Sendable, Codable {
         w.provinces.occupiedBy = provinces.occupiedBy
         w.provinces.occupationTarget = provinces.occupationTarget
         w.provinces.occupationProgressDays = provinces.occupationProgressDays
+        if let v = provinces.religiousUnrest, v.count == w.provinces.count { w.provinces.religiousUnrest = v }
+        if let v = provinces.conversionProgress, v.count == w.provinces.count { w.provinces.conversionProgress = v }
+        if let v = provinces.assimilationProgress, v.count == w.provinces.count { w.provinces.assimilationProgress = v }
+        if let v = provinces.devastation, v.count == w.provinces.count { w.provinces.devastation = v }
+        if let v = provinces.famine, v.count == w.provinces.count { w.provinces.famine = v }
+        if let v = provinces.lastNetMigration, v.count == w.provinces.count { w.provinces.lastNetMigration = v }
 
         w.countries.color = countries.color
         w.countries.government = countries.government
@@ -453,9 +494,20 @@ public struct SaveSnapshot: Sendable, Codable {
         w.countries.lastTrade = countries.lastTrade
         w.countries.lastTolls = countries.lastTolls
         w.countries.lastVassalTax = countries.lastVassalTax
+        if let v = countries.prestige, v.count == w.countries.count { w.countries.prestige = v }
+        if let v = countries.primaryCulture, v.count == w.countries.count { w.countries.primaryCulture = v }
+        if let v = countries.acceptedCultures, v.count == w.countries.count { w.countries.acceptedCultures = v }
 
-        w.pops.size = pops.size
-        w.pops.satisfaction = pops.satisfaction
+        w.pops.restore(
+            provinceCount: w.provinces.count,
+            province: pops.province,
+            culture: pops.culture,
+            religion: pops.religion,
+            sect: pops.sect,
+            socialClass: pops.socialClass,
+            size: pops.size,
+            satisfaction: pops.satisfaction
+        )
 
         w.economy.markets.price = economy.marketPrice
         w.economy.markets.supply = economy.marketSupply
@@ -517,6 +569,9 @@ public struct SaveSnapshot: Sendable, Codable {
         }
 
         w.diplomacy = diplomacy
+        if let faith {
+            w.faith = faith
+        }
 
         return Simulation(
             restoringWorld: w,

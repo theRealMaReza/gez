@@ -1,0 +1,346 @@
+{
+  "holySites": [
+    {
+      "name": "Rome",
+      "province": "Rome",
+      "religions": [
+        "catholic"
+      ]
+    },
+    {
+      "name": "Constantinople",
+      "province": "Konstantiniyye",
+      "religions": [
+        "orthodox",
+        "armenian",
+        "syriac"
+      ]
+    },
+    {
+      "name": "Jerusalem",
+      "province": "Jerusalem",
+      "religions": [
+        "catholic",
+        "orthodox",
+        "coptic",
+        "ethiopian",
+        "armenian",
+        "syriac",
+        "protestant",
+        "reformed",
+        "hussite",
+        "sunni",
+        "twelver",
+        "zaydi",
+        "ismaili",
+        "ibadi",
+        "jewish"
+      ]
+    },
+    {
+      "name": "Mecca",
+      "province": "Mecca",
+      "religions": [
+        "sunni",
+        "twelver",
+        "zaydi",
+        "ismaili",
+        "ibadi"
+      ]
+    },
+    {
+      "name": "Medina",
+      "province": "Medina",
+      "religions": [
+        "sunni",
+        "twelver",
+        "zaydi",
+        "ismaili",
+        "ibadi"
+      ]
+    },
+    {
+      "name": "Najaf",
+      "province": "Kufa",
+      "religions": [
+        "twelver",
+        "zaydi",
+        "ismaili"
+      ]
+    },
+    {
+      "name": "Karbala",
+      "province": "Hillah",
+      "religions": [
+        "twelver",
+        "zaydi",
+        "ismaili"
+      ]
+    },
+    {
+      "name": "Varanasi",
+      "province": "Benares",
+      "religions": [
+        "hindu",
+        "jain"
+      ]
+    },
+    {
+      "name": "Bodh Gaya",
+      "province": "Gaya",
+      "religions": [
+        "theravada",
+        "tibetan",
+        "hindu"
+      ]
+    },
+    {
+      "name": "Axum",
+      "province": "Aksum",
+      "religions": [
+        "ethiopian",
+        "coptic"
+      ]
+    },
+    {
+      "name": "Santiago de Compostela",
+      "province": "Santiago",
+      "religions": [
+        "catholic"
+      ]
+    },
+    {
+      "name": "Canterbury",
+      "province": "Canterbury",
+      "religions": [
+        "catholic",
+        "protestant",
+        "reformed"
+      ]
+    },
+    {
+      "name": "Wittenberg",
+      "province": "Wittenberg",
+      "religions": [
+        "protestant"
+      ]
+    },
+    {
+      "name": "Geneva",
+      "province": "Geneva",
+      "religions": [
+        "reformed"
+      ]
+    },
+    {
+      "name": "Prague",
+      "province": "Prague",
+      "religions": [
+        "hussite"
+      ]
+    },
+    {
+      "name": "Kiev",
+      "province": "Kiev",
+      "religions": [
+        "orthodox"
+      ]
+    },
+    {
+      "name": "Mount Athos",
+      "province": "Thessaloniki",
+      "religions": [
+        "orthodox"
+      ]
+    },
+    {
+      "name": "Moscow",
+      "province": "Moscow",
+      "religions": [
+        "orthodox"
+      ]
+    },
+    {
+      "name": "Alexandria",
+      "province": "Alexandria",
+      "religions": [
+        "coptic",
+        "orthodox"
+      ]
+    },
+    {
+      "name": "Cairo",
+      "province": "Cairo",
+      "religions": [
+        "coptic",
+        "ismaili"
+      ]
+    },
+    {
+      "name": "Lalibela",
+      "province": "Lalibela",
+      "religions": [
+        "ethiopian"
+      ]
+    },
+    {
+      "name": "Etchmiadzin",
+      "province": "Yerevan",
+      "religions": [
+        "armenian"
+      ]
+    },
+    {
+      "name": "Mardin",
+      "province": "Mardin",
+      "religions": [
+        "syriac"
+      ]
+    },
+    {
+      "name": "Mosul",
+      "province": "Mosul",
+      "religions": [
+        "nestorian"
+      ]
+    },
+    {
+      "name": "Visoko",
+      "province": "Bobovac",
+      "religions": [
+        "bosnian"
+      ]
+    },
+    {
+      "name": "Damascus",
+      "province": "Damascus",
+      "religions": [
+        "sunni",
+        "twelver"
+      ]
+    },
+    {
+      "name": "Mashhad",
+      "province": "Mashhad",
+      "religions": [
+        "twelver"
+      ]
+    },
+    {
+      "name": "Kairouan",
+      "province": "Kairouan",
+      "religions": [
+        "sunni"
+      ]
+    },
+    {
+      "name": "Sanaa",
+      "province": "Sanaa",
+      "religions": [
+        "zaydi"
+      ]
+    },
+    {
+      "name": "Nizwa",
+      "province": "Nizwa",
+      "religions": [
+        "ibadi"
+      ]
+    },
+    {
+      "name": "Safed",
+      "province": "Safed",
+      "religions": [
+        "druze",
+        "jewish"
+      ]
+    },
+    {
+      "name": "Antioch",
+      "province": "Antioch",
+      "religions": [
+        "alawite",
+        "orthodox",
+        "syriac"
+      ]
+    },
+    {
+      "name": "Lalish",
+      "province": "Sinjar",
+      "religions": [
+        "yazidi"
+      ]
+    },
+    {
+      "name": "Puri",
+      "province": "Puri",
+      "religions": [
+        "hindu"
+      ]
+    },
+    {
+      "name": "Dwarka",
+      "province": "Dwarka",
+      "religions": [
+        "hindu"
+      ]
+    },
+    {
+      "name": "Mathura",
+      "province": "Mathura",
+      "religions": [
+        "hindu"
+      ]
+    },
+    {
+      "name": "Kanchipuram",
+      "province": "Kanchipuram",
+      "religions": [
+        "hindu"
+      ]
+    },
+    {
+      "name": "Mount Abu",
+      "province": "Sirohi",
+      "religions": [
+        "jain"
+      ]
+    },
+    {
+      "name": "Mount Girnar",
+      "province": "Junagadh",
+      "religions": [
+        "jain"
+      ]
+    },
+    {
+      "name": "Kandy",
+      "province": "Senkadagala",
+      "religions": [
+        "theravada"
+      ]
+    },
+    {
+      "name": "Kathmandu",
+      "province": "Kathmandu",
+      "religions": [
+        "tibetan",
+        "hindu"
+      ]
+    },
+    {
+      "name": "Yazd",
+      "province": "Yazd",
+      "religions": [
+        "zoroastrian"
+      ]
+    },
+    {
+      "name": "Shiraz",
+      "province": "Shiraz",
+      "religions": [
+        "zoroastrian"
+      ]
+    }
+  ]
+}

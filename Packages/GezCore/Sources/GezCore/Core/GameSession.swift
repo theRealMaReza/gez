@@ -1381,4 +1381,22 @@ public final class GameSession {
         revision &+= 1
         return res
     }
+
+    // MARK: - Phase 11: Faith & Culture
+
+    @discardableResult
+    public func sendMissionary(to province: ProvinceID) -> MissionaryRefusal? {
+        guard let player = playerCountry else { return .notOwned }
+        let err = FaithSystem.sendMissionary(&simulation.world, by: player, to: province, date: date)
+        if err == nil { revision &+= 1 }
+        return err
+    }
+
+    @discardableResult
+    public func recallMissionary(from province: ProvinceID) -> Bool {
+        guard let player = playerCountry else { return false }
+        let ok = FaithSystem.recallMissionary(&simulation.world, by: player, from: province)
+        if ok { revision &+= 1 }
+        return ok
+    }
 }

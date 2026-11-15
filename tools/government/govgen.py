@@ -19,10 +19,10 @@ RES = ROOT / "Packages/GezCore/Sources/GezCore/Resources"
 MODIFIERS = """tax trade build_cost interest learning reform_progress stability_cost
 vassal_keep vassal_opinion crown_power mood_nobles mood_clergy mood_burghers
 mood_peasants mood_other_faith tax_nobles tax_clergy tax_burghers tax_peasants
-inflation_decay no_debase manpower levy_size army_quality fort_defence""".split()
+inflation_decay no_debase manpower levy_size army_quality fort_defence accepted_cultures""".split()
 GOVERNMENTS = ["monarchy", "republic", "theocracy", "steppeHorde", "tribal"]
 MUSLIM = set("sunni twelver zaydi ismaili ibadi druze alawite yazidi".split())
-CHRISTIAN = set("catholic hussite orthodox bosnian coptic ethiopian armenian syriac nestorian".split())
+CHRISTIAN = set("catholic hussite protestant reformed orthodox bosnian coptic ethiopian armenian syriac nestorian".split())
 DHARMIC = set("hindu jain theravada tibetan".split())
 
 

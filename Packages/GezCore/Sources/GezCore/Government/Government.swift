@@ -9,6 +9,7 @@ public enum Modifier: Int, CaseIterable, Sendable {
     case moodNobles, moodClergy, moodBurghers, moodPeasants, moodOtherFaith
     case taxNobles, taxClergy, taxBurghers, taxPeasants
     case inflationDecay, noDebase, manpower, levySize, armyQuality, fortDefence
+    case acceptedCultures
 
     /// Key used in the data files.
     public var key: String {
@@ -38,6 +39,7 @@ public enum Modifier: Int, CaseIterable, Sendable {
         case .levySize: return "levy_size"
         case .armyQuality: return "army_quality"
         case .fortDefence: return "fort_defence"
+        case .acceptedCultures: return "accepted_cultures"
         }
     }
 
@@ -74,11 +76,12 @@ public enum Modifier: Int, CaseIterable, Sendable {
         case .levySize: return "Levy size"
         case .armyQuality: return "Army quality"
         case .fortDefence: return "Fort defence"
+        case .acceptedCultures: return "Accepted cultures"
         }
     }
 
     /// Shown as plain points rather than percentages.
-    public var isPoints: Bool { self == .vassalOpinion || self == .reformProgress || self == .noDebase }
+    public var isPoints: Bool { self == .vassalOpinion || self == .reformProgress || self == .noDebase || self == .acceptedCultures }
 
     /// Contentment changes on the 0–1 scale are shown as points out of 100.
     public var isMood: Bool { [.moodNobles, .moodClergy, .moodBurghers, .moodPeasants, .moodOtherFaith].contains(self) }

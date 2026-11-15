@@ -1,0 +1,54 @@
+# Holy sites across the faiths of 1453 and the Reformation era.
+# Format: site | display name | scenario province name | comma-separated religion keys
+#
+# Holding a holy site of your state religion grants prestige (+0.5/year),
+# stability cost reduction (-5%), and Clergy estate loyalty (+3).
+# Uncertain assignments (for minor sects / historical regional centers) are noted
+# in docs/HISTORY_NOTES.md with "?".
+
+# Core holy sites explicitly required in design
+site | Rome | Rome | catholic
+site | Constantinople | Konstantiniyye | orthodox, armenian, syriac
+site | Jerusalem | Jerusalem | catholic, orthodox, coptic, ethiopian, armenian, syriac, protestant, reformed, hussite, sunni, twelver, zaydi, ismaili, ibadi, jewish
+site | Mecca | Mecca | sunni, twelver, zaydi, ismaili, ibadi
+site | Medina | Medina | sunni, twelver, zaydi, ismaili, ibadi
+site | Najaf | Kufa | twelver, zaydi, ismaili
+site | Karbala | Hillah | twelver, zaydi, ismaili
+site | Varanasi | Benares | hindu, jain
+site | Bodh Gaya | Gaya | theravada, tibetan, hindu
+site | Axum | Aksum | ethiopian, coptic
+
+# Additional regional and confessional holy sites
+site | Santiago de Compostela | Santiago | catholic
+site | Canterbury | Canterbury | catholic, protestant, reformed
+site | Wittenberg | Wittenberg | protestant
+site | Geneva | Geneva | reformed
+site | Prague | Prague | hussite
+site | Kiev | Kiev | orthodox
+site | Mount Athos | Thessaloniki | orthodox
+site | Moscow | Moscow | orthodox
+site | Alexandria | Alexandria | coptic, orthodox
+site | Cairo | Cairo | coptic, ismaili
+site | Lalibela | Lalibela | ethiopian
+site | Etchmiadzin | Yerevan | armenian
+site | Mardin | Mardin | syriac
+site | Mosul | Mosul | nestorian
+site | Visoko | Bobovac | bosnian
+site | Damascus | Damascus | sunni, twelver
+site | Mashhad | Mashhad | twelver
+site | Kairouan | Kairouan | sunni
+site | Sanaa | Sanaa | zaydi
+site | Nizwa | Nizwa | ibadi
+site | Safed | Safed | druze, jewish
+site | Antioch | Antioch | alawite, orthodox, syriac
+site | Lalish | Sinjar | yazidi
+site | Puri | Puri | hindu
+site | Dwarka | Dwarka | hindu
+site | Mathura | Mathura | hindu
+site | Kanchipuram | Kanchipuram | hindu
+site | Mount Abu | Sirohi | jain
+site | Mount Girnar | Junagadh | jain
+site | Kandy | Senkadagala | theravada
+site | Kathmandu | Kathmandu | tibetan, hindu
+site | Yazd | Yazd | zoroastrian
+site | Shiraz | Shiraz | zoroastrian

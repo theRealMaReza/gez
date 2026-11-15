@@ -21,7 +21,7 @@ option | succession | seniority | Seniority | loyalty:nobles=5 crown_power=-0.1 
 option | succession | elective | Elective | loyalty:nobles=15 power:nobles=0.15 crown_power=-0.15 |
 
 area | crown | Crown authority
-option | crown | feudal | Feudal contract | vassal_keep=0.1 vassal_opinion=10 loyalty:nobles=10 power:nobles=0.15 crown_power=-0.15 levy_size=0.2 |
+option | crown | feudal | Feudal contract | vassal_keep=0.1 vassal_opinion=10 loyalty:nobles=10 power:nobles=0.15 crown_power=-0.15 levy_size=0.2 accepted_cultures=1 |
 option | crown | domain | Royal domain | |
 option | crown | centralised | Centralised crown | vassal_keep=-0.15 vassal_opinion=-15 tax=0.08 loyalty:nobles=-15 crown_power=0.25 reform_progress=0.2 |
 
@@ -37,8 +37,8 @@ option | army | standing | Standing army | army_quality=0.15 manpower=-0.1 tax=-
 
 area | faith | Religious policy
 option | faith | orthodoxy | State faith only | mood_other_faith=-0.08 loyalty:clergy=15 power:clergy=0.1 loyalty:dhimmi=-25 |
-option | faith | tolerance | Protected minorities | loyalty:dhimmi=10 |
-option | faith | open | Open tolerance | mood_other_faith=0.06 loyalty:clergy=-15 loyalty:dhimmi=20 trade=0.03 |
+option | faith | tolerance | Protected minorities | loyalty:dhimmi=10 accepted_cultures=1 |
+option | faith | open | Open tolerance | mood_other_faith=0.06 loyalty:clergy=-15 loyalty:dhimmi=20 trade=0.03 accepted_cultures=2 |
 
 area | trade | Trade policy
 option | trade | guilds | Guild charters | loyalty:burghers=15 power:burghers=0.1 build_cost=0.1 |

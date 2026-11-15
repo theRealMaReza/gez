@@ -17,7 +17,7 @@ public enum ReligionFamily: String, CaseIterable, Sendable, Codable {
 
 public enum Religion: String, CaseIterable, Sendable, Codable {
     // Christian
-    case catholic, hussite, orthodox, bosnian, coptic, ethiopian, armenian, syriac, nestorian
+    case catholic, hussite, protestant, reformed, orthodox, bosnian, coptic, ethiopian, armenian, syriac, nestorian
     // Muslim
     case sunni, twelver, zaydi, ismaili, ibadi, druze, alawite, yazidi
     // Dharmic
@@ -27,7 +27,7 @@ public enum Religion: String, CaseIterable, Sendable, Codable {
 
     public var family: ReligionFamily {
         switch self {
-        case .catholic, .hussite, .orthodox, .bosnian, .coptic, .ethiopian, .armenian, .syriac, .nestorian:
+        case .catholic, .hussite, .protestant, .reformed, .orthodox, .bosnian, .coptic, .ethiopian, .armenian, .syriac, .nestorian:
             return .christian
         case .sunni, .twelver, .zaydi, .ismaili, .ibadi, .druze, .alawite, .yazidi:
             return .muslim
@@ -46,6 +46,8 @@ public enum Religion: String, CaseIterable, Sendable, Codable {
         switch self {
         case .catholic: return "Catholic"
         case .hussite: return "Hussite"
+        case .protestant: return "Protestant"
+        case .reformed: return "Reformed"
         case .orthodox: return "Orthodox"
         case .bosnian: return "Bosnian Church"
         case .coptic: return "Coptic"
@@ -77,6 +79,8 @@ public enum Religion: String, CaseIterable, Sendable, Codable {
         switch self {
         case .catholic: return RGB(235, 220, 120)
         case .hussite: return RGB(150, 190, 230)
+        case .protestant: return RGB(70, 120, 210)
+        case .reformed: return RGB(90, 185, 200)
         case .orthodox: return RGB(160, 110, 200)
         case .bosnian: return RGB(110, 150, 210)
         case .coptic: return RGB(205, 140, 205)

@@ -49,6 +49,7 @@ public enum Scenario1453 {
         try MilitaryLoader.loadBundled(into: &world)
         try NavyLoader.loadBundled(into: &world)
         try DiplomacyLoader.loadBundled(into: &world)
+        try FaithLoader.loadBundled(into: &world)
         MarketSystem.warmUp(&world, months: warmUpMonths)
         GovernmentSystem.settle(&world)
         ArmySystem.settle(&world, seedPool: true)
@@ -223,6 +224,9 @@ public enum Scenario1453 {
 
         for (index, c) in file.countries.enumerated() {
             world.countries.capital[index] = ProvinceID(c.capital)
+            if c.capital < world.provinces.count {
+                world.countries.primaryCulture[index] = world.provinces.majorityCulture[c.capital]
+            }
             if let lord = c.overlord {
                 guard let lordID = world.countries.id(forTag: lord) else { throw LoadError.unknownValue("overlord \(lord)") }
                 guard let kind = c.subjectType.flatMap(SubjectType.init(rawValue:)) else {
