@@ -12,6 +12,7 @@ var message_label: Label
 
 var open_estate_index: int = -1
 var last_message: String = ""
+var _last_gov_sig: String = ""
 
 func setup(host: Control) -> void:
 	main_view = host
@@ -139,6 +140,7 @@ func refresh() -> void:
 	var d_var: Variant = _call_bridge("getGovernmentDetails", [], {})
 	var d: Dictionary = d_var if d_var is Dictionary else {}
 	if not bool(d.get("valid", false)):
+		_last_gov_sig = ""
 		gov_type_label.text = ""
 		_clear_children(stability_box)
 		stability_box.add_child(_make_label("No active player country.", Color(0.80, 0.75, 0.66), 13))
@@ -147,6 +149,11 @@ func refresh() -> void:
 		_clear_children(reforms_box)
 		message_label.visible = false
 		return
+
+	var sig := "%d|%s|%s" % [open_estate_index, last_message, var_to_str(d)]
+	if sig == _last_gov_sig and stability_box.get_child_count() > 0:
+		return
+	_last_gov_sig = sig
 
 	gov_type_label.text = str(d.get("governmentName", ""))
 	message_label.visible = not last_message.is_empty()

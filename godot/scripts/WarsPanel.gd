@@ -18,6 +18,8 @@ var subject_mode: int = 0 # 0=none, 1=vassal, 2=tributary
 var selected_releases: Dictionary = {} # country_idx -> true
 var selected_annuls: Dictionary = {} # country_idx -> true
 var peace_feedback: String = ""
+var _last_wars_sig: String = ""
+var _last_peace_sig: String = ""
 
 func setup(p_main: Node) -> void:
 	main = p_main
@@ -138,6 +140,11 @@ func refresh() -> void:
 	var d: Dictionary = d_var if d_var is Dictionary else {}
 	if not bool(d.get("hasPlayer", false)):
 		return
+
+	var sig := "%s|%s" % [str(show_all_wars), var_to_str(d)]
+	if sig == _last_wars_sig and content_box.get_child_count() > 0:
+		return
+	_last_wars_sig = sig
 
 	main.call("_clear_children", content_box)
 
@@ -371,7 +378,13 @@ func _refresh_peace_modal() -> void:
 	if not bool(d.get("valid", false)):
 		peace_modal.visible = false
 		active_peace_war_id = ""
+		_last_peace_sig = ""
 		return
+
+	var sig := "%s|%s" % [peace_feedback, var_to_str(d)]
+	if sig == _last_peace_sig and peace_box.get_child_count() > 0:
+		return
+	_last_peace_sig = sig
 
 	main.call("_clear_children", peace_box)
 

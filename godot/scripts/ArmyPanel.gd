@@ -14,6 +14,8 @@ var sel_army_rebel_label: Label
 var sel_army_box: VBoxContainer
 
 var prov_show_recruit: bool = false
+var _last_sel_army_sig: String = ""
+var _last_armies_win_sig: String = ""
 
 func setup(host: Control) -> void:
 	main_view = host
@@ -179,7 +181,13 @@ func refresh_selected_army_panel() -> void:
 	var d: Dictionary = d_var if d_var is Dictionary else {}
 	if not bool(d.get("hasSelection", false)):
 		selected_army_panel.visible = false
+		_last_sel_army_sig = ""
 		return
+
+	var sig := var_to_str(d)
+	if sig == _last_sel_army_sig and selected_army_panel.visible:
+		return
+	_last_sel_army_sig = sig
 
 	selected_army_panel.visible = true
 	var aid: int = int(d.get("armyId", -1))
@@ -367,12 +375,18 @@ func refresh_selected_army_panel() -> void:
 func refresh_armies_window() -> void:
 	if armies_window_box == null:
 		return
-	_clear_children(armies_window_box)
 	var d_var: Variant = _call_bridge("getArmiesWindowDetails", [], {})
 	var d: Dictionary = d_var if d_var is Dictionary else {}
 	if not bool(d.get("valid", false)):
+		_last_armies_win_sig = ""
+		_clear_children(armies_window_box)
 		armies_window_box.add_child(_make_label("No active player country.", Color(0.80, 0.75, 0.66), 13))
 		return
+	var sig := var_to_str(d)
+	if sig == _last_armies_win_sig and armies_window_box.get_child_count() > 0:
+		return
+	_last_armies_win_sig = sig
+	_clear_children(armies_window_box)
 	if armies_window_arms != null and main_view != null and main_view.has_method("_get_country_arms_texture"):
 		armies_window_arms.texture = main_view.call(
 			"_get_country_arms_texture",

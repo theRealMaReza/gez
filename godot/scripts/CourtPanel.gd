@@ -13,6 +13,7 @@ var chronicle_box: VBoxContainer
 
 var marrying_char_index: int = -1
 var selected_grant_prov_index: int = -1
+var _last_court_sig: String = ""
 
 func setup(host: Control) -> void:
 	main_view = host
@@ -161,6 +162,7 @@ func refresh() -> void:
 	var d_var: Variant = _call_bridge("getCourtDetails", [marrying_char_index], {})
 	var d: Dictionary = d_var if d_var is Dictionary else {}
 	if not bool(d.get("valid", false)):
+		_last_court_sig = ""
 		_clear_children(person_box)
 		person_box.add_child(_make_label("No active player country.", Color(0.80, 0.75, 0.66), 13))
 		_clear_children(family_tree_box)
@@ -169,6 +171,11 @@ func refresh() -> void:
 		_clear_children(marriages_box)
 		_clear_children(chronicle_box)
 		return
+
+	var sig := "%d|%d|%s" % [marrying_char_index, selected_grant_prov_index, var_to_str(d)]
+	if sig == _last_court_sig and person_box.get_child_count() > 0:
+		return
+	_last_court_sig = sig
 
 	var p_tag: String = str(d.get("playerTag", ""))
 	var pr: int = int(d.get("playerColorR", 180))

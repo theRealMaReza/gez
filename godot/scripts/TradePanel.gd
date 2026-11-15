@@ -14,6 +14,10 @@ var draft_from_market_index: int = -1
 var draft_to_market_index: int = -1
 var draft_volume: float = 25.0
 var action_refusal_text: String = ""
+var _last_cap_sig: String = ""
+var _last_routes_sig: String = ""
+var _last_new_route_sig: String = ""
+var _last_policy_sig: String = ""
 
 func setup(host: Control) -> void:
 	main_view = host
@@ -172,6 +176,10 @@ func refresh() -> void:
 	_refresh_policy(d)
 
 func _refresh_capacity(d: Dictionary) -> void:
+	var sig := "%s|%s|%s" % [str(d.get("capacityText", "")), str(d.get("capacityRatio", 0.0)), str(d.get("lastMonthText", ""))]
+	if sig == _last_cap_sig and capacity_box.get_child_count() > 0:
+		return
+	_last_cap_sig = sig
 	_clear_children(capacity_box)
 	var hdr := HBoxContainer.new()
 	capacity_box.add_child(hdr)
@@ -196,9 +204,13 @@ func _refresh_capacity(d: Dictionary) -> void:
 	capacity_box.add_child(hint)
 
 func _refresh_routes(d: Dictionary) -> void:
-	_clear_children(routes_box)
 	var routes_var: Variant = d.get("routes", [])
 	var routes: Array = routes_var if routes_var is Array else []
+	var sig := var_to_str(routes)
+	if sig == _last_routes_sig and routes_box.get_child_count() > 0:
+		return
+	_last_routes_sig = sig
+	_clear_children(routes_box)
 	routes_box.add_child(_make_label("Your routes (%d)" % routes.size(), Color(0.96, 0.90, 0.72), 14))
 
 	if routes.is_empty():
@@ -268,9 +280,6 @@ func _refresh_routes(d: Dictionary) -> void:
 		row.add_child(cancel_btn)
 
 func _refresh_new_route(d: Dictionary) -> void:
-	_clear_children(new_route_box)
-	new_route_box.add_child(_make_label("New route", Color(0.96, 0.90, 0.72), 14))
-
 	var cats_var: Variant = d.get("goodCategories", [])
 	var cats: Array = cats_var if cats_var is Array else []
 	var goods_var: Variant = d.get("goods", [])
@@ -279,6 +288,17 @@ func _refresh_new_route(d: Dictionary) -> void:
 	var markets: Array = markets_var if markets_var is Array else []
 	var sugs_var: Variant = d.get("sourceSuggestions", [])
 	var sugs: Array = sugs_var if sugs_var is Array else []
+	var est_v: Variant = d.get("estimate", {})
+	var sig := "%s|%d|%d|%d|%.1f|%s|%s|%s|%s|%s" % [
+		draft_category_key, draft_good_index, draft_from_market_index, draft_to_market_index,
+		draft_volume, action_refusal_text, var_to_str(goods), var_to_str(markets),
+		var_to_str(sugs), var_to_str(est_v)
+	]
+	if sig == _last_new_route_sig and new_route_box.get_child_count() > 0:
+		return
+	_last_new_route_sig = sig
+	_clear_children(new_route_box)
+	new_route_box.add_child(_make_label("New route", Color(0.96, 0.90, 0.72), 14))
 
 	# 1. Category + Good selectors
 	var good_row := HBoxContainer.new()
@@ -481,6 +501,10 @@ func _refresh_new_route(d: Dictionary) -> void:
 	new_route_box.add_child(start_btn)
 
 func _refresh_policy(d: Dictionary) -> void:
+	var sig := "%s|%s|%s" % [str(d.get("tollPolicyKey", "")), var_to_str(d.get("embargoes", [])), var_to_str(d.get("embargoCandidates", []))]
+	if sig == _last_policy_sig and policy_box.get_child_count() > 0:
+		return
+	_last_policy_sig = sig
 	_clear_children(policy_box)
 	policy_box.add_child(_make_label("Your markets", Color(0.96, 0.90, 0.72), 14))
 

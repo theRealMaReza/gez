@@ -147,6 +147,7 @@ public final class GezGodotController {
     public func playerTopBarDetails() -> [String: Any] {
         let rgb = playerColor
         let status = session?.playerTopBarStatus()
+        let alertsSig = activeAlertsSignature()
         return [
             "playerCountryIndex": session?.playerCountry?.index ?? -1,
             "name": countryName,
@@ -159,7 +160,11 @@ public final class GezGodotController {
             "stability": playerStability,
             "stabilityText": topBarStabilityText,
             "activeWarsCount": status?.activeWars ?? 0,
-            "pendingPeaceOffersCount": status?.pendingPeaceOffers ?? 0
+            "pendingPeaceOffersCount": status?.pendingPeaceOffers ?? 0,
+            "dateText": dateText,
+            "isPaused": isPaused,
+            "speed": speed,
+            "alertsSignature": alertsSig
         ]
     }
 
@@ -227,14 +232,22 @@ public final class GezGodotController {
     /// - bit 1 (`2`): month changed
     /// - bit 2 (`4`): wars count or occupation changed (styles/labels should refresh)
     /// - bit 3 (`8`): autosave occurred
+    private static func countOccupiedProvinces(_ occupiedBy: [CountryID?]) -> Int {
+        var count = 0
+        for occ in occupiedBy where occ != nil {
+            count += 1
+        }
+        return count
+    }
+
     public func tickFrame(deltaSeconds: Double) -> Int {
         guard let s = session else { return 0 }
-        let prevOccupiedCount = s.world.provinces.occupiedBy.reduce(0) { $0 + ($1 != nil ? 1 : 0) }
+        let prevOccupiedCount = Self.countOccupiedProvinces(s.world.provinces.occupiedBy)
         let outcome = s.advanceTime(elapsedSeconds: deltaSeconds)
         var mask = 0
         if outcome.daysAdvanced > 0 {
             mask |= 1
-            let newOccupiedCount = s.world.provinces.occupiedBy.reduce(0) { $0 + ($1 != nil ? 1 : 0) }
+            let newOccupiedCount = Self.countOccupiedProvinces(s.world.provinces.occupiedBy)
             if newOccupiedCount != prevOccupiedCount {
                 mask |= 4
             }
@@ -1087,6 +1100,28 @@ public final class GezGodotController {
     }
 
     /// Data for `MapArmiesLayer.gd`: one counter per living army plus active marching routes.
+    /// Fast digest of map armies, routes, battles, sieges, and selection so GDScript can skip redundant marshaling.
+    public func mapArmiesSignature() -> Int {
+        guard let s = session else { return 0 }
+        var hasher = Hasher()
+        let w = s.world
+        let armies = w.military.armies
+        hasher.combine(selectedArmyId)
+        hasher.combine(moveModeArmyId)
+        hasher.combine(s.playerCountry?.index ?? -1)
+        hasher.combine(w.diplomacy.wars.count)
+        hasher.combine(w.military.battles.count)
+        hasher.combine(w.military.sieges.count)
+        for i in 0..<armies.count where armies.alive[i] {
+            hasher.combine(i)
+            hasher.combine(armies.province[i].index)
+            hasher.combine(armies.path[i].count)
+            hasher.combine(armies.totalMen(of: ArmyID(Int32(i))))
+            hasher.combine(armies.isRetreating[i])
+        }
+        return hasher.finalize()
+    }
+
     public func mapArmiesData() -> [String: Any] {
         guard let s = session else {
             return ["selectedArmyId": -1, "moveModeArmyId": -1, "counters": [], "routes": []]
@@ -1096,6 +1131,18 @@ public final class GezGodotController {
         let positions = s.provincePositions
         let curSelectedId = selectedArmyId
         let curMoveId = moveModeArmyId
+
+        var enemyCountries = Set<CountryID>()
+        if let player = s.playerCountry {
+            for war in w.diplomacy.wars {
+                if war.isAttacker(player) {
+                    enemyCountries.formUnion(war.defenders)
+                } else if war.isDefender(player) {
+                    enemyCountries.formUnion(war.attackers)
+                }
+            }
+        }
+        let battleProvs = Set(w.military.battles.map(\.province))
 
         var livingByProvince: [Int: [Int]] = [:]
         for i in 0..<armies.count where armies.alive[i] {
@@ -1116,10 +1163,10 @@ public final class GezGodotController {
             let owner = armies.owner[i]
             let isRebel = armies.isRebel[i]
             let isPlayer = (owner == s.playerCountry && !isRebel)
-            let isEnemy = s.playerCountry.map { w.diplomacy.isAtWar($0, owner) } ?? false
+            let isEnemy = enemyCountries.contains(owner)
             let rgb = w.countries.color[owner.index]
 
-            let inBattle = w.military.isInBattle(aid)
+            let inBattle = battleProvs.contains(prov) && w.military.isInBattle(aid)
             let isBesieging = !isRebel && w.military.sieges.contains {
                 $0.province == prov && $0.besieger == owner
             }
@@ -3082,6 +3129,11 @@ public final class GezGodotController {
         ]
     }
 
+    public func activeAlertsSignature() -> String {
+        guard let s = session else { return "" }
+        return s.activeAlerts().map { "\($0.id):\($0.label)" }.joined(separator: ";")
+    }
+
     public func activeAlerts() -> [[String: Any]] {
         guard let s = session else { return [] }
         return s.activeAlerts().map { info in
@@ -4202,6 +4254,11 @@ public final class GezGodotBridge: RefCounted {
     @Callable
     public func setMoveModeForArmy(armyId: Int) -> Bool {
         controller.setMoveModeForArmy(armyId: armyId)
+    }
+
+    @Callable
+    public func getMapArmiesSignature() -> Int {
+        controller.mapArmiesSignature()
     }
 
     @Callable

@@ -13,6 +13,8 @@ var selected_cb_index: int = 0
 var confirm_break_truce: bool = false
 var feedback_label: Label
 var search_query: String = ""
+var _last_countries_sig: String = ""
+var _last_target_sig: String = ""
 
 func setup(p_main: Node) -> void:
 	main = p_main
@@ -136,35 +138,42 @@ func refresh() -> void:
 	else:
 		coalition_label.visible = false
 
-	country_picker.clear()
-	country_indices.clear()
 	var countries: Array = d.get("countries", [])
 	var resolved_idx: int = int(d.get("selectedTargetIndex", -1))
 	selected_target_index = resolved_idx
-	var picker_select: int = -1
-	for item_v in countries:
-		if not (item_v is Dictionary):
-			continue
-		var item: Dictionary = item_v
-		var c_idx: int = int(item.get("index", -1))
-		country_indices.append(c_idx)
-		var icon_tex: Texture2D = main.call(
-			"_get_country_arms_icon",
-			str(item.get("tag", "")),
-			int(item.get("colorR", 196)),
-			int(item.get("colorG", 182)),
-			int(item.get("colorB", 150))
-		)
-		country_picker.add_icon_item(icon_tex, str(item.get("displayName", "")))
-		if c_idx == resolved_idx:
-			picker_select = country_indices.size() - 1
-	if picker_select >= 0:
-		country_picker.select(picker_select)
 
-	main.call("_clear_children", target_box)
+	var c_sig := var_to_str(countries)
+	if c_sig != _last_countries_sig or country_picker.item_count != countries.size():
+		_last_countries_sig = c_sig
+		country_picker.clear()
+		country_indices.clear()
+		for item_v in countries:
+			if not (item_v is Dictionary):
+				continue
+			var item: Dictionary = item_v
+			var c_idx: int = int(item.get("index", -1))
+			country_indices.append(c_idx)
+			var icon_tex: Texture2D = main.call(
+				"_get_country_arms_icon",
+				str(item.get("tag", "")),
+				int(item.get("colorR", 196)),
+				int(item.get("colorG", 182)),
+				int(item.get("colorB", 150))
+			)
+			country_picker.add_icon_item(icon_tex, str(item.get("displayName", "")))
+
+	var picker_select: int = country_indices.find(resolved_idx)
+	if picker_select >= 0 and country_picker.selected != picker_select:
+		country_picker.select(picker_select)
 
 	var target_var: Variant = d.get("target", {})
 	var target: Dictionary = target_var if target_var is Dictionary else {}
+	var t_sig := "%d|%s|%s" % [selected_cb_index, str(confirm_break_truce), var_to_str(target)]
+	if t_sig == _last_target_sig and target_box.get_child_count() > 0:
+		return
+	_last_target_sig = t_sig
+	main.call("_clear_children", target_box)
+
 	if not bool(target.get("hasTarget", false)):
 		target_box.add_child(main.call("_make_label", "Select a country above or click a foreign province on the map.", Color(0.80, 0.75, 0.66), 13))
 		return

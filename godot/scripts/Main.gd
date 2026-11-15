@@ -21,6 +21,23 @@ var map_material: ShaderMaterial
 var icons_layer: Control
 var labels_layer: Control
 var last_town_icons_rev: int = -1
+var _last_fps: int = -1
+var _last_top_country_str: String = ""
+var _last_top_arms_key: String = ""
+var _last_ducats_str: String = ""
+var _last_stab_str: String = ""
+var _last_stab_neg: int = -1
+var _last_wars_str: String = ""
+var _last_wars_vis: int = -1
+var _last_wars_offer: int = -1
+var _last_armies_btn_str: String = ""
+var _last_date_str: String = ""
+var _last_paused_int: int = -1
+var _last_speed_int: int = -99
+var _last_alerts_sig: String = "__init__"
+var _last_armies_sig: int = -999999
+var _last_prov_sig: String = ""
+var _style_img: Image = null
 var armies_layer: Control
 var routes_layer: Control
 var army_ui: Control
@@ -1067,7 +1084,10 @@ func _refresh_all_labels() -> void:
 func _process(delta: float) -> void:
 	elapsed_time += delta
 	map_material.set_shader_parameter("time_sec", elapsed_time)
-	fps_label.text = "%d FPS" % Engine.get_frames_per_second()
+	var cur_fps := int(Engine.get_frames_per_second())
+	if cur_fps != _last_fps:
+		_last_fps = cur_fps
+		fps_label.text = "%d FPS" % cur_fps
 
 	# Arrow-key panning when no text input is focused
 	if not _is_text_input_focused():
@@ -1130,8 +1150,11 @@ func _refresh_styles_and_country_labels() -> void:
 		return
 	var style_bytes: PackedByteArray = _call_bridge("getStyleBytes", [], PackedByteArray())
 	if not style_bytes.is_empty():
-		var style_img := Image.create_from_data(style_tex_width, 2, false, Image.FORMAT_RGBA8, style_bytes)
-		style_tex.update(style_img)
+		if _style_img == null:
+			_style_img = Image.create_from_data(style_tex_width, 2, false, Image.FORMAT_RGBA8, style_bytes)
+		else:
+			_style_img.set_data(style_tex_width, 2, false, Image.FORMAT_RGBA8, style_bytes)
+		style_tex.update(_style_img)
 	labels_layer.call(
 		"set_country_labels",
 		_call_bridge("getCountryLabelTexts", [], PackedStringArray()),
@@ -1143,41 +1166,78 @@ func _refresh_top_bar() -> void:
 		return
 	var top_var: Variant = _call_bridge("getPlayerTopBarDetails", [], {})
 	var top: Dictionary = top_var if top_var is Dictionary else {}
-	var c_name: String = str(top.get("name", _call_bridge("getCountryName", [], "Observer")))
-	var c_tag: String = str(top.get("tag", _call_bridge("getCountryTag", [], "OBS")))
+	var c_name: String = str(top.get("name", "Observer"))
+	var c_tag: String = str(top.get("tag", "OBS"))
 	var cr: int = int(top.get("colorR", 180))
 	var cg: int = int(top.get("colorG", 140))
 	var cb: int = int(top.get("colorB", 80))
-	top_country_btn.text = "%s (%s)" % [c_name, c_tag]
-	top_arms_rect.texture = _get_country_arms_texture(c_tag, cr, cg, cb)
+
+	var country_str := "%s (%s)" % [c_name, c_tag]
+	if country_str != _last_top_country_str:
+		_last_top_country_str = country_str
+		top_country_btn.text = country_str
+	var arms_key := "%s|%d|%d|%d" % [c_tag, cr, cg, cb]
+	if arms_key != _last_top_arms_key:
+		_last_top_arms_key = arms_key
+		top_arms_rect.texture = _get_country_arms_texture(c_tag, cr, cg, cb)
+
 	if treasury_btn != null:
-		treasury_btn.text = "Ducats: %s" % str(top.get("ducatsText", _call_bridge("getDucatsText", [], "0 (+0.0/mo)")))
+		var duc_str := "Ducats: %s" % str(top.get("ducatsText", "0 (+0.0/mo)"))
+		if duc_str != _last_ducats_str:
+			_last_ducats_str = duc_str
+			treasury_btn.text = duc_str
 	if stability_btn != null:
 		var stab: int = int(top.get("stability", 0))
-		stability_btn.text = str(top.get("stabilityText", "Stability +0"))
-		stability_btn.modulate = Color(0.98, 0.55, 0.50) if stab < 0 else Color(0.95, 0.92, 0.85)
+		var stab_str: String = str(top.get("stabilityText", "Stability +0"))
+		if stab_str != _last_stab_str:
+			_last_stab_str = stab_str
+			stability_btn.text = stab_str
+		var stab_neg := 1 if stab < 0 else 0
+		if stab_neg != _last_stab_neg:
+			_last_stab_neg = stab_neg
+			stability_btn.modulate = Color(0.98, 0.55, 0.50) if stab < 0 else Color(0.95, 0.92, 0.85)
 	if wars_btn != null:
 		var wars_cnt: int = int(top.get("activeWarsCount", 0))
 		var pending_cnt: int = int(top.get("pendingPeaceOffersCount", 0))
-		wars_btn.visible = (wars_cnt > 0) or (pending_cnt > 0)
-		if pending_cnt > 0:
-			wars_btn.text = "Wars (%d) · %d Offer" % [wars_cnt, pending_cnt]
-			wars_btn.modulate = Color(1.0, 0.62, 0.35)
-		else:
-			wars_btn.text = "Wars (%d)" % wars_cnt
-			wars_btn.modulate = Color(1.0, 0.68, 0.65)
+		var vis := 1 if ((wars_cnt > 0) or (pending_cnt > 0)) else 0
+		if vis != _last_wars_vis:
+			_last_wars_vis = vis
+			wars_btn.visible = (vis == 1)
+		var wars_str := "Wars (%d) · %d Offer" % [wars_cnt, pending_cnt] if pending_cnt > 0 else "Wars (%d)" % wars_cnt
+		if wars_str != _last_wars_str:
+			_last_wars_str = wars_str
+			wars_btn.text = wars_str
+		var has_offer := 1 if pending_cnt > 0 else 0
+		if has_offer != _last_wars_offer:
+			_last_wars_offer = has_offer
+			wars_btn.modulate = Color(1.0, 0.62, 0.35) if pending_cnt > 0 else Color(1.0, 0.68, 0.65)
 	if armies_btn != null:
-		armies_btn.text = str(top.get("armiesText", _call_bridge("getTopBarArmiesText", [], "Armies 0 · MP 0")))
-	date_label.text = str(_call_bridge("getDateText", [], "30 May 1453"))
+		var a_str: String = str(top.get("armiesText", "Armies 0 · MP 0"))
+		if a_str != _last_armies_btn_str:
+			_last_armies_btn_str = a_str
+			armies_btn.text = a_str
 
-	var paused: bool = bool(_call_bridge("isPaused", [], true))
-	var spd: int = int(_call_bridge("getSpeed", [], 0))
-	pause_btn.text = "PAUSED" if paused else "RUNNING"
-	pause_btn.modulate = Color(1.0, 0.78, 0.45) if paused else Color(0.75, 1.0, 0.78)
-	for i in range(speed_buttons.size()):
-		var active := (not paused) and (spd == i + 1)
-		speed_buttons[i].modulate = Color(1.0, 0.88, 0.40) if active else Color(0.85, 0.85, 0.85)
-	_refresh_alerts_bar()
+	var d_str: String = str(top.get("dateText", "30 May 1453"))
+	if d_str != _last_date_str:
+		_last_date_str = d_str
+		date_label.text = d_str
+
+	var paused: bool = bool(top.get("isPaused", true))
+	var spd: int = int(top.get("speed", 0))
+	var p_int := 1 if paused else 0
+	if p_int != _last_paused_int or spd != _last_speed_int:
+		_last_paused_int = p_int
+		_last_speed_int = spd
+		pause_btn.text = "PAUSED" if paused else "RUNNING"
+		pause_btn.modulate = Color(1.0, 0.78, 0.45) if paused else Color(0.75, 1.0, 0.78)
+		for i in range(speed_buttons.size()):
+			var active := (not paused) and (spd == i + 1)
+			speed_buttons[i].modulate = Color(1.0, 0.88, 0.40) if active else Color(0.85, 0.85, 0.85)
+
+	var alerts_sig: String = str(top.get("alertsSignature", ""))
+	if alerts_sig != _last_alerts_sig:
+		_last_alerts_sig = alerts_sig
+		_refresh_alerts_bar()
 
 # MARK: - Map Modes (Q to I)
 
@@ -1327,16 +1387,20 @@ func _after_world_replaced() -> void:
 	_refresh_armies()
 	_refresh_trade_routes()
 
-func _refresh_armies() -> void:
+func _refresh_armies(force: bool = false) -> void:
 	if bridge == null:
 		return
+	var sig: int = int(_call_bridge("getMapArmiesSignature", [], -1))
+	if not force and sig == _last_armies_sig:
+		return
+	_last_armies_sig = sig
 	if armies_layer != null:
 		armies_layer.call("set_armies_data", _call_bridge("getMapArmiesData", [], {}))
 	if army_ui != null:
 		army_ui.call("refresh_all")
 
 func _after_army_action() -> void:
-	_refresh_armies()
+	_refresh_armies(true)
 	_refresh_top_bar()
 	if province_panel.visible:
 		_refresh_province_panel()
@@ -1490,7 +1554,13 @@ func _refresh_province_panel() -> void:
 	var d: Dictionary = _call_bridge("getSelectedProvinceDetails", [prov_people_show_state], {})
 	if not bool(d.get("hasSelection", false)):
 		province_panel.visible = false
+		_last_prov_sig = ""
 		return
+
+	var sig := "%s|%s|%s" % [current_prov_tab, str(prov_show_build), var_to_str(d)]
+	if sig == _last_prov_sig and province_panel.visible:
+		return
+	_last_prov_sig = sig
 
 	sea_panel.visible = false
 	province_panel.visible = true

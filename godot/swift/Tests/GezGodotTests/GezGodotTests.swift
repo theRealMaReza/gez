@@ -995,4 +995,21 @@ struct GezGodotTests {
         #expect(armiesWin["playerTag"] as? String == "TUR")
         #expect(armiesWin["playerColorR"] as? Int != nil)
     }
+
+    @Test("Top bar details bundle date/speed/alerts signature and map armies signature tracks state")
+    func topBarBundleAndArmiesSignature() {
+        let controller = GezGodotController()
+        #expect(controller.setup(dataDirectoryPath: "", tag: "TUR"))
+        let top = controller.playerTopBarDetails()
+        #expect(top["dateText"] as? String == "30 May 1453")
+        #expect(top["isPaused"] as? Bool == true)
+        #expect(top["alertsSignature"] as? String != nil)
+
+        let sig1 = controller.mapArmiesSignature()
+        let sig2 = controller.mapArmiesSignature()
+        #expect(sig1 == sig2)
+        _ = controller.raiseAllLevies()
+        let sig3 = controller.mapArmiesSignature()
+        #expect(sig3 != sig1)
+    }
 }
