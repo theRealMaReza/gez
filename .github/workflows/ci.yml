@@ -190,7 +190,7 @@ jobs:
       - name: Export Godot game (macOS)
         run: |
           GODOT_BIN="${RUNNER_TEMP}/godot/Godot.app/Contents/MacOS/Godot"
-          "$GODOT_BIN" --headless --path godot --quit
+          "$GODOT_BIN" --headless --path godot --import
           mkdir -p godot/build/mac
           "$GODOT_BIN" --headless --path godot --export-release "macOS" build/mac/Gez.app
           ./godot/stage_resources.sh godot/build/mac/Gez.app/Contents/Resources
@@ -252,7 +252,7 @@ jobs:
       - name: Export Godot game (Linux)
         run: |
           GODOT_BIN="${RUNNER_TEMP}/godot/Godot_v${GODOT_VERSION}_linux.x86_64"
-          "$GODOT_BIN" --headless --path godot --quit
+          "$GODOT_BIN" --headless --path godot --import
           mkdir -p godot/build/linux
           "$GODOT_BIN" --headless --path godot --export-release "Linux" build/linux/Gez.x86_64
           cp -n godot/bin/*.so* godot/build/linux/ || true
@@ -320,7 +320,7 @@ jobs:
         run: |
           if (-not (Test-Path S:\)) { subst S: "${{ github.workspace }}" }
           $godotConsole = "$env:RUNNER_TEMP\godot\godot.console.exe"
-          & $godotConsole --headless --path S:\godot --quit
+          & $godotConsole --headless --path S:\godot --import
           New-Item -ItemType Directory -Force -Path S:\godot\build\windows | Out-Null
           & $godotConsole --headless --path S:\godot --export-release "Windows Desktop" build/windows/Gez.exe
           if ($LASTEXITCODE -ne 0) { throw "Godot Windows export failed with exit code $LASTEXITCODE" }
@@ -372,7 +372,7 @@ jobs:
           LIBGL_ALWAYS_SOFTWARE: "1"
         run: |
           GODOT_BIN="${RUNNER_TEMP}/godot/Godot_v${GODOT_VERSION}_linux.x86_64"
-          "$GODOT_BIN" --headless --path godot --quit
+          "$GODOT_BIN" --headless --path godot --import
           xvfb-run -a -s "-screen 0 1600x960x24" \
             "$GODOT_BIN" --rendering-driver opengl3 --path godot --script res://scripts/capture_snapshots.gd
       - name: Upload Godot screenshots
