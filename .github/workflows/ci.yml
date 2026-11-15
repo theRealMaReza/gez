@@ -196,7 +196,9 @@ jobs:
           ./godot/stage_resources.sh godot/build/mac/Gez.app/Contents/Resources
           codesign --force --deep --sign - godot/build/mac/Gez.app || true
           # Start the exported game once and check the Swift part loads.
-          (godot/build/mac/Gez.app/Contents/MacOS/Gez --headless --quit-after 30 2>&1 || true) | tee /tmp/gez-run.log
+          GEZ_EXE="$(ls -d godot/build/mac/Gez.app/Contents/MacOS/* | head -1)"
+          echo "Running $GEZ_EXE"
+          ("$GEZ_EXE" --headless --quit-after 30 2>&1 || true) | tee /tmp/gez-run.log
           grep -q "1453 world loaded" /tmp/gez-run.log || { echo "::error::exported Mac game did not load the world"; exit 1; }
           ditto -c -k --sequesterRsrc --keepParent godot/build/mac/Gez.app godot/build/Gez-macOS.zip
       - name: Upload macOS export
