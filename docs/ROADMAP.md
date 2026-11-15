@@ -224,12 +224,12 @@ version matches it; the owner decides when to retire it.
    itch.io stay separate (later).
 5. **Retire `App/`** once the Godot version is at parity (owner decides).
 
-### Phase 9: Battle view (2D, real-time with pause) — Done (PR #TBD, `gemini/phase9-battle-view`)
+### Phase 9: Battle view (2D, real-time with pause) ✅ (session 7, PR #22)
 Owner's choices:
 - **Battlefield & deployment**: "Lead Battle in Person" vs "Auto-Resolve" modal when the player's army fights or storms a breached fort; 2D battlefield generates elevation contours, woods, hills, and river crossings from the province's real terrain and border data, with a pre-battle Deployment Phase in each side's deployment zone (skipped if ambushed during a river crossing).
 - **Tactical controls & formations**: Real-time with pause & speed controls (0.5x/1x/2x), drag-box or tap selection, draw-path / drag-frontline orders (touch, Apple Pencil, mouse & keyboard), formations (Line, Column, Wedge, Square/Wagon-Laager, Skirmish), tactical stances (Hold, Advance, Charge, Volley/Hold Fire, Retreat), plus directional flanking/rear morale penalties, fatigue, and ammunition tracking.
 - **Playable siege assaults & write-back**: Fort assaults render walls, towers, gates, and pre-existing artillery breaches from the map siege; attackers can bombard walls/gates with artillery, send infantry with scaling ladders or battering rams, or storm through breaches to capture the inner keep; exact regiment survivors, morale, breaches, and levy pop losses feed directly back into the campaign `World`.
-Implemented in four parts (Part A–D) on `gemini/phase9-battle-view`:
+Built in one Gemini pull request (#22, parts A–D), reviewed by Claude. Owner's choice in review: a battle led in person lasts about 2–4 minutes at 1x.
 - [x] 1. "Fight or auto-resolve" choice when armies meet (and on Storm Assault of breached forts).
 - [x] 2. Battlefield from the real location's terrain (elevation, forest,
    river); deployment phase (skipped when ambushed at river crossing).

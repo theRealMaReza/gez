@@ -5,7 +5,7 @@ Read this first, then `docs/ROADMAP.md` (the agreed plan), `docs/DESIGN.md`
 judgment calls) and `CLAUDE.md` (rules). This file says where the project
 stands, how to work on it, and what to do next.
 
-Last updated: 14 November 2026 (`gemini/phase9-battle-view`). Phases 0–9 are built: Phase 9 adds the deterministic 2D real-time battle and siege-assault view in `Packages/GezCore/Sources/GezCore/Battle/` + `godot/scripts/BattleView.gd`. Next: Phase 10 (Navies).
+Last updated: session 7 (15 November 2026). Phases 0–9 are done: Phase 9 (PR #22, Gemini wrote it, Claude reviewed and fixed it) adds the playable 2D real-time battle and fort-assault view (`Packages/GezCore/Sources/GezCore/Battle/`, `godot/scripts/BattleView.gd`). Next: Phase 10 (navies).
 
 ## The owner
 
@@ -75,11 +75,25 @@ plague, rebels, technology, events, sound, settings, multiplayer.
    (`gez-godot-windows`, `gez-godot-linux`, `gez-godot-macos`); unsigned, so
    Windows asks "More info → Run anyway".
 2. **Phase 10: Navies**: ships, docks, 1453 fleets, naval battles, blockades, strait blocking, amphibious transport.
-3. Follow-ups: army table slots are never reused; the Ottomans start over
+3. Follow-ups: the campaign still uses platform maths (`MarketModel.km`
+   distances, `hypot` in the AI), which can differ between Mac, Windows and
+   Linux; move it to `Core/DetMath.swift` before multiplayer (Phase 19),
+   as the battle code already is. Touch/Pencil battle controls are untested
+   (no iPad build of the Godot game yet). Army table slots are never reused; the Ottomans start over
    their relation-slot limit (6/5); two temporary branches
    (`claude/fingerprint-base`, `claude/fingerprint-speedonly`) can be
    deleted on GitHub (the workspace cannot delete branches); retire `App/`
    when the owner says so.
+
+### Session 7 review of PR #22 (battle view)
+- Fixed: platform-independent battle maths (`Core/DetMath.swift`; the
+  `BATTLE_CHECKSUM` printed by `BattleEngineTests` must match in the Mac,
+  Linux and Windows test logs), walls hold the garrison in, every same-day
+  battle of the player's gets the choice, same-coloured armies drawn apart,
+  battle pace (`BattleEngine.pace = 0.125`, time limits 10/15 min; an even
+  ~9,000-man battle lasts ~3 min, `testBattleLastsMinutesNotSeconds`).
+- Look at the battle screenshots (`godot_battle_*.png`, `godot_assault.png`)
+  for units in impossible places and for battles that end too fast.
 
 ### Session 7 review of PR #21 (lessons for the next reviews)
 - Gemini's "green" builds were not proof: the Linux export could not load
