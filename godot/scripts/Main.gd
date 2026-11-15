@@ -325,7 +325,10 @@ func _build_top_bar() -> void:
 	add_child(top_bar)
 
 	var hbox := HBoxContainer.new()
-	hbox.add_theme_constant_override("separation", 10)
+	# Tight spacing so everything (down to the speed buttons) fits a
+	# 1440-pixel window; long texts below shorten with "…" instead of
+	# pushing the time controls off the screen.
+	hbox.add_theme_constant_override("separation", 5)
 	top_bar.add_child(hbox)
 
 	top_arms_rect = TextureRect.new()
@@ -341,6 +344,9 @@ func _build_top_bar() -> void:
 	top_country_btn.add_theme_color_override("font_color", Color(0.97, 0.88, 0.62))
 	top_country_btn.add_theme_font_size_override("font_size", 16)
 	top_country_btn.pressed.connect(_toggle_nation_picker)
+	top_country_btn.clip_text = true
+	top_country_btn.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	top_country_btn.custom_minimum_size = Vector2(150.0, 30.0)
 	hbox.add_child(top_country_btn)
 
 	hbox.add_child(_make_separator())
@@ -435,26 +441,26 @@ func _build_top_bar() -> void:
 	hbox.add_child(menu_btn)
 
 	date_label = _make_label("30 May 1453", Color(0.96, 0.93, 0.86), 15)
-	date_label.custom_minimum_size = Vector2(124.0, 0.0)
+	date_label.custom_minimum_size = Vector2(104.0, 0.0)
 	date_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	hbox.add_child(date_label)
 
 	pause_btn = Button.new()
 	pause_btn.text = "PAUSED"
-	pause_btn.custom_minimum_size = Vector2(82.0, 30.0)
+	pause_btn.custom_minimum_size = Vector2(72.0, 30.0)
 	pause_btn.tooltip_text = "Toggle Pause (Space)"
 	pause_btn.pressed.connect(_on_pause_pressed)
 	hbox.add_child(pause_btn)
 
 	var speed_box := HBoxContainer.new()
-	speed_box.add_theme_constant_override("separation", 4)
+	speed_box.add_theme_constant_override("separation", 2)
 	hbox.add_child(speed_box)
 
 	speed_buttons.clear()
 	for s in range(1, 6):
 		var b := Button.new()
 		b.text = str(s)
-		b.custom_minimum_size = Vector2(28.0, 30.0)
+		b.custom_minimum_size = Vector2(24.0, 30.0)
 		b.tooltip_text = "Speed %d (Key %d)" % [s, s]
 		var spd := s
 		b.pressed.connect(func() -> void: _on_speed_selected(spd))
