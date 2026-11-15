@@ -373,6 +373,7 @@ func _build_top_bar() -> void:
 	top_bar_hbox = hbox
 	top_bar_panel = top_bar
 	top_bar.resized.connect(_fit_top_bar)
+	get_viewport().size_changed.connect(_fit_top_bar)
 
 	top_arms_rect = TextureRect.new()
 	top_arms_rect.custom_minimum_size = Vector2(28.0, 24.0)
@@ -1283,13 +1284,13 @@ func _fit_top_bar() -> void:
 	if top_bar_hbox == null or top_bar_panel == null:
 		return
 	var need := top_bar_hbox.get_combined_minimum_size().x
-	var avail := top_bar_panel.size.x - 32.0
+	# The panel grows with its buttons, so measure against the window.
+	var avail := get_viewport_rect().size.x - 32.0
 	var s := 1.0
 	if need > 0.0 and avail > 0.0 and need > avail:
 		s = maxf(0.6, avail / need)
 	if not is_equal_approx(top_bar_hbox.scale.x, s):
 		top_bar_hbox.scale = Vector2(s, s)
-		top_bar_hbox.position.y = (top_bar_panel.size.y - top_bar_hbox.size.y * s) * 0.5
 
 func _refresh_top_bar() -> void:
 	call_deferred("_fit_top_bar")
