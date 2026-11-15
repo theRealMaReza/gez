@@ -21,8 +21,8 @@ public struct HillFeature: Sendable, Equatable, Codable {
     public func contribution(at x: Double, _ y: Double) -> Double {
         let dx = x - centerX
         let dy = y - centerY
-        let ca = cos(-angle)
-        let sa = sin(-angle)
+        let ca = DetMath.cos(-angle)
+        let sa = DetMath.sin(-angle)
         let lx = dx * ca - dy * sa
         let ly = dx * sa + dy * ca
         let nx = lx / max(1.0, radiusX)
@@ -30,7 +30,7 @@ public struct HillFeature: Sendable, Equatable, Codable {
         let r2 = nx * nx + ny * ny
         if r2 >= 1.0 { return 0.0 }
         // Smooth cosine falloff: 1 at center, 0 at rim
-        let falloff = 0.5 * (1.0 + cos(Double.pi * sqrt(r2)))
+        let falloff = 0.5 * (1.0 + DetMath.cos(Double.pi * sqrt(r2)))
         return height * falloff
     }
 }

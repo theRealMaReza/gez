@@ -134,7 +134,7 @@ public enum BattleCombat {
             nx = -nx
             ny = -ny
         }
-        let targetFacing = atan2(ny, nx)
+        let targetFacing = DetMath.atan2(ny, nx)
 
         for (k, u) in valid.enumerated() {
             let frac = Double(k) / Double(max(1, valid.count - 1))
@@ -342,9 +342,9 @@ public enum BattleCombat {
 
                     if isArtillery {
                         let range = weaponRange(unitKey: engine.units.unitKey[i], category: .artillery, heightDiff: 0.0)
-                        let distToStruct = sqrt(pow(st.x - engine.units.posX[i], 2) + pow(st.y - engine.units.posY[i], 2))
+                        let distToStruct = DetMath.length(st.x - engine.units.posX[i], st.y - engine.units.posY[i])
                         if distToStruct <= range * 0.92 {
-                            engine.units.facing[i] = atan2(st.y - engine.units.posY[i], st.x - engine.units.posX[i])
+                            engine.units.facing[i] = DetMath.atan2(st.y - engine.units.posY[i], st.x - engine.units.posX[i])
                             engine.units.velX[i] = 0
                             engine.units.velY[i] = 0
                             continue
@@ -376,7 +376,7 @@ public enum BattleCombat {
                             dt: dt
                         )
                     } else {
-                        engine.units.facing[i] = atan2(st.y - engine.units.posY[i], st.x - engine.units.posX[i])
+                        engine.units.facing[i] = DetMath.atan2(st.y - engine.units.posY[i], st.x - engine.units.posX[i])
                         engine.units.velX[i] = 0
                         engine.units.velY[i] = 0
                     }
@@ -411,7 +411,7 @@ public enum BattleCombat {
                             dt: dt
                         )
                     } else {
-                        engine.units.facing[i] = atan2(dy, dx)
+                        engine.units.facing[i] = DetMath.atan2(dy, dx)
                         engine.units.velX[i] = 0
                         engine.units.velY[i] = 0
                     }
@@ -468,7 +468,7 @@ public enum BattleCombat {
                             dt: dt
                         )
                     } else {
-                        engine.units.facing[i] = atan2(dy, dx)
+                        engine.units.facing[i] = DetMath.atan2(dy, dx)
                         engine.units.velX[i] = 0
                         engine.units.velY[i] = 0
                     }
@@ -565,7 +565,7 @@ public enum BattleCombat {
         engine.units.posY[i] = nextY
         engine.units.velX[i] = (nextX == engine.units.posX[i] && ny == 0) ? 0 : nx * actualStep / dt
         engine.units.velY[i] = ny * actualStep / dt
-        engine.units.facing[i] = atan2(ny, nx)
+        engine.units.facing[i] = DetMath.atan2(ny, nx)
 
         // Marching accumulates fatigue (scaled by formation & stance)
         let stanceMult = engine.units.stance[i] == .charge ? 1.85 : 1.0
@@ -669,7 +669,7 @@ public enum BattleCombat {
 
             // Consume 1 ammo & set fire cooldown
             engine.units.ammo[i] = max(0, engine.units.ammo[i] - 1)
-            engine.units.facing[i] = atan2(dy, dx)
+            engine.units.facing[i] = DetMath.atan2(dy, dx)
             let baseCooldown: Int
             switch engine.units.category[i] {
             case .artillery: baseCooldown = 36
@@ -827,7 +827,7 @@ public enum BattleCombat {
         engine: BattleEngine,
         defMods: FormationModifiers
     ) -> Double {
-        let angleToAttacker = atan2(attackerY - engine.units.posY[j], attackerX - engine.units.posX[j])
+        let angleToAttacker = DetMath.atan2(attackerY - engine.units.posY[j], attackerX - engine.units.posX[j])
         var diff = abs(angleToAttacker - engine.units.facing[j])
         while diff > Double.pi { diff = abs(diff - 2.0 * Double.pi) }
         if diff > Double.pi * 0.72 { // Rear (>130 deg)
@@ -845,7 +845,7 @@ public enum BattleCombat {
         engine: BattleEngine,
         defMods: FormationModifiers
     ) -> Double {
-        let angleToAttacker = atan2(attackerY - engine.units.posY[j], attackerX - engine.units.posX[j])
+        let angleToAttacker = DetMath.atan2(attackerY - engine.units.posY[j], attackerX - engine.units.posX[j])
         var diff = abs(angleToAttacker - engine.units.facing[j])
         while diff > Double.pi { diff = abs(diff - 2.0 * Double.pi) }
         if diff > Double.pi * 0.72 {
@@ -939,7 +939,7 @@ public enum BattleCombat {
                     if dist <= range {
                         engine.units.ammo[i] = max(0, engine.units.ammo[i] - 1)
                         engine.units.fireCooldownTicks[i] = 36
-                        engine.units.facing[i] = atan2(dy, dx)
+                        engine.units.facing[i] = DetMath.atan2(dy, dx)
                         let menRatio = Double(engine.units.men[i]) / Double(max(1, engine.units.maxMen[i]))
                         let fireMult = BattleModel.fireMultiplier(unitKey: engine.units.unitKey[i], category: .artillery)
                         let rngRoll = Double.random(in: 0.90...1.15, using: &engine.random)

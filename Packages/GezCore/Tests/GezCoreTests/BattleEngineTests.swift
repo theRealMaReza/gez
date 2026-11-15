@@ -727,5 +727,96 @@ final class BattleEngineTests: XCTestCase {
         XCTAssertEqual(session.world.provinces.occupiedBy[pIdx], fra, "Won assault must capture the fort")
         XCTAssertTrue(session.world.military.sieges.filter { $0.province == fortProv }.isEmpty)
     }
+
+    // MARK: - Same battle on every platform (review, session 7)
+
+    /// Fights a fixed AI-vs-AI battle (with flanking cavalry, archers and a
+    /// hill-heavy field) and prints a checksum of every unit's final state.
+    /// CI runs this on Mac, Linux and Windows: the BATTLE_CHECKSUM lines in
+    /// the three logs must match, or multiplayer battles would drift apart.
+    func testBattleChecksumIsPrintedForCrossPlatformComparison() {
+        let world = Scenario1453.makeWorld()
+        let inf = world.military.unit("infantry")!
+        let arc = world.military.unit("archers")!
+        let cav = world.military.unit("cavalry")!
+        var e = makeTestBattleEngine(
+            attRegiments: [
+                Regiment(type: inf.id, origin: .professional, men: 1_000, morale: 3.0),
+                Regiment(type: inf.id, origin: .professional, men: 1_000, morale: 3.0),
+                Regiment(type: arc.id, origin: .professional, men: 1_000, morale: 2.8),
+                Regiment(type: cav.id, origin: .professional, men: 800, morale: 3.0)
+            ],
+            defRegiments: [
+                Regiment(type: inf.id, origin: .professional, men: 1_000, morale: 3.0),
+                Regiment(type: arc.id, origin: .professional, men: 1_000, morale: 2.8),
+                Regiment(type: cav.id, origin: .professional, men: 800, morale: 3.0)
+            ],
+            playerSide: nil,
+            terrain: .hills,
+            seed: 1453
+        )
+        e.stepTicks(2400)
+        var h: UInt64 = 0xcbf2_9ce4_8422_2325
+        func mix(_ v: UInt64) { h = (h ^ v) &* 0x0000_0100_0000_01b3 }
+        for i in 0..<e.units.count {
+            mix(UInt64(bitPattern: Int64(e.units.men[i])))
+            mix(e.units.morale[i].bitPattern)
+            mix(e.units.posX[i].bitPattern)
+            mix(e.units.posY[i].bitPattern)
+            mix(e.units.facing[i].bitPattern)
+        }
+        print("BATTLE_CHECKSUM \(String(h, radix: 16)) ticks=\(e.tickCount) phase=\(e.phase)")
+        XCTAssertGreaterThan(e.tickCount, 0)
+    }
+
+    func testDetMathMatchesSystemMathsClosely() {
+        var r = GameRandom(seed: 7)
+        for _ in 0..<20_000 {
+            let y = Double.random(in: -500...500, using: &r)
+            let x = Double.random(in: -500...500, using: &r)
+            XCTAssertEqual(DetMath.atan2(y, x), atan2(y, x), accuracy: 1e-12)
+            let v = Double.random(in: -40...40, using: &r)
+            XCTAssertEqual(DetMath.sin(v), sin(v), accuracy: 1e-12)
+            XCTAssertEqual(DetMath.cos(v), cos(v), accuracy: 1e-12)
+        }
+        XCTAssertEqual(DetMath.atan2(0, -1), Double.pi)
+        XCTAssertEqual(DetMath.atan2(1, 0), Double.pi / 2)
+        XCTAssertEqual(DetMath.atan2(0, 0), 0)
+        XCTAssertEqual(DetMath.length(3, 4), 5)
+    }
+
+    /// Two of the player's battles starting on the same day are both offered
+    /// the choice, one after the other (review fix, session 7).
+    func testTwoSameDayPlayerBattlesAreBothOfferedTheChoice() throws {
+        let session = try GameSession(tag: "FRA", seed: 777)
+        session.interactiveBattlesEnabled = true
+        session.speed = .two
+        guard let fra = session.world.countries.id(forTag: "FRA"),
+              let eng = session.world.countries.id(forTag: "ENG"),
+              let bordeaux = session.world.provinces.id(named: "Bordeaux") else {
+            XCTFail("Missing FRA/ENG/Bordeaux")
+            return
+        }
+        let other = session.world.provinces.neighbors[bordeaux.index][0]
+        let inf = session.world.military.unit("infantry")!
+        for p in [bordeaux, other] {
+            for aid in session.world.military.armies(in: p) {
+                session.simulation.world.military.armies.remove(aid)
+            }
+            session.simulation.world.military.armies.append(
+                name: "French Army", owner: fra, province: p,
+                regiments: [Regiment(type: inf.id, origin: .professional, men: 1_000, morale: 3.0)])
+            session.simulation.world.military.armies.append(
+                name: "English Army", owner: eng, province: p,
+                regiments: [Regiment(type: inf.id, origin: .professional, men: 1_000, morale: 3.0)])
+        }
+        _ = session.advanceDays(1)
+        XCTAssertNotNil(session.pendingBattlePrompt, "first battle asks")
+        XCTAssertEqual(session.simulation.world.military.battles.filter { $0.dayCount == 0 }.count, 2,
+                       "both battles wait for the player")
+        _ = session.chooseAutoResolvePendingBattle()
+        _ = session.advanceDays(1)
+        XCTAssertNotNil(session.pendingBattlePrompt, "second battle asks too, instead of auto-resolving silently")
+    }
 }
 

@@ -51,15 +51,20 @@ public final class Simulation {
         ArmySystem.runDaily(&world, date: date, random: &random)
         if interceptHumanBattles {
             BattleSystem.detectAndReinforceBattles(&world, date: date, random: &random)
-            if pendingHumanBattleID == nil && activeTacticalBattleID == nil && !world.humanCountries.isEmpty {
+            // Every new battle of the player's waits (day 0) until the player
+            // has chosen for it; they are asked one at a time, so two battles
+            // starting on the same day both get the question.
+            var skipIDs = Set<String>()
+            if !world.humanCountries.isEmpty {
                 for b in world.military.battles where b.dayCount == 0 && !autoResolveBattleIDs.contains(b.id) {
                     if world.humanCountries.contains(b.attackerCountry) || world.humanCountries.contains(b.defenderCountry) {
-                        pendingHumanBattleID = b.id
-                        break
+                        skipIDs.insert(b.id)
+                        if pendingHumanBattleID == nil && activeTacticalBattleID == nil {
+                            pendingHumanBattleID = b.id
+                        }
                     }
                 }
             }
-            var skipIDs = Set<String>()
             if let pid = pendingHumanBattleID { skipIDs.insert(pid) }
             if let aid = activeTacticalBattleID { skipIDs.insert(aid) }
             BattleSystem.advanceActiveBattles(&world, date: date, random: &random, skipBattleIDs: skipIDs)

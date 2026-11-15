@@ -198,7 +198,7 @@ public enum BattleAI {
             if alreadyInside {
                 // Once past walls, push toward keep or nearest defender blocking the keep
                 if let target = BattleCombat.nearestActiveEnemy(engine: engine, from: i) {
-                    let tDist = sqrt(pow(engine.units.posX[target] - px, 2) + pow(engine.units.posY[target] - engine.units.posY[i], 2))
+                    let tDist = DetMath.length(engine.units.posX[target] - px, engine.units.posY[target] - engine.units.posY[i])
                     if tDist < 120.0 {
                         engine.units.targetUnit[i] = target
                         engine.units.stance[i] = cat == .ranged && engine.units.ammo[i] > 0 ? .volley : .charge
