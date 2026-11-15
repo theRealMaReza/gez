@@ -1,24 +1,52 @@
 extends Control
 
 const MapShader := preload("res://shaders/map.gdshader")
+const IconsLayerScript := preload("res://scripts/MapIconsLayer.gd")
 const LabelsLayerScript := preload("res://scripts/MapLabelsLayer.gd")
 const ArmiesLayerScript := preload("res://scripts/MapArmiesLayer.gd")
 const RoutesLayerScript := preload("res://scripts/MapRoutesLayer.gd")
 const ArmyPanelScript := preload("res://scripts/ArmyPanel.gd")
 const BudgetPanelScript := preload("res://scripts/BudgetPanel.gd")
 const TradePanelScript := preload("res://scripts/TradePanel.gd")
+const CourtPanelScript := preload("res://scripts/CourtPanel.gd")
+const GovernmentPanelScript := preload("res://scripts/GovernmentPanel.gd")
+const DiplomacyPanelScript := preload("res://scripts/DiplomacyPanel.gd")
+const WarsPanelScript := preload("res://scripts/WarsPanel.gd")
 
 var bridge: RefCounted = null
 var warned_missing_methods: Dictionary = {}
 
 var map_rect: ColorRect
 var map_material: ShaderMaterial
+var icons_layer: Control
 var labels_layer: Control
+var last_town_icons_rev: int = -1
+var _last_fps: int = -1
+var _last_top_country_str: String = ""
+var _last_top_arms_key: String = ""
+var _last_ducats_str: String = ""
+var _last_stab_str: String = ""
+var _last_stab_neg: int = -1
+var _last_wars_str: String = ""
+var _last_wars_vis: int = -1
+var _last_wars_offer: int = -1
+var _last_armies_btn_str: String = ""
+var _last_date_str: String = ""
+var _last_paused_int: int = -1
+var _last_speed_int: int = -99
+var _last_alerts_sig: String = "__init__"
+var _last_armies_sig: int = -999999
+var _last_prov_sig: String = ""
+var _style_img: Image = null
 var armies_layer: Control
 var routes_layer: Control
 var army_ui: Control
 var budget_ui: Control
 var trade_ui: Control
+var court_ui: Control
+var gov_ui: Control
+var diplomacy_ui: Control
+var wars_ui: Control
 
 # Top bar widgets
 var top_country_btn: Button
@@ -26,7 +54,14 @@ var top_arms_rect: TextureRect
 var country_label: Label
 var treasury_btn: Button
 var trade_btn: Button
+var court_btn: Button
+var stability_btn: Button
+var inflation_label: Label
+var diplomacy_btn: Button
+var wars_btn: Button
 var armies_btn: Button
+var alerts_scroll: ScrollContainer
+var alerts_hbox: HBoxContainer
 var date_label: Label
 var selection_label: Label
 var fps_label: Label
@@ -45,6 +80,8 @@ var prov_title_label: Label
 var prov_subtitle_label: Label
 var prov_owner_arms: TextureRect
 var prov_owner_label: Label
+var prov_diplomacy_btn: Button
+var prov_owner_index: int = -1
 var prov_capital_label: Label
 var prov_occupied_label: Label
 var prov_status_label: Label
@@ -73,6 +110,7 @@ var current_market_category: String = ""
 # Game menu widgets (center modal)
 var game_menu_panel: PanelContainer
 var menu_playing_label: Label
+var menu_playing_arms: TextureRect
 var menu_status_label: Label
 var save_name_input: LineEdit
 var autosave_option_btn: OptionButton
@@ -95,6 +133,7 @@ var cached_all_countries: Array = []
 
 # Heraldry cache (tag -> Texture2D)
 var arms_cache: Dictionary = {}
+var arms_icon_cache: Dictionary = {}
 
 # Map dimensions & GPU textures
 var map_size := Vector2(3936.0, 2384.0)
@@ -145,6 +184,14 @@ func _build_scene_ui() -> void:
 	map_rect.material = map_material
 	add_child(map_rect)
 
+	# 1b. Town icons layer (towns, capitals, forts, ports — redrawn only on camera or icon change)
+	icons_layer = Control.new()
+	icons_layer.name = "MapIconsLayer"
+	icons_layer.set_script(IconsLayerScript)
+	icons_layer.set_anchors_preset(Control.PRESET_FULL_RECT)
+	icons_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(icons_layer)
+
 	# 2. Country / Sea / Province labels overlay
 	labels_layer = Control.new()
 	labels_layer.name = "LabelsLayer"
@@ -170,8 +217,9 @@ func _build_scene_ui() -> void:
 	routes_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(routes_layer)
 
-	# 3. Top bar panel
+	# 3. Top bar panel & alerts row
 	_build_top_bar()
+	_build_alerts_bar()
 
 	# 4. Map mode bar (top-right, below top bar)
 	_build_map_mode_bar()
@@ -208,6 +256,36 @@ func _build_scene_ui() -> void:
 	trade_ui.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(trade_ui)
 	trade_ui.call("setup", self)
+
+	# 6d. Court & Government windows
+	court_ui = Control.new()
+	court_ui.name = "CourtUI"
+	court_ui.set_script(CourtPanelScript)
+	court_ui.set_anchors_preset(Control.PRESET_FULL_RECT)
+	court_ui.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(court_ui)
+	court_ui.call("setup", self)
+
+	gov_ui = Control.new()
+	gov_ui.name = "GovernmentUI"
+	gov_ui.set_script(GovernmentPanelScript)
+	gov_ui.set_anchors_preset(Control.PRESET_FULL_RECT)
+	gov_ui.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(gov_ui)
+	gov_ui.call("setup", self)
+
+	# 6e. Diplomacy & Wars/Peace windows
+	diplomacy_ui = PanelContainer.new()
+	diplomacy_ui.name = "DiplomacyUI"
+	diplomacy_ui.set_script(DiplomacyPanelScript)
+	add_child(diplomacy_ui)
+	diplomacy_ui.call("setup", self)
+
+	wars_ui = Control.new()
+	wars_ui.name = "WarsUI"
+	wars_ui.set_script(WarsPanelScript)
+	add_child(wars_ui)
+	wars_ui.call("setup", self)
 
 	# 7. Market panel (bottom-right, left of zoom buttons)
 	_build_market_panel()
@@ -247,7 +325,10 @@ func _build_top_bar() -> void:
 	add_child(top_bar)
 
 	var hbox := HBoxContainer.new()
-	hbox.add_theme_constant_override("separation", 14)
+	# Tight spacing so everything (down to the speed buttons) fits a
+	# 1440-pixel window; long texts below shorten with "…" instead of
+	# pushing the time controls off the screen.
+	hbox.add_theme_constant_override("separation", 5)
 	top_bar.add_child(hbox)
 
 	top_arms_rect = TextureRect.new()
@@ -257,20 +338,23 @@ func _build_top_bar() -> void:
 	hbox.add_child(top_arms_rect)
 
 	top_country_btn = Button.new()
-	top_country_btn.text = "Ottoman Empire (TUR)"
+	top_country_btn.text = "Ottoman Empire"
 	top_country_btn.flat = true
 	top_country_btn.tooltip_text = "Choose nation / New Game"
 	top_country_btn.add_theme_color_override("font_color", Color(0.97, 0.88, 0.62))
 	top_country_btn.add_theme_font_size_override("font_size", 16)
 	top_country_btn.pressed.connect(_toggle_nation_picker)
+	top_country_btn.clip_text = true
+	top_country_btn.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	top_country_btn.custom_minimum_size = Vector2(150.0, 30.0)
 	hbox.add_child(top_country_btn)
 
 	hbox.add_child(_make_separator())
 
 	treasury_btn = Button.new()
-	treasury_btn.text = "Ducats: 0 (+0.0/mo)"
+	treasury_btn.text = "0 (+0.0/mo)"
 	treasury_btn.custom_minimum_size = Vector2(150.0, 30.0)
-	treasury_btn.tooltip_text = "Budget, taxes, loans & inflation"
+	treasury_btn.tooltip_text = "Ducats in the treasury (change last month). Opens the budget: taxes, loans & inflation"
 	treasury_btn.pressed.connect(_toggle_budget_window)
 	hbox.add_child(treasury_btn)
 
@@ -278,10 +362,51 @@ func _build_top_bar() -> void:
 
 	trade_btn = Button.new()
 	trade_btn.text = "Trade"
-	trade_btn.custom_minimum_size = Vector2(68.0, 30.0)
+	trade_btn.custom_minimum_size = Vector2(60.0, 30.0)
 	trade_btn.tooltip_text = "Trade routes, merchant capacity, tolls & embargoes"
 	trade_btn.pressed.connect(_toggle_trade_window)
 	hbox.add_child(trade_btn)
+
+	hbox.add_child(_make_separator())
+
+	court_btn = Button.new()
+	court_btn.text = "Court"
+	court_btn.custom_minimum_size = Vector2(60.0, 30.0)
+	court_btn.tooltip_text = "Ruler, family, council, vassals & marriages"
+	court_btn.pressed.connect(_toggle_court_window)
+	hbox.add_child(court_btn)
+
+	hbox.add_child(_make_separator())
+
+	stability_btn = Button.new()
+	stability_btn.text = "Stability +0"
+	stability_btn.custom_minimum_size = Vector2(92.0, 30.0)
+	stability_btn.tooltip_text = "Government: stability, estates, laws & reforms"
+	stability_btn.pressed.connect(_toggle_government_window)
+	hbox.add_child(stability_btn)
+
+	hbox.add_child(_make_separator())
+
+	diplomacy_btn = Button.new()
+	diplomacy_btn.text = "Diplomacy"
+	diplomacy_btn.custom_minimum_size = Vector2(82.0, 30.0)
+	diplomacy_btn.tooltip_text = "Diplomacy, treaties, coalitions & war declarations"
+	diplomacy_btn.pressed.connect(_toggle_diplomacy_window)
+	hbox.add_child(diplomacy_btn)
+
+	wars_btn = Button.new()
+	wars_btn.text = "Wars"
+	wars_btn.visible = false
+	wars_btn.custom_minimum_size = Vector2(72.0, 30.0)
+	wars_btn.tooltip_text = "Active wars, war score, allies & peace negotiations"
+	wars_btn.pressed.connect(_toggle_wars_window)
+	hbox.add_child(wars_btn)
+
+	inflation_label = _make_label("Inflation 0%", Color(0.92, 0.42, 0.38), 12)
+	inflation_label.tooltip_text = "Inflation raises costs; see the Budget window"
+	inflation_label.mouse_filter = Control.MOUSE_FILTER_PASS
+	inflation_label.visible = false
+	hbox.add_child(inflation_label)
 
 	hbox.add_child(_make_separator())
 
@@ -296,6 +421,10 @@ func _build_top_bar() -> void:
 
 	selection_label = _make_label("Click a province to inspect", Color(0.86, 0.83, 0.76), 13)
 	selection_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	# May shrink (with "…") so the date, pause and speed buttons always fit.
+	selection_label.clip_text = true
+	selection_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	selection_label.custom_minimum_size = Vector2(0.0, 0.0)
 	hbox.add_child(selection_label)
 
 	play_as_btn = Button.new()
@@ -312,38 +441,37 @@ func _build_top_bar() -> void:
 	hbox.add_child(menu_btn)
 
 	date_label = _make_label("30 May 1453", Color(0.96, 0.93, 0.86), 15)
-	date_label.custom_minimum_size = Vector2(124.0, 0.0)
+	date_label.custom_minimum_size = Vector2(104.0, 0.0)
 	date_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	hbox.add_child(date_label)
 
 	pause_btn = Button.new()
 	pause_btn.text = "PAUSED"
-	pause_btn.custom_minimum_size = Vector2(82.0, 30.0)
+	pause_btn.custom_minimum_size = Vector2(72.0, 30.0)
 	pause_btn.tooltip_text = "Toggle Pause (Space)"
 	pause_btn.pressed.connect(_on_pause_pressed)
 	hbox.add_child(pause_btn)
 
 	var speed_box := HBoxContainer.new()
-	speed_box.add_theme_constant_override("separation", 4)
+	speed_box.add_theme_constant_override("separation", 2)
 	hbox.add_child(speed_box)
 
 	speed_buttons.clear()
 	for s in range(1, 6):
 		var b := Button.new()
 		b.text = str(s)
-		b.custom_minimum_size = Vector2(28.0, 30.0)
+		b.custom_minimum_size = Vector2(24.0, 30.0)
 		b.tooltip_text = "Speed %d (Key %d)" % [s, s]
 		var spd := s
 		b.pressed.connect(func() -> void: _on_speed_selected(spd))
 		speed_box.add_child(b)
 		speed_buttons.append(b)
 
-	hbox.add_child(_make_separator())
-
-	fps_label = _make_label("60 FPS", Color(0.72, 0.82, 0.72), 13)
-	fps_label.custom_minimum_size = Vector2(58.0, 0.0)
-	fps_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	hbox.add_child(fps_label)
+	# Frame counter sits at the bottom centre of the map, not in the full top bar.
+	fps_label = _make_label("60 FPS", Color(0.72, 0.82, 0.72), 12)
+	fps_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(fps_label)
+	fps_label.set_anchors_and_offsets_preset(Control.PRESET_CENTER_BOTTOM, Control.PRESET_MODE_MINSIZE, 6)
 
 func _build_map_mode_bar() -> void:
 	var mode_panel := PanelContainer.new()
@@ -451,6 +579,15 @@ func _build_province_panel() -> void:
 	prov_owner_label = _make_label("Owner", Color(0.95, 0.92, 0.85), 14)
 	prov_owner_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	owner_row.add_child(prov_owner_label)
+	prov_diplomacy_btn = Button.new()
+	prov_diplomacy_btn.text = "Diplomacy"
+	prov_diplomacy_btn.visible = false
+	prov_diplomacy_btn.tooltip_text = "Open Diplomacy with this country"
+	prov_diplomacy_btn.pressed.connect(func() -> void:
+		if prov_owner_index >= 0:
+			_open_diplomacy_with(prov_owner_index)
+	)
+	owner_row.add_child(prov_diplomacy_btn)
 	prov_capital_label = _make_label("★ Capital", Color(0.98, 0.84, 0.32), 12)
 	owner_row.add_child(prov_capital_label)
 
@@ -722,8 +859,16 @@ func _build_game_menu_panel() -> void:
 	close_btn.pressed.connect(func() -> void: game_menu_panel.visible = false)
 	header.add_child(close_btn)
 
+	var playing_row := HBoxContainer.new()
+	playing_row.add_theme_constant_override("separation", 8)
+	vbox.add_child(playing_row)
+	menu_playing_arms = TextureRect.new()
+	menu_playing_arms.custom_minimum_size = Vector2(28.0, 24.0)
+	menu_playing_arms.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	menu_playing_arms.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	playing_row.add_child(menu_playing_arms)
 	menu_playing_label = _make_label("Playing as Ottoman Empire · 30 May 1453", Color(0.90, 0.86, 0.78), 14)
-	vbox.add_child(menu_playing_label)
+	playing_row.add_child(menu_playing_label)
 
 	menu_status_label = _make_label("", Color(0.96, 0.84, 0.42), 12)
 	menu_status_label.visible = false
@@ -825,35 +970,88 @@ func _clear_children(node: Node) -> void:
 		node.remove_child(c)
 		c.queue_free()
 
-# Loads arms_<TAG>.png from App/Resources/Heraldry/ or creates a fallback banner in the country's colour.
+func _find_data_dir() -> String:
+	var exe_dir := OS.get_executable_path().get_base_dir()
+	var candidates := [
+		exe_dir.path_join("Resources/data"),
+		exe_dir.path_join("../Resources/data"),
+		ProjectSettings.globalize_path("res://Resources/data"),
+		ProjectSettings.globalize_path("res://../Packages/GezCore/Sources/GezCore/Resources"),
+	]
+	for dir_path in candidates:
+		if FileAccess.file_exists(dir_path.path_join("scenario1453.json")):
+			return dir_path
+	return candidates[3]
+
+func _find_asset_file(rel_path: String, dev_res_path: String) -> String:
+	var exe_dir := OS.get_executable_path().get_base_dir()
+	var candidates := [
+		exe_dir.path_join("Resources").path_join(rel_path),
+		exe_dir.path_join("../Resources").path_join(rel_path),
+		ProjectSettings.globalize_path("res://Resources").path_join(rel_path),
+		ProjectSettings.globalize_path(dev_res_path),
+	]
+	for p in candidates:
+		if FileAccess.file_exists(p):
+			return p
+	return ""
+
+# Loads arms_<TAG>.png from App/Resources/Heraldry/ (or bundled Resources/Heraldry/) or creates a fallback banner in the country's colour.
 func _get_country_arms_texture(tag: String, r: int = 180, g: int = 140, b: int = 80) -> Texture2D:
 	var cache_key := tag if not tag.is_empty() else ("rgb_%d_%d_%d" % [r, g, b])
 	if arms_cache.has(cache_key):
 		return arms_cache[cache_key]
 
 	if not tag.is_empty():
-		var path := ProjectSettings.globalize_path("res://../App/Resources/Heraldry/arms_%s.png" % tag)
-		if FileAccess.file_exists(path):
+		var path := _find_asset_file("Heraldry/arms_%s.png" % tag, "res://../App/Resources/Heraldry/arms_%s.png" % tag)
+		if not path.is_empty():
 			var img := Image.load_from_file(path)
 			if img != null:
 				var tex := ImageTexture.create_from_image(img)
 				arms_cache[cache_key] = tex
 				return tex
 
-	# Fallback plain banner in the country's map colour
-	var fallback_img := Image.create(28, 20, false, Image.FORMAT_RGBA8)
+	# Fallback plain swallow-tailed banner in the country's map colour (matches PlainBannerView)
+	var w := 42
+	var h := 30
+	var fallback_img := Image.create(w, h, false, Image.FORMAT_RGBA8)
+	fallback_img.fill(Color(0.0, 0.0, 0.0, 0.0))
 	var fill_col := Color(float(r) / 255.0, float(g) / 255.0, float(b) / 255.0, 1.0)
-	var border_col := Color(0.12, 0.10, 0.08, 1.0)
-	fallback_img.fill(fill_col)
-	for x in range(28):
-		fallback_img.set_pixel(x, 0, border_col)
-		fallback_img.set_pixel(x, 19, border_col)
-	for y in range(20):
-		fallback_img.set_pixel(0, y, border_col)
-		fallback_img.set_pixel(27, y, border_col)
+	var border_col := Color(0.10, 0.08, 0.06, 0.90)
+	var notch_x := float(w) * 0.78
+	for y in range(h):
+		var yn := absf(float(y) / float(h - 1) - 0.5) * 2.0
+		var max_x := int(round(lerpf(notch_x, float(w - 1), yn)))
+		for x in range(max_x + 1):
+			var is_edge := (y == 0 or y == h - 1 or x == 0 or x >= max_x - 1)
+			if is_edge:
+				fallback_img.set_pixel(x, y, border_col)
+			else:
+				var shade := 1.08 - 0.16 * (float(x) / float(w) * 0.5 + float(y) / float(h) * 0.5)
+				fallback_img.set_pixel(x, y, Color(
+					clampf(fill_col.r * shade, 0.0, 1.0),
+					clampf(fill_col.g * shade, 0.0, 1.0),
+					clampf(fill_col.b * shade, 0.0, 1.0),
+					1.0
+				))
 	var fallback_tex := ImageTexture.create_from_image(fallback_img)
 	arms_cache[cache_key] = fallback_tex
 	return fallback_tex
+
+func _get_country_arms_icon(tag: String, r: int = 180, g: int = 140, b: int = 80) -> Texture2D:
+	var cache_key := tag if not tag.is_empty() else ("rgb_%d_%d_%d" % [r, g, b])
+	if arms_icon_cache.has(cache_key):
+		return arms_icon_cache[cache_key]
+	var full_tex := _get_country_arms_texture(tag, r, g, b)
+	var img := full_tex.get_image()
+	if img != null and not img.is_empty():
+		var scaled := img.duplicate()
+		scaled.resize(22, 16, Image.INTERPOLATE_BILINEAR)
+		var icon_tex := ImageTexture.create_from_image(scaled)
+		arms_icon_cache[cache_key] = icon_tex
+		return icon_tex
+	arms_icon_cache[cache_key] = full_tex
+	return full_tex
 
 func _init_bridge_and_map() -> void:
 	if not ClassDB.class_exists(&"GezGodotBridge"):
@@ -862,12 +1060,14 @@ func _init_bridge_and_map() -> void:
 		return
 
 	bridge = ClassDB.instantiate(&"GezGodotBridge")
-	var data_dir := ProjectSettings.globalize_path("res://../Packages/GezCore/Sources/GezCore/Resources")
+	var data_dir := _find_data_dir()
 	var ok: bool = bool(_call_bridge("setup", [data_dir, "TUR"], false))
 	if not ok:
 		selection_label.text = "Failed to load 1453 scenario from " + data_dir
 		push_error("GezGodotBridge.setup failed for path: " + data_dir)
 		return
+	# CI's export jobs look for this line to prove the exported game starts.
+	print("Gez: 1453 world loaded from ", data_dir)
 
 	var w: int = int(_call_bridge("getMapWidth", [], 3936))
 	var h: int = int(_call_bridge("getMapHeight", [], 2384))
@@ -887,10 +1087,11 @@ func _init_bridge_and_map() -> void:
 	var style_img := Image.create_from_data(style_tex_width, 2, false, Image.FORMAT_RGBA8, style_bytes)
 	style_tex = ImageTexture.create_from_image(style_img)
 
-	var terrain_path := ProjectSettings.globalize_path("res://../App/Resources/Terrain/terrain.jpg")
-	var terrain_img := Image.load_from_file(terrain_path)
-	if terrain_img != null:
-		terrain_tex = ImageTexture.create_from_image(terrain_img)
+	var terrain_path := _find_asset_file("Terrain/terrain.jpg", "res://../App/Resources/Terrain/terrain.jpg")
+	if not terrain_path.is_empty():
+		var terrain_img := Image.load_from_file(terrain_path)
+		if terrain_img != null:
+			terrain_tex = ImageTexture.create_from_image(terrain_img)
 
 	map_material.set_shader_parameter("map_size", map_size)
 	map_material.set_shader_parameter("id_tex", id_tex)
@@ -900,9 +1101,20 @@ func _init_bridge_and_map() -> void:
 		map_material.set_shader_parameter("terrain_tex", terrain_tex)
 
 	_refresh_all_labels()
+	_refresh_town_icons()
 	_populate_autosave_options()
 	_refresh_top_bar()
 	_refresh_armies()
+
+func _refresh_town_icons() -> void:
+	if bridge == null or icons_layer == null:
+		return
+	var rev: int = int(_call_bridge("getTownIconsRevision", [], -1))
+	if rev == last_town_icons_rev and rev >= 0:
+		return
+	last_town_icons_rev = rev
+	var packed: PackedFloat32Array = _call_bridge("getTownIconsData", [], PackedFloat32Array())
+	icons_layer.call("set_icons_data", packed, rev)
 
 func _refresh_all_labels() -> void:
 	if bridge == null:
@@ -926,7 +1138,10 @@ func _refresh_all_labels() -> void:
 func _process(delta: float) -> void:
 	elapsed_time += delta
 	map_material.set_shader_parameter("time_sec", elapsed_time)
-	fps_label.text = "%d FPS" % Engine.get_frames_per_second()
+	var cur_fps := int(Engine.get_frames_per_second())
+	if cur_fps != _last_fps:
+		_last_fps = cur_fps
+		fps_label.text = "%d FPS" % cur_fps
 
 	# Arrow-key panning when no text input is focused
 	if not _is_text_input_focused():
@@ -953,6 +1168,8 @@ func _process(delta: float) -> void:
 			_refresh_armies()
 			if province_panel.visible and current_prov_tab == "overview":
 				_refresh_province_panel()
+			if wars_ui != null:
+				wars_ui.call("refresh_if_open")
 		if (mask & 2) != 0:
 			# Monthly tick updated economy, constructions, populations, or markets
 			if province_panel.visible:
@@ -965,8 +1182,16 @@ func _process(delta: float) -> void:
 				trade_ui.call("refresh_if_open")
 				if bool(trade_ui.call("is_open")):
 					_refresh_trade_routes()
+			if court_ui != null:
+				court_ui.call("refresh_if_open")
+			if gov_ui != null:
+				gov_ui.call("refresh_if_open")
+			if diplomacy_ui != null:
+				diplomacy_ui.call("refresh_if_open")
 		if (mask & 4) != 0:
 			_refresh_styles_and_country_labels()
+		if (mask & 6) != 0:
+			_refresh_town_icons()
 		if (mask & 8) != 0 and game_menu_panel.visible:
 			_refresh_game_menu()
 
@@ -979,8 +1204,11 @@ func _refresh_styles_and_country_labels() -> void:
 		return
 	var style_bytes: PackedByteArray = _call_bridge("getStyleBytes", [], PackedByteArray())
 	if not style_bytes.is_empty():
-		var style_img := Image.create_from_data(style_tex_width, 2, false, Image.FORMAT_RGBA8, style_bytes)
-		style_tex.update(style_img)
+		if _style_img == null:
+			_style_img = Image.create_from_data(style_tex_width, 2, false, Image.FORMAT_RGBA8, style_bytes)
+		else:
+			_style_img.set_data(style_tex_width, 2, false, Image.FORMAT_RGBA8, style_bytes)
+		style_tex.update(_style_img)
 	labels_layer.call(
 		"set_country_labels",
 		_call_bridge("getCountryLabelTexts", [], PackedStringArray()),
@@ -990,23 +1218,85 @@ func _refresh_styles_and_country_labels() -> void:
 func _refresh_top_bar() -> void:
 	if bridge == null:
 		return
-	var c_name: String = str(_call_bridge("getCountryName", [], "Observer"))
-	var c_tag: String = str(_call_bridge("getCountryTag", [], "OBS"))
-	top_country_btn.text = "%s (%s)" % [c_name, c_tag]
-	top_arms_rect.texture = _get_country_arms_texture(c_tag)
-	if treasury_btn != null:
-		treasury_btn.text = "Ducats: %s" % str(_call_bridge("getDucatsText", [], "0 (+0.0/mo)"))
-	if armies_btn != null:
-		armies_btn.text = str(_call_bridge("getTopBarArmiesText", [], "Armies 0 · MP 0"))
-	date_label.text = str(_call_bridge("getDateText", [], "30 May 1453"))
+	var top_var: Variant = _call_bridge("getPlayerTopBarDetails", [], {})
+	var top: Dictionary = top_var if top_var is Dictionary else {}
+	var c_name: String = str(top.get("name", "Observer"))
+	var c_tag: String = str(top.get("tag", "OBS"))
+	var cr: int = int(top.get("colorR", 180))
+	var cg: int = int(top.get("colorG", 140))
+	var cb: int = int(top.get("colorB", 80))
 
-	var paused: bool = bool(_call_bridge("isPaused", [], true))
-	var spd: int = int(_call_bridge("getSpeed", [], 0))
-	pause_btn.text = "PAUSED" if paused else "RUNNING"
-	pause_btn.modulate = Color(1.0, 0.78, 0.45) if paused else Color(0.75, 1.0, 0.78)
-	for i in range(speed_buttons.size()):
-		var active := (not paused) and (spd == i + 1)
-		speed_buttons[i].modulate = Color(1.0, 0.88, 0.40) if active else Color(0.85, 0.85, 0.85)
+	var country_str := "%s (%s)" % [c_name, c_tag]
+	if country_str != _last_top_country_str:
+		_last_top_country_str = country_str
+		top_country_btn.text = c_name
+		top_country_btn.tooltip_text = "%s · choose or switch nation" % country_str
+	var arms_key := "%s|%d|%d|%d" % [c_tag, cr, cg, cb]
+	if arms_key != _last_top_arms_key:
+		_last_top_arms_key = arms_key
+		top_arms_rect.texture = _get_country_arms_texture(c_tag, cr, cg, cb)
+
+	if treasury_btn != null:
+		var duc_str := str(top.get("ducatsText", "0 (+0.0/mo)"))
+		if duc_str != _last_ducats_str:
+			_last_ducats_str = duc_str
+			treasury_btn.text = duc_str
+	if inflation_label != null:
+		var infl: int = int(top.get("inflationPercent", 0))
+		inflation_label.visible = infl >= 1
+		inflation_label.text = "Inflation %d%%" % infl
+	if stability_btn != null:
+		var stab: int = int(top.get("stability", 0))
+		var stab_str: String = str(top.get("stabilityText", "Stability +0"))
+		if stab_str != _last_stab_str:
+			_last_stab_str = stab_str
+			stability_btn.text = stab_str
+		var stab_neg := 1 if stab < 0 else 0
+		if stab_neg != _last_stab_neg:
+			_last_stab_neg = stab_neg
+			stability_btn.modulate = Color(0.98, 0.55, 0.50) if stab < 0 else Color(0.95, 0.92, 0.85)
+	if wars_btn != null:
+		var wars_cnt: int = int(top.get("activeWarsCount", 0))
+		var pending_cnt: int = int(top.get("pendingPeaceOffersCount", 0))
+		var vis := 1 if ((wars_cnt > 0) or (pending_cnt > 0)) else 0
+		if vis != _last_wars_vis:
+			_last_wars_vis = vis
+			wars_btn.visible = (vis == 1)
+		var wars_str := "Wars (%d) · %d Offer" % [wars_cnt, pending_cnt] if pending_cnt > 0 else "Wars (%d)" % wars_cnt
+		if wars_str != _last_wars_str:
+			_last_wars_str = wars_str
+			wars_btn.text = wars_str
+		var has_offer := 1 if pending_cnt > 0 else 0
+		if has_offer != _last_wars_offer:
+			_last_wars_offer = has_offer
+			wars_btn.modulate = Color(1.0, 0.62, 0.35) if pending_cnt > 0 else Color(1.0, 0.68, 0.65)
+	if armies_btn != null:
+		var a_str: String = str(top.get("armiesText", "Armies 0 · MP 0"))
+		if a_str != _last_armies_btn_str:
+			_last_armies_btn_str = a_str
+			armies_btn.text = a_str
+
+	var d_str: String = str(top.get("dateText", "30 May 1453"))
+	if d_str != _last_date_str:
+		_last_date_str = d_str
+		date_label.text = d_str
+
+	var paused: bool = bool(top.get("isPaused", true))
+	var spd: int = int(top.get("speed", 0))
+	var p_int := 1 if paused else 0
+	if p_int != _last_paused_int or spd != _last_speed_int:
+		_last_paused_int = p_int
+		_last_speed_int = spd
+		pause_btn.text = "PAUSED" if paused else "RUNNING"
+		pause_btn.modulate = Color(1.0, 0.78, 0.45) if paused else Color(0.75, 1.0, 0.78)
+		for i in range(speed_buttons.size()):
+			var active := (not paused) and (spd == i + 1)
+			speed_buttons[i].modulate = Color(1.0, 0.88, 0.40) if active else Color(0.85, 0.85, 0.85)
+
+	var alerts_sig: String = str(top.get("alertsSignature", ""))
+	if alerts_sig != _last_alerts_sig:
+		_last_alerts_sig = alerts_sig
+		_refresh_alerts_bar()
 
 # MARK: - Map Modes (Q to I)
 
@@ -1068,6 +1358,10 @@ func _refresh_game_menu() -> void:
 	var c_name: String = str(_call_bridge("getCountryName", [], "Observer"))
 	var d_text: String = str(_call_bridge("getDateText", [], "30 May 1453"))
 	menu_playing_label.text = "Playing as %s · %s" % [c_name, d_text]
+	# Same coat of arms as the top bar (the Apple game menu shows it too).
+	if menu_playing_arms != null and top_arms_rect != null:
+		menu_playing_arms.texture = top_arms_rect.texture
+		menu_playing_arms.visible = top_arms_rect.texture != null
 
 	var status: String = str(_call_bridge("getLastSaveStatus", [], ""))
 	menu_status_label.text = status
@@ -1150,21 +1444,26 @@ func _after_world_replaced() -> void:
 	_close_top_left_windows()
 	_refresh_all_labels()
 	_refresh_styles_and_country_labels()
+	_refresh_town_icons()
 	_refresh_top_bar()
 	_refresh_play_as_button()
 	_refresh_armies()
 	_refresh_trade_routes()
 
-func _refresh_armies() -> void:
+func _refresh_armies(force: bool = false) -> void:
 	if bridge == null:
 		return
+	var sig: int = int(_call_bridge("getMapArmiesSignature", [], -1))
+	if not force and sig == _last_armies_sig:
+		return
+	_last_armies_sig = sig
 	if armies_layer != null:
 		armies_layer.call("set_armies_data", _call_bridge("getMapArmiesData", [], {}))
 	if army_ui != null:
 		army_ui.call("refresh_all")
 
 func _after_army_action() -> void:
-	_refresh_armies()
+	_refresh_armies(true)
 	_refresh_top_bar()
 	if province_panel.visible:
 		_refresh_province_panel()
@@ -1202,8 +1501,12 @@ func _open_nation_picker() -> void:
 			continue
 		var tag: String = str(item.get("tag", ""))
 		var cname: String = str(item.get("name", tag))
+		var cr: int = int(item.get("colorR", 180))
+		var cg: int = int(item.get("colorG", 140))
+		var cb: int = int(item.get("colorB", 80))
 		var btn := Button.new()
 		btn.text = cname
+		btn.icon = _get_country_arms_icon(tag, cr, cg, cb)
 		var t := tag
 		btn.pressed.connect(func() -> void: _select_picker_country(t, true))
 		picker_featured_flow.add_child(btn)
@@ -1224,8 +1527,12 @@ func _refresh_picker_country_list() -> void:
 			continue
 		var provs: int = int(item.get("provinces", 0))
 		var dev: int = int(item.get("development", 0))
+		var cr: int = int(item.get("colorR", 180))
+		var cg: int = int(item.get("colorG", 140))
+		var cb: int = int(item.get("colorB", 80))
 		var btn := Button.new()
 		btn.text = "%s (%s) — %d prov, %d dev" % [cname, tag, provs, dev]
+		btn.icon = _get_country_arms_icon(tag, cr, cg, cb)
 		btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		if tag == selected_picker_tag:
@@ -1310,7 +1617,13 @@ func _refresh_province_panel() -> void:
 	var d: Dictionary = _call_bridge("getSelectedProvinceDetails", [prov_people_show_state], {})
 	if not bool(d.get("hasSelection", false)):
 		province_panel.visible = false
+		_last_prov_sig = ""
 		return
+
+	var sig := "%s|%s|%s" % [current_prov_tab, str(prov_show_build), var_to_str(d)]
+	if sig == _last_prov_sig and province_panel.visible:
+		return
+	_last_prov_sig = sig
 
 	sea_panel.visible = false
 	province_panel.visible = true
@@ -1323,8 +1636,12 @@ func _refresh_province_panel() -> void:
 	var cr: int = int(d.get("ownerColorR", 196))
 	var cg: int = int(d.get("ownerColorG", 182))
 	var cb: int = int(d.get("ownerColorB", 150))
-	prov_owner_arms.texture = _get_country_arms_texture(owner_tag, cr, cg, cb)
+	prov_owner_arms.visible = not owner_tag.is_empty()
+	prov_owner_arms.texture = _get_country_arms_texture(owner_tag, cr, cg, cb) if prov_owner_arms.visible else null
 	prov_owner_label.text = owner_name
+	prov_owner_index = int(d.get("ownerIndex", -1))
+	if prov_diplomacy_btn != null:
+		prov_diplomacy_btn.visible = bool(d.get("isForeignOwner", false)) and prov_owner_index >= 0
 	prov_capital_label.visible = bool(d.get("isCapital", false))
 
 	var occ: String = str(d.get("occupiedByName", ""))
@@ -1360,15 +1677,32 @@ func _add_kv_row(parent: VBoxContainer, label_txt: String, value_txt: String) ->
 func _build_province_overview_tab(d: Dictionary) -> void:
 	var is_mine: bool = bool(d.get("isPlayerOwned", false))
 	var holder_name: String = str(d.get("holderName", "The crown"))
+	var holder_idx: int = int(d.get("holderIndex", -1))
 	var stance: String = str(d.get("holderStance", ""))
 	var has_holder: bool = bool(d.get("hasHolder", false))
 
 	var holder_row := HBoxContainer.new()
 	holder_row.add_theme_constant_override("separation", 6)
 	prov_content_box.add_child(holder_row)
-	var h_lbl := _make_label("Held by: " + holder_name + (" (%s)" % stance if not stance.is_empty() else ""), Color(0.92, 0.88, 0.78), 13)
-	h_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	holder_row.add_child(h_lbl)
+	if has_holder and holder_idx >= 0:
+		holder_row.add_child(_make_label("Held by:", Color(0.92, 0.88, 0.78), 13))
+		var h_btn := Button.new()
+		h_btn.text = holder_name + (" (%s)" % stance if not stance.is_empty() else "")
+		h_btn.flat = true
+		h_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		h_btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		h_btn.add_theme_color_override("font_color", Color(0.97, 0.88, 0.62))
+		h_btn.add_theme_font_size_override("font_size", 13)
+		h_btn.pressed.connect(func() -> void:
+			if court_ui != null:
+				_close_top_left_windows("court")
+				court_ui.call("open_window", holder_idx)
+		)
+		holder_row.add_child(h_btn)
+	else:
+		var h_lbl := _make_label("Held by: " + holder_name + (" (%s)" % stance if not stance.is_empty() else ""), Color(0.92, 0.88, 0.78), 13)
+		h_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		holder_row.add_child(h_lbl)
 
 	if is_mine:
 		if has_holder:
@@ -1852,6 +2186,8 @@ func _sync_camera_uniforms() -> void:
 	var default_tint := clampf(0.72 - 0.2 * zoom, 0.38, 0.66)
 	var tint: float = float(_call_bridge("getTintForZoom", [zoom], default_tint))
 	map_material.set_shader_parameter("tint", tint)
+	if icons_layer != null:
+		icons_layer.call("update_camera", zoom, offset)
 	if labels_layer != null:
 		labels_layer.call("update_camera", zoom, offset)
 	if armies_layer != null:
@@ -2066,6 +2402,14 @@ func _close_top_left_windows(except_key: String = "") -> void:
 		budget_ui.call("close_window")
 	if except_key != "trade" and trade_ui != null:
 		trade_ui.call("close_window")
+	if except_key != "court" and court_ui != null:
+		court_ui.call("close_window")
+	if except_key != "government" and gov_ui != null:
+		gov_ui.call("close_window")
+	if except_key != "diplomacy" and diplomacy_ui != null:
+		diplomacy_ui.call("close_window")
+	if except_key != "wars" and wars_ui != null:
+		wars_ui.call("close_window")
 	if except_key != "armies" and army_ui != null:
 		var aw: Variant = army_ui.get("armies_window_panel")
 		if aw is Control:
@@ -2086,6 +2430,158 @@ func _toggle_trade_window() -> void:
 	if opening:
 		_close_top_left_windows("trade")
 	trade_ui.call("toggle_window")
+
+func _toggle_court_window() -> void:
+	if court_ui == null:
+		return
+	var opening: bool = not bool(court_ui.call("is_open"))
+	if opening:
+		_close_top_left_windows("court")
+	court_ui.call("toggle_window")
+
+func _toggle_government_window() -> void:
+	if gov_ui == null:
+		return
+	var opening: bool = not bool(gov_ui.call("is_open"))
+	if opening:
+		_close_top_left_windows("government")
+	gov_ui.call("toggle_window")
+
+func _toggle_diplomacy_window() -> void:
+	if diplomacy_ui == null:
+		return
+	var opening: bool = not bool(diplomacy_ui.call("is_open"))
+	if opening:
+		_close_top_left_windows("diplomacy")
+	diplomacy_ui.call("toggle_window")
+
+func _toggle_wars_window() -> void:
+	if wars_ui == null:
+		return
+	var opening: bool = not bool(wars_ui.call("is_open"))
+	if opening:
+		_close_top_left_windows("wars")
+	wars_ui.call("toggle_window")
+
+func _open_diplomacy_with(country_idx: int = -1) -> void:
+	if diplomacy_ui == null:
+		return
+	_close_top_left_windows("diplomacy")
+	diplomacy_ui.call("open_with_country", country_idx)
+
+func _open_wars_and_peace(war_id: String = "") -> void:
+	if wars_ui == null:
+		return
+	_close_top_left_windows("wars")
+	wars_ui.call("open_wars_window")
+	if not war_id.is_empty():
+		wars_ui.call("open_peace_for_war", war_id)
+
+func _build_alerts_bar() -> void:
+	alerts_scroll = ScrollContainer.new()
+	alerts_scroll.name = "AlertsBar"
+	alerts_scroll.position = Vector2(12.0, 52.0)
+	alerts_scroll.custom_minimum_size = Vector2(820.0, 34.0)
+	alerts_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	alerts_scroll.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	alerts_scroll.visible = false
+	add_child(alerts_scroll)
+
+	alerts_hbox = HBoxContainer.new()
+	alerts_hbox.add_theme_constant_override("separation", 6)
+	alerts_scroll.add_child(alerts_hbox)
+
+func _refresh_alerts_bar() -> void:
+	if alerts_scroll == null or alerts_hbox == null or bridge == null:
+		return
+	_clear_children(alerts_hbox)
+	var alerts: Array = _call_bridge("getActiveAlerts", [], [])
+	if alerts.is_empty():
+		alerts_scroll.visible = false
+		return
+	alerts_scroll.visible = true
+	for a_v in alerts:
+		if not (a_v is Dictionary):
+			continue
+		var a: Dictionary = a_v
+		var kind: String = str(a.get("kind", ""))
+		var btn := Button.new()
+		btn.text = str(a.get("label", "Alert"))
+		match kind:
+			"peaceOffer":
+				btn.modulate = Color(1.0, 0.65, 0.35)
+			"underSiege", "coalition", "bankrupt":
+				btn.modulate = Color(1.0, 0.45, 0.42)
+			"breach", "disloyalEstate":
+				btn.modulate = Color(1.0, 0.72, 0.38)
+			_:
+				btn.modulate = Color(0.92, 0.80, 0.56)
+		var alert_copy := a.duplicate()
+		btn.pressed.connect(func() -> void:
+			_on_alert_pressed(alert_copy)
+		)
+		alerts_hbox.add_child(btn)
+
+func _on_alert_pressed(alert: Dictionary) -> void:
+	var kind: String = str(alert.get("kind", ""))
+	var p_idx: int = int(alert.get("provinceIndex", -1))
+	var war_id: String = str(alert.get("warID", ""))
+	match kind:
+		"peaceOffer":
+			_open_wars_and_peace(war_id)
+		"breach", "underSiege":
+			if p_idx >= 0:
+				_focus_and_select_province(p_idx)
+		"coalition":
+			_open_diplomacy_with(-1)
+		"lowStability", "disloyalEstate":
+			_close_top_left_windows("government")
+			if gov_ui != null:
+				gov_ui.call("open_window")
+		"refusingVassal":
+			_close_top_left_windows("court")
+			if court_ui != null:
+				court_ui.call("open_window")
+		"bankrupt", "highInflation":
+			_close_top_left_windows("budget")
+			if budget_ui != null:
+				budget_ui.call("open_window")
+
+func _focus_and_select_province(prov_idx: int) -> void:
+	if prov_idx < 0:
+		return
+	_select_province_by_index(prov_idx)
+	var fp_var: Variant = _call_bridge("getProvinceFocusPoint", [prov_idx], {})
+	var fp: Dictionary = fp_var if fp_var is Dictionary else {}
+	if bool(fp.get("hasCenter", false)) and zoom > 0.0:
+		var fx: float = float(fp.get("x", 0.0))
+		var fy: float = float(fp.get("y", 0.0))
+		var x: float = size.x * 0.5 - fx * zoom
+		var y: float = size.y * 0.5 - fy * zoom
+		offset = _clamped_offset(Vector2(x, y), zoom)
+		_sync_camera_uniforms()
+
+func _after_diplomacy_action(refresh_map: bool = false) -> void:
+	if refresh_map:
+		_refresh_styles_and_country_labels()
+		_refresh_town_icons()
+	_refresh_top_bar()
+	if diplomacy_ui != null:
+		diplomacy_ui.call("refresh_if_open")
+	if wars_ui != null:
+		wars_ui.call("refresh_if_open")
+	if gov_ui != null:
+		gov_ui.call("refresh_if_open")
+	if court_ui != null:
+		court_ui.call("refresh_if_open")
+	if budget_ui != null:
+		budget_ui.call("refresh_if_open")
+	if trade_ui != null:
+		trade_ui.call("refresh_if_open")
+	if province_panel.visible:
+		_refresh_province_panel()
+	if army_ui != null:
+		_refresh_armies()
 
 func _toggle_armies_window() -> void:
 	if army_ui == null:
@@ -2118,7 +2614,20 @@ func _after_economy_action() -> void:
 	if trade_ui != null:
 		trade_ui.call("refresh_if_open")
 		_refresh_trade_routes()
+	if court_ui != null:
+		court_ui.call("refresh_if_open")
+	if gov_ui != null:
+		gov_ui.call("refresh_if_open")
 	if province_panel.visible:
 		_refresh_province_panel()
 	if market_panel.visible:
 		_refresh_market_panel()
+
+func _after_court_or_gov_action() -> void:
+	_refresh_top_bar()
+	if court_ui != null:
+		court_ui.call("refresh_if_open")
+	if gov_ui != null:
+		gov_ui.call("refresh_if_open")
+	if province_panel.visible:
+		_refresh_province_panel()

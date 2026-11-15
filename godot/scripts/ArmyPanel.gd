@@ -3,6 +3,7 @@ extends Control
 var main_view: Control = null
 
 var armies_window_panel: PanelContainer
+var armies_window_arms: TextureRect
 var armies_window_box: VBoxContainer
 
 var selected_army_panel: PanelContainer
@@ -13,6 +14,8 @@ var sel_army_rebel_label: Label
 var sel_army_box: VBoxContainer
 
 var prov_show_recruit: bool = false
+var _last_sel_army_sig: String = ""
+var _last_armies_win_sig: String = ""
 
 func setup(host: Control) -> void:
 	main_view = host
@@ -64,7 +67,13 @@ func _build_armies_window_panel() -> void:
 	armies_window_panel.add_child(outer)
 
 	var header := HBoxContainer.new()
+	header.add_theme_constant_override("separation", 8)
 	outer.add_child(header)
+	armies_window_arms = TextureRect.new()
+	armies_window_arms.custom_minimum_size = Vector2(26.0, 20.0)
+	armies_window_arms.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	armies_window_arms.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	header.add_child(armies_window_arms)
 	var title := _make_label("Armies", Color(0.97, 0.90, 0.68), 18)
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	header.add_child(title)
@@ -172,7 +181,13 @@ func refresh_selected_army_panel() -> void:
 	var d: Dictionary = d_var if d_var is Dictionary else {}
 	if not bool(d.get("hasSelection", false)):
 		selected_army_panel.visible = false
+		_last_sel_army_sig = ""
 		return
+
+	var sig := var_to_str(d)
+	if sig == _last_sel_army_sig and selected_army_panel.visible:
+		return
+	_last_sel_army_sig = sig
 
 	selected_army_panel.visible = true
 	var aid: int = int(d.get("armyId", -1))
@@ -360,12 +375,26 @@ func refresh_selected_army_panel() -> void:
 func refresh_armies_window() -> void:
 	if armies_window_box == null:
 		return
-	_clear_children(armies_window_box)
 	var d_var: Variant = _call_bridge("getArmiesWindowDetails", [], {})
 	var d: Dictionary = d_var if d_var is Dictionary else {}
 	if not bool(d.get("valid", false)):
+		_last_armies_win_sig = ""
+		_clear_children(armies_window_box)
 		armies_window_box.add_child(_make_label("No active player country.", Color(0.80, 0.75, 0.66), 13))
 		return
+	var sig := var_to_str(d)
+	if sig == _last_armies_win_sig and armies_window_box.get_child_count() > 0:
+		return
+	_last_armies_win_sig = sig
+	_clear_children(armies_window_box)
+	if armies_window_arms != null and main_view != null and main_view.has_method("_get_country_arms_texture"):
+		armies_window_arms.texture = main_view.call(
+			"_get_country_arms_texture",
+			str(d.get("playerTag", "")),
+			int(d.get("playerColorR", 180)),
+			int(d.get("playerColorG", 140)),
+			int(d.get("playerColorB", 80))
+		)
 
 	# 1. National manpower & force totals
 	_add_kv_row(armies_window_box, "National manpower", str(d.get("manpowerText", "0 / 0")), Color(0.98, 0.92, 0.72))

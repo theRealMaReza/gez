@@ -15,6 +15,9 @@ var _dragging_tax_class: int = -1
 var _tax_sliders: Dictionary = {}
 var _tax_level_labels: Dictionary = {}
 var _tax_content_labels: Dictionary = {}
+var _last_summary_sig: String = ""
+var _last_coinage_sig: String = ""
+var _last_loans_sig: String = ""
 
 func setup(host: Control) -> void:
 	main_view = host
@@ -161,6 +164,16 @@ func refresh() -> void:
 	_refresh_loans(d)
 
 func _refresh_summary(d: Dictionary) -> void:
+	var sig := "%s|%s|%s|%s|%s|%s|%s|%s|%s" % [
+		str(d.get("taxBreakdown", [])), str(d.get("vassalTaxText", "")),
+		str(d.get("debaseOngoingIncomeText", "")), str(d.get("merchantsText", "")),
+		str(d.get("tollsText", "")), str(d.get("buildingUpkeepText", "")),
+		str(d.get("armyUpkeepText", "")), str(d.get("interestText", "")),
+		str(d.get("balanceText", "")) + "|" + str(d.get("treasuryText", ""))
+	]
+	if sig == _last_summary_sig and summary_box.get_child_count() > 0:
+		return
+	_last_summary_sig = sig
 	_clear_children(summary_box)
 	summary_box.add_child(_make_label("Last month", Color(0.96, 0.90, 0.72), 14))
 
@@ -290,6 +303,14 @@ func _refresh_taxes(d: Dictionary) -> void:
 	_updating_sliders = false
 
 func _refresh_coinage(d: Dictionary) -> void:
+	var sig := "%s|%s|%s|%s|%s|%s" % [
+		str(d.get("inflationText", "")), str(d.get("debaseRefusal", "")),
+		str(d.get("debaseOnceText", "")), str(d.get("canDebaseOnce", false)),
+		str(d.get("debaseOngoingText", "")), str(d.get("isDebasing", false)) + "|" + str(d.get("canToggleDebasing", false))
+	]
+	if sig == _last_coinage_sig and coinage_box.get_child_count() > 0:
+		return
+	_last_coinage_sig = sig
 	_clear_children(coinage_box)
 	coinage_box.add_child(_make_label("Coinage", Color(0.96, 0.90, 0.72), 14))
 	_add_kv_row(coinage_box, "Inflation", str(d.get("inflationText", "0.0%")))
@@ -331,6 +352,10 @@ func _refresh_coinage(d: Dictionary) -> void:
 	coinage_box.add_child(ongoing_toggle)
 
 func _refresh_loans(d: Dictionary) -> void:
+	var sig := "%s|%s" % [str(d.get("loans", [])), str(d.get("banks", []))]
+	if sig == _last_loans_sig and loans_box.get_child_count() > 0:
+		return
+	_last_loans_sig = sig
 	_clear_children(loans_box)
 	loans_box.add_child(_make_label("Loans", Color(0.96, 0.90, 0.72), 14))
 

@@ -49,7 +49,35 @@ public enum DiplomacyAISystem {
         }
 
         // 1. Evaluate ongoing wars for AI peace treaties or stalemate white peace
+        let ownersBeforePeace = world.provinces.owner
         resolveActiveWarsAI(&world, ownedProvinces: ownedProvinces, date: date)
+
+        // Peace deals above may move provinces. War reasons must see today's
+        // map (as `availableCasusBelli` did), so recount owners and borders if
+        // anything changed. Alliances are read live, because the loop below
+        // makes and breaks them.
+        var cbOwned = ownedProvinces
+        var cbNeighbors = landNeighbors
+        if world.provinces.owner != ownersBeforePeace {
+            cbOwned = Array(repeating: [ProvinceID](), count: n)
+            for p in 0..<world.provinces.count {
+                if let owner = world.provinces.owner[p], owner.index < n {
+                    cbOwned[owner.index].append(ProvinceID(p))
+                }
+            }
+            cbNeighbors = Array(repeating: Set<CountryID>(), count: n)
+            for p in 0..<world.provinces.count {
+                guard let ownerA = world.provinces.owner[p], ownerA.index < n else { continue }
+                for nb in world.provinces.neighbors[p] {
+                    if let ownerB = world.provinces.owner[nb.index], ownerB != ownerA, ownerB.index < n {
+                        cbNeighbors[ownerA.index].insert(ownerB)
+                    }
+                }
+            }
+        }
+        let devByCountry = cbOwned.map { provs in
+            provs.reduce(0) { $0 + world.provinces.development[$1.index] }
+        }
 
         // 2. Peacetime treaties (every country) & war declarations (staggered half per month for speed)
         let loanCounts = computeLoanCounts(world, countryCount: n)
@@ -74,6 +102,9 @@ public enum DiplomacyAISystem {
                 attacker: c,
                 landNeighbors: landNeighbors[c.index],
                 ownedProvinces: ownedProvinces,
+                cbOwned: cbOwned,
+                cbNeighbors: cbNeighbors[c.index],
+                devByCountry: devByCountry,
                 soldiersByCountry: soldiersByCountry,
                 loanCount: loanCounts[c.index],
                 date: date,
@@ -184,17 +215,22 @@ public enum DiplomacyAISystem {
             }
 
             let armyTable = world.military.armies
+            var unreachableStarts = Set<ProvinceID>()
             for aid in idleArmies {
                 let i = Int(aid.rawValue)
                 let curProv = armyTable.province[i]
                 let myMen = armyTable.totalMen(of: aid)
                 guard myMen > 0 else { continue }
 
-                // Skip moving if we are already actively occupying this province
-                if let pOwner = world.provinces.owner[curProv.index],
-                   enemies.contains(pOwner),
-                   (world.provinces.occupiedBy[curProv.index].map { enemies.contains($0) } ?? true) {
-                    continue
+                // Skip moving if we are already actively occupying enemy land or liberating our occupied land
+                let curOcc = world.provinces.occupiedBy[curProv.index]
+                if let pOwner = world.provinces.owner[curProv.index] {
+                    if enemies.contains(pOwner) && (curOcc.map { enemies.contains($0) } ?? true) {
+                        continue
+                    }
+                    if pOwner == c, let occ = curOcc, enemies.contains(occ) {
+                        continue
+                    }
                 }
 
                 // 1. Check adjacent provinces for favorable enemy army engagement or undefended enemy land
@@ -243,28 +279,16 @@ public enum DiplomacyAISystem {
                 }
 
                 // 3. Nearest priority war goal -> nearest unoccupied enemy prov -> nearest liberate prov
-                let curPt = world.provinces.location[curProv.index]
-                let candidatePools: [[ProvinceID]] = [priorityTargets, enemyProvs, liberateProvs]
-                var ordered = false
                 let myLand = landMass[curProv.index]
-                for fullPool in candidatePools where !fullPool.isEmpty {
-                    let pool = fullPool.filter { landMass[$0.index] == myLand }
-                    guard !pool.isEmpty else { continue }
-                    let sortedTargets = pool.sorted { a, b in
-                        let pa = world.provinces.location[a.index]
-                        let pb = world.provinces.location[b.index]
-                        let da = hypot(pa.longitude - curPt.longitude, pa.latitude - curPt.latitude)
-                        let db = hypot(pb.longitude - curPt.longitude, pb.latitude - curPt.latitude)
-                        return da < db
-                    }
-                    for target in sortedTargets.prefix(5) {
-                        if ArmySystem.orderMove(&world, army: aid, to: target) {
-                            ordered = true
-                            break
-                        }
-                    }
-                    if ordered { break }
+                let reachablePools: [[ProvinceID]] = [priorityTargets, enemyProvs, liberateProvs].map { pool in
+                    pool.filter { landMass[$0.index] == myLand }
                 }
+                ArmySystem.orderMoveToBestPool(
+                    &world,
+                    army: aid,
+                    pools: reachablePools,
+                    unreachableCache: &unreachableStarts
+                )
             }
         }
     }
@@ -287,7 +311,8 @@ public enum DiplomacyAISystem {
             let loserHuman = world.humanCountries.contains(loser)
             if winnerHuman { continue }
 
-            let monthsFought = max(0, (date.year - war.startDate.year) * 12 + (date.month - war.startDate.month))
+            let effectiveStart = max(war.startDate, Scenario1453.startDate)
+            let monthsFought = max(0, (date.year - effectiveStart.year) * 12 + (date.month - effectiveStart.month))
             let loserProvs = ownedProvinces[loser.index]
             let fullyOccupied = !loserProvs.isEmpty && loserProvs.allSatisfy { pid in
                 world.provinces.occupiedBy[pid.index].map { war.areEnemies($0, loser) } ?? false
@@ -429,6 +454,9 @@ public enum DiplomacyAISystem {
         attacker: CountryID,
         landNeighbors: Set<CountryID>,
         ownedProvinces: [[ProvinceID]],
+        cbOwned: [[ProvinceID]],
+        cbNeighbors: Set<CountryID>,
+        devByCountry: [Int],
         soldiersByCountry: [Int],
         loanCount: Int,
         date: GameDate,
@@ -461,7 +489,8 @@ public enum DiplomacyAISystem {
         let ourStrength = soldiersByCountry[attacker.index]
 
         for target in landNeighbors.sorted(by: { $0.index < $1.index }) {
-            guard !ownedProvinces[target.index].isEmpty,
+            let defenderProvs = ownedProvinces[target.index]
+            guard !defenderProvs.isEmpty,
                   world.countries.overlord[target.index] != attacker,
                   !world.diplomacy.hasTruce(attacker, target),
                   !world.diplomacy.areAllies(attacker, target),
@@ -473,9 +502,15 @@ public enum DiplomacyAISystem {
                 continue
             }
 
-            let cbs = world.diplomacy.availableCasusBelli(attacker: attacker, defender: target, in: world)
-                .filter { $0.type != .noCB }
-            guard let chosenCB = bestCB(from: cbs) else { continue }
+            guard let chosenCB = bestCasusBelliAI(
+                attacker: attacker,
+                defender: target,
+                defenderProvinces: cbOwned[target.index],
+                bordering: cbNeighbors.contains(target),
+                attackerDev: devByCountry[attacker.index],
+                defenderDev: devByCountry[target.index],
+                in: world
+            ) else { continue }
 
             let check = world.diplomacy.canDeclareWar(
                 attacker: attacker,
@@ -486,9 +521,17 @@ public enum DiplomacyAISystem {
             guard case .valid = check else { continue }
 
             var enemyStrength = soldiersByCountry[target.index]
-            for ally in world.countries.ids where ally != attacker && ally != target {
-                if world.diplomacy.areAllies(target, ally) || world.diplomacy.hasTreaty(.guarantee, between: ally, and: target) {
-                    enemyStrength += soldiersByCountry[ally.index]
+            // Each ally or guarantor of the target counts once; read live.
+            var counted = Set<CountryID>([attacker, target])
+            for t in world.diplomacy.treaties {
+                let helper: CountryID?
+                switch t.type {
+                case .alliance: helper = t.first == target ? t.second : (t.second == target ? t.first : nil)
+                case .guarantee: helper = t.second == target ? t.first : nil
+                default: helper = nil
+                }
+                if let h = helper, h.index < soldiersByCountry.count, counted.insert(h).inserted {
+                    enemyStrength += soldiersByCountry[h.index]
                 }
             }
             if let ov = world.countries.overlord[target.index] {
@@ -553,14 +596,138 @@ public enum DiplomacyAISystem {
         }
     }
 
-    private static func bestCB(from cbs: [CasusBelliInstance]) -> CasusBelliInstance? {
-        let priority: [CasusBelli] = [.reconquest, .coalition, .claim, .subjugation, .holyWar, .tribute]
-        for type in priority {
-            if let match = cbs.first(where: { $0.type == type }) {
-                return match
+    private static func bestCasusBelliAI(
+        attacker: CountryID,
+        defender: CountryID,
+        defenderProvinces: [ProvinceID],
+        bordering: Bool,
+        attackerDev: Int,
+        defenderDev: Int,
+        in world: World
+    ) -> CasusBelliInstance? {
+        let defName = world.countries.name[defender.index]
+
+        // 1. Reconquest (highest priority)
+        for p in defenderProvinces where world.provinces.cores[p.index].contains(attacker) {
+            let pName = world.provinces.name[p.index]
+            return CasusBelliInstance(
+                type: .reconquest,
+                target: defender,
+                warGoal: .conquerProvince(p),
+                targetProvince: p,
+                name: "Reconquest of \(pName)",
+                description: "Reclaim ancestral core province with zero aggressive expansion."
+            )
+        }
+
+        // 2. Coalition (second priority in bestCB)
+        let inCoalition = world.diplomacy.coalitions[defender]?.contains(attacker) ?? false
+        if inCoalition {
+            return CasusBelliInstance(
+                type: .coalition,
+                target: defender,
+                warGoal: .superiority,
+                targetProvince: nil,
+                name: "Coalition Punitive War against \(defName)",
+                description: "Lead the international coalition to punish aggressive expansion."
+            )
+        }
+        if world.diplomacy.aggressiveExpansion(of: defender, by: attacker) >= 50.0 {
+            var outragedCount = 0
+            for c in world.countries.ids where c != defender {
+                if world.diplomacy.aggressiveExpansion(of: defender, by: c) >= 50.0
+                    && world.diplomacy.opinion(of: defender, by: c) < 0 {
+                    outragedCount += 1
+                    if outragedCount >= 4 { break }
+                }
+            }
+            if outragedCount >= 4 {
+                return CasusBelliInstance(
+                    type: .coalition,
+                    target: defender,
+                    warGoal: .superiority,
+                    targetProvince: nil,
+                    name: "Coalition Punitive War against \(defName)",
+                    description: "Lead the international coalition to punish aggressive expansion."
+                )
             }
         }
-        return cbs.first
+
+        // 3. Claim (third priority)
+        for p in defenderProvinces
+        where world.provinces.claims[p.index].contains(attacker) && !world.provinces.cores[p.index].contains(attacker) {
+            let pName = world.provinces.name[p.index]
+            return CasusBelliInstance(
+                type: .claim,
+                target: defender,
+                warGoal: .conquerProvince(p),
+                targetProvince: p,
+                name: "Conquest of \(pName)",
+                description: "Enforce territorial claim on \(pName)."
+            )
+        }
+
+        // 4. Subjugation (fourth priority; only between bordering countries)
+        if bordering,
+           world.countries.overlord[defender.index] == nil,
+           defenderProvinces.count <= 6,
+           attackerDev >= Int(Double(defenderDev) * 2.5),
+           let cap = world.countries.capital[defender.index] {
+            return CasusBelliInstance(
+                type: .subjugation,
+                target: defender,
+                warGoal: .conquerProvince(cap),
+                targetProvince: cap,
+                name: "Subjugation of \(defName)",
+                description: "Force \(defName) to swear fealty as a vassal state."
+            )
+        }
+
+        // 5. Holy War (fifth priority; only between bordering countries)
+        let relA = world.countries.religion[attacker.index]
+        let relB = world.countries.religion[defender.index]
+        if bordering && relA.family != relB.family {
+            return CasusBelliInstance(
+                type: .holyWar,
+                target: defender,
+                warGoal: .superiority,
+                targetProvince: nil,
+                name: "Holy War against \(defName)",
+                description: "Fight to defend and propagate the true faith."
+            )
+        }
+
+        // 6. Tribute (sixth priority; only between bordering countries)
+        if bordering && world.countries.overlord[defender.index] == nil {
+            let govA = world.countries.government[attacker.index]
+            if (govA == .steppeHorde || relA.family == .dharmic || relA.family == .pagan) && attackerDev > defenderDev {
+                return CasusBelliInstance(
+                    type: .tribute,
+                    target: defender,
+                    warGoal: .superiority,
+                    targetProvince: nil,
+                    name: "Demand Tribute from \(defName)",
+                    description: "Force \(defName) to pay annual tribute."
+                )
+            }
+        }
+
+        // 7. Succession fallback
+        if world.countries.government[defender.index] != .republic,
+           world.countries.heir[defender.index] == nil,
+           world.diplomacy.hasRoyalMarriage(between: attacker, and: defender, in: world),
+           let cap = world.countries.capital[defender.index] {
+            return CasusBelliInstance(
+                type: .succession,
+                target: defender,
+                warGoal: .conquerProvince(cap),
+                targetProvince: cap,
+                name: "War of Succession for \(defName)",
+                description: "Enforce claim to the vacant throne through royal dynastic ties."
+            )
+        }
+
+        return nil
     }
 
     private static func computeLoanCounts(_ world: World, countryCount: Int) -> [Int] {

@@ -88,9 +88,10 @@ public enum SiegeSystem {
             return !world.diplomacy.isAtWar(siege.besieger, ctrl)
         }
 
-        // 2. Scan fortified provinces for valid besiegers
+        // 2. Scan fortified provinces that have armies or active sieges
         let armyIndex = world.military.armyIndexByProvince(provinceCount: world.provinces.count)
-        for p in 0..<world.provinces.count {
+        let siegeProvs = Set(world.military.sieges.map(\.province))
+        for p in 0..<world.provinces.count where !armyIndex[p].isEmpty || siegeProvs.contains(ProvinceID(p)) {
             let pid = ProvinceID(p)
             let fortLvl = world.provinces.fortLevel[p]
             guard fortLvl > 0, world.provinces.fortGarrison[p] > 0 else { continue }

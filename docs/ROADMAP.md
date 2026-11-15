@@ -211,14 +211,16 @@ version matches it; the owner decides when to retire it.
    b. Armies: counters on the map, select, move, recruit, sieges. ✅
    c. Economy: budget, trade, buildings. ✅
    d. Court, government and laws (step 3d1); diplomacy, war and peace,
-      alerts (step 3d2). Two pull requests, because both are large.
-   e. Speed: find and fix the sluggishness the owner noticed. Reuse the
+      alerts (step 3d2). ✅
+   e. Speed: find and fix the sluggishness the owner noticed. ✅ Reuse the
       ideas in closed PR #15 (commit bd4221e on branch
       `gemini/phase8-balance-and-docs`): tick speed-ups and the fix that
       stops the 1453 wars from making peace on day 2.
-4. **Builds**: Godot headless exports for Mac, Windows and Linux on CI;
-   screenshot tests replace the Apple snapshot job; downloads on the
-   website and itch.io.
+   f. Map icons (towns, capitals, forts, ports) and coats of arms
+      across the UI. ✅
+4. **Builds**: Godot headless exports for Mac, Windows and Linux on CI; ✅
+   screenshot job pushes Godot captures to `ci-snapshots`; downloads on
+   the website and itch.io stay separate (later).
 5. **Retire `App/`** once the Godot version is at parity (owner decides).
 
 ### Phase 9: Battle view (2D, real-time with pause)

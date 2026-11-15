@@ -715,4 +715,307 @@ struct GezGodotTests {
             #expect((matching?["refusalReason"] as? String)?.isEmpty == false)
         }
     }
+
+    @Test("Court bridge exposes ruler, family tree, council, vassals, marriages, chronicle, and bounds checks")
+    func courtBridge() {
+        let controller = GezGodotController()
+        #expect(controller.setup(dataDirectoryPath: "", tag: "TUR"))
+
+        let topBar = controller.playerTopBarDetails()
+        #expect(topBar["tag"] as? String == "TUR")
+        #expect((topBar["stabilityText"] as? String)?.hasPrefix("Stability") == true)
+        // Inflation for the top bar badge, in whole percent (0 at the start).
+        #expect((topBar["inflationPercent"] as? Int).map { $0 >= 0 } == true)
+
+        let court = controller.courtDetails()
+        #expect(court["valid"] as? Bool == true)
+        #expect(court["playerTag"] as? String == "TUR")
+        #expect(court["showingRuler"] as? Bool == true)
+
+        let charDict = court["character"] as? [String: Any] ?? [:]
+        #expect(charDict["valid"] as? Bool == true)
+        #expect(!(charDict["fullName"] as? String ?? "").isEmpty)
+        let skills = charDict["skills"] as? [[String: Any]] ?? []
+        #expect(skills.count == 5)
+        let familyTree = court["familyTree"] as? [[String: Any]] ?? []
+        #expect(!familyTree.isEmpty)
+
+        // Character inspection + back to ruler + out-of-range check
+        #expect(!controller.setViewedCharacter(characterIndex: 999_999))
+        if let firstNode = familyTree.last,
+           let cIdx = firstNode["characterIndex"] as? Int {
+            #expect(controller.setViewedCharacter(characterIndex: cIdx))
+            let inspected = controller.courtDetails()
+            let inspChar = inspected["character"] as? [String: Any] ?? [:]
+            #expect(inspChar["characterIndex"] as? Int == cIdx)
+        }
+        #expect(controller.setViewedCharacter(characterIndex: -1))
+        #expect(controller.courtDetails()["showingRuler"] as? Bool == true)
+
+        // Council seats, appoint newcomer, leave empty, appoint candidate
+        let seats = court["councilSeats"] as? [[String: Any]] ?? []
+        #expect(seats.count == 5)
+        #expect(!controller.appointCouncilSeat(seatIndex: 99, characterIndex: 0))
+        #expect(!controller.appointCouncilSeat(seatIndex: 0, characterIndex: 999_999))
+        #expect(!controller.appointCouncilNewcomer(seatIndex: 99))
+        #expect(controller.appointCouncilNewcomer(seatIndex: 0))
+        let afterNewcomer = controller.courtDetails()["councilSeats"] as? [[String: Any]] ?? []
+        #expect((afterNewcomer[0]["holderIndex"] as? Int ?? -1) >= 0)
+        #expect(controller.appointCouncilSeat(seatIndex: 0, characterIndex: -1))
+        let afterEmpty = controller.courtDetails()["councilSeats"] as? [[String: Any]] ?? []
+        #expect(afterEmpty[0]["holderIndex"] as? Int == -1)
+
+        // Marriage candidates & propose (switch to FRA or check TUR family)
+        let family = court["marriageableFamily"] as? [[String: Any]] ?? []
+        if let famIdx = family.first?["characterIndex"] as? Int {
+            let withCands = controller.courtDetails(marryingCharacterIndex: famIdx)
+            let cands = withCands["marriageCandidates"] as? [[String: Any]] ?? []
+            if let candIdx = cands.first?["characterIndex"] as? Int {
+                #expect(controller.proposeMarriage(familyCharacterIndex: famIdx, candidateCharacterIndex: candIdx))
+            }
+        }
+        #expect(!controller.proposeMarriage(familyCharacterIndex: 999_999, candidateCharacterIndex: 0))
+
+        // Grant and revoke land from Court
+        #expect(!controller.grantProvinceToCharacter(provinceIndex: 999_999, characterIndex: 0))
+        #expect(!controller.revokeProvinceHolder(provinceIndex: 999_999))
+        let unheld = court["unheldProvinces"] as? [[String: Any]] ?? []
+        let grantCands = court["grantCandidates"] as? [[String: Any]] ?? []
+        if let pIdx = unheld.first?["provinceIndex"] as? Int,
+           let cIdx = grantCands.first?["characterIndex"] as? Int {
+            #expect(controller.grantProvinceToCharacter(provinceIndex: pIdx, characterIndex: cIdx))
+            let afterGrant = controller.courtDetails()
+            let vassals = afterGrant["vassals"] as? [[String: Any]] ?? []
+            #expect(!vassals.isEmpty)
+            #expect(controller.revokeProvinceHolder(provinceIndex: pIdx))
+            let afterRevoke = controller.courtDetails()
+            let chronicle = afterRevoke["chronicle"] as? [[String: Any]] ?? []
+            #expect(!chronicle.isEmpty)
+        }
+    }
+
+    @Test("Government bridge exposes stability, 11 law areas, estates, privileges, and reforms")
+    func governmentBridge() {
+        let controller = GezGodotController()
+        #expect(controller.setup(dataDirectoryPath: "", tag: "TUR"))
+        guard let s = controller.session, let player = s.playerCountry else {
+            Issue.record("Missing session or player")
+            return
+        }
+
+        // Give enough treasury and reform progress to test actions cleanly
+        s.simulation.world.countries.treasury[player.index] = 5_000
+        s.simulation.world.government.stability[player.index] = 0
+        s.simulation.world.government.reformProgress[player.index] = 500
+
+        let gov = controller.governmentDetails()
+        #expect(gov["valid"] as? Bool == true)
+        #expect(!(gov["governmentName"] as? String ?? "").isEmpty)
+        let laws = gov["laws"] as? [[String: Any]] ?? []
+        #expect(laws.count == 11)
+        let estates = gov["estates"] as? [[String: Any]] ?? []
+        #expect(!estates.isEmpty)
+
+        // Raise stability
+        #expect(gov["canRaiseStability"] as? Bool == true)
+        #expect(controller.raiseStability())
+        #expect(controller.governmentDetails()["stability"] as? Int == 1)
+
+        // Change law + refusal on second change while pending + out-of-range
+        let badLaw = controller.changeLaw(areaIndex: 99, optionIndex: 0)
+        #expect(badLaw["ok"] as? Bool == false)
+        if let area = laws.first,
+           let areaIdx = area["areaIndex"] as? Int,
+           let opt = (area["options"] as? [[String: Any]])?.first,
+           let optIdx = opt["optionIndex"] as? Int {
+            let res = controller.changeLaw(areaIndex: areaIdx, optionIndex: optIdx)
+            #expect(res["ok"] as? Bool == true)
+            let updatedLaws = controller.governmentDetails()["laws"] as? [[String: Any]] ?? []
+            #expect(updatedLaws[areaIdx]["hasPending"] as? Bool == true)
+
+            let secondRes = controller.changeLaw(areaIndex: areaIdx, optionIndex: optIdx)
+            #expect(secondRes["ok"] as? Bool == false)
+            #expect(!(secondRes["reason"] as? String ?? "").isEmpty)
+        }
+
+        // Grant and revoke privilege
+        #expect(!controller.grantPrivilege(privilegeIndex: 999_999))
+        #expect(!controller.revokePrivilege(privilegeIndex: 999_999))
+        if let firstEst = estates.first,
+           let privs = firstEst["privileges"] as? [[String: Any]],
+           let ungranted = privs.first(where: { $0["granted"] as? Bool == false }),
+           let pid = ungranted["privilegeIndex"] as? Int {
+            #expect(controller.grantPrivilege(privilegeIndex: pid))
+            #expect(controller.revokePrivilege(privilegeIndex: pid))
+        }
+
+        // Adopt reform
+        #expect(!controller.adoptReform(optionIndex: 999_999))
+        let nextOpts = gov["nextReformOptions"] as? [[String: Any]] ?? []
+        if let firstOptIdx = nextOpts.first?["optionIndex"] as? Int {
+            #expect(controller.adoptReform(optionIndex: firstOptIdx))
+            let adopted = controller.governmentDetails()["adoptedReforms"] as? [[String: Any]] ?? []
+            #expect(!adopted.isEmpty)
+        }
+    }
+
+    @Test("Diplomacy, War, Peace Negotiation, Pending Peace Offers, and Alerts bridge methods & bounds checks")
+    func diplomacyWarsPeaceAndAlertsBridge() {
+        let controller = GezGodotController()
+        #expect(controller.setup(dataDirectoryPath: "", tag: "TUR"))
+        guard let s = controller.session, let player = s.playerCountry else {
+            Issue.record("Missing session or player")
+            return
+        }
+
+        // Out-of-bounds checks
+        #expect(!controller.setSelectedDiplomacyCountry(-1))
+        #expect(!controller.setSelectedDiplomacyCountry(999_999))
+        #expect(!controller.setSelectedDiplomacyCountry(player.index))
+        #expect(!controller.toggleAlliance(countryIndex: 999_999))
+        #expect(!controller.toggleGuarantee(countryIndex: 999_999))
+        #expect(!controller.toggleNonAggression(countryIndex: 999_999))
+        #expect(!controller.toggleMilitaryAccess(countryIndex: 999_999))
+        #expect(!controller.improveRelations(countryIndex: 999_999))
+        #expect(controller.provinceFocusPoint(provinceIndex: -1)["hasCenter"] as? Bool == false)
+        #expect(controller.provinceFocusPoint(provinceIndex: 999_999)["hasCenter"] as? Bool == false)
+        #expect((controller.declareWar(targetCountryIndex: 999_999, cbIndex: 0)["ok"] as? Bool) == false)
+
+        // Diplomacy details & actions
+        let dip = controller.diplomacyDetails()
+        #expect(dip["hasPlayer"] as? Bool == true)
+        #expect((dip["relationSlotsCap"] as? Int ?? 0) > 0)
+        let countries = dip["countries"] as? [[String: Any]] ?? []
+        #expect(!countries.isEmpty)
+
+        // Pick a neighbor NOT at war yet with positive or boostable opinion
+        let nonWarCountry = countries.first {
+            ($0["isAtWar"] as? Bool == false)
+        }
+        guard let targetIdx = nonWarCountry?["index"] as? Int else {
+            Issue.record("Expected at least one peaceful foreign country")
+            return
+        }
+        #expect(controller.setSelectedDiplomacyCountry(targetIdx))
+        let targetDip = controller.diplomacyDetails(targetCountryIndex: targetIdx)
+        let targetInfo = targetDip["target"] as? [String: Any] ?? [:]
+        #expect(targetInfo["hasTarget"] as? Bool == true)
+        #expect(!(targetInfo["casusBelli"] as? [[String: Any]] ?? []).isEmpty)
+
+        // Improve relations, toggle guarantee/access/NAP/alliance
+        s.simulation.world.diplomacy.setOpinion(of: player, by: CountryID(targetIdx), value: 10)
+        #expect(controller.improveRelations(countryIndex: targetIdx))
+        let afterImprove = (controller.diplomacyDetails(targetCountryIndex: targetIdx)["target"] as? [String: Any])?["opinion"] as? Int ?? 0
+        #expect(afterImprove == 25)
+
+        #expect(controller.toggleAlliance(countryIndex: targetIdx))
+        #expect(((controller.diplomacyDetails(targetCountryIndex: targetIdx)["target"] as? [String: Any])?["isAllied"] as? Bool) == true)
+        #expect(controller.toggleAlliance(countryIndex: targetIdx))
+        #expect(controller.toggleGuarantee(countryIndex: targetIdx))
+        // The treaty list says which way a guarantee goes (as in the Apple app).
+        let guaranteeLabels = (((controller.diplomacyDetails(targetCountryIndex: targetIdx)["target"] as? [String: Any])?["treaties"]
+            as? [[String: Any]]) ?? []).compactMap { $0["label"] as? String }
+        #expect(guaranteeLabels.contains("Guaranteeing them"))
+        #expect(controller.toggleGuarantee(countryIndex: targetIdx))
+        #expect(controller.toggleNonAggression(countryIndex: targetIdx))
+        #expect(controller.toggleNonAggression(countryIndex: targetIdx))
+        #expect(controller.toggleMilitaryAccess(countryIndex: targetIdx))
+        #expect(controller.toggleMilitaryAccess(countryIndex: targetIdx))
+
+        // Declare war on a fresh country with no truce (remove truce if present to make deterministic)
+        s.simulation.world.diplomacy.removeTreaty(.truce, between: player, and: CountryID(targetIdx))
+        let warRes = controller.declareWar(targetCountryIndex: targetIdx, cbIndex: 0, breakTruce: true)
+        #expect(warRes["ok"] as? Bool == true)
+        let warID = warRes["warID"] as? String ?? ""
+        #expect(!warID.isEmpty)
+
+        // Top bar & Wars details
+        let top = controller.playerTopBarDetails()
+        #expect((top["activeWarsCount"] as? Int ?? 0) >= 1)
+
+        // Occupy one province of target so occupiedProvinces & peace negotiation work cleanly
+        if let enemyProv = s.world.provinces(ownedBy: CountryID(targetIdx)).first {
+            s.simulation.world.provinces.occupiedBy[enemyProv.index] = player
+            #expect(controller.provinceFocusPoint(provinceIndex: enemyProv.index)["hasCenter"] as? Bool == true)
+        }
+
+        let wars = controller.warsDetails(includeAIWars: false)["wars"] as? [[String: Any]] ?? []
+        #expect(wars.contains { ($0["warID"] as? String) == warID })
+
+        // Peace negotiation details
+        let peace = controller.peaceNegotiationDetails(warID: warID, indemnityAmount: 50, includeReparations: true)
+        #expect(peace["valid"] as? Bool == true)
+        #expect((peace["totalCost"] as? Int ?? 0) > 0)
+        #expect((peace["cedeProvinces"] as? [[String: Any]] ?? []).isEmpty == false)
+
+        // White peace at 100% battle WS to verify proposePeaceOffer succeeds
+        if let idx = s.simulation.world.diplomacy.wars.firstIndex(where: { $0.id == warID }) {
+            s.simulation.world.diplomacy.wars[idx].warScore = 1.0
+        }
+        let propRes = controller.proposePeaceOffer(warID: warID)
+        #expect(propRes["ok"] as? Bool == true)
+        #expect(s.world.diplomacy.wars.contains { $0.id == warID } == false)
+
+        // Pending peace offer & activeAlerts
+        let fakeOffer = PeaceOffer(warID: "fake-offer-1", winner: CountryID(targetIdx), loser: player, demands: [])
+        s.simulation.world.diplomacy.pendingPeaceOffers.append(fakeOffer)
+        s.simulation.world.government.stability[player.index] = -2
+        let alerts = controller.activeAlerts()
+        #expect(alerts.contains { ($0["kind"] as? String) == "peaceOffer" })
+        #expect(alerts.contains { ($0["kind"] as? String) == "lowStability" })
+        #expect(controller.respondToPendingPeaceOffer(warID: "fake-offer-1", accept: false))
+        #expect(!controller.respondToPendingPeaceOffer(warID: "missing-offer", accept: false))
+    }
+
+    @Test("Map town icons expose coordinates, dev, forts, capitals, ports, and revision tracking")
+    func townIconsAndHeraldryMetadata() {
+        let controller = GezGodotController()
+        #expect(controller.setup(dataDirectoryPath: "", tag: "TUR"))
+        let rev0 = controller.townIconsRevision
+        #expect(rev0 >= 1)
+
+        let metrics = controller.townIconMetrics()
+        #expect(!metrics.isEmpty)
+        #expect(metrics.count % 6 == 0)
+
+        let count = metrics.count / 6
+        var hasCapital = false
+        var hasPort = false
+        var hasFort = false
+        for i in 0..<count {
+            let base = i * 6
+            let dev = metrics[base + 2]
+            let fort = metrics[base + 3]
+            let isCap = metrics[base + 4] >= 0.5
+            let isPort = metrics[base + 5] >= 0.5
+            #expect(dev >= 1.0)
+            if isCap { hasCapital = true }
+            if isPort { hasPort = true }
+            if fort >= 2.0 { hasFort = true }
+        }
+        #expect(hasCapital)
+        #expect(hasPort)
+        #expect(hasFort)
+
+        let armiesWin = controller.armiesWindowDetails()
+        #expect(armiesWin["playerTag"] as? String == "TUR")
+        #expect(armiesWin["playerColorR"] as? Int != nil)
+    }
+
+    @Test("Top bar details bundle date/speed/alerts signature and map armies signature tracks state")
+    func topBarBundleAndArmiesSignature() {
+        let controller = GezGodotController()
+        #expect(controller.setup(dataDirectoryPath: "", tag: "TUR"))
+        let top = controller.playerTopBarDetails()
+        #expect(top["dateText"] as? String == "30 May 1453")
+        #expect(top["isPaused"] as? Bool == true)
+        #expect(top["alertsSignature"] as? String != nil)
+
+        let sig1 = controller.mapArmiesSignature()
+        let sig2 = controller.mapArmiesSignature()
+        #expect(sig1 == sig2)
+        _ = controller.raiseAllLevies()
+        let sig3 = controller.mapArmiesSignature()
+        #expect(sig3 != sig1)
+    }
 }

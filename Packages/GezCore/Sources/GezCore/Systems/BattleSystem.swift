@@ -622,7 +622,7 @@ public enum BattleSystem {
         let activeBattleProvs = Set(world.military.battles.map(\.province))
         let armyIndex = world.military.armyIndexByProvince(provinceCount: world.provinces.count)
 
-        for p in 0..<world.provinces.count {
+        for p in 0..<world.provinces.count where !armyIndex[p].isEmpty || world.provinces.occupationProgressDays[p] > 0 || world.provinces.occupationTarget[p] != nil {
             let pid = ProvinceID(p)
             if activeBattleProvs.contains(pid) { continue }
 

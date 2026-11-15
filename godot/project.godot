@@ -10,8 +10,8 @@ config_version=5
 
 [application]
 
-config/name="Gez (1453) — Godot PoC"
-config/description="Phase 8.5 Step 2 proof of concept: 1453 political map powered by GezCore GameSession via SwiftGodot."
+config/name="Gez"
+config/description="Gez: grand strategy from 30 May 1453. Screens in Godot, simulation in Swift (GezCore via SwiftGodot)."
 run/main_scene="res://scenes/Main.tscn"
 config/features=PackedStringArray("4.7", "Forward Plus")
 
@@ -26,4 +26,5 @@ window/dpi/allow_hidpi=true
 [rendering]
 
 renderer/rendering_method="forward_plus"
+textures/vram_compression/import_etc2_astc=true
 environment/defaults/default_clear_color=Color(0.16, 0.25, 0.33, 1)
