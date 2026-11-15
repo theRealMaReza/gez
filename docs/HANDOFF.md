@@ -5,7 +5,7 @@ Read this first, then `docs/ROADMAP.md` (the agreed plan), `docs/DESIGN.md`
 judgment calls) and `CLAUDE.md` (rules). This file says where the project
 stands, how to work on it, and what to do next.
 
-Last updated: session 6 (13 November 2026). Phases 0–8 are done (Gemini wrote 7–8, Claude reviewed); next: the owner play-tests the first playable version, then Phase 9.
+Last updated: session 7 (14 November 2026). Phases 0–8.5 are implemented in `godot/` and `Packages/GezCore`: all gameplay screens, map modes, map icons & coats of arms, simulation & Godot UI performance pass (including the 1453 peace-stalemate fix), and CI build/export/screenshot workflows for macOS, Windows, and Linux; next: the owner play-tests and reviews CI exports, then Phase 9 (Battle view in Godot).
 
 ## The owner
 
@@ -66,23 +66,12 @@ events, sound, menus, settings, multiplayer.
 
 ## What to do next
 
-1. **Phase 8.5: move the screens to Godot** (ROADMAP). Steps 1–2 merged
-   (#17, 14 Nov): the owner said go; map looks right, a bit sluggish.
-   Step 3a (game menu, nation picker, province panel with Overview/Economy/People tabs and market panel, map modes Q–I) is merged (#18, 14 Nov).
-   Step 3b (army counters on the map with marching arrows and battle/siege markers, army selection panel with regiments/commander/morale/supply/attrition and Move/Split/Merge/Disband/Assign commander, right-click province move orders, recruiting levies/professionals/mercenaries from the province panel and top-bar Armies window, and siege progress + Storm Assault in the province panel) is merged.
-   Step 3c (Budget window with last-month breakdown, per-class tax sliders, loans & banks, debasement, inflation & bankruptcy warning; Trade window with routes, route planner & refusal reasons, toll policy, embargoes & map trade routes layer; full province building list with levels, slots, construction progress, ducat & good costs, effects & refusal reasons) is built in `godot/`.
-   Next: steps 3d–e, one Gemini PR each (Gemini 4 Hydrogen, high). Running
-   it on the Mac: `git pull`, `godot/build_mac.sh`, then quit Godot with
-   Cmd+Q and reopen (it loads the Swift extension only at startup; a stale
-   extension shows "Nonexistent function" errors).
-   PR #15 (old Phase 8 step 4) was closed with the owner's agreement; its
-   speed-ups and war-stalemate fix (commit bd4221e) go into step 3e.
-2. The owner should still **play-test the first playable version** (the
-   Apple app works today) to catch balance problems.
+1. **Phase 8.5: move the screens to Godot** (ROADMAP) — **implemented across steps 1–4** on `gemini/phase8.5-finish`:
+   - Steps 1–2, 3a–3c, 3d1 (Court & Government windows, laws, estates, reforms, family tree, chronicle, player coat of arms), 3d2 (Diplomacy window, war & peace negotiation, pending AI peace offers popup, clickable alerts row, diplomatic map mode), 3f (town/fort/capital/port map icons layer + country coats of arms across UI), 3e (simulation daily-tick caches + 1453 stalemate clamp + incremental Godot UI/map updates), and step 4 (cross-platform `SwiftGodot` source dependency for Windows/Linux, `export_presets.cfg`, build & resource-staging scripts, CI exports for Mac/Windows/Linux, and `godot-snapshots` CI job).
+   - Running it on the Mac: `git pull`, `./godot/build_mac.sh`, then quit Godot with Cmd+Q and reopen (it loads the Swift extension only at startup; a stale extension shows "Nonexistent function" errors).
+2. The owner should **play-test the Godot version** and verify Windows/Linux CI artifacts on GitHub Actions.
 3. Then **Phase 9: battle view**, built in Godot.
-4. Follow-ups from the Phase 7–8 review: the monthly diplomacy AI is the
-   slowest system (~0.75 s per call in debug builds); army table slots are
-   never reused (fine now, since daily systems index by province once).
+4. Follow-ups: army table slots are never reused; Windows/Linux Godot exports and `godot-snapshots` Linux render run on GitHub Actions CI runners (macOS build, unit tests, and Godot snapshot rendering verified locally).
 
 Phase 7 history additions by Claude's review: the Albanian–Ottoman war and
 the Delhi–Jaunpur war were active on 30 May 1453 and are now in

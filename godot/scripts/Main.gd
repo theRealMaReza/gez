@@ -945,15 +945,41 @@ func _clear_children(node: Node) -> void:
 		node.remove_child(c)
 		c.queue_free()
 
-# Loads arms_<TAG>.png from App/Resources/Heraldry/ or creates a fallback banner in the country's colour.
+func _find_data_dir() -> String:
+	var exe_dir := OS.get_executable_path().get_base_dir()
+	var candidates := [
+		exe_dir.path_join("Resources/data"),
+		exe_dir.path_join("../Resources/data"),
+		ProjectSettings.globalize_path("res://Resources/data"),
+		ProjectSettings.globalize_path("res://../Packages/GezCore/Sources/GezCore/Resources"),
+	]
+	for dir_path in candidates:
+		if FileAccess.file_exists(dir_path.path_join("scenario1453.json")):
+			return dir_path
+	return candidates[3]
+
+func _find_asset_file(rel_path: String, dev_res_path: String) -> String:
+	var exe_dir := OS.get_executable_path().get_base_dir()
+	var candidates := [
+		exe_dir.path_join("Resources").path_join(rel_path),
+		exe_dir.path_join("../Resources").path_join(rel_path),
+		ProjectSettings.globalize_path("res://Resources").path_join(rel_path),
+		ProjectSettings.globalize_path(dev_res_path),
+	]
+	for p in candidates:
+		if FileAccess.file_exists(p):
+			return p
+	return ""
+
+# Loads arms_<TAG>.png from App/Resources/Heraldry/ (or bundled Resources/Heraldry/) or creates a fallback banner in the country's colour.
 func _get_country_arms_texture(tag: String, r: int = 180, g: int = 140, b: int = 80) -> Texture2D:
 	var cache_key := tag if not tag.is_empty() else ("rgb_%d_%d_%d" % [r, g, b])
 	if arms_cache.has(cache_key):
 		return arms_cache[cache_key]
 
 	if not tag.is_empty():
-		var path := ProjectSettings.globalize_path("res://../App/Resources/Heraldry/arms_%s.png" % tag)
-		if FileAccess.file_exists(path):
+		var path := _find_asset_file("Heraldry/arms_%s.png" % tag, "res://../App/Resources/Heraldry/arms_%s.png" % tag)
+		if not path.is_empty():
 			var img := Image.load_from_file(path)
 			if img != null:
 				var tex := ImageTexture.create_from_image(img)
@@ -1009,7 +1035,7 @@ func _init_bridge_and_map() -> void:
 		return
 
 	bridge = ClassDB.instantiate(&"GezGodotBridge")
-	var data_dir := ProjectSettings.globalize_path("res://../Packages/GezCore/Sources/GezCore/Resources")
+	var data_dir := _find_data_dir()
 	var ok: bool = bool(_call_bridge("setup", [data_dir, "TUR"], false))
 	if not ok:
 		selection_label.text = "Failed to load 1453 scenario from " + data_dir
@@ -1034,10 +1060,11 @@ func _init_bridge_and_map() -> void:
 	var style_img := Image.create_from_data(style_tex_width, 2, false, Image.FORMAT_RGBA8, style_bytes)
 	style_tex = ImageTexture.create_from_image(style_img)
 
-	var terrain_path := ProjectSettings.globalize_path("res://../App/Resources/Terrain/terrain.jpg")
-	var terrain_img := Image.load_from_file(terrain_path)
-	if terrain_img != null:
-		terrain_tex = ImageTexture.create_from_image(terrain_img)
+	var terrain_path := _find_asset_file("Terrain/terrain.jpg", "res://../App/Resources/Terrain/terrain.jpg")
+	if not terrain_path.is_empty():
+		var terrain_img := Image.load_from_file(terrain_path)
+		if terrain_img != null:
+			terrain_tex = ImageTexture.create_from_image(terrain_img)
 
 	map_material.set_shader_parameter("map_size", map_size)
 	map_material.set_shader_parameter("id_tex", id_tex)

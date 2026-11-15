@@ -91,7 +91,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - name: Long simulations
-        run: swift test --package-path Packages/GezCore --filter 'testTenYearsStaysBounded|testLifeGoesOn|testVassalLinesGoOn|testTwentyYearsStayInBounds'
+        run: swift test --package-path Packages/GezCore --filter 'testTenYearsStaysBounded|tenYearHeadlessRun|testLifeGoesOn|testVassalLinesGoOn|testTwentyYearsStayInBounds'
 
   app-build:
     name: Build Mac and iPad apps
@@ -147,12 +147,244 @@ jobs:
       - name: Publish snapshots to the ci-snapshots branch
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
-          cd snapshots
-          git init -q
-          git checkout -q -b ci-snapshots
+          REPO_URL="https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git"
+          WORKDIR="${RUNNER_TEMP}/ci-snapshots-apple"
+          rm -rf "$WORKDIR"
+          if git clone --depth 1 --branch ci-snapshots "$REPO_URL" "$WORKDIR" 2>/dev/null; then
+            find "$WORKDIR" -maxdepth 1 -type f -name '*.png' -delete
+          else
+            git init -q "$WORKDIR"
+            git -C "$WORKDIR" checkout -q --orphan ci-snapshots
+            git -C "$WORKDIR" remote add origin "$REPO_URL"
+          fi
+          cp -f snapshots/*.png "$WORKDIR/"
+          cd "$WORKDIR"
           git add -A
-          git -c user.name="github-actions[bot]" -c user.email="41898283+github-actions[bot]@users.noreply.github.com" commit -q -m "Snapshots for ${GITHUB_SHA}"
-          git push -q -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git" ci-snapshots
+          git -c user.name="github-actions[bot]" -c user.email="41898283+github-actions[bot]@users.noreply.github.com" commit -q -m "Snapshots for ${GITHUB_SHA}" || exit 0
+          for i in 1 2 3; do
+            git push -q origin ci-snapshots && break
+            git fetch -q origin ci-snapshots && git rebase -q origin/ci-snapshots
+          done
+
+  godot-build-mac:
+    name: Build & export Godot game (macOS)
+    if: github.event_name != 'schedule' && inputs.only != 'profile' && inputs.only != 'windows'
+    runs-on: macos-26
+    timeout-minutes: 45
+    env:
+      GODOT_VERSION: 4.7.2-stable
+      GODOT_TEMPLATE_DIR_VERSION: 4.7.2.stable
+    steps:
+      - uses: actions/checkout@v5
+      - name: Build GezGodot (macOS release)
+        run: ./godot/build_mac.sh release
+      - name: Install Godot & export templates
+        run: |
+          mkdir -p "${RUNNER_TEMP}/godot"
+          curl -fsSL -o "${RUNNER_TEMP}/godot/godot.zip" "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_macos.universal.zip"
+          unzip -q "${RUNNER_TEMP}/godot/godot.zip" -d "${RUNNER_TEMP}/godot"
+          mkdir -p "$HOME/Library/Application Support/Godot/export_templates/${GODOT_TEMPLATE_DIR_VERSION}"
+          curl -fsSL -o "${RUNNER_TEMP}/godot/templates.tpz" "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_export_templates.tpz"
+          unzip -q -o "${RUNNER_TEMP}/godot/templates.tpz" -d "${RUNNER_TEMP}/godot/tpl"
+          cp -R "${RUNNER_TEMP}/godot/tpl/templates/"* "$HOME/Library/Application Support/Godot/export_templates/${GODOT_TEMPLATE_DIR_VERSION}/"
+      - name: Export Godot game (macOS)
+        run: |
+          GODOT_BIN="${RUNNER_TEMP}/godot/Godot.app/Contents/MacOS/Godot"
+          "$GODOT_BIN" --headless --path godot --quit
+          mkdir -p godot/build/mac
+          "$GODOT_BIN" --headless --path godot --export-release "macOS" build/mac/Gez.app
+          ./godot/stage_resources.sh godot/build/mac/Gez.app/Contents/Resources
+          codesign --force --deep --sign - godot/build/mac/Gez.app || true
+          ditto -c -k --sequesterRsrc --keepParent godot/build/mac/Gez.app godot/build/Gez-macOS.zip
+      - name: Upload macOS export
+        uses: actions/upload-artifact@v4
+        with:
+          name: gez-godot-macos
+          path: godot/build/Gez-macOS.zip
+          if-no-files-found: error
+
+  godot-build-linux:
+    name: Build & export Godot game (Linux)
+    if: github.event_name != 'schedule' && inputs.only != 'profile' && inputs.only != 'windows'
+    runs-on: ubuntu-latest
+    # SwiftGodot v0.99.2 requires swift-tools-version 6.3.
+    container: swift:6.3.2
+    timeout-minutes: 60
+    env:
+      GODOT_VERSION: 4.7.2-stable
+      GODOT_TEMPLATE_DIR_VERSION: 4.7.2.stable
+    steps:
+      - uses: actions/checkout@v5
+      - name: Install export dependencies
+        run: |
+          apt-get update -qq
+          apt-get install -y -qq curl unzip patchelf libfontconfig1 libfreetype6 libx11-6 libxcursor1 libxext6 libxfixes3 libxi6 libxinerama1 libxrandr2 libxrender1 libgl1 >/dev/null
+      - name: Build GezGodot (Linux release)
+        run: ./godot/build_linux.sh release
+      - name: Test GezGodot (Linux)
+        run: swift test --package-path godot/swift
+      - name: Bundle Swift Linux runtime libs
+        run: |
+          ldd godot/bin/libGezGodot.so godot/bin/libSwiftGodotRuntime.so 2>/dev/null \
+            | awk '/=> \/usr\/lib\/swift\// {print $3}' | sort -u \
+            | xargs -r -I{} cp -L -f {} godot/bin/
+          patchelf --set-rpath '$ORIGIN' godot/bin/libGezGodot.so || true
+          if [ -f godot/bin/libSwiftGodotRuntime.so ]; then
+            patchelf --set-rpath '$ORIGIN' godot/bin/libSwiftGodotRuntime.so || true
+          fi
+      - name: Install Godot & export templates
+        run: |
+          mkdir -p "${RUNNER_TEMP}/godot"
+          curl -fsSL -o "${RUNNER_TEMP}/godot/godot.zip" "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_linux.x86_64.zip"
+          unzip -q "${RUNNER_TEMP}/godot/godot.zip" -d "${RUNNER_TEMP}/godot"
+          chmod +x "${RUNNER_TEMP}/godot/Godot_v${GODOT_VERSION}_linux.x86_64"
+          mkdir -p "$HOME/.local/share/godot/export_templates/${GODOT_TEMPLATE_DIR_VERSION}"
+          curl -fsSL -o "${RUNNER_TEMP}/godot/templates.tpz" "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_export_templates.tpz"
+          unzip -q -o "${RUNNER_TEMP}/godot/templates.tpz" -d "${RUNNER_TEMP}/godot/tpl"
+          cp -R "${RUNNER_TEMP}/godot/tpl/templates/"* "$HOME/.local/share/godot/export_templates/${GODOT_TEMPLATE_DIR_VERSION}/"
+      - name: Export Godot game (Linux)
+        run: |
+          GODOT_BIN="${RUNNER_TEMP}/godot/Godot_v${GODOT_VERSION}_linux.x86_64"
+          "$GODOT_BIN" --headless --path godot --quit
+          mkdir -p godot/build/linux
+          "$GODOT_BIN" --headless --path godot --export-release "Linux" build/linux/Gez.x86_64
+          cp -n godot/bin/*.so* godot/build/linux/ || true
+          ./godot/stage_resources.sh godot/build/linux/Resources
+          tar -C godot/build/linux -czf godot/build/Gez-Linux-x86_64.tar.gz .
+      - name: Upload Linux export
+        uses: actions/upload-artifact@v4
+        with:
+          name: gez-godot-linux
+          path: godot/build/Gez-Linux-x86_64.tar.gz
+          if-no-files-found: error
+      - name: Upload Linux GDExtension binaries for screenshots
+        uses: actions/upload-artifact@v4
+        with:
+          name: gez-gdextension-linux
+          path: godot/bin/*.so*
+          if-no-files-found: error
+
+  godot-build-windows:
+    name: Build & export Godot game (Windows)
+    if: github.event_name != 'schedule' && inputs.only != 'profile'
+    runs-on: windows-latest
+    timeout-minutes: 60
+    env:
+      GODOT_VERSION: 4.7.2-stable
+      GODOT_TEMPLATE_DIR_VERSION: 4.7.2.stable
+    steps:
+      - uses: compnerd/gha-setup-swift@main
+        with:
+          swift-version: swift-6.3.2-release
+          swift-build: 6.3.2-RELEASE
+      - uses: actions/checkout@v5
+      - name: Swift version
+        run: swift --version
+      - name: Build GezGodot (Windows release)
+        shell: pwsh
+        run: |
+          subst S: "${{ github.workspace }}"
+          & S:\godot\build_windows.ps1 -Config release
+      - name: Install Godot & export templates
+        shell: pwsh
+        run: |
+          $godotUrl = "https://github.com/godotengine/godot/releases/download/$env:GODOT_VERSION/Godot_v${env:GODOT_VERSION}_win64.exe.zip"
+          Invoke-WebRequest -Uri $godotUrl -OutFile "$env:RUNNER_TEMP\godot.zip"
+          Expand-Archive -Path "$env:RUNNER_TEMP\godot.zip" -DestinationPath "$env:RUNNER_TEMP\godot" -Force
+          $gui = Get-ChildItem "$env:RUNNER_TEMP\godot" -Filter *.exe | Where-Object { $_.Name -notlike "*_console.exe" } | Select-Object -First 1
+          $console = Get-ChildItem "$env:RUNNER_TEMP\godot" -Filter *_console.exe | Select-Object -First 1
+          Rename-Item $gui.FullName "godot.exe"
+          Rename-Item $console.FullName "godot.console.exe"
+
+          $tplDir = Join-Path $env:APPDATA "Godot\export_templates\$env:GODOT_TEMPLATE_DIR_VERSION"
+          New-Item -ItemType Directory -Force -Path $tplDir | Out-Null
+          $tplUrl = "https://github.com/godotengine/godot/releases/download/$env:GODOT_VERSION/Godot_v${env:GODOT_VERSION}_export_templates.tpz"
+          Invoke-WebRequest -Uri $tplUrl -OutFile "$env:RUNNER_TEMP\templates.zip"
+          Expand-Archive -Path "$env:RUNNER_TEMP\templates.zip" -DestinationPath "$env:RUNNER_TEMP\tpl" -Force
+          Copy-Item -Recurse -Force "$env:RUNNER_TEMP\tpl\templates\*" $tplDir
+      - name: Export Godot game (Windows)
+        shell: pwsh
+        run: |
+          if (-not (Test-Path S:\)) { subst S: "${{ github.workspace }}" }
+          $godotConsole = "$env:RUNNER_TEMP\godot\godot.console.exe"
+          & $godotConsole --headless --path S:\godot --quit
+          New-Item -ItemType Directory -Force -Path S:\godot\build\windows | Out-Null
+          & $godotConsole --headless --path S:\godot --export-release "Windows Desktop" build/windows/Gez.exe
+          if ($LASTEXITCODE -ne 0) { throw "Godot Windows export failed with exit code $LASTEXITCODE" }
+          New-Item -ItemType Directory -Force -Path S:\godot\build\windows\Resources\data, S:\godot\build\windows\Resources\Terrain, S:\godot\build\windows\Resources\Heraldry | Out-Null
+          Copy-Item -Force S:\Packages\GezCore\Sources\GezCore\Resources\* S:\godot\build\windows\Resources\data\
+          Copy-Item -Force S:\App\Resources\Terrain\terrain.jpg S:\godot\build\windows\Resources\Terrain\
+          Copy-Item -Force S:\App\Resources\Heraldry\*.png S:\godot\build\windows\Resources\Heraldry\
+          Get-ChildItem S:\godot\bin -Filter *.dll | Copy-Item -Force -Destination S:\godot\build\windows\
+          Compress-Archive -Path S:\godot\build\windows\* -DestinationPath S:\godot\build\Gez-Windows-x86_64.zip -Force
+      - name: Upload Windows export
+        uses: actions/upload-artifact@v4
+        with:
+          name: gez-godot-windows
+          path: godot/build/Gez-Windows-x86_64.zip
+          if-no-files-found: error
+
+  godot-snapshots:
+    name: Render Godot screenshots
+    needs: [godot-build-linux]
+    if: github.event_name != 'schedule' && inputs.only != 'profile' && inputs.only != 'windows'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      GODOT_VERSION: 4.7.2-stable
+    steps:
+      - uses: actions/checkout@v5
+      - name: Download Linux GDExtension binaries
+        uses: actions/download-artifact@v4
+        with:
+          name: gez-gdextension-linux
+          path: godot/bin
+      - name: Install Godot & Xvfb OpenGL deps
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq xvfb mesa-utils libgl1-mesa-dri libglx-mesa0 libfontconfig1 libfreetype6 libx11-6 libxcursor1 libxext6 libxfixes3 libxi6 libxinerama1 libxrandr2 libxrender1 >/dev/null
+          mkdir -p "${RUNNER_TEMP}/godot"
+          curl -fsSL -o "${RUNNER_TEMP}/godot/godot.zip" "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_linux.x86_64.zip"
+          unzip -q "${RUNNER_TEMP}/godot/godot.zip" -d "${RUNNER_TEMP}/godot"
+          chmod +x "${RUNNER_TEMP}/godot/Godot_v${GODOT_VERSION}_linux.x86_64"
+      - name: Render Godot screenshots
+        env:
+          GEZ_GODOT_SNAPSHOT_DIR: ${{ github.workspace }}/godot-snapshots
+          LIBGL_ALWAYS_SOFTWARE: "1"
+        run: |
+          GODOT_BIN="${RUNNER_TEMP}/godot/Godot_v${GODOT_VERSION}_linux.x86_64"
+          "$GODOT_BIN" --headless --path godot --quit
+          xvfb-run -a -s "-screen 0 1600x960x24" \
+            "$GODOT_BIN" --rendering-driver opengl3 --path godot --script res://scripts/capture_snapshots.gd
+      - name: Upload Godot screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: godot-snapshots
+          path: godot-snapshots
+          if-no-files-found: error
+      - name: Publish Godot screenshots to ci-snapshots branch
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          REPO_URL="https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git"
+          WORKDIR="${RUNNER_TEMP}/ci-snapshots-godot"
+          rm -rf "$WORKDIR"
+          if ! git clone --depth 1 --branch ci-snapshots "$REPO_URL" "$WORKDIR" 2>/dev/null; then
+            git init -q "$WORKDIR"
+            git -C "$WORKDIR" checkout -q --orphan ci-snapshots
+            git -C "$WORKDIR" remote add origin "$REPO_URL"
+          fi
+          mkdir -p "$WORKDIR/godot"
+          rm -f "$WORKDIR/godot/"*.png
+          cp -f godot-snapshots/*.png "$WORKDIR/godot/"
+          cd "$WORKDIR"
+          git add -A
+          git -c user.name="github-actions[bot]" -c user.email="41898283+github-actions[bot]@users.noreply.github.com" commit -q -m "Godot snapshots for ${GITHUB_SHA}" || exit 0
+          for i in 1 2 3; do
+            git push -q origin ci-snapshots && break
+            git fetch -q origin ci-snapshots && git rebase -q origin/ci-snapshots
+          done
 
   profile:
     # Times each system of the daily tick (ProfileTests). By hand only:

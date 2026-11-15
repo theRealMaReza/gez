@@ -24,5 +24,7 @@ __pycache__/
 # Godot
 godot/.godot/
 godot/bin/
+godot/build/
+godot/snapshots/
 *.import
 *.uid
