@@ -382,6 +382,20 @@ jobs:
           name: godot-snapshots
           path: godot-snapshots
           if-no-files-found: error
+      - name: Publish Godot screenshots to the ci-snapshots-preview branch
+        # Runs started by hand on a pull request branch (gh workflow run
+        # ci.yml --ref <branch>) publish their screenshots here, so reviewers
+        # can see them without downloading artifacts.
+        if: github.event_name == 'workflow_dispatch' && github.ref != 'refs/heads/main'
+        run: |
+          WORKDIR="${RUNNER_TEMP}/ci-snapshots-preview"
+          rm -rf "$WORKDIR" && mkdir -p "$WORKDIR/godot"
+          cp -f godot-snapshots/*.png "$WORKDIR/godot/"
+          cd "$WORKDIR"
+          git init -q && git checkout -q --orphan ci-snapshots-preview
+          git add -A
+          git -c user.name="github-actions[bot]" -c user.email="41898283+github-actions[bot]@users.noreply.github.com" commit -q -m "Godot preview screenshots for ${GITHUB_REF_NAME} ${GITHUB_SHA}"
+          git push -q -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git" ci-snapshots-preview
       - name: Publish Godot screenshots to ci-snapshots branch
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
