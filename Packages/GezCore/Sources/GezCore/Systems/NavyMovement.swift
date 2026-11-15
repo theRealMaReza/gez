@@ -131,10 +131,8 @@ extension NavySystem {
         return d > 1.0 ? d : 30.0
     }
 
-    /// True if `country` can peacefully dock at `port`.
-    public static func canDock(_ world: World, _ country: CountryID, in port: ProvinceID) -> Bool {
-        guard world.hasSeaAccess(port) else { return false }
-        guard let ctrl = world.provinces.controller(of: port) else { return false }
+    /// True if `country` can peacefully dock in coastal ports controlled by `ctrl`.
+    private static func canDockAtController(_ world: World, _ country: CountryID, controller ctrl: CountryID) -> Bool {
         if ctrl == country { return true }
         if world.diplomacy.hasMilitaryAccess(country: country, through: ctrl) { return true }
         // Allies in the same war can dock in each other's friendly ports.
@@ -142,6 +140,13 @@ extension NavySystem {
             (war.isAttacker(country) && war.isAttacker(ctrl)) ||
             (war.isDefender(country) && war.isDefender(ctrl))
         }
+    }
+
+    /// True if `country` can peacefully dock at `port`.
+    public static func canDock(_ world: World, _ country: CountryID, in port: ProvinceID) -> Bool {
+        guard world.hasSeaAccess(port) else { return false }
+        guard let ctrl = world.provinces.controller(of: port) else { return false }
+        return canDockAtController(world, country, controller: ctrl)
     }
 
     /// Effective speed multiplier of `fleet` when traversing `sea` (slowest ship,
@@ -254,6 +259,7 @@ extension NavySystem {
         guard let route = findSeaPath(world, from: curLoc, to: target) else { return false }
         world.navy.fleets.path[i] = route
         world.navy.fleets.destinationPort[i] = nil
+        world.navy.fleets.transportTarget[i] = nil
         world.navy.fleets.moveProgressDays[i] = 0
         if let firstHop = route.first {
             if case .sea(let curSea) = curLoc {
@@ -297,6 +303,7 @@ extension NavySystem {
         guard let chosen = bestRoute else { return false }
         world.navy.fleets.path[i] = chosen
         world.navy.fleets.destinationPort[i] = port
+        world.navy.fleets.transportTarget[i] = nil
         world.navy.fleets.moveProgressDays[i] = 0
         if let firstHop = chosen.first {
             if case .sea(let curSea) = curLoc {
@@ -316,14 +323,32 @@ extension NavySystem {
     /// Shortest sea-zone distance (in hops, `Int.max` if unreachable) from `sea`
     /// to any sea zone adjacent to a port friendly to `country`.
     public static func seaSupplyHops(_ world: World, from sea: SeaZoneID, for country: CountryID) -> Int {
+        var dockableCtrl: [Int: Bool] = [country.index: true]
         var friendlyZones = Set<SeaZoneID>()
         for p in 0..<world.provinces.count where world.hasSeaAccess(ProvinceID(p)) {
-            if canDock(world, country, in: ProvinceID(p)) {
+            guard let ctrl = world.provinces.controller(of: ProvinceID(p)) else { continue }
+            let ok: Bool
+            if let cached = dockableCtrl[ctrl.index] {
+                ok = cached
+            } else {
+                let computed = canDockAtController(world, country, controller: ctrl)
+                dockableCtrl[ctrl.index] = computed
+                ok = computed
+            }
+            if ok {
                 for sz in world.provinceSeas[p] {
                     friendlyZones.insert(sz)
                 }
             }
         }
+        return seaSupplyHops(world, from: sea, friendlyZones: friendlyZones)
+    }
+
+    private static func seaSupplyHops(
+        _ world: World,
+        from sea: SeaZoneID,
+        friendlyZones: Set<SeaZoneID>
+    ) -> Int {
         if friendlyZones.contains(sea) { return 0 }
         var visited: Set<SeaZoneID> = [sea]
         var frontier: [SeaZoneID] = [sea]
@@ -415,6 +440,9 @@ extension NavySystem {
             }
         }
 
+        var zonesByController: [Int: Set<SeaZoneID>]? = nil
+        var friendlyZonesCache: [Int: Set<SeaZoneID>] = [:]
+
         for i in 0..<world.navy.fleets.count where world.navy.fleets.alive[i] {
             let fid = FleetID(i)
             let owner = world.navy.fleets.owner[i]
@@ -476,11 +504,36 @@ extension NavySystem {
                     world.navy.fleets.moveStepDays[i] = 0
                     world.navy.fleets.moveProgressDays[i] = 0
                 }
+            } else if world.navy.fleets.transportTarget[i] != nil {
+                completeTransportArrivalIfReady(&world, fleet: fid)
             }
 
             // Sea supply & attrition when at sea.
             if case .sea(let seaZone) = world.navy.fleets.location[i] {
-                let hops = seaSupplyHops(world, from: seaZone, for: owner)
+                if zonesByController == nil {
+                    var map: [Int: Set<SeaZoneID>] = [:]
+                    for p in 0..<world.provinces.count where world.hasSeaAccess(ProvinceID(p)) {
+                        guard let ctrl = world.provinces.controller(of: ProvinceID(p)) else { continue }
+                        map[ctrl.index, default: []].formUnion(world.provinceSeas[p])
+                    }
+                    zonesByController = map
+                }
+                let friendlyZones: Set<SeaZoneID>
+                if let cached = friendlyZonesCache[owner.index] {
+                    friendlyZones = cached
+                } else {
+                    var zones = zonesByController?[owner.index] ?? []
+                    if let byCtrl = zonesByController {
+                        for (ctrlIdx, ctrlZones) in byCtrl where ctrlIdx != owner.index {
+                            if canDockAtController(world, owner, controller: CountryID(ctrlIdx)) {
+                                zones.formUnion(ctrlZones)
+                            }
+                        }
+                    }
+                    friendlyZonesCache[owner.index] = zones
+                    friendlyZones = zones
+                }
+                let hops = seaSupplyHops(world, from: seaZone, friendlyZones: friendlyZones)
                 let inRange = hops <= NavyModel.supplyRangeHops
                 let hasGalley = world.navy.fleets.shipIndices[i].contains { sIdx in
                     world.navy.ships.alive[sIdx] && world.navy.shipType(world.navy.ships.type[sIdx]).shipClass == .galley

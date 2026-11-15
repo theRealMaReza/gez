@@ -290,7 +290,8 @@ struct NavyMovementAndAITests {
         let venMainFleet = try #require(sim.world.navy.fleets(of: ven).first)
         let mission = sim.world.navy.fleets.mission[venMainFleet.index]
         #expect(mission == .hunt || mission == .blockade)
-        #expect(sim.world.navy.fleets.location[venMainFleet.index] != .port(try #require(sim.world.provinces.id(named: "Venice"))))
+        let venicePort = try #require(sim.world.provinces.id(named: "Venice"))
+        #expect(sim.world.navy.fleets.location[venMainFleet.index] != .port(venicePort))
     }
 }
 
@@ -516,5 +517,124 @@ struct NavyBattleAndBlockadeTests {
         world.provinces.occupiedBy[ceuta.index] = cas
         #expect(ArmySystem.canCrossStrait(world, from: gibraltar, to: ceuta, for: cas))
         #expect(ArmySystem.findPath(world, from: gibraltar, to: ceuta, army: army) == [ceuta])
+    }
+}
+
+@Suite("Navy (Part D - Transport & Amphibious)")
+struct NavyTransportTests {
+
+    @Test("Armies board Cogs in port (1 ship per 1,000 men), sail, and fight with amphibious penalty on hostile landing")
+    func testEmbarkSailAndAmphibiousLandingPenalty() throws {
+        let sim = Simulation(world: Scenario1453.makeWorld(), startDate: Scenario1453.startDate, seed: 4242)
+        let ven = try #require(sim.world.countries.id(forTag: "VEN"))
+        let pap = try #require(sim.world.countries.id(forTag: "PAP"))
+        let venice = try #require(sim.world.provinces.id(named: "Venice"))
+        let ancona = try #require(sim.world.provinces.id(named: "Ancona"))
+        sim.world.humanCountries.insert(ven)
+        sim.world.humanCountries.insert(pap)
+
+        sim.world.diplomacy.wars.append(War(
+            id: "adriatic_landing", name: "Adriatic War", startDate: sim.date,
+            casusBelli: .claim, warGoal: .conquerProvince(ancona), attackers: [ven], defenders: [pap]
+        ))
+
+        let inf = try #require(sim.world.military.unitByKey["infantry"])
+        let bigArmy = sim.world.military.armies.append(
+            name: "First Host", owner: ven, province: venice,
+            regiments: [
+                Regiment(type: inf, origin: .professional, men: 1000, morale: 3.0),
+                Regiment(type: inf, origin: .professional, men: 1000, morale: 3.0),
+                Regiment(type: inf, origin: .professional, men: 1000, morale: 3.0),
+            ]
+        )
+        let defArmy = sim.world.military.armies.append(
+            name: "Ancona Guard", owner: pap, province: ancona,
+            regiments: [Regiment(type: inf, origin: .professional, men: 1000, morale: 3.0)]
+        )
+        _ = defArmy
+
+        let cog = try #require(sim.world.navy.shipByKey["cog"])
+        let fleet = sim.world.navy.fleets.append(name: "Transports", owner: ven, location: .port(venice))
+        for _ in 0..<2 {
+            let s = sim.world.navy.ships.add(type: cog, fleet: fleet, crew: 80)
+            sim.world.navy.fleets.shipIndices[fleet.index].append(s)
+        }
+
+        // 3,000 men need 3 cogs; 2 cogs must refuse embarkation.
+        #expect(!NavySystem.canEmbark(sim.world, army: bigArmy, onto: fleet))
+        #expect(!NavySystem.embarkArmy(&sim.world, army: bigArmy, onto: fleet))
+
+        // Add 3rd cog -> embark succeeds; embarked army cannot land-march directly.
+        let s3 = sim.world.navy.ships.add(type: cog, fleet: fleet, crew: 80)
+        sim.world.navy.fleets.shipIndices[fleet.index].append(s3)
+        #expect(NavySystem.embarkArmy(&sim.world, army: bigArmy, onto: fleet))
+        #expect(sim.world.military.armies.embarkedOnFleet[Int(bigArmy.rawValue)] == fleet)
+        #expect(!ArmySystem.orderMove(&sim.world, army: bigArmy, to: ancona))
+
+        // Sail across Adriatic and land in Ancona -> triggers battle with isAmphibiousLanding == true (-2 penalty).
+        #expect(NavySystem.orderTransportAndLand(&sim.world, fleet: fleet, to: ancona))
+        var sawAmphibiousBattle = false
+        for _ in 0..<20 {
+            sim.tick()
+            if sim.world.military.battles.contains(where: { $0.province == ancona && $0.isAmphibiousLanding }) {
+                sawAmphibiousBattle = true
+                break
+            }
+        }
+        #expect(sawAmphibiousBattle)
+        #expect(sim.world.military.armies.embarkedOnFleet[Int(bigArmy.rawValue)] == nil)
+        #expect(sim.world.military.armies.province[Int(bigArmy.rawValue)] == ancona)
+    }
+
+    @Test("AI uses transport ships to cross sea and invade overseas coastal target")
+    func testAINavalTransportCrossing() throws {
+        let sim = Simulation(world: Scenario1453.makeWorld(), startDate: Scenario1453.startDate, seed: 888)
+        let ven = try #require(sim.world.countries.id(forTag: "VEN"))
+        let pap = try #require(sim.world.countries.id(forTag: "PAP"))
+        // Keep VEN as AI (remove from humanCountries), landlock separation across Crete (Candia) -> Ragusa / Ancona.
+        let candia = try #require(sim.world.provinces.id(named: "Candia"))
+        let ancona = try #require(sim.world.provinces.id(named: "Ancona"))
+        // Give PAP only Ancona coastal army target? Keep war VEN vs KNI on Rhodes (island vs island, guaranteed overseas)!
+        let kni = try #require(sim.world.countries.id(forTag: "KNI"))
+        let rhodes = try #require(sim.world.provinces.id(named: "Rhodes"))
+        _ = pap
+        _ = ancona
+
+        // Clear VEN mainland armies so VEN only has an island army in Candia + cogs in Candia port.
+        for a in sim.world.military.armies(of: ven) { sim.world.military.armies.remove(a) }
+        for f in sim.world.navy.fleets(of: ven) { sim.world.navy.fleets.alive[f.index] = false }
+        for f in sim.world.navy.fleets(of: kni) { sim.world.navy.fleets.alive[f.index] = false }
+        for a in sim.world.military.armies(of: kni) { sim.world.military.armies.remove(a) }
+
+        let inf = try #require(sim.world.military.unitByKey["infantry"])
+        let candiaArmy = sim.world.military.armies.append(
+            name: "Candia Garrison", owner: ven, province: candia,
+            regiments: [
+                Regiment(type: inf, origin: .professional, men: 1000, morale: 3.0),
+                Regiment(type: inf, origin: .professional, men: 1000, morale: 3.0),
+            ]
+        )
+        let cog = try #require(sim.world.navy.shipByKey["cog"])
+        let fleet = sim.world.navy.fleets.append(name: "Crete Squadron", owner: ven, location: .port(candia))
+        for _ in 0..<4 {
+            let s = sim.world.navy.ships.add(type: cog, fleet: fleet, crew: 80)
+            sim.world.navy.fleets.shipIndices[fleet.index].append(s)
+        }
+
+        sim.world.diplomacy.wars.append(War(
+            id: "ai_amphib", name: "Rhodes Expedition", startDate: sim.date,
+            casusBelli: .claim, warGoal: .conquerProvince(rhodes), attackers: [ven], defenders: [kni]
+        ))
+
+        var landedOnRhodes = false
+        for _ in 0..<45 {
+            sim.tick()
+            if sim.world.military.armies.province[Int(candiaArmy.rawValue)] == rhodes
+                && sim.world.military.armies.embarkedOnFleet[Int(candiaArmy.rawValue)] == nil {
+                landedOnRhodes = true
+                break
+            }
+        }
+        #expect(landedOnRhodes)
     }
 }

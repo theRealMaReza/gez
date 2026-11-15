@@ -137,6 +137,8 @@ public struct FleetTable: Sendable, Codable {
     public var path: [[SeaZoneID]] = []
     /// Optional coastal province to enter once `path` empties.
     public var destinationPort: [ProvinceID?] = []
+    /// Optional coastal landing target: once reached adjacent sea zone, disembark embarked armies there.
+    public var transportTarget: [ProvinceID?] = []
     public var moveStepDays: [Double] = []
     public var moveProgressDays: [Double] = []
     /// Ship provisions (0...100); depletes slowly away from friendly ports.
@@ -169,6 +171,7 @@ public struct FleetTable: Sendable, Codable {
         self.mission.append(mission)
         self.path.append([])
         self.destinationPort.append(nil)
+        self.transportTarget.append(nil)
         self.moveStepDays.append(0)
         self.moveProgressDays.append(0)
         self.supply.append(100.0)

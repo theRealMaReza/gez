@@ -283,12 +283,22 @@ public enum DiplomacyAISystem {
                 let reachablePools: [[ProvinceID]] = [priorityTargets, enemyProvs, liberateProvs].map { pool in
                     pool.filter { landMass[$0.index] == myLand }
                 }
-                ArmySystem.orderMoveToBestPool(
+                if !ArmySystem.orderMoveToBestPool(
                     &world,
                     army: aid,
                     pools: reachablePools,
                     unreachableCache: &unreachableStarts
-                )
+                ) {
+                    let overseas = (priorityTargets + enemyProvs + liberateProvs).filter { landMass[$0.index] != myLand }
+                    _ = NavySystem.arrangeAITransport(
+                        &world,
+                        country: c,
+                        army: aid,
+                        overseasTargets: overseas,
+                        armyLandMass: myLand,
+                        landMass: landMass
+                    )
+                }
             }
         }
     }

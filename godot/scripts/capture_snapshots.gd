@@ -229,5 +229,85 @@ func _run_captures() -> void:
 		else:
 			push_warning("No field battle prompt occurred while marching Imperial Army to Kruje (660).")
 
+	# Phase 10 Naval Snapshots (Venice, Adriatic & Aegean fleets, Fleet Panel, Naval Battle):
+	bridge.call("startNewGame", "VEN")
+	root_node.call("_after_world_replaced")
+	await _settle(2)
+	if mode_btns.has("political"):
+		(mode_btns["political"] as Button).emit_signal("pressed")
+	var med_fp: Vector2 = bridge.call("getFocusPoint", 41.2, 19.5)
+	var fleet_zoom := 2.8
+	root_node.set("zoom", fleet_zoom)
+	root_node.set("offset", root_node.call("_clamped_offset", root_node.size * 0.5 - med_fp * fleet_zoom, fleet_zoom))
+	root_node.call("_sync_camera_uniforms")
+	root_node.call("_refresh_fleets", true)
+	await _save_shot("godot_fleets_map.png")
+
+	# Open Venice Fleet Panel (SelectedFleetPanel at bottom-right + NaviesWindowPanel at top-left, zero overlap)
+	var navies_info: Dictionary = bridge.call("getNaviesWindowDetails")
+	var ven_fleets: Array = navies_info.get("fleets", [])
+	var ven_fid := -1
+	if not ven_fleets.is_empty() and ven_fleets[0] is Dictionary:
+		ven_fid = int((ven_fleets[0] as Dictionary).get("fleetId", -1))
+	if ven_fid >= 0:
+		bridge.call("selectFleet", ven_fid)
+	root_node.call("_toggle_fleets_window")
+	root_node.call("_after_fleet_action")
+	await _save_shot("godot_fleet_panel.png")
+
+	root_node.call("_close_top_left_windows", "")
+	if pp is Control:
+		(pp as Control).visible = false
+
+	# Trigger a Venice vs Ottoman naval battle in the Aegean Sea
+	var tur_fp: Vector2 = bridge.call("getFocusPoint", 41.0, 29.0)
+	var tur_sel: int = int(bridge.call("selectAt", int(round(tur_fp.x)), int(round(tur_fp.y))))
+	if tur_sel >= 2:
+		var tur_info: Dictionary = bridge.call("getSelectedProvinceDetails", false)
+		var tur_cid: int = int(tur_info.get("ownerIndex", -1))
+		if tur_cid >= 0:
+			bridge.call("declareWar", tur_cid, 0, true)
+	if ven_fid >= 0:
+		var aeg_fp: Vector2 = bridge.call("getFocusPoint", 40.0, 25.4)
+		bridge.call("orderFleetMoveAt", ven_fid, int(round(aeg_fp.x)), int(round(aeg_fp.y)))
+		if ven_fleets.size() > 1 and ven_fleets[1] is Dictionary:
+			var aeg_fid := int((ven_fleets[1] as Dictionary).get("fleetId", -1))
+			if aeg_fid >= 0:
+				bridge.call("orderFleetMoveAt", aeg_fid, int(round(aeg_fp.x)), int(round(aeg_fp.y)))
+		bridge.call("setSpeed", 5)
+		var n_steps := 0
+		var found_battle := false
+		var battle_sz := -1
+		while n_steps < 800:
+			bridge.call("tickFrame", 0.1)
+			if bool(bridge.call("hasPendingBattlePrompt")):
+				bridge.call("chooseAutoResolveBattle")
+			var mf: Dictionary = bridge.call("getMapFleetsData")
+			var bats: Array = mf.get("battles", [])
+			for b_v in bats:
+				if b_v is Dictionary:
+					var bd: Dictionary = b_v
+					var atag: String = str(bd.get("attackerTag", ""))
+					var dtag: String = str(bd.get("defenderTag", ""))
+					if atag == "VEN" or dtag == "VEN" or atag == "TUR" or dtag == "TUR":
+						found_battle = true
+						battle_sz = int(bd.get("seaZoneIndex", -1))
+						break
+			if found_battle:
+				bridge.call("setSpeed", 0)
+				break
+			n_steps += 1
+		if found_battle and battle_sz >= 0:
+			var b_pt: Vector2 = bridge.call("getSeaZoneFocusPoint", battle_sz)
+			var b_zoom := 5.0
+			root_node.set("zoom", b_zoom)
+			root_node.set("offset", root_node.call("_clamped_offset", root_node.size * 0.5 - b_pt * b_zoom, b_zoom))
+			root_node.call("_sync_camera_uniforms")
+		else:
+			push_warning("No VEN vs TUR naval battle found within snapshot guard.")
+	root_node.call("_toggle_wars_window")
+	root_node.call("_after_fleet_action")
+	await _save_shot("godot_naval_battle.png")
+
 	print("All Godot snapshots captured to: " + out_dir)
 	quit(0)

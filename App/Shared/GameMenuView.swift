@@ -113,6 +113,18 @@ struct AlertsBanner: View {
                 action = {
                     model.showBudget = true
                 }
+            case .navalBattle:
+                systemImage = "water.waves"
+                tint = .blue
+                action = {
+                    model.showWars = true
+                }
+            case .blockadedPort:
+                systemImage = "anchor.circle.fill"
+                tint = .red
+                action = {
+                    if let p = info.province { model.select(province: p) }
+                }
             }
             return GameAlert(
                 id: info.id,

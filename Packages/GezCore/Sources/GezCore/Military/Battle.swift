@@ -30,6 +30,8 @@ public struct Battle: Sendable, Identifiable, Equatable, Codable {
     public var phaseDay: Int
     /// True if attacking forces crossed a major river into this province.
     public var isRiverCrossing: Bool
+    /// True if attacking forces disembarked from ships into hostile battle (`-2` roll penalty).
+    public var isAmphibiousLanding: Bool
     public var attackerInitialMen: Int
     public var defenderInitialMen: Int
     public var attackerLosses: Int
@@ -50,6 +52,7 @@ public struct Battle: Sendable, Identifiable, Equatable, Codable {
         currentPhase: BattlePhase = .fire,
         phaseDay: Int = 1,
         isRiverCrossing: Bool = false,
+        isAmphibiousLanding: Bool = false,
         attackerInitialMen: Int,
         defenderInitialMen: Int,
         attackerLosses: Int = 0,
@@ -68,6 +71,7 @@ public struct Battle: Sendable, Identifiable, Equatable, Codable {
         self.currentPhase = currentPhase
         self.phaseDay = phaseDay
         self.isRiverCrossing = isRiverCrossing
+        self.isAmphibiousLanding = isAmphibiousLanding
         self.attackerInitialMen = attackerInitialMen
         self.defenderInitialMen = defenderInitialMen
         self.attackerLosses = attackerLosses

@@ -431,3 +431,20 @@ Review fixes (Claude, session 6), and points still open for the owner:
   the game starts?
 - Possibly missing: Malwa–Mewar and Bahmani–Vijayanagara hostilities in the
   early 1450s?
+
+## Fleets & Admirals on 30 May 1453 (Phase 10)
+
+Starting squadrons live in `data/navy/fleets_1453.txt` (generated into
+`navy1453.json` by `tools/navy/navgen.py`). Ship counts are game-scaled
+squadron equivalents rather than literal 1453 boat tallies (the Ottoman
+Bosporus/Marmara armada during the siege numbered well over 100 hulls
+including small transport fustas):
+
+| Tag | Fleet & Port | Admiral | Notes / uncertain history (`?`) |
+|---|---|---|---|
+| TUR | Imperial Fleet of Gallipoli (`Gallipoli`), Bosporus Flotilla (`Konstantiniyye`) | `hamza_bey` (Grand Admiral at Gallipoli in late May 1453 after Baltaoğlu's dismissal?) | Exact ship split between Gallipoli and the Golden Horn on 30 May 1453? |
+| VEN | Armada da Mar (`Venice`), Aegean Guard (`Negroponte`) | `loredan_alvise` (*Capitano Generale da Mar*, ordered toward Constantinople in spring 1453) | Exact date Loredan reached Negroponte/Chios (may still have been en route from Corfu on 30 May 1453)? |
+| NAP, ARA | Royal Armada (`Naples`), Catalan Armada (`Barcelona`) | `vilamari` (Bernat de Vilamarí for Naples) | Exact division between Alfonso V's Catalan and Neapolitan squadrons in May 1453? |
+| FRA, ENG | Normandy Fleet (`Caen`), Channel Fleet (`London`) | `bueil` (Jean V de Bueil, Admiral of France), `henry_holland` (Duke of Exeter) | Channel squadrons on station in May 1453 before the Castillon summer crossing? |
+| POR, CAS | Armada of Lisbon (`Lisbon`), Castilian Armada (`Jerez`) | `henry_nav` (Henry the Navigator — patron/organizer rather than sea admiral?), `enriquez` (Almirante Fadrique Enríquez) | Using Henry the Navigator as Portugal's fleet commander is a convenience stand-in for an overseas captain? |
+| GEN, LUB, DAN, MAM, GUJ, CLT | Genoa/Chios, Lübeck, Copenhagen, Alexandria/Suez, Cambay, Calicut | `inv_*_marshal` (invented admirals where 1453 fleet captains are not clearly documented in the roster) | Individual Genoese, Hanseatic, Danish, Mamluk and Indian Ocean admirals on 30 May 1453 remain unverified and use placeholder marshals? |

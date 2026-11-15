@@ -195,6 +195,10 @@ public struct ArmyTable: Sendable, Codable {
     public var previousProvince: [ProvinceID?] = []
     /// True while an army is executing a shattered retreat after a defeated battle.
     public var isRetreating: [Bool] = []
+    /// Fleet currently transporting this army across water, if embarked.
+    public var embarkedOnFleet: [FleetID?] = []
+    /// Remaining days of amphibious landing combat penalty (`-2` roll) after disembarking onto hostile soil.
+    public var amphibiousPenaltyDays: [Int] = []
     public var alive: [Bool] = []
 
     public init() {}
@@ -224,6 +228,8 @@ public struct ArmyTable: Sendable, Codable {
         self.rebelLeader.append(rebelLeader)
         self.previousProvince.append(nil)
         self.isRetreating.append(false)
+        self.embarkedOnFleet.append(nil)
+        self.amphibiousPenaltyDays.append(0)
         self.alive.append(true)
         return id
     }
@@ -236,6 +242,8 @@ public struct ArmyTable: Sendable, Codable {
         rebelLeader[i] = nil
         previousProvince[i] = nil
         isRetreating[i] = false
+        embarkedOnFleet[i] = nil
+        amphibiousPenaltyDays[i] = 0
         regiments[i].removeAll()
         path[i].removeAll()
         moveProgressDays[i] = 0
@@ -320,7 +328,7 @@ public struct Military: Sendable {
     /// the table keeps dead slots, so per-province scans grow with game length.
     public func armyIndexByProvince(provinceCount: Int) -> [[ArmyID]] {
         var index = Array(repeating: [ArmyID](), count: provinceCount)
-        for i in 0..<armies.count where armies.alive[i] {
+        for i in 0..<armies.count where armies.alive[i] && armies.embarkedOnFleet[i] == nil {
             let p = armies.province[i].index
             if p >= 0 && p < provinceCount { index[p].append(ArmyID(Int32(i))) }
         }
@@ -330,7 +338,7 @@ public struct Military: Sendable {
     public func armies(in province: ProvinceID) -> [ArmyID] {
         var result: [ArmyID] = []
         for i in 0..<armies.count {
-            guard armies.alive[i], armies.province[i] == province else { continue }
+            guard armies.alive[i], armies.embarkedOnFleet[i] == nil, armies.province[i] == province else { continue }
             result.append(ArmyID(Int32(i)))
         }
         return result

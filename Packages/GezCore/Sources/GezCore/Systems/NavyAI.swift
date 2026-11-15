@@ -41,6 +41,7 @@ extension NavySystem {
             for fid in aliveFleets {
                 let i = fid.index
                 if world.navy.fleets.battle[i] != nil { continue }
+                if world.navy.fleets.mission[i] == .transport { continue }
                 if !world.navy.fleets.embarkedArmies[i].isEmpty { continue }
 
                 // Skip fleets already moving on an ordered path unless critically damaged.

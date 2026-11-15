@@ -220,8 +220,15 @@ public enum NavyBattleSystem {
             let defMartial = battle.defender.admiral.flatMap {
                 world.people.characters.isAlive($0) ? world.people.characters.skill($0, .martial) : nil
             } ?? 0
-            let attRoll = Int.random(in: 1...10, using: &random) + attMartial / 2
-            let defRoll = Int.random(in: 1...10, using: &random) + defMartial / 2
+            let daySalt = UInt64(max(1, date.year) &* 4096 &+ date.month &* 32 &+ date.day)
+            var battleRng = GameRandom(
+                seed: random.rawState
+                    ^ (UInt64(idx &+ 1) &* 0x9E37_79B9_7F4A_7C15)
+                    ^ (UInt64(battle.dayCount) &* 0xBF58_476D_1CE4_E5B9)
+                    ^ daySalt
+            )
+            let attRoll = Int.random(in: 1...10, using: &battleRng) + attMartial / 2
+            let defRoll = Int.random(in: 1...10, using: &battleRng) + defMartial / 2
 
             let attFactor = max(0.45, min(2.2, 1.0 + Double(attRoll - defRoll) * 0.12))
             let defFactor = max(0.45, min(2.2, 1.0 + Double(defRoll - attRoll) * 0.12))
@@ -250,7 +257,7 @@ public enum NavyBattleSystem {
                 allowCapture: attRoll >= defRoll,
                 defenderSide: &battle.defender,
                 attackerSide: &battle.attacker,
-                random: &random
+                random: &battleRng
             )
             applySideDamage(
                 &world,
@@ -262,7 +269,7 @@ public enum NavyBattleSystem {
                 allowCapture: defRoll >= attRoll,
                 defenderSide: &battle.attacker,
                 attackerSide: &battle.defender,
-                random: &random
+                random: &battleRng
             )
 
             // Check termination: no ships or broken morale after day >= 2.

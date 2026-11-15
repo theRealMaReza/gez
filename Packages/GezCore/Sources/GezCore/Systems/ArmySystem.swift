@@ -379,6 +379,10 @@ public enum ArmySystem {
     public static func disband(_ world: inout World, army id: ArmyID) {
         let i = Int(id.rawValue)
         guard i >= 0 && i < world.military.armies.count && world.military.armies.alive[i] else { return }
+        if let fid = world.military.armies.embarkedOnFleet[i],
+           fid.index >= 0 && fid.index < world.navy.fleets.count {
+            world.navy.fleets.embarkedArmies[fid.index].removeAll { $0 == id }
+        }
         let owner = world.military.armies.owner[i]
         let maxMP = world.military.maxManpower[owner.index]
         for reg in world.military.armies.regiments[i] {
@@ -529,7 +533,8 @@ public enum ArmySystem {
     @discardableResult
     public static func mergeArmiesInProvince(_ world: inout World, into army: ArmyID) -> Int {
         let i = Int(army.rawValue)
-        guard i >= 0 && i < world.military.armies.count && world.military.armies.alive[i] else { return 0 }
+        guard i >= 0 && i < world.military.armies.count && world.military.armies.alive[i],
+              world.military.armies.embarkedOnFleet[i] == nil else { return 0 }
         let owner = world.military.armies.owner[i]
         let prov = world.military.armies.province[i]
         var mergedCount = 0
@@ -945,7 +950,8 @@ public enum ArmySystem {
     @discardableResult
     public static func orderMove(_ world: inout World, army: ArmyID, to destination: ProvinceID) -> Bool {
         let i = Int(army.rawValue)
-        guard i >= 0 && i < world.military.armies.count && world.military.armies.alive[i] else { return false }
+        guard i >= 0 && i < world.military.armies.count && world.military.armies.alive[i],
+              world.military.armies.embarkedOnFleet[i] == nil else { return false }
         let start = world.military.armies.province[i]
         if start == destination {
             world.military.armies.path[i].removeAll()
@@ -965,6 +971,10 @@ public enum ArmySystem {
     public static func runDaily(_ world: inout World, date: GameDate, random: inout GameRandom) {
         var arrivedProvinces = Set<ProvinceID>()
         for i in 0..<world.military.armies.count where world.military.armies.alive[i] {
+            if world.military.armies.embarkedOnFleet[i] != nil { continue }
+            if world.military.armies.amphibiousPenaltyDays[i] > 0 {
+                world.military.armies.amphibiousPenaltyDays[i] -= 1
+            }
             let aid = ArmyID(Int32(i))
             if world.military.isInBattle(aid) { continue }
             guard let nextHop = world.military.armies.path[i].first else { continue }
@@ -1116,7 +1126,7 @@ public enum ArmySystem {
 
         // 2. Supply limit, attrition & reinforcement per province.
         var armiesByProvince: [ProvinceID: [ArmyID]] = [:]
-        for i in 0..<world.military.armies.count where world.military.armies.alive[i] {
+        for i in 0..<world.military.armies.count where world.military.armies.alive[i] && world.military.armies.embarkedOnFleet[i] == nil {
             armiesByProvince[world.military.armies.province[i], default: []].append(ArmyID(Int32(i)))
         }
 
