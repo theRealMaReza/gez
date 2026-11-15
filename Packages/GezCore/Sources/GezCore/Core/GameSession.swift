@@ -24,6 +24,8 @@ public final class GameSession {
     public private(set) var selectedSea: SeaZoneID?
     public var selectedArmy: ArmyID?
     public var moveModeForArmy: ArmyID?
+    public var selectedFleet: FleetID?
+    public var moveModeForFleet: FleetID?
     public var viewedCharacter: CharacterID?
     public var selectedDiplomacyCountry: CountryID?
 
@@ -425,6 +427,117 @@ public final class GameSession {
         revision &+= 1
     }
 
+    // MARK: - Navies (Phase 10)
+
+    @discardableResult
+    public func buildShip(_ type: ShipTypeID, in province: ProvinceID, into fleet: FleetID? = nil) -> NavyRefusal? {
+        guard let p = playerCountry else { return .notOwner }
+        let res = NavySystem.startShipConstruction(&simulation.world, p, in: province, type: type, targetFleet: fleet)
+        revision &+= 1
+        switch res {
+        case .success: return nil
+        case .failure(let err): return err
+        }
+    }
+
+    public func assignAdmiral(_ admiral: CharacterID?, to fleet: FleetID) {
+        guard let p = playerCountry else { return }
+        let i = fleet.index
+        guard i >= 0 && i < world.navy.fleets.count && world.navy.fleets.alive[i] && world.navy.fleets.owner[i] == p else { return }
+        NavySystem.assignAdmiral(&simulation.world, fleet: fleet, admiral: admiral)
+        revision &+= 1
+    }
+
+    @discardableResult
+    public func mergeFleets(into fleet: FleetID) -> Int {
+        guard let p = playerCountry else { return 0 }
+        let i = fleet.index
+        guard i >= 0 && i < world.navy.fleets.count && world.navy.fleets.alive[i] && world.navy.fleets.owner[i] == p else { return 0 }
+        let merged = NavySystem.mergeFleetsInLocation(&simulation.world, into: fleet)
+        revision &+= 1
+        return merged
+    }
+
+    @discardableResult
+    public func split(fleet: FleetID) -> FleetID? {
+        guard let p = playerCountry else { return nil }
+        let i = fleet.index
+        guard i >= 0 && i < world.navy.fleets.count && world.navy.fleets.alive[i] && world.navy.fleets.owner[i] == p else { return nil }
+        let created = NavySystem.splitFleet(&simulation.world, fleet: fleet)
+        if let created {
+            selectedFleet = created
+        }
+        revision &+= 1
+        return created
+    }
+
+    @discardableResult
+    public func orderMoveFleet(_ fleet: FleetID, toSea sea: SeaZoneID) -> Bool {
+        guard let p = playerCountry else { return false }
+        let i = fleet.index
+        guard i >= 0 && i < world.navy.fleets.count && world.navy.fleets.alive[i] && world.navy.fleets.owner[i] == p else { return false }
+        let ok = NavySystem.orderMoveFleet(&simulation.world, fleet, toSea: sea)
+        if ok {
+            simulation.world.navy.fleets.mission[i] = .patrol
+        }
+        moveModeForFleet = nil
+        revision &+= 1
+        return ok
+    }
+
+    @discardableResult
+    public func orderDockFleet(_ fleet: FleetID, inPort port: ProvinceID) -> Bool {
+        guard let p = playerCountry else { return false }
+        let i = fleet.index
+        guard i >= 0 && i < world.navy.fleets.count && world.navy.fleets.alive[i] && world.navy.fleets.owner[i] == p else { return false }
+        let ok = NavySystem.orderDockFleet(&simulation.world, fleet, inPort: port)
+        if ok {
+            simulation.world.navy.fleets.mission[i] = .idle
+        }
+        moveModeForFleet = nil
+        revision &+= 1
+        return ok
+    }
+
+    @discardableResult
+    public func orderBlockadeFleet(_ fleet: FleetID, inSea sea: SeaZoneID) -> Bool {
+        guard let p = playerCountry else { return false }
+        let i = fleet.index
+        guard i >= 0 && i < world.navy.fleets.count && world.navy.fleets.alive[i] && world.navy.fleets.owner[i] == p else { return false }
+        let ok = NavySystem.orderMoveFleet(&simulation.world, fleet, toSea: sea)
+        if ok {
+            simulation.world.navy.fleets.mission[i] = .blockade
+        }
+        moveModeForFleet = nil
+        revision &+= 1
+        return ok
+    }
+
+    @discardableResult
+    public func embarkArmy(_ army: ArmyID, onto fleet: FleetID) -> Bool {
+        let ok = NavySystem.embarkArmy(&simulation.world, army: army, onto: fleet)
+        revision &+= 1
+        return ok
+    }
+
+    @discardableResult
+    public func disembarkArmy(_ army: ArmyID, to destination: ProvinceID? = nil) -> Bool {
+        let ok = NavySystem.disembarkArmy(&simulation.world, army: army, to: destination)
+        revision &+= 1
+        return ok
+    }
+
+    @discardableResult
+    public func orderTransportAndLand(fleet: FleetID, to destination: ProvinceID) -> Bool {
+        guard let p = playerCountry else { return false }
+        let i = fleet.index
+        guard i >= 0 && i < world.navy.fleets.count && world.navy.fleets.alive[i] && world.navy.fleets.owner[i] == p else { return false }
+        let ok = NavySystem.orderTransportAndLand(&simulation.world, fleet: fleet, to: destination)
+        moveModeForFleet = nil
+        revision &+= 1
+        return ok
+    }
+
     // MARK: - Trade
 
     @discardableResult
@@ -591,6 +704,10 @@ public final class GameSession {
         simulation.world.humanCountries = [country]
         selectedArmy = nil
         moveModeForArmy = nil
+        selectedFleet = nil
+        moveModeForFleet = nil
+        selectedFleet = nil
+        moveModeForFleet = nil
         revision &+= 1
     }
 
@@ -688,6 +805,8 @@ public final class GameSession {
         selectedDiplomacyCountry = nil
         selectedArmy = nil
         moveModeForArmy = nil
+        selectedFleet = nil
+        moveModeForFleet = nil
         viewedCharacter = nil
         lastAssaultResult = nil
         select(province: nil)
@@ -821,6 +940,38 @@ public final class GameSession {
                 id: "inflation",
                 kind: .highInflation,
                 label: String(format: "High Inflation %.0f%%", w.countries.inflation[player.index] * 100)
+            ))
+        }
+
+        // 9. Active Naval Battles involving player fleets
+        for b in w.navy.battles {
+            let playerInBattle = b.attacker.fleets.contains { w.navy.fleets.owner[$0.index] == player }
+                || b.defender.fleets.contains { w.navy.fleets.owner[$0.index] == player }
+            if playerInBattle {
+                let szName = w.seaZones.name[b.seaZone.index]
+                out.append(GameAlertInfo(
+                    id: "naval-battle-\(b.seaZone.index)",
+                    kind: .navalBattle,
+                    label: "Naval Battle: \(szName)",
+                    seaZone: b.seaZone
+                ))
+            }
+        }
+
+        // 10. Player coastal ports under enemy blockade
+        let blockadedHome = w.navy.blockadedProvinces
+            .filter { w.provinces.controller(of: $0) == player }
+            .sorted { $0.index < $1.index }
+        if let firstBlockaded = blockadedHome.first {
+            let name = w.provinces.name[firstBlockaded.index]
+            let label = blockadedHome.count == 1
+                ? "Blockaded: \(name)"
+                : "\(blockadedHome.count) Ports Blockaded"
+            out.append(GameAlertInfo(
+                id: "blockaded-port",
+                kind: .blockadedPort,
+                label: label,
+                province: firstBlockaded
             ))
         }
 

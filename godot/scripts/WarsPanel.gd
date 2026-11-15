@@ -229,6 +229,7 @@ func _add_war_card(war: Dictionary) -> void:
 
 	var ws: int = int(war.get("warScorePct", 0))
 	var battle_ws: int = int(war.get("battlePct", 0))
+	var blk_ws: int = int(war.get("blockadePct", 0))
 	var occ_ws: int = int(war.get("occupationPct", 0))
 	var tick_ws: int = int(war.get("tickingPct", 0))
 
@@ -243,7 +244,28 @@ func _add_war_card(war: Dictionary) -> void:
 	top.add_child(main.call("_make_label", "%+d%% WS" % ws, ws_color, 14))
 
 	card.add_child(main.call("_make_label", "Since %s · Goal: %s" % [str(war.get("startDate", "")), str(war.get("warGoal", ""))], Color(0.78, 0.74, 0.66), 12))
-	card.add_child(main.call("_make_label", "Breakdown: Battles %+d%% · Occupation %+d%% · Ticking Goal %+d%%" % [battle_ws, occ_ws, tick_ws], Color(0.85, 0.82, 0.74), 12))
+	card.add_child(main.call("_make_label", "Breakdown: Battles %+d%% · Blockades %+d%% · Occupation %+d%% · Ticking Goal %+d%%" % [battle_ws, blk_ws, occ_ws, tick_ws], Color(0.85, 0.82, 0.74), 12))
+
+	var naval_battles_var: Variant = war.get("recentNavalBattles", [])
+	var naval_battles: Array = naval_battles_var if naval_battles_var is Array else []
+	if not naval_battles.is_empty():
+		card.add_child(main.call("_make_label", "Naval Battles (%d):" % naval_battles.size(), Color(0.65, 0.88, 0.98), 12))
+		for nb_v in naval_battles:
+			if nb_v is Dictionary:
+				var nb: Dictionary = nb_v
+				var loser: String = str(nb.get("defenderTag", "")) if str(nb.get("winnerTag", "")) == str(nb.get("attackerTag", "")) else str(nb.get("attackerTag", ""))
+				var sunk: int = int(nb.get("attackerShipsLost", 0)) + int(nb.get("defenderShipsLost", 0))
+				var cap: int = int(nb.get("shipsCaptured", 0))
+				var nb_text: String = "%s (%s): %s beat %s · %dd · %d sunk, %d cap" % [
+					str(nb.get("seaZoneName", "Sea")),
+					str(nb.get("date", "")),
+					str(nb.get("winnerTag", "?")),
+					loser,
+					int(nb.get("days", 1)),
+					sunk,
+					cap
+				]
+				card.add_child(main.call("_make_label", "  • " + nb_text, Color(0.80, 0.90, 0.96), 11))
 
 	_add_side_row(card, "Attackers", war.get("attackers", []))
 	_add_side_row(card, "Defenders", war.get("defenders", []))

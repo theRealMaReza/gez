@@ -129,36 +129,7 @@ public enum ArmySystem {
 
     /// True if `country` satisfies the unlock rules for `unitId`.
     public static func canRecruit(_ world: World, _ country: CountryID, _ unitId: UnitTypeID) -> Bool {
-        let u = world.military.unit(unitId)
-        if u.requires.isEmpty { return true }
-        let tag = world.countries.tag[country.index]
-        let gov = world.countries.government[country.index]
-        let cap = world.countries.capital[country.index]
-        let capRegion = cap.map { world.regionName(of: $0) }
-        let capCulture = cap.map { world.cultures.key[world.provinces.majorityCulture[$0.index].index] }
-        let rulerCulture = world.countries.ruler[country.index].map {
-            world.cultures.key[world.people.characters.culture[$0.index].index]
-        }
-        let estateKeys: Set<String> = Set(
-            world.government.estates[country.index].map { world.government.rules.estates[$0.index].key }
-        )
-
-        for clause in u.requires {
-            switch clause {
-            case .estate(let keys):
-                if keys.contains(where: { estateKeys.contains($0) }) { return true }
-            case .government(let govs):
-                if govs.contains(gov) { return true }
-            case .culture(let cultures):
-                if let rc = rulerCulture, cultures.contains(rc) { return true }
-                if let cc = capCulture, cultures.contains(cc) { return true }
-            case .region(let regions):
-                if let cr = capRegion, regions.contains(cr) { return true }
-            case .tags(let tags):
-                if tags.contains(tag) { return true }
-            }
-        }
-        return false
+        UnitUnlock.matches(world.military.unit(unitId).requires, in: world, for: country)
     }
 
     /// All unit types unlocked for `country`.
@@ -408,6 +379,10 @@ public enum ArmySystem {
     public static func disband(_ world: inout World, army id: ArmyID) {
         let i = Int(id.rawValue)
         guard i >= 0 && i < world.military.armies.count && world.military.armies.alive[i] else { return }
+        if let fid = world.military.armies.embarkedOnFleet[i],
+           fid.index >= 0 && fid.index < world.navy.fleets.count {
+            world.navy.fleets.embarkedArmies[fid.index].removeAll { $0 == id }
+        }
         let owner = world.military.armies.owner[i]
         let maxMP = world.military.maxManpower[owner.index]
         for reg in world.military.armies.regiments[i] {
@@ -529,8 +504,14 @@ public enum ArmySystem {
     ) -> [CharacterID] {
         let ch = world.people.characters
         let ruler = world.countries.ruler[country.index]
+        // A fleet's admiral cannot also lead an army (review fix, Phase 10).
+        var admirals = Set<CharacterID>()
+        for f in 0..<world.navy.fleets.count where world.navy.fleets.alive[f] {
+            if let a = world.navy.fleets.admiral[f] { admirals.insert(a) }
+        }
         return courtPool.filter { cid in
-            guard ch.court[cid.index] == country, ch.isAlive(cid), !rebelLeaders.contains(cid) else { return false }
+            guard ch.court[cid.index] == country, ch.isAlive(cid), !rebelLeaders.contains(cid),
+                  !admirals.contains(cid) else { return false }
             guard ch.age(cid, on: date) >= CharacterSystem.adultAge else { return false }
             if ch.female[cid.index] && cid != ruler { return false }
             return true
@@ -558,7 +539,8 @@ public enum ArmySystem {
     @discardableResult
     public static func mergeArmiesInProvince(_ world: inout World, into army: ArmyID) -> Int {
         let i = Int(army.rawValue)
-        guard i >= 0 && i < world.military.armies.count && world.military.armies.alive[i] else { return 0 }
+        guard i >= 0 && i < world.military.armies.count && world.military.armies.alive[i],
+              world.military.armies.embarkedOnFleet[i] == nil else { return 0 }
         let owner = world.military.armies.owner[i]
         let prov = world.military.armies.province[i]
         var mergedCount = 0
@@ -659,6 +641,44 @@ public enum ArmySystem {
 
         let rawDays = (distKm / ArmyModel.baseMarchKmPerDay) * terrainMult * riverMult * roadMult / speedMult
         return max(1.0, (rawDays * 10.0).rounded() / 10.0)
+    }
+
+    /// True if `country`'s army can cross from `a` to `b`. Straits are blocked by
+    /// hostile fleets in the strait's sea zone unless `country`'s side controls both shores.
+    public static func canCrossStrait(
+        _ world: World,
+        from a: ProvinceID,
+        to b: ProvinceID,
+        for country: CountryID
+    ) -> Bool {
+        let seas = world.straitSeaZones(between: a, and: b)
+        if seas.isEmpty { return true }
+
+        func sideControls(_ ctrl: CountryID?) -> Bool {
+            guard let ctrl else { return false }
+            if ctrl == country { return true }
+            if world.countries.overlord[ctrl.index] == country || world.countries.overlord[country.index] == ctrl {
+                return true
+            }
+            return world.diplomacy.hasTreaty(.alliance, between: country, and: ctrl) || world.diplomacy.wars.contains { war in
+                (war.isAttacker(country) && war.isAttacker(ctrl)) ||
+                (war.isDefender(country) && war.isDefender(ctrl))
+            }
+        }
+
+        if sideControls(world.provinces.controller(of: a)) && sideControls(world.provinces.controller(of: b)) {
+            return true
+        }
+
+        for sz in seas {
+            for fid in world.navy.fleets(inSea: sz) where world.navy.shipCount(of: fid) > 0 {
+                let fOwner = world.navy.fleets.owner[fid.index]
+                if world.diplomacy.isAtWar(fOwner, country) {
+                    return false
+                }
+            }
+        }
+        return true
     }
 
     /// Labels each province with the id of the land mass it belongs to
@@ -842,6 +862,19 @@ public enum ArmySystem {
         }
 
         let roadType = world.economy.buildingType(key: "road")
+        // A strait can only be closed by a fleet at war with the mover; if no
+        // such fleet is at sea anywhere, skip the per-edge strait check
+        // (review speed-up; same answers as canCrossStrait).
+        var straitsMayBeClosed = false
+        if let mover = armyOwner {
+            for f in 0..<world.navy.fleets.count where world.navy.fleets.alive[f] {
+                if case .sea = world.navy.fleets.location[f],
+                   world.diplomacy.isAtWar(world.navy.fleets.owner[f], mover) {
+                    straitsMayBeClosed = true
+                    break
+                }
+            }
+        }
         let speedMult = effectiveArmySpeed(world, army: army)
 
         var bestForTier = Array(repeating: -1, count: pools.count)
@@ -882,6 +915,9 @@ public enum ArmySystem {
             for nb in world.provinces.neighbors[u] {
                 let v = nb.index
                 if visited[v] { continue }
+                if straitsMayBeClosed, let mover = armyOwner, !canCrossStrait(world, from: uPid, to: nb, for: mover) {
+                    continue
+                }
                 if !uAllowsAllNeighbors && v != start.index {
                     let vFriend: Bool
                     if let vCtrl = world.provinces.controller(of: nb), isFriendOrAllyArr[vCtrl.index] {
@@ -933,7 +969,8 @@ public enum ArmySystem {
     @discardableResult
     public static func orderMove(_ world: inout World, army: ArmyID, to destination: ProvinceID) -> Bool {
         let i = Int(army.rawValue)
-        guard i >= 0 && i < world.military.armies.count && world.military.armies.alive[i] else { return false }
+        guard i >= 0 && i < world.military.armies.count && world.military.armies.alive[i],
+              world.military.armies.embarkedOnFleet[i] == nil else { return false }
         let start = world.military.armies.province[i]
         if start == destination {
             world.military.armies.path[i].removeAll()
@@ -953,11 +990,22 @@ public enum ArmySystem {
     public static func runDaily(_ world: inout World, date: GameDate, random: inout GameRandom) {
         var arrivedProvinces = Set<ProvinceID>()
         for i in 0..<world.military.armies.count where world.military.armies.alive[i] {
+            if world.military.armies.embarkedOnFleet[i] != nil { continue }
+            if world.military.armies.amphibiousPenaltyDays[i] > 0 {
+                world.military.armies.amphibiousPenaltyDays[i] -= 1
+            }
             let aid = ArmyID(Int32(i))
             if world.military.isInBattle(aid) { continue }
             guard let nextHop = world.military.armies.path[i].first else { continue }
+            let cur = world.military.armies.province[i]
+            if !world.military.armies.isRebel[i],
+               !canCrossStrait(world, from: cur, to: nextHop, for: world.military.armies.owner[i]) {
+                world.military.armies.path[i].removeAll()
+                world.military.armies.moveStepDays[i] = 0
+                world.military.armies.moveProgressDays[i] = 0
+                continue
+            }
             if world.military.armies.moveStepDays[i] <= 0 {
-                let cur = world.military.armies.province[i]
                 world.military.armies.moveStepDays[i] = stepDays(world, from: cur, to: nextHop, army: aid)
             }
             let pace = world.military.armies.isRetreating[i] ? 1.5 : 1.0
@@ -1097,7 +1145,7 @@ public enum ArmySystem {
 
         // 2. Supply limit, attrition & reinforcement per province.
         var armiesByProvince: [ProvinceID: [ArmyID]] = [:]
-        for i in 0..<world.military.armies.count where world.military.armies.alive[i] {
+        for i in 0..<world.military.armies.count where world.military.armies.alive[i] && world.military.armies.embarkedOnFleet[i] == nil {
             armiesByProvince[world.military.armies.province[i], default: []].append(ArmyID(Int32(i)))
         }
 

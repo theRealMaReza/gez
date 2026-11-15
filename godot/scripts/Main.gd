@@ -4,8 +4,10 @@ const MapShader := preload("res://shaders/map.gdshader")
 const IconsLayerScript := preload("res://scripts/MapIconsLayer.gd")
 const LabelsLayerScript := preload("res://scripts/MapLabelsLayer.gd")
 const ArmiesLayerScript := preload("res://scripts/MapArmiesLayer.gd")
+const FleetsLayerScript := preload("res://scripts/MapFleetsLayer.gd")
 const RoutesLayerScript := preload("res://scripts/MapRoutesLayer.gd")
 const ArmyPanelScript := preload("res://scripts/ArmyPanel.gd")
+const FleetPanelScript := preload("res://scripts/FleetPanel.gd")
 const BudgetPanelScript := preload("res://scripts/BudgetPanel.gd")
 const TradePanelScript := preload("res://scripts/TradePanel.gd")
 const CourtPanelScript := preload("res://scripts/CourtPanel.gd")
@@ -32,16 +34,20 @@ var _last_wars_str: String = ""
 var _last_wars_vis: int = -1
 var _last_wars_offer: int = -1
 var _last_armies_btn_str: String = ""
+var _last_fleets_btn_str: String = ""
 var _last_date_str: String = ""
 var _last_paused_int: int = -1
 var _last_speed_int: int = -99
 var _last_alerts_sig: String = "__init__"
 var _last_armies_sig: int = -999999
+var _last_fleets_sig: int = -999999
 var _last_prov_sig: String = ""
 var _style_img: Image = null
 var armies_layer: Control
+var fleets_layer: Control
 var routes_layer: Control
 var army_ui: Control
+var fleet_ui: Control
 var budget_ui: Control
 var trade_ui: Control
 var court_ui: Control
@@ -61,11 +67,14 @@ var inflation_label: Label
 var diplomacy_btn: Button
 var wars_btn: Button
 var armies_btn: Button
+var fleets_btn: Button
 var alerts_scroll: ScrollContainer
 var alerts_hbox: HBoxContainer
 var date_label: Label
 var selection_label: Label
 var fps_label: Label
+var top_bar_hbox: HBoxContainer
+var top_bar_panel: PanelContainer
 var pause_btn: Button
 var play_as_btn: Button
 var menu_btn: Button
@@ -90,6 +99,7 @@ var prov_tab_buttons: Dictionary = {}
 var prov_content_box: VBoxContainer
 var current_prov_tab: String = "overview"
 var prov_show_build: bool = false
+var prov_show_shipbuild: bool = false
 var prov_build_category: String = "production"
 var prov_people_show_state: bool = false
 
@@ -208,13 +218,20 @@ func _build_scene_ui() -> void:
 	labels_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(labels_layer)
 
-	# 2b. Army counters & marching arrows layer (redrawn only when armies or camera change)
+	# 2b. Army & fleet counters / arrows layers (redrawn only when units or camera change)
 	armies_layer = Control.new()
 	armies_layer.name = "ArmiesLayer"
 	armies_layer.set_script(ArmiesLayerScript)
 	armies_layer.set_anchors_preset(Control.PRESET_FULL_RECT)
 	armies_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(armies_layer)
+
+	fleets_layer = Control.new()
+	fleets_layer.name = "FleetsLayer"
+	fleets_layer.set_script(FleetsLayerScript)
+	fleets_layer.set_anchors_preset(Control.PRESET_FULL_RECT)
+	fleets_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(fleets_layer)
 
 	# 2c. Player trade routes overlay (visible & redrawn only while Trade window is open)
 	routes_layer = Control.new()
@@ -239,7 +256,7 @@ func _build_scene_ui() -> void:
 	_build_province_panel()
 	_build_sea_panel()
 
-	# 6b. Army panels (Selected Army inspector & Top-Bar Armies window)
+	# 6b. Army & Fleet panels (Selected inspector & Top-Bar windows)
 	army_ui = Control.new()
 	army_ui.name = "ArmyUI"
 	army_ui.set_script(ArmyPanelScript)
@@ -247,6 +264,14 @@ func _build_scene_ui() -> void:
 	army_ui.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(army_ui)
 	army_ui.call("setup", self)
+
+	fleet_ui = Control.new()
+	fleet_ui.name = "FleetUI"
+	fleet_ui.set_script(FleetPanelScript)
+	fleet_ui.set_anchors_preset(Control.PRESET_FULL_RECT)
+	fleet_ui.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(fleet_ui)
+	fleet_ui.call("setup", self)
 
 	# 6c. Economy windows (Budget & Trade)
 	budget_ui = Control.new()
@@ -345,6 +370,10 @@ func _build_top_bar() -> void:
 	# pushing the time controls off the screen.
 	hbox.add_theme_constant_override("separation", 5)
 	top_bar.add_child(hbox)
+	top_bar_hbox = hbox
+	top_bar_panel = top_bar
+	top_bar.resized.connect(_fit_top_bar)
+	get_viewport().size_changed.connect(_fit_top_bar)
 
 	top_arms_rect = TextureRect.new()
 	top_arms_rect.custom_minimum_size = Vector2(28.0, 24.0)
@@ -431,6 +460,13 @@ func _build_top_bar() -> void:
 	armies_btn.tooltip_text = "Armies & Recruitment (Levies, Professionals, Mercenaries)"
 	armies_btn.pressed.connect(_toggle_armies_window)
 	hbox.add_child(armies_btn)
+
+	fleets_btn = Button.new()
+	fleets_btn.text = "Fleets 0"
+	fleets_btn.custom_minimum_size = Vector2(115.0, 30.0)
+	fleets_btn.tooltip_text = "Fleets, Naval Transports & Blockades"
+	fleets_btn.pressed.connect(_toggle_fleets_window)
+	hbox.add_child(fleets_btn)
 
 	hbox.add_child(_make_separator())
 
@@ -1185,15 +1221,18 @@ func _process(delta: float) -> void:
 		open_battle_choice_modal()
 		_refresh_top_bar()
 		_refresh_armies()
+		_refresh_fleets()
 	if mask != 0:
 		_refresh_top_bar()
 		if (mask & 1) != 0:
 			_refresh_armies()
+			_refresh_fleets()
 			if province_panel.visible and current_prov_tab == "overview":
 				_refresh_province_panel()
 			if wars_ui != null:
 				wars_ui.call("refresh_if_open")
 		if (mask & 2) != 0:
+			_refresh_fleets()
 			# Monthly tick updated economy, constructions, populations, or markets
 			if province_panel.visible:
 				_refresh_province_panel()
@@ -1238,7 +1277,23 @@ func _refresh_styles_and_country_labels() -> void:
 		_call_bridge("getCountryLabelMetrics", [], PackedFloat32Array())
 	)
 
+# If the top bar's buttons need more room than the window has, shrink the
+# whole row a little so the date, pause and speed buttons stay on screen
+# (new buttons such as "Fleets" kept pushing them off the right edge).
+func _fit_top_bar() -> void:
+	if top_bar_hbox == null or top_bar_panel == null:
+		return
+	var need := top_bar_hbox.get_combined_minimum_size().x
+	# The panel grows with its buttons, so measure against the window.
+	var avail := get_viewport_rect().size.x - 32.0
+	var s := 1.0
+	if need > 0.0 and avail > 0.0 and need > avail:
+		s = maxf(0.6, avail / need)
+	if not is_equal_approx(top_bar_hbox.scale.x, s):
+		top_bar_hbox.scale = Vector2(s, s)
+
 func _refresh_top_bar() -> void:
+	call_deferred("_fit_top_bar")
 	if bridge == null:
 		return
 	var top_var: Variant = _call_bridge("getPlayerTopBarDetails", [], {})
@@ -1298,6 +1353,11 @@ func _refresh_top_bar() -> void:
 		if a_str != _last_armies_btn_str:
 			_last_armies_btn_str = a_str
 			armies_btn.text = a_str
+	if fleets_btn != null:
+		var f_str: String = str(top.get("fleetsText", "Fleets 0"))
+		if f_str != _last_fleets_btn_str:
+			_last_fleets_btn_str = f_str
+			fleets_btn.text = f_str
 
 	var d_str: String = str(top.get("dateText", "30 May 1453"))
 	if d_str != _last_date_str:
@@ -1471,6 +1531,7 @@ func _after_world_replaced() -> void:
 	_refresh_top_bar()
 	_refresh_play_as_button()
 	_refresh_armies()
+	_refresh_fleets()
 	_refresh_trade_routes()
 
 func _refresh_armies(force: bool = false) -> void:
@@ -1485,11 +1546,33 @@ func _refresh_armies(force: bool = false) -> void:
 	if army_ui != null:
 		army_ui.call("refresh_all")
 
+func _refresh_fleets(force: bool = false) -> void:
+	if bridge == null:
+		return
+	var sig: int = int(_call_bridge("getMapFleetsSignature", [], -1))
+	if not force and sig == _last_fleets_sig:
+		return
+	_last_fleets_sig = sig
+	if fleets_layer != null:
+		fleets_layer.call("set_fleets_data", _call_bridge("getMapFleetsData", [], {}))
+	if fleet_ui != null:
+		fleet_ui.call("refresh_all")
+
 func _after_army_action() -> void:
+	_refresh_armies(true)
+	_refresh_fleets(true)
+	_refresh_top_bar()
+	if province_panel.visible:
+		_refresh_province_panel()
+
+func _after_fleet_action() -> void:
+	_refresh_fleets(true)
 	_refresh_armies(true)
 	_refresh_top_bar()
 	if province_panel.visible:
 		_refresh_province_panel()
+	if sea_panel.visible:
+		_refresh_sea_panel()
 
 func _select_province_by_index(prov_idx: int) -> void:
 	var sel_id: int = int(_call_bridge("selectProvinceByIndex", [prov_idx], 0))
@@ -1497,6 +1580,7 @@ func _select_province_by_index(prov_idx: int) -> void:
 		map_material.set_shader_parameter("selected", sel_id)
 		map_material.set_shader_parameter("selected_sea", 0)
 		prov_show_build = false
+		prov_show_shipbuild = false
 		_refresh_province_panel()
 		_refresh_play_as_button()
 
@@ -1643,7 +1727,7 @@ func _refresh_province_panel() -> void:
 		_last_prov_sig = ""
 		return
 
-	var sig := "%s|%s|%s" % [current_prov_tab, str(prov_show_build), var_to_str(d)]
+	var sig := "%s|%s|%s|%s" % [current_prov_tab, str(prov_show_build), str(prov_show_shipbuild), var_to_str(d)]
 	if sig == _last_prov_sig and province_panel.visible:
 		return
 	_last_prov_sig = sig
@@ -1762,6 +1846,8 @@ func _build_province_overview_tab(d: Dictionary) -> void:
 
 	if army_ui != null:
 		army_ui.call("append_province_military_sections", prov_content_box, d)
+
+	_append_province_docks_section(d)
 
 	prov_content_box.add_child(HSeparator.new())
 
@@ -2044,6 +2130,76 @@ func _build_province_people_tab(d: Dictionary) -> void:
 		s_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		prov_content_box.add_child(s_lbl)
 
+func _append_province_docks_section(d: Dictionary) -> void:
+	var has_docks: bool = bool(d.get("hasDocks", false))
+	var blockaded: bool = bool(d.get("isPortBlockaded", false))
+	var ship_jobs_v: Variant = d.get("shipConstructions", [])
+	var ship_jobs: Array = ship_jobs_v if ship_jobs_v is Array else []
+	var stationed_v: Variant = d.get("stationedFleets", [])
+	var stationed: Array = stationed_v if stationed_v is Array else []
+	if not has_docks and not blockaded and ship_jobs.is_empty() and stationed.is_empty():
+		return
+
+	prov_content_box.add_child(HSeparator.new())
+	if blockaded:
+		prov_content_box.add_child(_make_label("PORT BLOCKADED BY ENEMY FLEET", Color(0.96, 0.42, 0.38), 12))
+
+	for sf_v in stationed:
+		if sf_v is Dictionary:
+			var sf: Dictionary = sf_v
+			var fid: int = int(sf.get("fleetId", -1))
+			var f_btn := Button.new()
+			f_btn.text = "Fleet: %s (%s · %d ships)" % [str(sf.get("name", "Fleet")), str(sf.get("ownerTag", "")), int(sf.get("ships", 0))]
+			f_btn.pressed.connect(func() -> void:
+				_call_bridge("clearSelectedArmy", [])
+				_call_bridge("selectFleet", [fid], false)
+				_after_fleet_action()
+			)
+			prov_content_box.add_child(f_btn)
+
+	if not has_docks:
+		return
+
+	var dock_cap: int = int(d.get("dockCapacity", 1))
+	_add_kv_row(prov_content_box, "Docks", "Level %d (Shipyard Ready)" % dock_cap)
+	for job_v in ship_jobs:
+		if job_v is Dictionary:
+			var job: Dictionary = job_v
+			_add_kv_row(prov_content_box, "Building " + str(job.get("shipName", "Ship")), "%d / %d mo" % [int(job.get("monthsLeft", 0)), int(job.get("monthsTotal", 0))])
+
+	var buildable_v: Variant = d.get("buildableShips", [])
+	var buildable: Array = buildable_v if buildable_v is Array else []
+	if not buildable.is_empty():
+		var ship_toggle := Button.new()
+		ship_toggle.text = "Hide Shipyard" if prov_show_shipbuild else "Build Ships..."
+		ship_toggle.pressed.connect(func() -> void:
+			prov_show_shipbuild = not prov_show_shipbuild
+			_refresh_province_panel()
+		)
+		prov_content_box.add_child(ship_toggle)
+		if prov_show_shipbuild:
+			for sh_v in buildable:
+				if not (sh_v is Dictionary):
+					continue
+				var sh: Dictionary = sh_v
+				var st_idx: int = int(sh.get("shipTypeIndex", -1))
+				var can_b: bool = bool(sh.get("canBuild", false))
+				var sbtn := Button.new()
+				sbtn.text = "%s (%s) · %dd · %d sailors · %dmo" % [
+					str(sh.get("name", "Ship")),
+					str(sh.get("shipClass", "")),
+					int(sh.get("cost", 0)),
+					int(sh.get("sailorsCost", 0)),
+					int(sh.get("months", 0))
+				]
+				sbtn.tooltip_text = ("Goods: " + str(sh.get("materialsText", "None"))) if can_b else str(sh.get("refusalReason", "Cannot build"))
+				sbtn.disabled = not can_b
+				sbtn.pressed.connect(func() -> void:
+					if bool(_call_bridge("buildShipInSelectedProvince", [st_idx], false)):
+						_after_fleet_action()
+				)
+				prov_content_box.add_child(sbtn)
+
 func _refresh_sea_panel() -> void:
 	var d: Dictionary = _call_bridge("getSelectedSeaDetails", [], {})
 	if not bool(d.get("hasSelection", false)):
@@ -2051,8 +2207,28 @@ func _refresh_sea_panel() -> void:
 		return
 	province_panel.visible = false
 	sea_panel.visible = true
-	sea_title_label.text = str(d.get("name", "Sea Zone"))
-	sea_neighbors_label.text = str(d.get("neighborsText", ""))
+	var title: String = str(d.get("name", "Sea Zone"))
+	if bool(d.get("isInland", false)):
+		title += " (Inland)"
+	sea_title_label.text = title
+	var extra_lines: PackedStringArray = []
+	var battle_txt: String = str(d.get("activeBattleText", ""))
+	if not battle_txt.is_empty():
+		extra_lines.append("NAVAL BATTLE: " + battle_txt)
+	var fleets_v: Variant = d.get("fleets", [])
+	var fleets_arr: Array = fleets_v if fleets_v is Array else []
+	if not fleets_arr.is_empty():
+		var fnames: PackedStringArray = []
+		for fv in fleets_arr:
+			if fv is Dictionary:
+				var fdict: Dictionary = fv
+				fnames.append("%s %s (%d)" % [str(fdict.get("ownerTag", "")), str(fdict.get("name", "")), int(fdict.get("ships", 0))])
+		extra_lines.append("Fleets: " + ", ".join(fnames))
+	var nb_str: String = str(d.get("neighborsText", ""))
+	if not extra_lines.is_empty():
+		sea_neighbors_label.text = nb_str + "\n" + "\n".join(extra_lines)
+	else:
+		sea_neighbors_label.text = nb_str
 	sea_coast_title_label.text = "Coast (%d provinces)" % int(d.get("coastCount", 0))
 	sea_coast_label.text = str(d.get("coastText", ""))
 
@@ -2215,6 +2391,8 @@ func _sync_camera_uniforms() -> void:
 		labels_layer.call("update_camera", zoom, offset)
 	if armies_layer != null:
 		armies_layer.call("update_camera", zoom, offset)
+	if fleets_layer != null:
+		fleets_layer.call("update_camera", zoom, offset)
 	if routes_layer != null:
 		routes_layer.call("update_camera", zoom, offset)
 
@@ -2233,6 +2411,9 @@ func _unhandled_input(event: InputEvent) -> void:
 			if int(_call_bridge("getMoveModeArmyId", [], -1)) >= 0:
 				_call_bridge("setMoveModeForArmy", [-1], false)
 				_after_army_action()
+			elif int(_call_bridge("getMoveModeFleetId", [], -1)) >= 0:
+				_call_bridge("setMoveModeForFleet", [-1], false)
+				_after_fleet_action()
 			else:
 				_toggle_game_menu()
 			get_viewport().set_input_as_handled()
@@ -2358,20 +2539,34 @@ func _handle_map_click(screen_pos: Vector2) -> void:
 	var map_x := int(floor((screen_pos.x - offset.x) / zoom))
 	var map_y := int(floor((screen_pos.y - offset.y) / zoom))
 
-	# 1. If an army is in Move target-picking mode, clicking a province orders a move there.
+	# 1. If an army or fleet is in Move target-picking mode, clicking a province/sea orders a move there.
 	var move_army_id: int = int(_call_bridge("getMoveModeArmyId", [], -1))
 	if move_army_id >= 0:
 		_call_bridge("orderArmyMoveAt", [move_army_id, map_x, map_y], false)
 		_call_bridge("setMoveModeForArmy", [-1], false)
 		_after_army_action()
 		return
+	var move_fleet_id: int = int(_call_bridge("getMoveModeFleetId", [], -1))
+	if move_fleet_id >= 0:
+		_call_bridge("orderFleetMoveAt", [move_fleet_id, map_x, map_y], false)
+		_call_bridge("setMoveModeForFleet", [-1], false)
+		_after_fleet_action()
+		return
 
-	# 2. Check if the click hit an army counter on the map.
+	# 2. Check if the click hit an army or fleet counter on the map.
 	if not nation_picker_panel.visible and armies_layer != null:
 		var hit_army: int = int(armies_layer.call("pick_army_at", screen_pos))
 		if hit_army >= 0:
+			_call_bridge("clearSelectedFleet", [])
 			_call_bridge("selectArmy", [hit_army], false)
 			_after_army_action()
+			return
+	if not nation_picker_panel.visible and fleets_layer != null:
+		var hit_fleet: int = int(fleets_layer.call("pick_fleet_at", screen_pos))
+		if hit_fleet >= 0:
+			_call_bridge("clearSelectedArmy", [])
+			_call_bridge("selectFleet", [hit_fleet], false)
+			_after_fleet_action()
 			return
 
 	var sel_id: int = int(_call_bridge("selectAt", [map_x, map_y], 0))
@@ -2391,6 +2586,7 @@ func _handle_map_click(screen_pos: Vector2) -> void:
 
 	if sel_id >= 2:
 		prov_show_build = false
+		prov_show_shipbuild = false
 		_refresh_province_panel()
 	elif sel_sea > 0:
 		_refresh_sea_panel()
@@ -2412,6 +2608,7 @@ func _on_play_as_pressed() -> void:
 		_refresh_top_bar()
 		_refresh_play_as_button()
 		_refresh_armies()
+		_refresh_fleets(true)
 		_after_economy_action()
 
 func _on_pause_pressed() -> void:
@@ -2439,6 +2636,10 @@ func _close_top_left_windows(except_key: String = "") -> void:
 		var aw: Variant = army_ui.get("armies_window_panel")
 		if aw is Control:
 			(aw as Control).visible = false
+	if except_key != "fleets" and fleet_ui != null:
+		var fw: Variant = fleet_ui.get("fleets_window_panel")
+		if fw is Control:
+			(fw as Control).visible = false
 
 func _toggle_budget_window() -> void:
 	if budget_ui == null:
@@ -2535,8 +2736,10 @@ func _refresh_alerts_bar() -> void:
 		match kind:
 			"peaceOffer":
 				btn.modulate = Color(1.0, 0.65, 0.35)
-			"underSiege", "coalition", "bankrupt":
+			"underSiege", "coalition", "bankrupt", "blockadedPort":
 				btn.modulate = Color(1.0, 0.45, 0.42)
+			"navalBattle":
+				btn.modulate = Color(0.55, 0.85, 1.0)
 			"breach", "disloyalEstate":
 				btn.modulate = Color(1.0, 0.72, 0.38)
 			_:
@@ -2554,9 +2757,21 @@ func _on_alert_pressed(alert: Dictionary) -> void:
 	match kind:
 		"peaceOffer":
 			_open_wars_and_peace(war_id)
-		"breach", "underSiege":
+		"breach", "underSiege", "blockadedPort":
 			if p_idx >= 0:
 				_focus_and_select_province(p_idx)
+		"navalBattle":
+			var sz_idx: int = int(alert.get("seaZoneIndex", -1))
+			if sz_idx >= 0 and zoom > 0.0:
+				var fp_v: Variant = _call_bridge("getSeaZoneFocusPoint", [sz_idx], Vector2.ZERO)
+				if fp_v is Vector2:
+					var fp := fp_v as Vector2
+					if fp != Vector2.ZERO:
+						var x: float = size.x * 0.5 - fp.x * zoom
+						var y: float = size.y * 0.5 - fp.y * zoom
+						offset = _clamped_offset(Vector2(x, y), zoom)
+						_sync_camera_uniforms()
+			_open_wars_and_peace(war_id)
 		"coalition":
 			_open_diplomacy_with(-1)
 		"lowStability", "disloyalEstate":
@@ -2607,6 +2822,8 @@ func _after_diplomacy_action(refresh_map: bool = false) -> void:
 		_refresh_province_panel()
 	if army_ui != null:
 		_refresh_armies()
+	if fleet_ui != null:
+		_refresh_fleets()
 
 func _toggle_armies_window() -> void:
 	if army_ui == null:
@@ -2616,6 +2833,15 @@ func _toggle_armies_window() -> void:
 	if not was_open:
 		_close_top_left_windows("armies")
 	army_ui.call("toggle_armies_window")
+
+func _toggle_fleets_window() -> void:
+	if fleet_ui == null:
+		return
+	var fw: Variant = fleet_ui.get("fleets_window_panel")
+	var was_open: bool = (fw is Control) and (fw as Control).visible
+	if not was_open:
+		_close_top_left_windows("fleets")
+	fleet_ui.call("toggle_fleets_window")
 
 func _on_trade_window_visibility_changed(is_now_open: bool) -> void:
 	if routes_layer != null:

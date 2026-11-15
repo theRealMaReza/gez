@@ -1197,4 +1197,110 @@ struct GezGodotTests {
         #expect(!activeAfter)
         _ = (eng, targetOwner)
     }
+
+    @Test("Naval bridge functions cover fleets, shipbuilding, orders, embark/disembark, battles, and blockades")
+    func testNavalBridgeFunctions() {
+        let controller = GezGodotController()
+        #expect(controller.setup(dataDirectoryPath: "", tag: "VEN"))
+        guard let s = controller.session,
+              let ven = s.world.countries.id(forTag: "VEN"),
+              let tur = s.world.countries.id(forTag: "TUR"),
+              let venice = s.world.countries.capital[ven.index],
+              let adriatic = s.world.provinceSeas[venice.index].first else {
+            Issue.record("Missing VEN/TUR/capital")
+            return
+        }
+
+        // Top bar summary & navies window
+        #expect(controller.topBarFleetsText.contains("Fleets"))
+        let navWin = controller.naviesWindowDetails()
+        #expect((navWin["hasPlayer"] as? Bool) == true)
+        #expect((navWin["totalShips"] as? Int ?? 0) > 0)
+
+        // Map overlay signature & data
+        let sig0 = controller.mapFleetsSignature()
+        let mapData = controller.mapFleetsData()
+        let counters = mapData["counters"] as? [[String: Any]] ?? []
+        #expect(!counters.isEmpty)
+
+        // Province details with Docks -> build a galley
+        _ = controller.selectProvinceByIndex(venice.index)
+        let provD = controller.selectedProvinceDetails()
+        #expect((provD["hasDocks"] as? Bool) == true)
+        let buildable = provD["buildableShips"] as? [[String: Any]] ?? []
+        #expect(!buildable.isEmpty)
+        let galleyIdx = s.world.navy.shipByKey["galley"]!.index
+        #expect(controller.buildShipInSelectedProvince(shipTypeIndex: galleyIdx))
+        #expect(!(controller.selectedProvinceDetails()["shipConstructions"] as? [[String: Any]] ?? []).isEmpty)
+
+        // Select fleet, inspect details, assign admiral, split, merge
+        guard let venFleet = s.world.navy.fleets(of: ven).first else {
+            Issue.record("Missing VEN fleet")
+            return
+        }
+        #expect(controller.selectFleet(fleetId: venFleet.index))
+        #expect(controller.selectedFleetId == venFleet.index)
+        let det = controller.selectedFleetDetails()
+        #expect((det["hasSelection"] as? Bool) == true)
+        #expect((det["shipCount"] as? Int ?? 0) >= 2)
+
+        if let cand = (det["admiralCandidates"] as? [[String: Any]])?.first,
+           let cIdx = cand["characterIndex"] as? Int {
+            #expect(controller.assignFleetAdmiral(fleetId: venFleet.index, characterIndex: cIdx))
+            #expect((controller.selectedFleetDetails()["admiralIndex"] as? Int) == cIdx)
+        }
+
+        let newFid = controller.splitFleet(fleetId: venFleet.index)
+        #expect(newFid >= 0)
+        // Dock both to same port if needed? Wait: split leaves both at exact same location!
+        #expect(controller.mergeFleetsInLocation(fleetId: venFleet.index))
+        #expect(controller.mapFleetsSignature() != sig0)
+
+        // Move mode, sea order, coordinate order, dock order, blockade order
+        #expect(controller.setMoveModeForFleet(fleetId: venFleet.index))
+        #expect(controller.moveModeFleetId == venFleet.index)
+        #expect(controller.orderFleetMoveToSea(fleetId: venFleet.index, seaZoneIndex: adriatic.index))
+        #expect(controller.moveModeFleetId == -1)
+        let sx = Int(s.world.seaZones.centerX[adriatic.index].rounded())
+        let sy = Int(s.world.seaZones.centerY[adriatic.index].rounded())
+        _ = controller.orderFleetMoveAt(fleetId: venFleet.index, mapX: sx, mapY: sy)
+        #expect(controller.orderFleetDock(fleetId: venFleet.index, portProvinceIndex: venice.index))
+
+        // Dock instantly for embark/disembark test
+        s.simulation.world.navy.fleets.location[venFleet.index] = .port(venice)
+        s.simulation.world.navy.fleets.path[venFleet.index].removeAll()
+        let cog = s.world.navy.shipByKey["cog"]!
+        for _ in 0..<2 {
+            let ship = s.simulation.world.navy.ships.add(type: cog, fleet: venFleet, crew: 80)
+            s.simulation.world.navy.fleets.shipIndices[venFleet.index].append(ship)
+        }
+        let inf = s.world.military.unit("infantry")!
+        let testArmy = s.simulation.world.military.armies.append(
+            name: "Adriatic Force", owner: ven, province: venice,
+            regiments: [Regiment(type: inf.id, origin: .professional, men: 1000, morale: 3.0)]
+        )
+        #expect(controller.embarkArmyOnFleet(armyId: Int(testArmy.rawValue), fleetId: venFleet.index))
+        #expect(controller.disembarkArmyFromFleet(armyId: Int(testArmy.rawValue), provinceIndex: -1))
+
+        // Blockade nearest enemy in war + selectedSeaDetails + warsDetails
+        s.simulation.world.diplomacy.wars.append(War(
+            id: "ven_tur_bridge", name: "Aegean War", startDate: Scenario1453.startDate,
+            casusBelli: .claim, warGoal: .superiority, attackers: [ven], defenders: [tur]
+        ))
+        #expect(controller.orderFleetBlockadeNearestEnemy(fleetId: venFleet.index))
+
+        s.select(sea: adriatic)
+        let seaD = controller.selectedSeaDetails()
+        #expect((seaD["hasSelection"] as? Bool) == true)
+        #expect(seaD["isInland"] as? Bool == true)
+
+        let warD = controller.warsDetails()
+        let rows = warD["wars"] as? [[String: Any]] ?? []
+        #expect(!rows.isEmpty)
+        #expect(rows[0]["blockadePct"] != nil)
+        #expect(rows[0]["recentNavalBattles"] != nil)
+
+        controller.clearSelectedFleet()
+        #expect(controller.selectedFleetId == -1)
+    }
 }

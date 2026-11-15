@@ -55,6 +55,38 @@ public enum UnitUnlock: Sendable, Equatable {
     case culture([String])
     case region([String])
     case tags([String])
+
+    /// Returns true if `country` satisfies any unlock clause in `clauses` (or `clauses` is empty).
+    public static func matches(_ clauses: [UnitUnlock], in world: World, for country: CountryID) -> Bool {
+        if clauses.isEmpty { return true }
+        let tag = world.countries.tag[country.index]
+        let gov = world.countries.government[country.index]
+        let cap = world.countries.capital[country.index]
+        let capRegion = cap.map { world.regionName(of: $0) }
+        let capCulture = cap.map { world.cultures.key[world.provinces.majorityCulture[$0.index].index] }
+        let rulerCulture = world.countries.ruler[country.index].map {
+            world.cultures.key[world.people.characters.culture[$0.index].index]
+        }
+        let estateKeys: Set<String> = Set(
+            world.government.estates[country.index].map { world.government.rules.estates[$0.index].key }
+        )
+        for clause in clauses {
+            switch clause {
+            case .estate(let keys):
+                if keys.contains(where: { estateKeys.contains($0) }) { return true }
+            case .government(let govs):
+                if govs.contains(gov) { return true }
+            case .culture(let cultures):
+                if let rc = rulerCulture, cultures.contains(rc) { return true }
+                if let cc = capCulture, cultures.contains(cc) { return true }
+            case .region(let regions):
+                if let cr = capRegion, regions.contains(cr) { return true }
+            case .tags(let tags):
+                if tags.contains(tag) { return true }
+            }
+        }
+        return false
+    }
 }
 
 /// Static definition of a regiment type loaded from `military1453.json`.
@@ -163,6 +195,10 @@ public struct ArmyTable: Sendable, Codable {
     public var previousProvince: [ProvinceID?] = []
     /// True while an army is executing a shattered retreat after a defeated battle.
     public var isRetreating: [Bool] = []
+    /// Fleet currently transporting this army across water, if embarked.
+    public var embarkedOnFleet: [FleetID?] = []
+    /// Remaining days of amphibious landing combat penalty (`-2` roll) after disembarking onto hostile soil.
+    public var amphibiousPenaltyDays: [Int] = []
     public var alive: [Bool] = []
 
     public init() {}
@@ -192,6 +228,8 @@ public struct ArmyTable: Sendable, Codable {
         self.rebelLeader.append(rebelLeader)
         self.previousProvince.append(nil)
         self.isRetreating.append(false)
+        self.embarkedOnFleet.append(nil)
+        self.amphibiousPenaltyDays.append(0)
         self.alive.append(true)
         return id
     }
@@ -204,6 +242,8 @@ public struct ArmyTable: Sendable, Codable {
         rebelLeader[i] = nil
         previousProvince[i] = nil
         isRetreating[i] = false
+        embarkedOnFleet[i] = nil
+        amphibiousPenaltyDays[i] = 0
         regiments[i].removeAll()
         path[i].removeAll()
         moveProgressDays[i] = 0
@@ -288,7 +328,7 @@ public struct Military: Sendable {
     /// the table keeps dead slots, so per-province scans grow with game length.
     public func armyIndexByProvince(provinceCount: Int) -> [[ArmyID]] {
         var index = Array(repeating: [ArmyID](), count: provinceCount)
-        for i in 0..<armies.count where armies.alive[i] {
+        for i in 0..<armies.count where armies.alive[i] && armies.embarkedOnFleet[i] == nil {
             let p = armies.province[i].index
             if p >= 0 && p < provinceCount { index[p].append(ArmyID(Int32(i))) }
         }
@@ -298,7 +338,7 @@ public struct Military: Sendable {
     public func armies(in province: ProvinceID) -> [ArmyID] {
         var result: [ArmyID] = []
         for i in 0..<armies.count {
-            guard armies.alive[i], armies.province[i] == province else { continue }
+            guard armies.alive[i], armies.embarkedOnFleet[i] == nil, armies.province[i] == province else { continue }
             result.append(ArmyID(Int32(i)))
         }
         return result

@@ -137,11 +137,13 @@ public enum SiegeSystem {
                 }!.key
             }
 
-            // Capture coastal undefended vs blockaded state (landlocked = true)
-            let isLandlockedOrBlockaded = !world.provinces.isCoastal[p]
+            // Live blockade check: inland or sea-locked provinces get no -2 coastal penalty;
+            // coastal provinces lose the -2 penalty while a hostile fleet blockades them.
+            let isLandlockedOrBlockaded = !world.hasSeaAccess(pid) || world.navy.blockadedProvinces.contains(pid)
 
             if let idx = world.military.sieges.firstIndex(where: { $0.province == pid }) {
                 var siege = world.military.sieges[idx]
+                siege.blockaded = isLandlockedOrBlockaded
                 siege.phaseDaysRemaining -= 1
                 if siege.phaseDaysRemaining <= 0 {
                     resolveSiegePhase(

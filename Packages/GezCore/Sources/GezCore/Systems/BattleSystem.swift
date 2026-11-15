@@ -8,6 +8,8 @@ public enum BattleModel {
     public static let cavalryFlankingBonus = 0.35
     /// Attacker dice penalty when crossing a major river border into battle.
     public static let riverCrossingPenalty = -1
+    /// Attacker dice penalty when landing from ships into a hostile coastal province battle.
+    public static let amphibiousLandingPenalty = -2
     /// Days required for an invading army to occupy an unfortified enemy province (fortLevel == 0).
     public static let unfortifiedTakeoverDays = 10
     /// Days required for a friendly army to liberate an unfortified occupied province.
@@ -78,6 +80,7 @@ public enum BattleSystem {
         var armiesByProvince: [ProvinceID: [ArmyID]] = [:]
         for i in 0..<world.military.armies.count {
             guard world.military.armies.alive[i],
+                  world.military.armies.embarkedOnFleet[i] == nil,
                   !world.military.armies.isRebel[i],
                   !world.military.armies.isRetreating[i],
                   world.military.armies.totalMen(of: ArmyID(Int32(i))) > 0 else { continue }
@@ -200,6 +203,9 @@ public enum BattleSystem {
             guard let prev = world.military.armies.previousProvince[Int(aid.rawValue)] else { return false }
             return world.isRiverBorder(prev, province)
         }
+        let isAmphibious = attackers.contains { aid in
+            world.military.armies.amphibiousPenaltyDays[Int(aid.rawValue)] > 0
+        }
 
         let attMen = attackers.reduce(0) { $0 + world.military.armies.totalMen(of: $1) }
         let defMen = defenders.reduce(0) { $0 + world.military.armies.totalMen(of: $1) }
@@ -220,6 +226,7 @@ public enum BattleSystem {
             currentPhase: .fire,
             phaseDay: 1,
             isRiverCrossing: isRiver,
+            isAmphibiousLanding: isAmphibious,
             attackerInitialMen: attMen,
             defenderInitialMen: defMen,
             attackerLosses: 0,
@@ -353,8 +360,9 @@ public enum BattleSystem {
 
             let terrainPen = BattleModel.terrainAttackerPenalty(world.provinces.terrain[battle.province.index])
             let riverPen = battle.isRiverCrossing ? BattleModel.riverCrossingPenalty : 0
+            let amphibiousPen = battle.isAmphibiousLanding ? BattleModel.amphibiousLandingPenalty : 0
 
-            let attEffRoll = Double(battle.attackerDiceRoll + (attStats.maxMartial / 3) + terrainPen + riverPen)
+            let attEffRoll = Double(battle.attackerDiceRoll + (attStats.maxMartial / 3) + terrainPen + riverPen + amphibiousPen)
             let defEffRoll = Double(battle.defenderDiceRoll + (defStats.maxMartial / 3))
 
             let attRollMult = max(0.45, 1.0 + (attEffRoll - 4.5) * 0.08)

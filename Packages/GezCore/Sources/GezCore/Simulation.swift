@@ -49,6 +49,8 @@ public final class Simulation {
 
         // Daily systems go here.
         ArmySystem.runDaily(&world, date: date, random: &random)
+        NavySystem.runDaily(&world, date: date, random: &random)
+        NavyBattleSystem.runDaily(&world, date: date, random: &random)
         if interceptHumanBattles {
             BattleSystem.detectAndReinforceBattles(&world, date: date, random: &random)
             // Every new battle of the player's waits (day 0) until the player
@@ -83,12 +85,14 @@ public final class Simulation {
             EconomySystem.runMonthly(&world)
             BuildingSystem.runMonthly(&world)
             ArmySystem.runMonthly(&world, date: date, random: &random)
+            NavySystem.runMonthly(&world)
             SiegeSystem.runMonthly(&world)
             FinanceSystem.runMonthly(&world)
             FinanceSystem.runAI(&world)
             TradeSystem.runAI(&world, month: date.month)
             BuildingSystem.runAI(&world, month: date.month)
             ArmySystem.runAI(&world, month: date.month, date: date)
+            NavySystem.runAI(&world)
             PopulationSystem.runMonthly(&world)
             CharacterSystem.runMonthly(&world, date: date, random: &random)
             VassalSystem.runMonthly(&world, date: date, random: &random)

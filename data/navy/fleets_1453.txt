@@ -1,0 +1,52 @@
+# Historical fleets on 30 May 1453 (abstracted squadron strength, Phase 10).
+# Uncertain historical fleet counts & admirals are marked with "?" in
+# docs/HISTORY_NOTES.md.
+#
+# Format:
+#   tag | Fleet Name | port_province | admiral_id (or -) | ship_key:count, ...
+
+## Ottoman Empire (after the fall of Constantinople)
+TUR | Imperial Fleet of Gallipoli | Gallipoli     | hamza_bey | ottoman_galley:12, cog:4
+TUR | Bosporus Flotilla           | Konstantiniyye | -        | ottoman_galley:6, cog:2
+
+## Venice
+VEN | Armada da Mar     | Venice     | loredan_alvise | carrack:2, venetian_great_galley:6, galley:4, cog:4
+VEN | Aegean Guard      | Negroponte | -              | venetian_great_galley:4, light_ship:3, cog:2
+
+## Genoa
+GEN | Fleet of Genoa    | Genoa | inv_gen_marshal | carrack:3, galley:4, light_ship:2, cog:3
+GEN | Levant Squadron   | Chios | -               | carrack:1, galley:2, light_ship:2
+
+## Aragon & Naples
+ARA | Catalan Armada    | Barcelona | -        | carrack:2, galley:4, light_ship:2, cog:3
+NAP | Royal Armada      | Naples    | vilamari | carrack:2, galley:6, light_ship:2, cog:3
+
+## Portugal & Castile
+POR | Armada of Lisbon  | Lisbon | henry_nav | carrack:2, light_ship:5, cog:3
+CAS | Castilian Armada  | Jerez  | enriquez  | carrack:2, light_ship:3, galley:2, cog:3
+
+## Hansa Towns & Baltic/North Sea
+LUB | Fleet of Lübeck   | Lubeck     | inv_lub_marshal | carrack:1, light_ship:2, cog:4
+BRE | Weser Koggen      | Stade      | -               | light_ship:1, cog:2
+TEU | Prussian Squadron | Danzig     | -               | light_ship:1, cog:3
+RIG | Livonian Squadron | Riga       | -               | light_ship:1, cog:2
+DAN | Royal Fleet       | Copenhagen | inv_dan_marshal | carrack:2, galley:2, light_ship:2, cog:4
+SWE | Stockholm Squadron | Stockholm | -               | galley:2, cog:3
+
+## Atlantic & Western Mediterranean
+ENG | Channel Fleet     | London | henry_holland | carrack:3, light_ship:3, cog:5
+FRA | Normandy Fleet    | Caen   | bueil         | carrack:2, light_ship:2, cog:4
+KNI | Rhodian Galleys   | Rhodes | -             | galley:4, light_ship:1, cog:1
+
+## Mamluks & North Africa
+MAM | Alexandrian Fleet | Alexandria | inv_mam_marshal | galley:4, light_ship:2, cog:2
+MAM | Red Sea Flotilla  | Suez       | -               | dhow:4
+TUN | Corsair Fleet     | Tunis      | -               | galley:4, light_ship:2, cog:1
+MOR | Straits Squadron  | Tangier    | -               | galley:3, light_ship:2
+
+## Indian Ocean
+GUJ | Fleet of Cambay   | Cambay     | inv_guj_marshal | ghurab:3, dhow:4, cog:2
+CLT | Zamorin's Fleet   | Calicut    | inv_clt_marshal | ghurab:2, dhow:5, cog:2
+HOR | Fleet of Hormuz   | Hormuz     | -               | ghurab:1, dhow:4, cog:2
+VIJ | Malabar Squadron  | Honnavar   | -               | ghurab:2, dhow:3, cog:2
+BNG | Delta Fleet       | Chittagong | -               | ghurab:1, dhow:4, cog:2

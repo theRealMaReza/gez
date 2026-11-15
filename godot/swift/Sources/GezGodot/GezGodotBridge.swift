@@ -159,6 +159,7 @@ public final class GezGodotController {
             "ducatsText": ducatsText,
             "inflationPercent": playerInflationPercent,
             "armiesText": topBarArmiesText,
+            "fleetsText": topBarFleetsText,
             "stability": playerStability,
             "stabilityText": topBarStabilityText,
             "activeWarsCount": status?.activeWars ?? 0,
@@ -758,6 +759,29 @@ public final class GezGodotController {
             buildableOptions = canBuildFirst + blockedApplicable + inapplicableOptions
         }
 
+        let dockCap = w.dockCapacity(in: province)
+        let buildableShips = buildableShipsList(for: province, world: w, player: s.playerCountry)
+        let shipConstructions: [[String: Any]] = w.navy.constructions
+            .filter { $0.province == province }
+            .map { job in
+                let st = w.navy.shipType(job.shipType)
+                return [
+                    "shipName": st.name,
+                    "monthsLeft": job.monthsLeft,
+                    "monthsTotal": job.monthsTotal
+                ]
+            }
+        let stationedFleets: [[String: Any]] = w.navy.fleets(inPort: province).map { fid in
+            let ownerIdx = w.navy.fleets.owner[fid.index].index
+            return [
+                "fleetId": fid.index,
+                "name": w.navy.fleets.name[fid.index],
+                "ownerTag": w.countries.tag[ownerIdx],
+                "ships": w.navy.shipCount(of: fid),
+                "isPlayer": ownerIdx == s.playerCountry?.index
+            ]
+        }
+
         // Economy
         let marketID = w.market(of: province)
         let marketIndex = marketID?.index ?? -1
@@ -881,6 +905,12 @@ public final class GezGodotController {
             "levyText": levyText,
             "canDisbandLevies": canDisbandLevies,
             "recruitUnits": recruitUnits,
+            "hasDocks": dockCap > 0,
+            "dockCapacity": dockCap,
+            "buildableShips": buildableShips,
+            "shipConstructions": shipConstructions,
+            "stationedFleets": stationedFleets,
+            "isPortBlockaded": w.navy.blockadedProvinces.contains(province),
             "fortGarrison": garrison,
             "maxGarrison": maxGarrison,
             "isBesieged": siege != nil,
@@ -930,12 +960,34 @@ public final class GezGodotController {
         let neighborsText = z.neighbors[sea.index].map { z.name[$0.index] }.joined(separator: ", ")
         let coastText = coast.prefix(12).map { w.provinces.name[$0.index] }.joined(separator: ", ")
             + (coast.count > 12 ? "…" : "")
+        let isInland = sea.index < z.isInland.count && z.isInland[sea.index]
+        let fleetsHere: [[String: Any]] = w.navy.fleets(inSea: sea).map { fid in
+            let fo = w.navy.fleets.owner[fid.index]
+            return [
+                "fleetId": fid.index,
+                "name": w.navy.fleets.name[fid.index],
+                "ownerTag": w.countries.tag[fo.index],
+                "ships": w.navy.shipCount(of: fid),
+                "isPlayer": fo == s.playerCountry
+            ]
+        }
+        let activeBattleText: String
+        if let b = w.navy.navalBattle(in: sea) {
+            let phase = b.dayCount <= 2 ? "Cannon" : "Boarding"
+            activeBattleText = "\(w.countries.tag[b.attacker.country.index]) vs \(w.countries.tag[b.defender.country.index]) · Day \(b.dayCount) (\(phase))"
+        } else {
+            activeBattleText = ""
+        }
         return [
             "hasSelection": true,
+            "seaZoneIndex": sea.index,
             "name": z.name[sea.index],
+            "isInland": isInland,
             "neighborsText": neighborsText,
             "coastCount": coast.count,
-            "coastText": coastText
+            "coastText": coastText,
+            "fleets": fleetsHere,
+            "activeBattleText": activeBattleText
         ]
     }
 
@@ -3150,6 +3202,7 @@ public final class GezGodotController {
                 "kind": info.kind.rawValue,
                 "label": info.label,
                 "provinceIndex": info.province?.index ?? -1,
+                "seaZoneIndex": info.seaZone?.index ?? -1,
                 "warID": info.warID ?? ""
             ]
         }
@@ -3418,8 +3471,29 @@ public final class GezGodotController {
         let warRows: [[String: Any]] = wars.map { war in
             let wsPct = Int((war.warScore * 100.0).rounded())
             let battlePct = Int((war.battleWarScore * 100.0).rounded())
+            let blockadePct = Int((war.blockadeWarScore * 100.0).rounded())
             let tickingPct = Int((war.tickingWarScore * 100.0).rounded())
-            let occPct = wsPct - battlePct - tickingPct
+            let occPct = wsPct - battlePct - blockadePct - tickingPct
+
+            let recentNavalBattles: [[String: Any]] = w.navy.recentBattles
+                .filter { b in war.areEnemies(b.attackerCountry, b.defenderCountry) }
+                .suffix(6)
+                .reversed()
+                .map { b in
+                    [
+                        "seaZoneIndex": b.seaZone.index,
+                        "seaZoneName": b.seaZoneName,
+                        "date": b.date.description,
+                        "days": b.days,
+                        "attackerTag": w.countries.tag[b.attackerCountry.index],
+                        "defenderTag": w.countries.tag[b.defenderCountry.index],
+                        "winnerTag": w.countries.tag[b.winnerCountry.index],
+                        "attackerShipsLost": b.attackerShipsLost,
+                        "defenderShipsLost": b.defenderShipsLost,
+                        "shipsCaptured": b.attackerShipsCaptured + b.defenderShipsCaptured,
+                        "warScoreDeltaPct": Int((b.warScoreDelta * 100.0).rounded())
+                    ]
+                }
 
             let attackersList: [[String: Any]] = war.attackers.map { Self.countryPill($0, world: w) }
             let defendersList: [[String: Any]] = war.defenders.map { Self.countryPill($0, world: w) }
@@ -3476,8 +3550,10 @@ public final class GezGodotController {
                 "playerIsAttacker": isAttacker,
                 "warScorePct": wsPct,
                 "battlePct": battlePct,
+                "blockadePct": blockadePct,
                 "occupationPct": occPct,
                 "tickingPct": tickingPct,
+                "recentNavalBattles": recentNavalBattles,
                 "attackersText": war.attackers.map { w.countries.tag[$0.index] }.joined(separator: ", "),
                 "defendersText": war.defenders.map { w.countries.tag[$0.index] }.joined(separator: ", "),
                 "attackers": attackersList,
@@ -4692,6 +4768,115 @@ public final class GezGodotBridge: RefCounted {
     @Callable
     public func assaultSelectedProvinceFort() -> VariantDictionary {
         Self.toVariantDictionary(controller.assaultSelectedProvinceFort())
+    }
+
+    // MARK: - Phase 10: Navies, Ship Construction, Blockades & Sea Transport
+
+    @Callable
+    public func getSelectedFleetId() -> Int {
+        controller.selectedFleetId
+    }
+
+    @Callable
+    public func getMoveModeFleetId() -> Int {
+        controller.moveModeFleetId
+    }
+
+    @Callable
+    public func selectFleet(fleetId: Int) -> Bool {
+        controller.selectFleet(fleetId: fleetId)
+    }
+
+    @Callable
+    public func clearSelectedFleet() {
+        controller.clearSelectedFleet()
+    }
+
+    @Callable
+    public func setMoveModeForFleet(fleetId: Int) -> Bool {
+        controller.setMoveModeForFleet(fleetId: fleetId)
+    }
+
+    @Callable
+    public func getMapFleetsSignature() -> Int {
+        controller.mapFleetsSignature()
+    }
+
+    @Callable
+    public func getMapFleetsData() -> VariantDictionary {
+        Self.toVariantDictionary(controller.mapFleetsData())
+    }
+
+    @Callable
+    public func getNaviesWindowDetails() -> VariantDictionary {
+        Self.toVariantDictionary(controller.naviesWindowDetails())
+    }
+
+    @Callable
+    public func getSelectedFleetDetails() -> VariantDictionary {
+        Self.toVariantDictionary(controller.selectedFleetDetails())
+    }
+
+    @Callable
+    public func buildShipInSelectedProvince(shipTypeIndex: Int) -> Bool {
+        controller.buildShipInSelectedProvince(shipTypeIndex: shipTypeIndex)
+    }
+
+    @Callable
+    public func assignFleetAdmiral(fleetId: Int, characterIndex: Int) -> Bool {
+        controller.assignFleetAdmiral(fleetId: fleetId, characterIndex: characterIndex)
+    }
+
+    @Callable
+    public func mergeFleetsInLocation(fleetId: Int) -> Bool {
+        controller.mergeFleetsInLocation(fleetId: fleetId)
+    }
+
+    @Callable
+    public func splitFleet(fleetId: Int) -> Int {
+        controller.splitFleet(fleetId: fleetId)
+    }
+
+    @Callable
+    public func orderFleetMoveToSea(fleetId: Int, seaZoneIndex: Int) -> Bool {
+        controller.orderFleetMoveToSea(fleetId: fleetId, seaZoneIndex: seaZoneIndex)
+    }
+
+    @Callable
+    public func orderFleetDock(fleetId: Int, portProvinceIndex: Int) -> Bool {
+        controller.orderFleetDock(fleetId: fleetId, portProvinceIndex: portProvinceIndex)
+    }
+
+    @Callable
+    public func orderFleetMoveAt(fleetId: Int, mapX: Int, mapY: Int) -> Bool {
+        controller.orderFleetMoveAt(fleetId: fleetId, mapX: mapX, mapY: mapY)
+    }
+
+    @Callable
+    public func orderFleetBlockadeNearestEnemy(fleetId: Int) -> Bool {
+        controller.orderFleetBlockadeNearestEnemy(fleetId: fleetId)
+    }
+
+    @Callable
+    public func embarkArmyOnFleet(armyId: Int, fleetId: Int) -> Bool {
+        controller.embarkArmyOnFleet(armyId: armyId, fleetId: fleetId)
+    }
+
+    @Callable
+    public func disembarkArmyFromFleet(armyId: Int, provinceIndex: Int) -> Bool {
+        controller.disembarkArmyFromFleet(armyId: armyId, provinceIndex: provinceIndex)
+    }
+
+    @Callable
+    public func getSeaZoneFocusPoint(seaZoneIndex: Int) -> Vector2 {
+        guard let s = controller.session,
+              seaZoneIndex >= 0 && seaZoneIndex < s.world.seaZones.centerX.count else {
+            return Vector2(x: 0, y: 0)
+        }
+        return Vector2(
+            x: Float(s.world.seaZones.centerX[seaZoneIndex]),
+            y: Float(s.world.seaZones.centerY[seaZoneIndex])
+        )
     }
 
     @Callable

@@ -1,0 +1,28 @@
+# Ship types for Phase 10 (Navies: 4 core ship classes everywhere plus
+# 4 historical 1453 regional ships unlocked by country, culture, or region).
+#
+# key | Name | class | speed | hull | cannons | crew | months | cost | upkeep | capacity | goods | requires
+#
+# Classes:
+#   transport   Cog (carries 1,000 soldiers per ship)
+#   galley      Oared galley (+50% combat effectiveness & +25% speed in inland seas:
+#               Mediterranean, Black Sea, Baltic, Red Sea)
+#   heavy       Carrack / heavy warship (strong broadside, durable hull)
+#   light       Light ship / caravel / dhow (fast, trade protection, scouting)
+#
+# Goods: bought from the building province's market on construction start
+#   (raising next month's pendingDemand there).
+# Requires (blank = every country; clauses separated by ";" are OR-ed):
+#   estate:<key> / government:<g> / culture:<c> / region:<r> / tags:<T>
+
+## 4 Core Ship Classes
+cog        | Cog        | transport | 1.00 | 90  | 2  | 80  | 6  | 15 | 0.06 | 1 | wood 1.5, naval_supplies 0.5, linen 0.5 |
+galley     | Galley     | galley    | 1.30 | 80  | 4  | 150 | 6  | 18 | 0.08 | 0 | wood 1.2, naval_supplies 0.8, linen 0.4 |
+carrack    | Carrack    | heavy     | 0.90 | 220 | 24 | 250 | 12 | 50 | 0.22 | 0 | wood 3.0, naval_supplies 1.5, wool_cloth 0.8, cannons 1.5 |
+light_ship | Caravel    | light     | 1.50 | 100 | 8  | 100 | 8  | 24 | 0.10 | 0 | wood 1.5, naval_supplies 0.8, linen 0.6, cannons 0.3 |
+
+## 4 Regional Ships of 1453
+venetian_great_galley | Venetian Great Galley | galley | 1.25 | 125 | 10 | 180 | 8  | 28 | 0.12 | 0 | wood 1.8, naval_supplies 1.0, linen 0.6, cannons 0.5 | tags:VEN;culture:venetian
+ottoman_galley        | Ottoman Kadirga       | galley | 1.35 | 85  | 5  | 170 | 5  | 16 | 0.07 | 0 | wood 1.1, naval_supplies 0.8, linen 0.4              | tags:TUR;culture:turkish
+dhow                  | Dhow                  | light  | 1.60 | 90  | 4  | 85  | 6  | 20 | 0.08 | 0 | wood 1.2, naval_supplies 0.6, cotton_cloth 0.6       | region:Arabia,Egypt,Horn of Africa,Persia,Northwest India,Gujarat,Deccan,South India,Bengal;culture:bedouin,najdi,hejazi,yemeni,hadrami,omani,gulf_arab,egyptian,persian,gujarati,marathi,malayali,kannada,tamil,telugu,bengali,sindhi,konkani
+ghurab                | Ghurab                | heavy  | 1.15 | 165 | 14 | 180 | 10 | 38 | 0.16 | 0 | wood 2.4, naval_supplies 1.2, cotton_cloth 0.6, cannons 0.8 | region:Gujarat,Deccan,South India,Bengal,Arabia,Persia;culture:gujarati,marathi,malayali,tamil,telugu,bengali,persian,omani

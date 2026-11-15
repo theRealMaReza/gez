@@ -370,6 +370,27 @@ Data in `data/military/` → `tools/military/milgen.py` →
   or defiantly revoked great vassals raise their domain levies in open
   revolt.
 
+### Navies and sea power
+
+Pure-Swift naval simulation in `Packages/GezCore/Sources/GezCore/Navy/` and `Systems/Navy*.swift`, using struct-of-arrays (`FleetTable`, `ShipTable`) and deterministic `GameRandom`:
+
+- **Ship classes (`data/navy/ships.txt`, `tools/navy/navgen.py` -> `navy1453.json`)**:
+  - **4 core classes**: `cog` (transport, 1 regiment / 1,000 men, 90 hull, 2 cannons, 80 crew, 6 mo, 15d), `galley` (oared, +50% combat & +25% speed in inland seas: Mediterranean, Black Sea, Baltic, Red Sea; 80 hull, 4 cannons, 150 crew, 6 mo, 18d), `carrack` (heavy warship, 220 hull, 24 cannons, 250 crew, 12 mo, 50d), `light_ship` (`Caravel`, 100 hull, 8 cannons, 100 crew, 8 mo, 24d).
+  - **4 regional ships**: `venetian_great_galley` (`VEN` / Venetian, 125 hull, 10 cannons), `ottoman_galley` (`TUR` / Turkish, 85 hull, 5 cannons, 5 mo), `dhow` (Indian Ocean / Arabian / Persian light ship), `ghurab` (Indian Ocean / Arabian heavy warship, 165 hull, 14 cannons).
+- **Docks, shipbuilding & sailors (`Systems/NavySystem.swift`)**:
+  - **Sailor pool**: `0.8%` of coastal peasant + burgher pops plus `250` per Shipyard / Docks level; refills from `0` to max over `60` months; monthly fleet upkeep scaled by `0.55`.
+  - **Shipbuilding**: built only in un-occupied owned coastal provinces with Shipyard / Docks (1 concurrent ship per Docks level); draws ducats, national sailors (`maxCrew`), and market goods (`wood`, `naval_supplies`, `linen`/`wool_cloth`/`cotton_cloth`, `cannons`).
+  - **Starting fleets on 30 May 1453** (`data/navy/fleets_1453.txt`): 28 historical squadrons (230 ships) across Ottomans (`hamza_bey`), Venice (`loredan_alvise`), Genoa, Aragon, Naples (`vilamari`), Portugal (`henry_nav`), Castile (`enriquez`), Hansa & Baltic, England, France (`bueil`), Rhodes, Mamluks, North Africa and the Indian Ocean.
+- **Movement, supply & fleet AI (`Systems/NavyMovement.swift`, `Systems/NavyAI.swift`)**:
+  - Daily sea-zone movement sped up by admiral Martial and inland galley speed (`1.25x`); open-sea attrition past naval supply range; friendly port repairs (`+15` hull / month) and crew reinforcement (`25%` maxCrew / month).
+  - Wartime AI hunts weaker enemy fleets and blockades enemy ports; peacetime AI protects own coasts/trade and repairs in port.
+- **Auto-resolved naval battles, blockades & straits (`Systems/NavyBattleSystem.swift`)**:
+  - Multi-day auto-resolved engagements (Days 1–2 cannon phase, Day 3+ boarding phase) with `GameRandom` + admiral Martial dice rolls, `1.50x` inland galley effectiveness, `18%` capture chance when ships are disabled, retreated survivors heading to friendly port, and BattleSystem war score contribution.
+  - **Blockades**: hostile fleets at sea remove the `-2` coastal-fort siege penalty, cut blockaded markets' sea-trade capacity by up to `75%`, and tick war score.
+  - **Straits**: hostile fleets standing in a strait sea zone block enemy armies from crossing unless that army's side controls both shores.
+- **Naval transport & amphibious landings (`Systems/NavyTransportSystem.swift`)**:
+  - Armies embark onto friendly/allied Cogs in port (`1` transport ship per `1,000` men), sail aboard the fleet, disembark onto accessible or hostile coastal shores (`-2` amphibious combat penalty for recent landings), and are routed overseas by military AI when no same-landmass war target exists.
+
 ## Architecture
 
 | Layer | Tech | Notes |

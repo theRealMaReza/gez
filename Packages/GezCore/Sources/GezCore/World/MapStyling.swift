@@ -160,19 +160,23 @@ public struct GameAlertInfo: Identifiable, Sendable, Equatable {
         case refusingVassal
         case bankrupt
         case highInflation
+        case navalBattle
+        case blockadedPort
     }
 
     public let id: String
     public let kind: Kind
     public let label: String
     public let province: ProvinceID?
+    public let seaZone: SeaZoneID?
     public let warID: String?
 
-    public init(id: String, kind: Kind, label: String, province: ProvinceID? = nil, warID: String? = nil) {
+    public init(id: String, kind: Kind, label: String, province: ProvinceID? = nil, seaZone: SeaZoneID? = nil, warID: String? = nil) {
         self.id = id
         self.kind = kind
         self.label = label
         self.province = province
+        self.seaZone = seaZone
         self.warID = warID
     }
 }

@@ -152,6 +152,12 @@ public struct SeaZoneTable: Sendable {
     public var neighbors: [[SeaZoneID]] = []
     /// Land provinces touching this sea.
     public var coast: [[ProvinceID]] = []
+    /// True for inland seas (Mediterranean, Black Sea, Baltic, Red Sea) where galleys get bonuses.
+    public var isInland: [Bool] = []
+    /// Visual/geometric center X on the map grid.
+    public var centerX: [Double] = []
+    /// Visual/geometric center Y on the map grid.
+    public var centerY: [Double] = []
 
     public init() {}
 
@@ -163,6 +169,9 @@ public struct SeaZoneTable: Sendable {
         self.name.append(name)
         neighbors.append([])
         coast.append([])
+        isInland.append(false)
+        centerX.append(0)
+        centerY.append(0)
         return id
     }
 
@@ -295,6 +304,8 @@ public struct World: Sendable {
     /// Neighbouring provinces whose shared border is mostly a river.
     /// Crossing these is slower and gives the defender an edge in battle.
     public var riverBorders: Set<ProvincePair> = []
+    /// Straits mapped to the sea zones that guard crossing between the two shores.
+    public var straitSeas: [ProvincePair: [SeaZoneID]] = [:]
     /// Goods, markets, producers and prices.
     public var economy = Economy()
     /// Banks and loans.
@@ -307,6 +318,8 @@ public struct World: Sendable {
     public var government = Government()
     /// Armies, regiments, unit types and national manpower (Phase 6).
     public var military = Military()
+    /// Fleets, ships, sailors, blockades, and naval battles (Phase 10).
+    public var navy = Navy()
     /// Diplomatic relations, treaties, opinions, and wars (Phase 7).
     public var diplomacy = Diplomacy()
 
@@ -351,6 +364,39 @@ public struct World: Sendable {
 
     public func isRiverBorder(_ a: ProvinceID, _ b: ProvinceID) -> Bool {
         riverBorders.contains(ProvincePair(a, b))
+    }
+
+    public func isStrait(_ a: ProvinceID, _ b: ProvinceID) -> Bool {
+        straitSeas[ProvincePair(a, b)] != nil
+    }
+
+    public func straitSeaZones(between a: ProvinceID, and b: ProvinceID) -> [SeaZoneID] {
+        straitSeas[ProvincePair(a, b)] ?? []
+    }
+
+    /// True if `province` borders at least one navigable sea zone (excludes inland lakes).
+    public func hasSeaAccess(_ province: ProvinceID) -> Bool {
+        let p = province.index
+        guard p >= 0 && p < provinces.count && provinces.isCoastal[p] else { return false }
+        if p < provinceSeas.count {
+            return !provinceSeas[p].isEmpty
+        }
+        return true
+    }
+
+    /// Concurrent ship building slots in `province` (0 if inland or lacking Shipyard/Docks).
+    public func dockCapacity(in province: ProvinceID) -> Int {
+        guard hasSeaAccess(province) else { return 0 }
+        var slots = 0
+        for t in 0..<economy.buildings.typeCount {
+            if case .ships(let x) = economy.buildingTypes[t].effect {
+                let lvl = economy.buildings.level(province, BuildingTypeID(t))
+                if lvl > 0 {
+                    slots += lvl * max(1, Int(x.rounded()))
+                }
+            }
+        }
+        return slots
     }
 
     public func stateName(of province: ProvinceID) -> String {

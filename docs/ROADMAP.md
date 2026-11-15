@@ -242,8 +242,10 @@ Built in one Gemini pull request (#22, parts A–D), reviewed by Claude. Owner's
 Owner's choices:
 - **Ships, docks & 1453 fleets**: 4 core ship classes (Cogs for transport, Galleys for inland-sea oar combat in Med/Black Sea/Baltic/Red Sea, Carracks as heavy ocean warships, Light Ships/Caravels/Dhows for trade protection & scouting) + regional ships (Venetian Great Galleys, Ottoman galleys, Indian Ocean dhows and ghurabs via tech); built in coastal provinces with Docks using `timber`, `naval_supplies`, `cloth`, and `cannons`, drawing Sailors from coastal peasant/burgher pops, plus historical 30 May 1453 starting fleets.
 - **Naval operations**: Multi-day auto-resolved naval battles (cannon fire & boarding phases, galley bonus in inland seas, admiral Martial rolls, ship capture chance), port blockades (removing the -2 coastal fort siege penalty, cutting sea trade capacity, and adding war score), strait blocking (hostile fleets block enemy armies from crossing a strait unless they control both shores), and amphibious army transport (1 Cog/transport per 1,000 troops, with amphibious landing penalties in combat).
-Fleets (galleys, cogs, carracks, dhows), naval battles auto-resolved on the
-map, blockades of ports, transporting armies across sea zones.
+- [x] 1. **Ships, docks, sailors & 1453 fleets** (`data/navy/`, `tools/navy/navgen.py`, `navy1453.json`): 4 core classes + 4 regional ships, Docks shipbuilding with market goods, coastal pop sailors, and 28 starting fleets (230 ships) on 30 May 1453.
+- [x] 2. **Fleets on the map & naval AI** (`NavyMovement.swift`, `NavyAI.swift`): daily sea-zone/port movement with admirals, supply/attrition at sea, port repairs, hunting enemy fleets, coastal patrol and blockades.
+- [x] 3. **Auto-resolved naval battles, blockades & straits** (`NavyBattleSystem.swift`): cannon & boarding phases, inland-sea galley bonus, ship captures, war score, coastal siege & market sea-trade blockade effects, strait blocking.
+- [x] 4. **Naval transport & Godot fleet UI** (`NavyTransportSystem.swift`, `FleetPanel.gd`, `MapFleetsLayer.gd`, `Main.gd`, `WarsPanel.gd`): 1 Cog per 1,000 men embarkation, amphibious landing penalty (`-2`), AI overseas transport, fleet map counters, fleet/docks/war breakdown UI and snapshots.
 
 ### Phase 11: Religion and culture in motion
 Owner's choices:

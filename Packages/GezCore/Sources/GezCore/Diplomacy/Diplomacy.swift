@@ -67,6 +67,8 @@ public struct War: Sendable, Identifiable, Equatable, Codable {
     public var battleWarScore: Double
     /// Ticking war score from holding the war goal (-0.25 ... +0.25).
     public var tickingWarScore: Double
+    /// War score from naval blockades (-0.15 ... +0.15).
+    public var blockadeWarScore: Double = 0.0
     public var note: String
 
     public init(
@@ -80,6 +82,7 @@ public struct War: Sendable, Identifiable, Equatable, Codable {
         warScore: Double = 0.0,
         battleWarScore: Double = 0.0,
         tickingWarScore: Double = 0.0,
+        blockadeWarScore: Double = 0.0,
         note: String = ""
     ) {
         self.id = id
@@ -92,6 +95,7 @@ public struct War: Sendable, Identifiable, Equatable, Codable {
         self.warScore = warScore
         self.battleWarScore = battleWarScore
         self.tickingWarScore = tickingWarScore
+        self.blockadeWarScore = blockadeWarScore
         self.note = note
     }
 

@@ -218,6 +218,19 @@ public struct SaveSnapshot: Sendable, Codable {
         public var sieges: [Siege]
     }
 
+    public struct NavySnapshot: Sendable, Codable {
+        public var ships: ShipTable
+        public var fleets: FleetTable
+        public var constructions: [ShipConstruction]
+        public var sailors: [Double]
+        public var maxSailors: [Double]
+        public var lastNavyUpkeep: [Double]
+        public var lastAttritionLosses: [Int]
+        public var battles: [NavalBattle]
+        public var recentBattles: [NavalBattleReport]
+        public var blockadedProvinces: Set<ProvinceID>
+    }
+
     public var formatVersion: Int
     public var date: GameDate
     public var ticksRun: Int
@@ -231,6 +244,7 @@ public struct SaveSnapshot: Sendable, Codable {
     public var people: PeopleSnapshot
     public var government: GovernmentSnapshot
     public var military: MilitarySnapshot
+    public var navy: NavySnapshot?
     public var diplomacy: Diplomacy
 
     public init(capturing simulation: Simulation) {
@@ -349,6 +363,19 @@ public struct SaveSnapshot: Sendable, Codable {
             battles: w.military.battles,
             recentBattles: w.military.recentBattles,
             sieges: w.military.sieges
+        )
+
+        self.navy = NavySnapshot(
+            ships: w.navy.ships,
+            fleets: w.navy.fleets,
+            constructions: w.navy.constructions,
+            sailors: w.navy.sailors,
+            maxSailors: w.navy.maxSailors,
+            lastNavyUpkeep: w.navy.lastNavyUpkeep,
+            lastAttritionLosses: w.navy.lastAttritionLosses,
+            battles: w.navy.battles,
+            recentBattles: w.navy.recentBattles,
+            blockadedProvinces: w.navy.blockadedProvinces
         )
 
         self.diplomacy = w.diplomacy
@@ -475,6 +502,19 @@ public struct SaveSnapshot: Sendable, Codable {
         w.military.battles = military.battles
         w.military.recentBattles = military.recentBattles
         w.military.sieges = military.sieges
+
+        if let navy {
+            w.navy.ships = navy.ships
+            w.navy.fleets = navy.fleets
+            w.navy.constructions = navy.constructions
+            w.navy.sailors = navy.sailors
+            w.navy.maxSailors = navy.maxSailors
+            w.navy.lastNavyUpkeep = navy.lastNavyUpkeep
+            w.navy.lastAttritionLosses = navy.lastAttritionLosses
+            w.navy.battles = navy.battles
+            w.navy.recentBattles = navy.recentBattles
+            w.navy.blockadedProvinces = navy.blockadedProvinces
+        }
 
         w.diplomacy = diplomacy
 
