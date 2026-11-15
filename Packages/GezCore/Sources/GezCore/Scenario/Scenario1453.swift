@@ -222,9 +222,21 @@ public enum Scenario1453 {
 
         try buildPops(file, into: &world)
 
+        let primaryOverrides: [String: String] = [
+            "TUR": "turkish",
+            "BRI": "breton",
+            "BUR": "french",
+            "JIS": "czech",
+            "CYR": "bedouin",
+            "FEZ": "tuareg",
+            "TIR": "austrian",
+        ]
         for (index, c) in file.countries.enumerated() {
             world.countries.capital[index] = ProvinceID(c.capital)
-            if c.capital < world.provinces.count {
+            if let key = primaryOverrides[c.tag],
+               let cultIdx = world.cultures.key.firstIndex(of: key) {
+                world.countries.primaryCulture[index] = CultureID(cultIdx)
+            } else if c.capital < world.provinces.count {
                 world.countries.primaryCulture[index] = world.provinces.majorityCulture[c.capital]
             }
             if let lord = c.overlord {

@@ -96,6 +96,7 @@ public final class Simulation {
             PopulationSystem.runMonthly(&world)
             FaithSystem.runMonthly(&world, date: date, random: &random)
             MovementSystem.runMonthly(&world, date: date, random: &random)
+            CultureSystem.runMonthly(&world, date: date, random: &random)
             CharacterSystem.runMonthly(&world, date: date, random: &random)
             VassalSystem.runMonthly(&world, date: date, random: &random)
             GovernmentSystem.runMonthly(&world, date: date, random: &random)

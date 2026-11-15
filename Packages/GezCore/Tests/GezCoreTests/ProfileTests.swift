@@ -59,6 +59,7 @@ final class ProfileTests: XCTestCase {
                 time("PopulationSystem.runMonthly") { PopulationSystem.runMonthly(&world) }
                 time("FaithSystem.runMonthly") { FaithSystem.runMonthly(&world, date: date, random: &random) }
                 time("MovementSystem.runMonthly") { MovementSystem.runMonthly(&world, date: date, random: &random) }
+                time("CultureSystem.runMonthly") { CultureSystem.runMonthly(&world, date: date, random: &random) }
                 time("CharacterSystem.runMonthly") { CharacterSystem.runMonthly(&world, date: date, random: &random) }
                 time("VassalSystem.runMonthly") { VassalSystem.runMonthly(&world, date: date, random: &random) }
                 time("GovernmentSystem.runMonthly") { GovernmentSystem.runMonthly(&world, date: date, random: &random) }

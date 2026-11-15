@@ -104,7 +104,7 @@ public enum ArmySystem {
             if let h = world.provinces.holder[pid.index], world.people.refusing.contains(h) {
                 continue
             }
-            popSum += world.provinces.population[pid.index]
+            popSum += world.provinces.population[pid.index] * CultureSystem.provinceManpowerFactor(world, province: pid, owner: country)
             for t in 0..<T {
                 if case .manpower(let x) = world.economy.buildingTypes[t].effect {
                     let lvl = world.economy.buildings.level(pid, BuildingTypeID(t))
@@ -305,6 +305,7 @@ public enum ArmySystem {
             if tribalSet.contains(world.pops.culture[i]) {
                 rate += ArmyModel.tribalLevyBonusShare
             }
+            rate *= CultureSystem.manpowerMultiplier(world, country: country, culture: world.pops.culture[i])
             raw += world.pops.size[i] * rate
         }
         let factor = max(0.25, 1.0 + world.government.modifier(country, .levySize))

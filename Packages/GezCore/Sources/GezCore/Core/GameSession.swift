@@ -1414,4 +1414,20 @@ public final class GameSession {
         if ok { revision &+= 1 }
         return ok
     }
+
+    @discardableResult
+    public func acceptCulture(_ culture: CultureID) -> AcceptCultureError? {
+        guard let player = playerCountry else { return .notPresentInCountry }
+        let err = CultureSystem.acceptCulture(&simulation.world, country: player, culture: culture, date: date)
+        if err == nil { revision &+= 1 }
+        return err
+    }
+
+    @discardableResult
+    public func revokeCulture(_ culture: CultureID) -> Bool {
+        guard let player = playerCountry else { return false }
+        let ok = CultureSystem.revokeCulture(&simulation.world, country: player, culture: culture, date: date)
+        if ok { revision &+= 1 }
+        return ok
+    }
 }
