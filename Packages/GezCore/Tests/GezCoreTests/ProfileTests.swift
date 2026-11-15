@@ -35,6 +35,8 @@ final class ProfileTests: XCTestCase {
             }
             date.advanceOneDay()
             time("ArmySystem.runDaily") { ArmySystem.runDaily(&world, date: date, random: &random) }
+            time("NavySystem.runDaily") { NavySystem.runDaily(&world, date: date, random: &random) }
+            time("NavyBattleSystem.runDaily") { NavyBattleSystem.runDaily(&world, date: date, random: &random) }
             time("BattleSystem.runDaily") { BattleSystem.runDaily(&world, date: date, random: &random) }
             time("SiegeSystem.runDaily") { SiegeSystem.runDaily(&world, date: date, random: &random) }
             time("DiplomacySystem.runDaily") { DiplomacySystem.runDaily(&world, date: date) }
@@ -46,12 +48,14 @@ final class ProfileTests: XCTestCase {
                 time("EconomySystem.runMonthly") { EconomySystem.runMonthly(&world) }
                 time("BuildingSystem.runMonthly") { BuildingSystem.runMonthly(&world) }
                 time("ArmySystem.runMonthly") { ArmySystem.runMonthly(&world, date: date, random: &random) }
+                time("NavySystem.runMonthly") { NavySystem.runMonthly(&world) }
                 time("SiegeSystem.runMonthly") { SiegeSystem.runMonthly(&world) }
                 time("FinanceSystem.runMonthly") { FinanceSystem.runMonthly(&world) }
                 time("FinanceSystem.runAI") { FinanceSystem.runAI(&world) }
                 time("TradeSystem.runAI") { TradeSystem.runAI(&world, month: date.month) }
                 time("BuildingSystem.runAI") { BuildingSystem.runAI(&world, month: date.month) }
                 time("ArmySystem.runAI") { ArmySystem.runAI(&world, month: date.month, date: date) }
+                time("NavySystem.runAI") { NavySystem.runAI(&world) }
                 time("PopulationSystem.runMonthly") { PopulationSystem.runMonthly(&world) }
                 time("CharacterSystem.runMonthly") { CharacterSystem.runMonthly(&world, date: date, random: &random) }
                 time("VassalSystem.runMonthly") { VassalSystem.runMonthly(&world, date: date, random: &random) }
