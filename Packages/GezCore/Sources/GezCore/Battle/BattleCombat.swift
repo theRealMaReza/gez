@@ -511,6 +511,9 @@ public enum BattleCombat {
                     arrX = min(arrX, 736.0)
                 }
             }
+            if engine.isAssault && engine.units.side[i] == .defender {
+                arrX = clampDefenderToFort(engine: engine, unit: i, x: arrX, y: arrY)
+            }
             if engine.isAssault && engine.units.side[i] == .attacker && arrX > 784.0 {
                 engine.units.isOnWall[i] = false
             }
@@ -526,6 +529,9 @@ public enum BattleCombat {
         var nextY = max(10.0, min(engine.battlefield.height - 10.0, engine.units.posY[i] + ny * step))
         var actualStep = step
 
+        if engine.isAssault && engine.units.side[i] == .defender {
+            nextX = clampDefenderToFort(engine: engine, unit: i, x: nextX, y: nextY)
+        }
         if engine.isAssault && engine.units.side[i] == .attacker {
             let wallLeft = 740.0
             let wallRight = 784.0
@@ -571,6 +577,28 @@ public enum BattleCombat {
         let stanceMult = engine.units.stance[i] == .charge ? 1.85 : 1.0
         engine.units.fatigue[i] = min(1.0, engine.units.fatigue[i] + 0.018 * mods.marchFatigueMultiplier * stanceMult * dt)
         return false
+    }
+
+    /// Walls hold the garrison in as well as the attackers out (review fix):
+    /// defenders on the rampart stay on it and shoot from there; the others
+    /// can cross the wall line only through a breach or a broken gate.
+    static func clampDefenderToFort(engine: BattleEngine, unit i: Int, x: Double, y: Double) -> Double {
+        let wallLeft = 740.0
+        let wallRight = 784.0
+        if engine.units.isOnWall[i] {
+            return max(wallLeft, min(wallRight, x))
+        }
+        if hasOpenPassage(atY: y, in: engine.structures) {
+            return x
+        }
+        let px = engine.units.posX[i]
+        if px >= wallRight && x < wallRight {
+            return wallRight + 4.0
+        }
+        if px <= wallLeft && x > wallLeft {
+            return wallLeft - 4.0
+        }
+        return x
     }
 
     public static func hasOpenPassage(atY y: Double, in structures: [FortStructure]) -> Bool {

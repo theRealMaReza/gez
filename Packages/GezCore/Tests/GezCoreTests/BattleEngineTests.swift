@@ -818,5 +818,20 @@ final class BattleEngineTests: XCTestCase {
         _ = session.advanceDays(1)
         XCTAssertNotNil(session.pendingBattlePrompt, "second battle asks too, instead of auto-resolving silently")
     }
+
+    /// The garrison stays behind (or on) its walls when there is no breach:
+    /// before the fix, rampart archers walked through the wall towards
+    /// enemies out of range (review fix, session 7).
+    func testGarrisonCannotWalkThroughIntactWalls() {
+        var e = makeTestAssaultEngine(fortLevel: 3, existingBreach: false, garrisonMen: 2_000, playerSide: .attacker)
+        _ = e.startBattle()
+        for _ in 0..<60 {
+            e.stepTicks(10)
+            for i in 0..<e.units.count where e.units.side[i] == .defender && e.units.men[i] > 0 {
+                XCTAssertGreaterThanOrEqual(e.units.posX[i], 736.0,
+                    "defender \(e.units.unitName[i]) left the fort through an intact wall (x=\(e.units.posX[i]))")
+            }
+        }
+    }
 }
 

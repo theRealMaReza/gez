@@ -851,6 +851,26 @@ func _on_canvas_draw() -> void:
 			canvas.draw_circle(dest, 4.0, Color(0.96, 0.84, 0.32, 0.85))
 
 	# 7. Unit blocks
+	# Neighbours often share similar map colours (Albania and the Ottomans
+	# are both red), so if the two sides look alike, the defender is drawn
+	# lighter or darker so the armies can be told apart.
+	var side_cols := {}
+	for u_item in units:
+		if u_item is Dictionary and not side_cols.has(int(u_item.get("side", 0))):
+			side_cols[int(u_item.get("side", 0))] = Color(
+				float(int(u_item.get("colorR", 180))) / 255.0,
+				float(int(u_item.get("colorG", 120))) / 255.0,
+				float(int(u_item.get("colorB", 80))) / 255.0)
+	var shift_side := -1
+	var shifted_col := Color()
+	if side_cols.size() == 2:
+		var keys := side_cols.keys()
+		var ca: Color = side_cols[keys[0]]
+		var cb: Color = side_cols[keys[1]]
+		var diff := absf(ca.r - cb.r) + absf(ca.g - cb.g) + absf(ca.b - cb.b)
+		if diff < 0.45:
+			shift_side = int(keys[1])
+			shifted_col = cb.lightened(0.55) if cb.get_luminance() < 0.5 else cb.darkened(0.55)
 	for u_item in units:
 		if not (u_item is Dictionary):
 			continue
@@ -871,6 +891,8 @@ func _on_canvas_draw() -> void:
 			float(int(u_item.get("colorG", 120))) / 255.0,
 			float(int(u_item.get("colorB", 80))) / 255.0
 		)
+		if int(u_item.get("side", 0)) == shift_side:
+			col = shifted_col
 		if routing:
 			col = col.darkened(0.42)
 			col.a = 0.72
