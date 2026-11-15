@@ -157,6 +157,18 @@ When a download exists: build an unsigned Mac app on CI, attach it to a
 GitHub Release on the website repo, and add "how to open an app from an
 unidentified developer" steps to the page.
 
+### Releasing a download (from 14 Nov 2026)
+`.github/workflows/release.yml` ("Release", run by hand with a version
+name) takes the newest CI run on `main` whose Mac, Windows and Linux
+Godot builds all passed and publishes them as a GitHub Release on the
+**website repo** (not this one, which goes private later), as
+`Gez-Mac.zip`, `Gez-Windows.zip`, `Gez-Linux.tar.gz`. The website links
+to `.../releases/latest/download/<file>`, so it never needs editing per
+release. Needs the secret `WEBSITE_TOKEN` (fine-grained token, Contents
+read/write on the website repo only; the owner made it, never in chat).
+Builds are unsigned: Mac needs right-click > Open, Windows shows
+SmartScreen (More info > Run anyway) until the Microsoft Store.
+
 ## How to work on it
 
 ### Limits of the cloud workspace

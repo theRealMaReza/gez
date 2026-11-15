@@ -1,0 +1,106 @@
+name: Release
+
+# Publishes the newest tested Godot builds (Mac, Windows, Linux) as a
+# GitHub Release on the website repository, so anyone can download them
+# from https://yv28f5k922-dot.github.io without a GitHub account.
+#
+# Run by hand: Actions > Release > Run workflow, type a version name.
+# Needs the secret WEBSITE_TOKEN: a fine-grained GitHub token with
+# "Contents: Read and write" on yv28f5k922-dot.github.io only.
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version name, for example 0.1"
+        required: true
+        type: string
+      notes:
+        description: "What's new (one or two sentences, optional)"
+        required: false
+        type: string
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Publish downloads on the website
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      SITE_REPO: yv28f5k922-dot/yv28f5k922-dot.github.io
+    steps:
+      - name: Check the website token is set
+        env:
+          WEBSITE_TOKEN: ${{ secrets.WEBSITE_TOKEN }}
+        run: |
+          if [ -z "$WEBSITE_TOKEN" ]; then
+            echo "::error::The WEBSITE_TOKEN secret is missing. See the comment at the top of .github/workflows/release.yml."
+            exit 1
+          fi
+
+      - name: Find the newest CI run on main with all three builds
+        id: run
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          # Newest first. A run counts only if every build job passed.
+          for id in $(gh api "repos/$REPO/actions/workflows/ci.yml/runs?branch=main&event=push&status=completed&per_page=20" --jq '.workflow_runs[].id'); do
+            ok=$(gh api "repos/$REPO/actions/runs/$id/jobs?per_page=100" --jq '[.jobs[] | select(.name | startswith("Build & export Godot game")) | select(.conclusion == "success")] | length')
+            names=$(gh api "repos/$REPO/actions/runs/$id/artifacts" --jq '[.artifacts[] | select(.expired == false) | .name] | join(" ")')
+            if [ "$ok" = "3" ] && [[ "$names" == *gez-godot-macos* ]] && [[ "$names" == *gez-godot-windows* ]] && [[ "$names" == *gez-godot-linux* ]]; then
+              sha=$(gh api "repos/$REPO/actions/runs/$id" --jq .head_sha)
+              echo "Using CI run $id (commit $sha)"
+              echo "id=$id" >> "$GITHUB_OUTPUT"
+              echo "sha=$sha" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          done
+          echo "::error::No recent CI run on main has passing Mac, Windows and Linux builds. Wait for CI to finish, then run this again."
+          exit 1
+
+      - name: Download the builds
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          mkdir -p dl out
+          for n in macos windows linux; do
+            gh run download "${{ steps.run.outputs.id }}" -R "$REPO" -n "gez-godot-$n" -D "dl/$n"
+          done
+          # Fixed file names, so the website's links never change:
+          # .../releases/latest/download/<name>
+          cp dl/macos/Gez-macOS.zip           out/Gez-Mac.zip
+          cp dl/windows/Gez-Windows-x86_64.zip out/Gez-Windows.zip
+          cp dl/linux/Gez-Linux-x86_64.tar.gz  out/Gez-Linux.tar.gz
+          ls -l out
+          (cd out && sha256sum * > SHA256SUMS.txt)
+
+      - name: Publish the release on the website repository
+        env:
+          GH_TOKEN: ${{ secrets.WEBSITE_TOKEN }}
+          VERSION: ${{ inputs.version }}
+          NOTES: ${{ inputs.notes }}
+        run: |
+          tag="v${VERSION// /-}"
+          body="${NOTES:-A new version of Gez.}
+
+          How to open it:
+          - Mac (Apple silicon): unzip, then right-click Gez and choose Open, then Open again.
+          - Windows (64-bit): unzip, open Gez.exe. If Windows shows \"Windows protected your PC\", click More info, then Run anyway.
+          - Linux (x86_64): extract, then run ./Gez.x86_64
+
+          Build ${{ steps.run.outputs.sha }}"
+          if gh release view "$tag" -R "$SITE_REPO" >/dev/null 2>&1; then
+            echo "::error::Version $VERSION already exists. Pick a new version name."
+            exit 1
+          fi
+          gh release create "$tag" out/* -R "$SITE_REPO" --title "Gez $VERSION" --notes "$body" --latest
+          echo "Published: https://github.com/$SITE_REPO/releases/tag/$tag"
