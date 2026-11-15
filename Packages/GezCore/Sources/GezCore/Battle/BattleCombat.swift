@@ -733,7 +733,7 @@ public enum BattleCombat {
 
             let mitigation = 10.0 / (5.0 + engine.units.defence[target] * defMods.defence * targetDisc)
             let rawPower = menRatio * engine.units.attack[i] * fireMult * atkMods.rangedAttack * sideDisc * cmdMult * fatigueFactor * elevFactor * distFactor * rngRoll
-            let casualties = max(1, Int((rawPower * mitigation * formIncoming * (1.0 - coverReduction) * ladderExposure * 4.2).rounded()))
+            let casualties = max(1, Int((rawPower * mitigation * formIncoming * (1.0 - coverReduction) * ladderExposure * 4.2 * BattleEngine.pace).rounded()))
             let actualCas = min(engine.units.men[target], casualties)
 
             engine.units.men[target] -= actualCas
@@ -772,7 +772,7 @@ public enum BattleCombat {
                 engine.units.hasMoveOrder[i] = false
                 engine.units.velX[i] = 0
                 engine.units.velY[i] = 0
-                engine.units.fatigue[i] = min(1.0, engine.units.fatigue[i] + 0.032 * BattleEngine.dt)
+                engine.units.fatigue[i] = min(1.0, engine.units.fatigue[i] + 0.032 * BattleEngine.pace * BattleEngine.dt)
             }
         }
 
@@ -827,7 +827,7 @@ public enum BattleCombat {
             let rngRoll = Double.random(in: 0.85...1.15, using: &engine.random)
             let mitigation = 10.0 / (5.0 + engine.units.defence[j] * defMods.defence * targetDisc)
             let rawPower = menRatio * engine.units.attack[i] * shockMult * atkMods.attack * sideDisc * cmdMult * fatigueFactor * chargeFactor * terrainFactor * rngRoll
-            let cas = max(1, Int((rawPower * mitigation * flankCasMult * specialDef * 2.8).rounded()))
+            let cas = max(1, Int((rawPower * mitigation * flankCasMult * specialDef * 2.8 * BattleEngine.pace).rounded()))
 
             pendingCas[j] += cas
             engine.units.kills[i] += min(engine.units.men[j], cas)

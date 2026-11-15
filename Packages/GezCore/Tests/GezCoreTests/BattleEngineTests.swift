@@ -428,7 +428,7 @@ final class BattleEngineTests: XCTestCase {
 
         // 2. Tactical AI-vs-AI outcome on identical armies (`playerSide == nil`)
         var tacEngine = makeTestBattleEngine(attRegiments: attRegs, defRegiments: defRegs, playerSide: nil, terrain: .plains, seed: 2026)
-        tacEngine.stepTicks(1800)
+        tacEngine.stepTicks(18_000)
         XCTAssertEqual(tacEngine.phase, .ended, "AI-vs-AI battle must finish within tick horizon")
         let tacWinnerCountry = tacEngine.winner == .attacker ? fra : eng
         XCTAssertEqual(tacWinnerCountry, autoRep.winner, "AI-vs-AI tactical winner must match auto-resolve for same armies")
@@ -620,7 +620,7 @@ final class BattleEngineTests: XCTestCase {
         if var b = session.tacticalBattle {
             let allAtt: [Int] = (0..<b.units.count).filter { b.units.side[$0] == .attacker }
             b.issueStanceOrder(unitIndices: allAtt, stance: .charge)
-            b.stepTicks(1800)
+            b.stepTicks(18_000)
             session.tacticalBattle = b
         }
         XCTAssertEqual(session.tacticalBattle?.phase, BattleControlPhase.ended)
@@ -832,6 +832,31 @@ final class BattleEngineTests: XCTestCase {
                     "defender \(e.units.unitName[i]) left the fort through an intact wall (x=\(e.units.posX[i]))")
             }
         }
+    }
+
+    /// Owner's choice (session 7): a battle led in person lasts about 2-4
+    /// minutes at 1x. Gemini's first version ended in ~16 seconds.
+    func testBattleLastsMinutesNotSeconds() {
+        let world = Scenario1453.makeWorld()
+        let inf = world.military.unit("infantry")!
+        let arc = world.military.unit("archers")!
+        let cav = world.military.unit("cavalry")!
+        func army(_ extraInf: Int) -> [Regiment] {
+            var r = [
+                Regiment(type: inf.id, origin: .professional, men: 1_000, morale: 3.0),
+                Regiment(type: inf.id, origin: .professional, men: 1_000, morale: 3.0),
+                Regiment(type: arc.id, origin: .professional, men: 1_000, morale: 2.8),
+                Regiment(type: cav.id, origin: .professional, men: 1_000, morale: 3.0)
+            ]
+            for _ in 0..<extraInf { r.append(Regiment(type: inf.id, origin: .professional, men: 1_000, morale: 3.0)) }
+            return r
+        }
+        var e = makeTestBattleEngine(attRegiments: army(1), defRegiments: army(0), playerSide: nil, seed: 31)
+        e.stepTicks(BattleEngine.ticksPerSecond * 60 * 8)
+        print("BATTLE_LENGTH \(e.elapsedSeconds) s, phase=\(e.phase)")
+        XCTAssertEqual(e.phase, .ended, "battle should end within 8 minutes")
+        XCTAssertGreaterThanOrEqual(e.elapsedSeconds, 60.0, "battle over too fast to command")
+        XCTAssertLessThanOrEqual(e.elapsedSeconds, 420.0, "battle drags on too long")
     }
 }
 

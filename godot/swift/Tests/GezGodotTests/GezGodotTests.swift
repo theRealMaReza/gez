@@ -1181,7 +1181,7 @@ struct GezGodotTests {
         if var b = s.tacticalBattle {
             let allAtt = (0..<b.units.count).filter { b.units.side[$0] == .attacker }
             b.issueStanceOrder(unitIndices: allAtt, stance: .charge)
-            b.stepTicks(2400)
+            b.stepTicks(24_000) // battles last minutes since the pace change
             s.tacticalBattle = b
         }
         let preState = controller.battleStateData()

@@ -4,6 +4,11 @@ import Foundation
 public struct BattleEngine: Sendable, Equatable {
     public static let ticksPerSecond: Int = 10
     public static let dt: Double = 1.0 / Double(ticksPerSecond)
+    /// Battle pace (owner's choice, session 7: a battle led in person lasts
+    /// about 2-4 minutes at 1x). Casualties per hit and melee fatigue are
+    /// multiplied by this; ammunition is divided by it so archers and guns keep
+    /// the same share of the fighting. Wall damage is not scaled.
+    public static let pace: Double = 0.125
 
     public let seed: UInt64
     public let province: ProvinceID
@@ -344,18 +349,18 @@ public struct BattleEngine: Sendable, Equatable {
     }
 
     public static func defaultAmmo(unitKey: String, category: UnitCategory) -> Int {
+        let volleys: Int
         switch category {
         case .ranged:
-            if unitKey == "handgunners" { return 12 }
-            if unitKey == "longbowmen" { return 18 }
-            return 16
+            if unitKey == "handgunners" { volleys = 12 } else if unitKey == "longbowmen" { volleys = 18 } else { volleys = 16 }
         case .artillery:
-            return 12
+            volleys = 12
         case .cavalry:
-            return unitKey == "horse_archers" ? 16 : 0
+            volleys = unitKey == "horse_archers" ? 16 : 0
         case .infantry:
-            return unitKey == "war_wagons" ? 14 : 0
+            volleys = unitKey == "war_wagons" ? 14 : 0
         }
+        return Int((Double(volleys) / pace).rounded())
     }
 
     public static func defaultBaseSpeed(category: UnitCategory, unitKey: String) -> Double {
