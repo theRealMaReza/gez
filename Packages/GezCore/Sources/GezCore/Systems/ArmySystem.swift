@@ -1502,21 +1502,6 @@ public enum ArmySystem {
                 soldiersDirty = true
             }
 
-            if !atWarCountries.contains(c) && crownArmies.count > 1 {
-                var firstIdleInProv: [ProvinceID: ArmyID] = [:]
-                for aid in crownArmies {
-                    let idx = Int(aid.rawValue)
-                    guard world.military.armies.alive[idx], world.military.armies.path[idx].isEmpty else { continue }
-                    let p = world.military.armies.province[idx]
-                    if let anchor = firstIdleInProv[p] {
-                        _ = mergeArmiesInProvince(&world, into: anchor)
-                    } else {
-                        firstIdleInProv[p] = aid
-                    }
-                }
-                crownArmies = crownArmies.filter { world.military.armies.alive[Int($0.rawValue)] }
-            }
-
             if soldiersDirty { recountSoldiers() }
             for aid in crownArmies {
                 let idx = Int(aid.rawValue)
@@ -1557,7 +1542,8 @@ public enum ArmySystem {
                     world.military.armies.alive[Int($0.rawValue)]
                         && world.military.armies.province[Int($0.rawValue)] == cap
                 }
-                if case .success = recruitProfessional(&world, c, in: cap, unit: chosen.id, intoArmy: existingCapArmy) {
+                if case .success = recruitProfessional(&world, c, in: cap, unit: chosen.id, intoArmy: nil)
+                    _ = existingCapArmy {
                     soldiersDirty = true
                 }
             }

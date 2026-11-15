@@ -280,15 +280,28 @@ public enum DiplomacyAISystem {
 
                 // 3. Nearest priority war goal -> nearest unoccupied enemy prov -> nearest liberate prov
                 let myLand = landMass[curProv.index]
-                let reachablePools: [[ProvinceID]] = [priorityTargets, enemyProvs, liberateProvs].map { pool in
-                    pool.filter { landMass[$0.index] == myLand }
+                let curPt = world.provinces.location[curProv.index]
+                let candidatePools: [[ProvinceID]] = [priorityTargets, enemyProvs, liberateProvs]
+                var ordered = false
+                for fullPool in candidatePools where !fullPool.isEmpty {
+                    let pool = fullPool.filter { landMass[$0.index] == myLand }
+                    guard !pool.isEmpty else { continue }
+                    let sortedTargets = pool.sorted { a, b in
+                        let pa = world.provinces.location[a.index]
+                        let pb = world.provinces.location[b.index]
+                        let da = hypot(pa.longitude - curPt.longitude, pa.latitude - curPt.latitude)
+                        let db = hypot(pb.longitude - curPt.longitude, pb.latitude - curPt.latitude)
+                        return da < db
+                    }
+                    for target in sortedTargets.prefix(5) {
+                        if ArmySystem.orderMove(&world, army: aid, to: target) {
+                            ordered = true
+                            break
+                        }
+                    }
+                    if ordered { break }
                 }
-                ArmySystem.orderMoveToBestPool(
-                    &world,
-                    army: aid,
-                    pools: reachablePools,
-                    unreachableCache: &unreachableStarts
-                )
+                _ = unreachableStarts
             }
         }
     }
