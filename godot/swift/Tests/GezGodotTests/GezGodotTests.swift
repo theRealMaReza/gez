@@ -1018,4 +1018,183 @@ struct GezGodotTests {
         let sig3 = controller.mapArmiesSignature()
         #expect(sig3 != sig1)
     }
+
+    @Test("Phase 9 Part A bridge: battle prompt, lead in person, deploy move, start, speed, tick")
+    func phase9PartABattleBridge() {
+        let controller = GezGodotController()
+        #expect(controller.setup(dataDirectoryPath: "", tag: "FRA"))
+        guard let s = controller.session,
+              let fra = s.world.countries.id(forTag: "FRA"),
+              let eng = s.world.countries.id(forTag: "ENG"),
+              let bordeaux = s.world.provinces.id(named: "Bordeaux") else {
+            Issue.record("Missing FRA/ENG/Bordeaux")
+            return
+        }
+
+        // Initial state: no prompt, no active battle
+        #expect(!controller.hasPendingBattlePrompt())
+        #expect(controller.pendingBattlePromptData()["active"] as? Bool == false)
+        #expect(!controller.isTacticalBattleActive())
+        #expect(controller.battleStateData()["active"] as? Bool == false)
+
+        // Invalid storm assault request reports cleanly
+        let badAssault = controller.requestStormAssaultChoice(provinceIndex: bordeaux.index)
+        #expect(badAssault["opened"] as? Bool == false)
+
+        // Trigger a player battle in Bordeaux
+        for aid in s.world.military.armies(in: bordeaux) {
+            s.simulation.world.military.armies.remove(aid)
+        }
+        let inf = s.world.military.unit("infantry")!
+        s.simulation.world.military.armies.append(
+            name: "French Guard",
+            owner: fra,
+            province: bordeaux,
+            regiments: [Regiment(type: inf.id, origin: .professional, men: 1_000, morale: 3.0)]
+        )
+        s.simulation.world.military.armies.append(
+            name: "English Guard",
+            owner: eng,
+            province: bordeaux,
+            regiments: [Regiment(type: inf.id, origin: .professional, men: 1_000, morale: 3.0)]
+        )
+        _ = s.advanceDays(1)
+        #expect(controller.hasPendingBattlePrompt())
+        let prompt = controller.pendingBattlePromptData()
+        #expect(prompt["active"] as? Bool == true)
+        #expect(prompt["provinceIndex"] as? Int == bordeaux.index)
+
+        // Lead Battle in Person
+        #expect(controller.chooseLeadBattleInPerson())
+        #expect(!controller.hasPendingBattlePrompt())
+        #expect(controller.isTacticalBattleActive())
+
+        let state1 = controller.battleStateData()
+        #expect(state1["active"] as? Bool == true)
+        #expect(state1["phase"] as? String == "deployment")
+        let units1 = state1["units"] as? [[String: Any]] ?? []
+        #expect(units1.count == 2)
+
+        // Move player unit in deployment zone & start battle
+        #expect(controller.deployMoveBattleUnit(unitIndex: 0, x: 220.0, y: 310.0, facing: 0.1))
+        #expect(controller.startTacticalBattle())
+        #expect(controller.setTacticalBattleSpeed(speedIndex: 2))
+        let ticked = controller.tickTacticalBattle(deltaSeconds: 0.5)
+        #expect(ticked >= 1)
+
+        // Part B tactical orders via controller
+        #expect(controller.orderBattleFormation(unitIndices: [0], formationKey: "wedge"))
+        #expect(controller.orderBattleStance(unitIndices: [0], stanceKey: "charge"))
+        #expect(controller.orderBattlePath(unitIndices: [0], points: [TacticalPoint(x: 420, y: 310), TacticalPoint(x: 560, y: 350)]))
+        #expect(controller.orderBattleFrontline(unitIndices: [0], startX: 480, startY: 250, endX: 480, endY: 450))
+        #expect(controller.orderBattleMove(unitIndices: [0], x: 520, y: 360))
+        #expect(controller.orderBattleAttack(unitIndices: [0], targetUnitIndex: 1))
+        #expect(controller.orderBattleRetreat(unitIndices: [0]))
+        let afterOrder = controller.battleStateData()
+        let uList = afterOrder["units"] as? [[String: Any]] ?? []
+        #expect(uList[0]["stance"] as? String == "retreat")
+    }
+
+    @Test("Phase 9 Part C bridge: storm assault prompt, siege equipment, attack structure, structures & keepZone")
+    func phase9PartCSiegeAssaultBridge() {
+        let controller = GezGodotController()
+        #expect(controller.setup(dataDirectoryPath: "", tag: "TUR"))
+        guard let s = controller.session,
+              let tur = s.world.countries.id(forTag: "TUR"),
+              let byz = s.world.countries.id(forTag: "BYZ") ?? s.world.countries.ids.first(where: { $0 != tur }),
+              let prov = s.world.provinces.ids.first(where: { s.world.provinces.fortLevel[$0.index] > 0 && s.world.provinces.owner[$0.index] == byz })
+                ?? s.world.provinces.ids.first(where: { s.world.provinces.fortLevel[$0.index] > 0 }) else {
+            Issue.record("Missing fortified province")
+            return
+        }
+
+        let ownerCountry = s.world.provinces.owner[prov.index]
+        for aid in s.world.military.armies(in: prov) {
+            s.simulation.world.military.armies.remove(aid)
+        }
+        let inf = s.world.military.unit("infantry")!
+        let art = s.world.military.unit("bombard") ?? s.world.military.unit("artillery") ?? inf
+        s.simulation.world.military.armies.append(
+            name: "Assault Force",
+            owner: tur,
+            province: prov,
+            regiments: [
+                Regiment(type: inf.id, origin: .professional, men: 1_000, morale: 3.0),
+                Regiment(type: art.id, origin: .professional, men: 800, morale: 2.8)
+            ]
+        )
+        s.simulation.world.military.sieges.append(
+            Siege(province: prov, besieger: tur, startDate: Scenario1453.startDate, breached: true)
+        )
+        let req = controller.requestStormAssaultChoice(provinceIndex: prov.index)
+        #expect(req["opened"] as? Bool == true)
+        #expect(controller.chooseLeadBattleInPerson())
+
+        let st = controller.battleStateData()
+        #expect(st["isAssault"] as? Bool == true)
+        let structs = st["structures"] as? [[String: Any]] ?? []
+        #expect(structs.count >= 7)
+        let kz = st["keepZone"] as? [String: Any] ?? [:]
+        #expect(!kz.isEmpty)
+
+        #expect(controller.startTacticalBattle())
+        #expect(controller.orderBattleSiegeEquipment(unitIndices: [0], equipmentKey: "ram"))
+        #expect(controller.orderBattleAttackStructure(unitIndices: [1], structureId: 3))
+        let stepped = controller.tickTacticalBattle(deltaSeconds: 1.0)
+        #expect(stepped >= 1)
+        _ = ownerCountry
+    }
+
+    @Test("Phase 9 Part D bridge: finishTacticalBattle writes back results cleanly")
+    func phase9PartDWriteBackBridge() {
+        let controller = GezGodotController()
+        #expect(controller.setup(dataDirectoryPath: "", tag: "TUR"))
+        guard let s = controller.session,
+              let tur = s.world.countries.id(forTag: "TUR"),
+              let eng = s.world.countries.id(forTag: "ENG"),
+              let prov = s.world.provinces.ids.first(where: { s.world.provinces.fortLevel[$0.index] > 0 && s.world.provinces.owner[$0.index] != tur }) else {
+            Issue.record("Missing TUR/prov")
+            return
+        }
+        let targetOwner = s.world.provinces.owner[prov.index]
+        for aid in s.world.military.armies(in: prov) {
+            s.simulation.world.military.armies.remove(aid)
+        }
+        let inf = s.world.military.unit("infantry")!
+        s.simulation.world.military.armies.append(
+            name: "Ottoman Vanguard",
+            owner: tur,
+            province: prov,
+            regiments: [
+                Regiment(type: inf.id, origin: .professional, men: 2_000, morale: 3.0),
+                Regiment(type: inf.id, origin: .professional, men: 2_000, morale: 3.0)
+            ]
+        )
+        s.simulation.world.military.sieges.append(
+            Siege(province: prov, besieger: tur, startDate: Scenario1453.startDate, breached: true)
+        )
+        _ = controller.requestStormAssaultChoice(provinceIndex: prov.index)
+        #expect(controller.chooseLeadBattleInPerson())
+        #expect(controller.startTacticalBattle())
+
+        // Resolve tactical assault cleanly to completion
+        if var b = s.tacticalBattle {
+            let allAtt = (0..<b.units.count).filter { b.units.side[$0] == .attacker }
+            b.issueStanceOrder(unitIndices: allAtt, stance: .charge)
+            b.stepTicks(24_000) // battles last minutes since the pace change
+            s.tacticalBattle = b
+        }
+        let preState = controller.battleStateData()
+        let endedPhase = preState["phase"] as? String ?? ""
+        #expect(endedPhase == "ended")
+        let preview = preState["resultPreview"] as? [String: Any] ?? [:]
+        #expect(!preview.isEmpty)
+
+        let res = controller.finishTacticalBattleData()
+        let wasApplied = res["applied"] as? Bool ?? false
+        let activeAfter = controller.isTacticalBattleActive()
+        #expect(wasApplied)
+        #expect(!activeAfter)
+        _ = (eng, targetOwner)
+    }
 }

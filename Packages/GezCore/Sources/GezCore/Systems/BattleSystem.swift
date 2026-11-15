@@ -70,7 +70,7 @@ public enum BattleSystem {
 
     // MARK: - 1. Battle Initiation & Reinforcement
 
-    private static func detectAndReinforceBattles(
+    static func detectAndReinforceBattles(
         _ world: inout World,
         date: GameDate,
         random: inout GameRandom
@@ -309,14 +309,19 @@ public enum BattleSystem {
         return count
     }
 
-    private static func advanceActiveBattles(
+    static func advanceActiveBattles(
         _ world: inout World,
         date: GameDate,
-        random: inout GameRandom
+        random: inout GameRandom,
+        skipBattleIDs: Set<String> = []
     ) {
         var remainingBattles: [Battle] = []
 
         for var battle in world.military.battles {
+            if skipBattleIDs.contains(battle.id) {
+                remainingBattles.append(battle)
+                continue
+            }
             battle.dayCount += 1
             if battle.dayCount > 1 {
                 battle.phaseDay += 1
@@ -520,14 +525,13 @@ public enum BattleSystem {
         }
 
         // Update War battle warScore (clamped -0.40 ... +0.40)
-        if var war = world.diplomacy.activeWar(between: battle.attackerCountry, and: battle.defenderCountry) {
-            let totalCas = Double(battle.attackerLosses + battle.defenderLosses)
-            let delta = min(0.15, (totalCas / 25_000.0) * 0.12 + 0.025)
-            let sign = war.isAttacker(winnerCountry) ? 1.0 : -1.0
-            war.battleWarScore = max(-0.40, min(0.40, war.battleWarScore + sign * delta))
-            war.warScore = max(-1.0, min(1.0, war.battleWarScore))
-            world.diplomacy.updateWar(war)
-        }
+        _ = applyBattleWarScore(
+            &world,
+            attacker: battle.attackerCountry,
+            defender: battle.defenderCountry,
+            winner: winnerCountry,
+            totalCasualties: battle.attackerLosses + battle.defenderLosses
+        )
 
         // Archive BattleReport
         let report = BattleReport(
@@ -559,7 +563,26 @@ public enum BattleSystem {
         world.people.record(date, loseCountry, summary)
     }
 
-    private static func findRetreatProvince(
+    @discardableResult
+    public static func applyBattleWarScore(
+        _ world: inout World,
+        attacker: CountryID,
+        defender: CountryID,
+        winner winnerCountry: CountryID,
+        totalCasualties: Int
+    ) -> Double {
+        guard var war = world.diplomacy.activeWar(between: attacker, and: defender) else {
+            return 0.0
+        }
+        let delta = min(0.15, (Double(max(0, totalCasualties)) / 25_000.0) * 0.12 + 0.025)
+        let sign = war.isAttacker(winnerCountry) ? 1.0 : -1.0
+        war.battleWarScore = max(-0.40, min(0.40, war.battleWarScore + sign * delta))
+        war.warScore = max(-1.0, min(1.0, war.battleWarScore))
+        world.diplomacy.updateWar(war)
+        return delta
+    }
+
+    public static func findRetreatProvince(
         world: World,
         for country: CountryID,
         from start: ProvinceID
@@ -618,7 +641,7 @@ public enum BattleSystem {
 
     // MARK: - 3. Unfortified Province Takeover Occupation
 
-    private static func advanceUnfortifiedOccupation(_ world: inout World) {
+    static func advanceUnfortifiedOccupation(_ world: inout World) {
         let activeBattleProvs = Set(world.military.battles.map(\.province))
         let armyIndex = world.military.armyIndexByProvince(provinceCount: world.provinces.count)
 

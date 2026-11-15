@@ -823,10 +823,12 @@ func append_province_military_sections(parent: VBoxContainer, d: Dictionary) -> 
 					assault_btn.modulate = Color(1.0, 0.55, 0.48)
 				assault_btn.tooltip_text = "Order infantry and cavalry to storm the breached walls" if can_assault else "Walls must be breached before ordering a Storm Assault"
 				assault_btn.pressed.connect(func() -> void:
-					_call_bridge("assaultSelectedProvinceFort", [], {})
-					if main_view != null:
+					var target_prov: int = int(d.get("provinceIndex", -1))
+					var res: Dictionary = _call_bridge("requestStormAssaultChoice", [target_prov], {})
+					if bool(res.get("opened", false)) and main_view != null:
+						main_view.call("open_battle_choice_modal")
+					elif main_view != null:
 						main_view.call("_after_army_action")
-						main_view.call("_refresh_styles_and_country_labels")
 				)
 				assault_row.add_child(assault_btn)
 				if not can_assault:

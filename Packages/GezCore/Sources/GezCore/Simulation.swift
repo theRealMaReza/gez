@@ -10,6 +10,12 @@ public final class Simulation {
     public var world: World
     public private(set) var random: GameRandom
     public private(set) var ticksRun: Int = 0
+    /// When enabled by an interactive front-end, newly started battles involving a human
+    /// country pause before resolving day 1 so the player can choose Lead in Person vs Auto-Resolve.
+    public var interceptHumanBattles: Bool = false
+    public var pendingHumanBattleID: String?
+    public var activeTacticalBattleID: String?
+    public var autoResolveBattleIDs: Set<String> = []
 
     public init(world: World, startDate: GameDate, seed: UInt64 = 1453) {
         self.world = world
@@ -43,7 +49,29 @@ public final class Simulation {
 
         // Daily systems go here.
         ArmySystem.runDaily(&world, date: date, random: &random)
-        BattleSystem.runDaily(&world, date: date, random: &random)
+        if interceptHumanBattles {
+            BattleSystem.detectAndReinforceBattles(&world, date: date, random: &random)
+            // Every new battle of the player's waits (day 0) until the player
+            // has chosen for it; they are asked one at a time, so two battles
+            // starting on the same day both get the question.
+            var skipIDs = Set<String>()
+            if !world.humanCountries.isEmpty {
+                for b in world.military.battles where b.dayCount == 0 && !autoResolveBattleIDs.contains(b.id) {
+                    if world.humanCountries.contains(b.attackerCountry) || world.humanCountries.contains(b.defenderCountry) {
+                        skipIDs.insert(b.id)
+                        if pendingHumanBattleID == nil && activeTacticalBattleID == nil {
+                            pendingHumanBattleID = b.id
+                        }
+                    }
+                }
+            }
+            if let pid = pendingHumanBattleID { skipIDs.insert(pid) }
+            if let aid = activeTacticalBattleID { skipIDs.insert(aid) }
+            BattleSystem.advanceActiveBattles(&world, date: date, random: &random, skipBattleIDs: skipIDs)
+            BattleSystem.advanceUnfortifiedOccupation(&world)
+        } else {
+            BattleSystem.runDaily(&world, date: date, random: &random)
+        }
         SiegeSystem.runDaily(&world, date: date, random: &random)
         DiplomacySystem.runDaily(&world, date: date)
         if date.day % 7 == 1 {

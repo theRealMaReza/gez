@@ -224,22 +224,19 @@ version matches it; the owner decides when to retire it.
    itch.io stay separate (later).
 5. **Retire `App/`** once the Godot version is at parity (owner decides).
 
-### Phase 9: Battle view (2D, real-time with pause)
+### Phase 9: Battle view (2D, real-time with pause) — Done (PR #TBD, `gemini/phase9-battle-view`)
 Owner's choices:
 - **Battlefield & deployment**: "Lead Battle in Person" vs "Auto-Resolve" modal when the player's army fights or storms a breached fort; 2D battlefield generates elevation contours, woods, hills, and river crossings from the province's real terrain and border data, with a pre-battle Deployment Phase in each side's deployment zone (skipped if ambushed during a river crossing).
 - **Tactical controls & formations**: Real-time with pause & speed controls (0.5x/1x/2x), drag-box or tap selection, draw-path / drag-frontline orders (touch, Apple Pencil, mouse & keyboard), formations (Line, Column, Wedge, Square/Wagon-Laager, Skirmish), tactical stances (Hold, Advance, Charge, Volley/Hold Fire, Retreat), plus directional flanking/rear morale penalties, fatigue, and ammunition tracking.
 - **Playable siege assaults & write-back**: Fort assaults render walls, towers, gates, and pre-existing artillery breaches from the map siege; attackers can bombard walls/gates with artillery, send infantry with scaling ladders or battering rams, or storm through breaches to capture the inner keep; exact regiment survivors, morale, breaches, and levy pop losses feed directly back into the campaign `World`.
-Three Gemini pull requests: (1) steps 1–3 basics + the battle rules in
-GezCore (deterministic, fixed time step; Godot only draws) and step 5
-write-back; (2) the rest of step 3 (formations, stances, flanking,
-fatigue, ammunition, touch/Pencil); (3) step 4, siege assaults.
-1. "Fight or auto-resolve" choice when armies meet.
-2. Battlefield from the real location's terrain (elevation, forest,
-   river); deployment phase.
-3. Real-time control with pause: select units, move, formations, charge,
-   fire; morale, fatigue, flanking; touch, Pencil, mouse and keyboard.
-4. **Playable siege assaults**: walls, gates, breaches, ladders.
-5. Results feed back to the campaign map.
+Implemented in four parts (Part A–D) on `gemini/phase9-battle-view`:
+- [x] 1. "Fight or auto-resolve" choice when armies meet (and on Storm Assault of breached forts).
+- [x] 2. Battlefield from the real location's terrain (elevation, forest,
+   river); deployment phase (skipped when ambushed at river crossing).
+- [x] 3. Real-time control with pause and 0.5x/1x/2x speeds: select units, move, draw-path, drag-frontline, formations, charge,
+   fire; morale, fatigue, ammunition, flanking, tactical AI; touch, Pencil, mouse and keyboard.
+- [x] 4. **Playable siege assaults**: walls, towers, gate, keep, breaches, artillery bombardment, ladders, battering ram.
+- [x] 5. Results feed back to the campaign map (survivors, morale, levy pops, commanders, war score, fort breaches/garrison/capture) with Battle Result summary panel.
 
 ### Phase 10: Navies
 Owner's choices:

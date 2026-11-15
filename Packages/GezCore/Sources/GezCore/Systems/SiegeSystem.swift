@@ -284,6 +284,16 @@ public enum SiegeSystem {
 
     // MARK: - Storm Assault
 
+    /// Returns all active, non-rebel, non-retreating armies belonging to `attacker` besieging `province`.
+    public static func besiegers(in pid: ProvinceID, attacker: CountryID, world: World) -> [ArmyID] {
+        world.military.armies(in: pid).filter { aid in
+            let i = Int(aid.rawValue)
+            return !world.military.armies.isRebel[i]
+                && !world.military.armies.isRetreating[i]
+                && world.military.armies.owner[i] == attacker
+        }.sorted { $0.rawValue < $1.rawValue }
+    }
+
     /// Orders a high-casualty Storm Assault against a breached fort (`siege.breached == true`).
     @discardableResult
     public static func assaultFort(
@@ -307,12 +317,7 @@ public enum SiegeSystem {
             return AssaultResult(captured: false, attackerLosses: 0, garrisonLosses: 0, remainingGarrison: world.provinces.fortGarrison[p], refusalReason: "Field battle in progress.")
         }
 
-        let besiegingArmies = world.military.armies(in: pid).filter { aid in
-            let i = Int(aid.rawValue)
-            return !world.military.armies.isRebel[i]
-                && !world.military.armies.isRetreating[i]
-                && world.military.armies.owner[i] == attacker
-        }.sorted { $0.rawValue < $1.rawValue }
+        let besiegingArmies = besiegers(in: pid, attacker: attacker, world: world)
 
         let totalAttackers = besiegingArmies.reduce(0) { $0 + world.military.armies.totalMen(of: $1) }
         guard totalAttackers >= 500 else {
@@ -343,7 +348,7 @@ public enum SiegeSystem {
 
     // MARK: - Helpers
 
-    private static func captureFort(_ world: inout World, province pid: ProvinceID, capturer: CountryID) {
+    public static func captureFort(_ world: inout World, province pid: ProvinceID, capturer: CountryID) {
         let p = pid.index
         let cap = world.provinces.maxGarrison(of: pid)
         if world.provinces.owner[p] == capturer {

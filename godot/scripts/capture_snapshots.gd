@@ -106,5 +106,128 @@ func _run_captures() -> void:
 			(mode_btns[mode_key] as Button).emit_signal("pressed")
 			await _save_shot("godot_map_%s.png" % mode_key)
 
+	# Phase 9 Battle & Siege Assault Snapshots:
+	# Start a fresh Ottoman game and march the Imperial Army to Kruje (660) to engage Albania.
+	bridge.call("startNewGame", "TUR")
+	await _settle(3)
+	var army_id := -1
+	var armies_info: Dictionary = bridge.call("getArmiesWindowDetails")
+	for a_item in armies_info.get("armies", []):
+		if a_item is Dictionary and str(a_item.get("name", "")).contains("Imperial"):
+			army_id = int(a_item.get("armyId", -1))
+			break
+	if army_id < 0:
+		var fallback_armies: Array = armies_info.get("armies", [])
+		if not fallback_armies.is_empty():
+			army_id = int(fallback_armies[0].get("armyId", -1))
+
+	if army_id >= 0:
+		bridge.call("orderArmyMove", army_id, 660)
+		bridge.call("setSpeed", 5)
+		var steps := 0
+		while steps < 2500 and not bool(bridge.call("hasPendingBattlePrompt")):
+			bridge.call("tickFrame", 0.1)
+			steps += 1
+		if bool(bridge.call("hasPendingBattlePrompt")):
+			bridge.call("chooseLeadBattleInPerson")
+			var bc: Variant = root_node.get("battle_choice_panel")
+			if bc is Control:
+				(bc as Control).visible = false
+			var bv: Variant = root_node.get("battle_view")
+			if bv is Control:
+				bv.call("open_battle")
+				bv.call("_select_all_player_units")
+				bv.call("refresh_state")
+				await _save_shot("godot_battle_deploy.png")
+
+				bridge.call("startTacticalBattle")
+				bridge.call("setTacticalBattleSpeed", 2)
+				var st_b: Dictionary = bridge.call("getBattleState")
+				var p_side_int := 1 if str(st_b.get("playerSide", "attacker")) == "defender" else 0
+				var unit_indices: PackedStringArray = []
+				var march_x := 460.0 if p_side_int == 0 else 650.0
+				for u in st_b.get("units", []):
+					if u is Dictionary and int(u.get("side", 0)) == p_side_int:
+						unit_indices.append(str(int(u.get("index", -1))))
+				var csv := ",".join(unit_indices)
+				bridge.call("orderBattleStance", csv, "advance")
+				bridge.call("orderBattleFrontline", csv, march_x, 180.0, march_x, 620.0)
+				for _t in range(28):
+					bridge.call("tickTacticalBattle", 0.5)
+				bv.call("refresh_state")
+				await _save_shot("godot_battle_fight.png")
+
+				bridge.call("setTacticalBattleSpeed", 3)
+				var guard := 0
+				while guard < 1200:
+					var cur_st: Dictionary = bridge.call("getBattleState")
+					if str(cur_st.get("phase", "")) == "ended":
+						break
+					bridge.call("tickTacticalBattle", 0.5)
+					guard += 1
+				bv.call("refresh_state")
+				await _save_shot("godot_battle_result.png")
+
+				bridge.call("finishTacticalBattle")
+				bv.call("close_battle")
+				root_node.call("_on_tactical_battle_closed")
+
+				# Deterministic breached fort storm assault: Muscovy besieging Tver (571).
+				bridge.call("startNewGame", "MOS")
+				await _settle(2)
+				bridge.call("selectProvinceByIndex", 571)
+				var tve_info: Dictionary = bridge.call("getSelectedProvinceDetails", false)
+				var tve_cid := int(tve_info.get("ownerIndex", -1))
+				bridge.call("declareWar", tve_cid, 0, true)
+				var mos_armies: Array = bridge.call("getArmiesWindowDetails").get("armies", [])
+				var mos_aid := -1
+				if not mos_armies.is_empty() and mos_armies[0] is Dictionary:
+					mos_aid = int(mos_armies[0].get("armyId", -1))
+				if mos_aid >= 0:
+					bridge.call("orderArmyMove", mos_aid, 571)
+				bridge.call("setSpeed", 5)
+				var siege_steps := 0
+				var assault_opened := false
+				while siege_steps < 400:
+					bridge.call("tickFrame", 0.08)
+					if bool(bridge.call("hasPendingBattlePrompt")):
+						bridge.call("chooseAutoResolveBattle")
+						if mos_aid >= 0:
+							bridge.call("orderArmyMove", mos_aid, 571)
+						bridge.call("setSpeed", 5)
+					var req: Dictionary = bridge.call("requestStormAssaultChoice", 571)
+					if bool(req.get("opened", false)):
+						bridge.call("chooseLeadBattleInPerson")
+						if bc is Control:
+							(bc as Control).visible = false
+						bv.call("open_battle")
+						bv.call("_select_all_player_units")
+						# Assign ladders / battering ram to attacking infantry regiments
+						var ast: Dictionary = bridge.call("getBattleState")
+						var inf_list: PackedStringArray = []
+						for u in ast.get("units", []):
+							if u is Dictionary and int(u.get("side", 0)) == 0 and str(u.get("category", "")) == "infantry":
+								inf_list.append(str(int(u.get("index", -1))))
+						if inf_list.size() >= 1:
+							bridge.call("orderBattleSiegeEquipment", inf_list[0], "ladders")
+						if inf_list.size() >= 2:
+							bridge.call("orderBattleSiegeEquipment", inf_list[1], "ram")
+						bridge.call("startTacticalBattle")
+						bridge.call("setTacticalBattleSpeed", 2)
+						for _s in range(18):
+							bridge.call("tickTacticalBattle", 0.5)
+						bv.call("refresh_state")
+						await _save_shot("godot_assault.png")
+						bridge.call("finishTacticalBattle")
+						bv.call("close_battle")
+						root_node.call("_on_tactical_battle_closed")
+						assault_opened = true
+						break
+					siege_steps += 1
+				if not assault_opened:
+					push_warning("Tver siege did not breach within snapshot guard; godot_assault.png skipped.")
+		else:
+			push_warning("No field battle prompt occurred while marching Imperial Army to Kruje (660).")
+
 	print("All Godot snapshots captured to: " + out_dir)
 	quit(0)

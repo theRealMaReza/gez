@@ -23,6 +23,7 @@ public final class GezGodotController {
         do {
             let s = try GameSession(tag: tag)
             s.autosaveFrequency = .never
+            s.interactiveBattlesEnabled = true
             self.session = s
             townIconsRevision &+= 1
             return true
@@ -3944,6 +3945,356 @@ public final class GezGodotController {
         }
         return (texts, metrics)
     }
+
+    // MARK: - Phase 9 Part A: Tactical Battle Prompts, Battlefield & Deployment
+
+    public func hasPendingBattlePrompt() -> Bool {
+        session?.pendingBattlePrompt != nil
+    }
+
+    public func pendingBattlePromptData() -> [String: Any] {
+        guard let prompt = session?.pendingBattlePrompt else { return ["active": false] }
+        return [
+            "active": true,
+            "id": prompt.id,
+            "isAssault": prompt.isAssault,
+            "provinceIndex": prompt.province.index,
+            "provinceName": prompt.provinceName,
+            "terrainKey": prompt.terrain.rawValue,
+            "terrainName": prompt.terrain.rawValue.capitalized,
+            "isRiverCrossing": prompt.isRiverCrossing,
+            "attackerAmbushed": prompt.attackerAmbushed,
+            "attackerName": prompt.attackerName,
+            "attackerTag": prompt.attackerTag,
+            "defenderName": prompt.defenderName,
+            "defenderTag": prompt.defenderTag,
+            "attackerMen": prompt.attackerMen,
+            "defenderMen": prompt.defenderMen,
+            "attackerCommander": prompt.attackerCommanderName,
+            "attackerMartial": prompt.attackerCommanderMartial,
+            "defenderCommander": prompt.defenderCommanderName,
+            "defenderMartial": prompt.defenderCommanderMartial,
+            "playerSide": prompt.playerSide == .attacker ? "attacker" : "defender",
+            "fortLevel": prompt.fortLevel,
+            "breached": prompt.breached
+        ]
+    }
+
+    public func requestStormAssaultChoice(provinceIndex: Int) -> [String: Any] {
+        guard let s = session,
+              provinceIndex >= 0 && provinceIndex < s.world.provinces.count else {
+            return ["opened": false, "refusalReason": "Invalid province"]
+        }
+        let pid = ProvinceID(provinceIndex)
+        let res = s.requestStormAssaultPrompt(in: pid)
+        if let prompt = res.prompt {
+            return ["opened": true, "promptId": prompt.id, "refusalReason": ""]
+        }
+        return ["opened": false, "refusalReason": res.refusalReason ?? "Cannot start assault"]
+    }
+
+    public func chooseAutoResolveBattle() -> [String: Any] {
+        guard let s = session else { return ["resolved": false] }
+        let wasAssault = s.pendingBattlePrompt?.isAssault ?? false
+        if let assaultRes = s.chooseAutoResolvePendingBattle() {
+            let text: String
+            if let refusal = assaultRes.refusalReason {
+                text = refusal
+            } else if assaultRes.captured {
+                text = "Assault captured fort (-\(assaultRes.attackerLosses) attackers)"
+            } else {
+                text = "Assault repelled (-\(assaultRes.attackerLosses) attackers, -\(assaultRes.garrisonLosses) garrison)"
+            }
+            return [
+                "resolved": true,
+                "wasAssault": true,
+                "captured": assaultRes.captured,
+                "attackerLosses": assaultRes.attackerLosses,
+                "garrisonLosses": assaultRes.garrisonLosses,
+                "remainingGarrison": assaultRes.remainingGarrison,
+                "summaryText": text
+            ]
+        }
+        return ["resolved": true, "wasAssault": wasAssault, "summaryText": "Auto-resolve battle engaged on campaign map"]
+    }
+
+    @discardableResult
+    public func chooseLeadBattleInPerson() -> Bool {
+        session?.chooseLeadPendingBattleInPerson() ?? false
+    }
+
+    public func isTacticalBattleActive() -> Bool {
+        session?.tacticalBattle != nil
+    }
+
+    @discardableResult
+    public func deployMoveBattleUnit(unitIndex: Int, x: Double, y: Double, facing: Double) -> Bool {
+        session?.deployMoveBattleUnit(unitIndex: unitIndex, x: x, y: y, facing: facing) ?? false
+    }
+
+    @discardableResult
+    public func startTacticalBattle() -> Bool {
+        session?.startTacticalBattle() ?? false
+    }
+
+    @discardableResult
+    public func setTacticalBattleSpeed(speedIndex: Int) -> Bool {
+        session?.setTacticalBattleSpeed(speedIndex) ?? false
+    }
+
+    @discardableResult
+    public func tickTacticalBattle(deltaSeconds: Double) -> Int {
+        session?.tickTacticalBattle(deltaSeconds: deltaSeconds) ?? 0
+    }
+
+    // MARK: - Phase 9 Part B: Real-time Tactical Orders
+
+    @discardableResult
+    public func orderBattleMove(unitIndices: [Int], x: Double, y: Double) -> Bool {
+        session?.orderBattleMove(unitIndices: unitIndices, x: x, y: y) ?? false
+    }
+
+    @discardableResult
+    public func orderBattlePath(unitIndices: [Int], points: [TacticalPoint]) -> Bool {
+        session?.orderBattlePath(unitIndices: unitIndices, points: points) ?? false
+    }
+
+    @discardableResult
+    public func orderBattleFrontline(unitIndices: [Int], startX: Double, startY: Double, endX: Double, endY: Double) -> Bool {
+        session?.orderBattleFrontline(
+            unitIndices: unitIndices,
+            start: TacticalPoint(x: startX, y: startY),
+            end: TacticalPoint(x: endX, y: endY)
+        ) ?? false
+    }
+
+    @discardableResult
+    public func orderBattleAttack(unitIndices: [Int], targetUnitIndex: Int) -> Bool {
+        session?.orderBattleAttack(unitIndices: unitIndices, targetUnitIndex: targetUnitIndex) ?? false
+    }
+
+    @discardableResult
+    public func orderBattleFormation(unitIndices: [Int], formationKey: String) -> Bool {
+        guard let form = BattleFormation(rawValue: formationKey) else { return false }
+        return session?.orderBattleFormation(unitIndices: unitIndices, formation: form) ?? false
+    }
+
+    @discardableResult
+    public func orderBattleStance(unitIndices: [Int], stanceKey: String) -> Bool {
+        guard let st = BattleStance(rawValue: stanceKey) else { return false }
+        return session?.orderBattleStance(unitIndices: unitIndices, stance: st) ?? false
+    }
+
+    @discardableResult
+    public func orderBattleRetreat(unitIndices: [Int]) -> Bool {
+        session?.orderBattleRetreat(unitIndices: unitIndices) ?? false
+    }
+
+    // MARK: - Phase 9 Part C: Siege Assault Orders
+
+    @discardableResult
+    public func orderBattleSiegeEquipment(unitIndices: [Int], equipmentKey: String) -> Bool {
+        guard let eq = SiegeEquipmentKind(rawValue: equipmentKey) else { return false }
+        return session?.orderBattleSiegeEquipment(unitIndices: unitIndices, equipment: eq) ?? false
+    }
+
+    @discardableResult
+    public func orderBattleAttackStructure(unitIndices: [Int], structureId: Int) -> Bool {
+        session?.orderBattleAttackStructure(unitIndices: unitIndices, structureID: structureId) ?? false
+    }
+
+    // MARK: - Phase 9 Part D: Battle Result Write-Back
+
+    public func finishTacticalBattleData() -> [String: Any] {
+        guard let res = session?.finishTacticalBattle() else {
+            return ["applied": false]
+        }
+        return Self.resultDict(res, applied: true)
+    }
+
+    private static func resultDict(_ r: TacticalBattleResult, applied: Bool) -> [String: Any] {
+        [
+            "applied": applied,
+            "provinceIndex": r.province.index,
+            "provinceName": r.provinceName,
+            "isAssault": r.isAssault,
+            "winner": r.winner == .attacker ? "attacker" : "defender",
+            "winnerName": r.winnerName,
+            "attackerName": r.attackerName,
+            "defenderName": r.defenderName,
+            "attackerInitialMen": r.attackerInitialMen,
+            "attackerSurvivors": r.attackerSurvivors,
+            "attackerLosses": r.attackerLosses,
+            "defenderInitialMen": r.defenderInitialMen,
+            "defenderSurvivors": r.defenderSurvivors,
+            "defenderLosses": r.defenderLosses,
+            "wasStackwipe": r.wasStackwipe,
+            "fortCaptured": r.fortCaptured,
+            "newBreachCreated": r.newBreachCreated,
+            "remainingGarrison": r.remainingGarrison,
+            "warScoreDelta": r.warScoreDelta,
+            "elapsedSeconds": r.elapsedSeconds,
+            "attackerCommanderName": r.attackerCommanderName,
+            "attackerCommanderFate": r.attackerCommanderFate.rawValue.capitalized,
+            "defenderCommanderName": r.defenderCommanderName,
+            "defenderCommanderFate": r.defenderCommanderFate.rawValue.capitalized
+        ]
+    }
+
+    public func battleStateData() -> [String: Any] {
+        guard let b = session?.tacticalBattle else {
+            return ["active": false]
+        }
+        let bf = b.battlefield
+
+        let hillRows: [[String: Any]] = bf.hills.map { h in
+            [
+                "x": h.centerX, "y": h.centerY,
+                "rx": h.radiusX, "ry": h.radiusY,
+                "height": h.height, "angle": h.angle
+            ]
+        }
+        let forestRows: [[String: Any]] = bf.forests.map { f in
+            [
+                "x": f.centerX, "y": f.centerY,
+                "rx": f.radiusX, "ry": f.radiusY,
+                "density": f.density
+            ]
+        }
+        var riverPts: [[String: Any]] = []
+        var fordRows: [[String: Any]] = []
+        var riverHalfWidth = 0.0
+        if let r = bf.river {
+            riverHalfWidth = r.halfWidth
+            riverPts = r.centerLine.map { ["x": $0.x, "y": $0.y] }
+            fordRows = r.fords.map { ["x": $0.x, "y": $0.y, "w": $0.width, "h": $0.height] }
+        }
+        let structureRows: [[String: Any]] = b.structures.map { st in
+            [
+                "id": st.id,
+                "kind": st.kind.rawValue,
+                "x": st.x, "y": st.y,
+                "w": st.width, "h": st.height,
+                "hp": st.hp, "maxHp": st.maxHp,
+                "breached": st.breached,
+                "elevation": st.elevation
+            ]
+        }
+
+        let u = b.units
+        var unitRows: [[String: Any]] = []
+        unitRows.reserveCapacity(u.count)
+        for i in 0..<u.count {
+            let sideInt = u.side[i].rawValue
+            let rgb = u.side[i] == .attacker ? b.attackerColor : b.defenderColor
+            let wpList: [[String: Any]] = u.waypoints[i].map { ["x": $0.x, "y": $0.y] }
+            unitRows.append([
+                "index": i,
+                "side": sideInt,
+                "name": u.unitName[i],
+                "key": u.unitKey[i],
+                "glyph": BattleUnitTable.unitGlyph(key: u.unitKey[i], category: u.category[i]),
+                "category": u.category[i].rawValue,
+                "men": u.men[i],
+                "initialMen": u.initialMen[i],
+                "maxMen": u.maxMen[i],
+                "morale": u.morale[i],
+                "maxMorale": u.maxMorale[i],
+                "fatigue": u.fatigue[i],
+                "ammo": u.ammo[i],
+                "maxAmmo": u.maxAmmo[i],
+                "x": u.posX[i],
+                "y": u.posY[i],
+                "w": u.width[i],
+                "h": u.depth[i],
+                "facing": u.facing[i],
+                "formation": u.formation[i].rawValue,
+                "stance": u.stance[i].rawValue,
+                "hasMoveOrder": u.hasMoveOrder[i],
+                "targetX": u.targetX[i],
+                "targetY": u.targetY[i],
+                "targetUnit": u.targetUnit[i],
+                "targetStructure": u.targetStructure[i],
+                "siegeEquipment": u.siegeEquipment[i].rawValue,
+                "waypoints": wpList,
+                "isRouting": u.isRouting[i],
+                "isOnWall": u.isOnWall[i],
+                "inMelee": u.inMeleeWith[i] >= 0,
+                "colorR": Int(rgb.r),
+                "colorG": Int(rgb.g),
+                "colorB": Int(rgb.b)
+            ])
+        }
+
+        let attMen = u.totalMen(on: .attacker)
+        let defMen = u.totalMen(on: .defender)
+        let attInit = u.totalInitialMen(on: .attacker)
+        let defInit = u.totalInitialMen(on: .defender)
+
+        var keepZoneDict: [String: Any] = [:]
+        if let kz = bf.keepZone {
+            keepZoneDict = ["x": kz.x, "y": kz.y, "w": kz.width, "h": kz.height]
+        }
+
+        return [
+            "active": true,
+            "provinceIndex": b.province.index,
+            "provinceName": b.provinceName,
+            "terrainKey": bf.terrain.rawValue,
+            "terrainName": bf.terrain.rawValue.capitalized,
+            "isAssault": b.isAssault,
+            "isRiverCrossing": bf.isRiverCrossing,
+            "attackerAmbushed": b.attackerAmbushed,
+            "phase": b.phase.rawValue,
+            "speedIndex": b.speed.rawValue,
+            "speedLabel": b.speed.label,
+            "tickCount": b.tickCount,
+            "elapsedSeconds": b.elapsedSeconds,
+            "playerSide": b.playerSide == .defender ? "defender" : "attacker",
+            "winner": b.winner == .attacker ? "attacker" : (b.winner == .defender ? "defender" : ""),
+            "fieldW": bf.width,
+            "fieldH": bf.height,
+            "attDeployX": bf.attackerDeployZone.x,
+            "attDeployY": bf.attackerDeployZone.y,
+            "attDeployW": bf.attackerDeployZone.width,
+            "attDeployH": bf.attackerDeployZone.height,
+            "defDeployX": bf.defenderDeployZone.x,
+            "defDeployY": bf.defenderDeployZone.y,
+            "defDeployW": bf.defenderDeployZone.width,
+            "defDeployH": bf.defenderDeployZone.height,
+            "attackerName": b.attackerName,
+            "attackerTag": b.attackerTag,
+            "attackerColorR": Int(b.attackerColor.r),
+            "attackerColorG": Int(b.attackerColor.g),
+            "attackerColorB": Int(b.attackerColor.b),
+            "attackerMen": attMen,
+            "attackerInitialMen": attInit,
+            "attackerAvgMorale": u.averageMorale(on: .attacker),
+            "attackerCommander": b.attackerCommander?.name ?? "Field Captain",
+            "attackerMartial": b.attackerCommander?.martial ?? 0,
+            "defenderName": b.defenderName,
+            "defenderTag": b.defenderTag,
+            "defenderColorR": Int(b.defenderColor.r),
+            "defenderColorG": Int(b.defenderColor.g),
+            "defenderColorB": Int(b.defenderColor.b),
+            "defenderMen": defMen,
+            "defenderInitialMen": defInit,
+            "defenderAvgMorale": u.averageMorale(on: .defender),
+            "defenderCommander": b.defenderCommander?.name ?? "Castellan",
+            "defenderMartial": b.defenderCommander?.martial ?? 0,
+            "hills": hillRows,
+            "forests": forestRows,
+            "hasRiver": bf.river != nil,
+            "riverHalfWidth": riverHalfWidth,
+            "riverPoints": riverPts,
+            "fords": fordRows,
+            "structures": structureRows,
+            "keepZone": keepZoneDict,
+            "keepCaptureProgress": b.keepCaptureProgress,
+            "resultPreview": (b.phase == .ended) ? Self.resultDict(BattleWriteBack.previewResult(engine: b), applied: false) : [:],
+            "units": unitRows
+        ]
+    }
 }
 
 /// GDExtension class exposed to GDScript (`GezGodotBridge.new()`).
@@ -4625,6 +4976,127 @@ public final class GezGodotBridge: RefCounted {
     @Callable
     public func respondToPendingPeaceOffer(warID: String, accept: Bool) -> Bool {
         controller.respondToPendingPeaceOffer(warID: warID, accept: accept)
+    }
+
+    // MARK: - Phase 9 Part A: Tactical Battle Bridge
+
+    @Callable
+    public func hasPendingBattlePrompt() -> Bool {
+        controller.hasPendingBattlePrompt()
+    }
+
+    @Callable
+    public func getPendingBattlePrompt() -> VariantDictionary {
+        Self.toVariantDictionary(controller.pendingBattlePromptData())
+    }
+
+    @Callable
+    public func requestStormAssaultChoice(provinceIndex: Int) -> VariantDictionary {
+        Self.toVariantDictionary(controller.requestStormAssaultChoice(provinceIndex: provinceIndex))
+    }
+
+    @Callable
+    public func chooseAutoResolveBattle() -> VariantDictionary {
+        Self.toVariantDictionary(controller.chooseAutoResolveBattle())
+    }
+
+    @Callable
+    public func chooseLeadBattleInPerson() -> Bool {
+        controller.chooseLeadBattleInPerson()
+    }
+
+    @Callable
+    public func isTacticalBattleActive() -> Bool {
+        controller.isTacticalBattleActive()
+    }
+
+    @Callable
+    public func getBattleState() -> VariantDictionary {
+        Self.toVariantDictionary(controller.battleStateData())
+    }
+
+    @Callable
+    public func deployMoveBattleUnit(unitIndex: Int, x: Double, y: Double, facing: Double) -> Bool {
+        controller.deployMoveBattleUnit(unitIndex: unitIndex, x: x, y: y, facing: facing)
+    }
+
+    @Callable
+    public func startTacticalBattle() -> Bool {
+        controller.startTacticalBattle()
+    }
+
+    @Callable
+    public func setTacticalBattleSpeed(speedIndex: Int) -> Bool {
+        controller.setTacticalBattleSpeed(speedIndex: speedIndex)
+    }
+
+    @Callable
+    public func tickTacticalBattle(deltaSeconds: Double) -> Int {
+        controller.tickTacticalBattle(deltaSeconds: deltaSeconds)
+    }
+
+    @Callable
+    public func orderBattleMove(unitIndicesCSV: String, x: Double, y: Double) -> Bool {
+        controller.orderBattleMove(unitIndices: Self.parseIntCSV(unitIndicesCSV), x: x, y: y)
+    }
+
+    @Callable
+    public func orderBattlePath(unitIndicesCSV: String, pointsCSV: String) -> Bool {
+        controller.orderBattlePath(unitIndices: Self.parseIntCSV(unitIndicesCSV), points: Self.parsePointCSV(pointsCSV))
+    }
+
+    @Callable
+    public func orderBattleFrontline(unitIndicesCSV: String, startX: Double, startY: Double, endX: Double, endY: Double) -> Bool {
+        controller.orderBattleFrontline(unitIndices: Self.parseIntCSV(unitIndicesCSV), startX: startX, startY: startY, endX: endX, endY: endY)
+    }
+
+    @Callable
+    public func orderBattleAttack(unitIndicesCSV: String, targetUnitIndex: Int) -> Bool {
+        controller.orderBattleAttack(unitIndices: Self.parseIntCSV(unitIndicesCSV), targetUnitIndex: targetUnitIndex)
+    }
+
+    @Callable
+    public func orderBattleFormation(unitIndicesCSV: String, formationKey: String) -> Bool {
+        controller.orderBattleFormation(unitIndices: Self.parseIntCSV(unitIndicesCSV), formationKey: formationKey)
+    }
+
+    @Callable
+    public func orderBattleStance(unitIndicesCSV: String, stanceKey: String) -> Bool {
+        controller.orderBattleStance(unitIndices: Self.parseIntCSV(unitIndicesCSV), stanceKey: stanceKey)
+    }
+
+    @Callable
+    public func orderBattleRetreat(unitIndicesCSV: String) -> Bool {
+        controller.orderBattleRetreat(unitIndices: Self.parseIntCSV(unitIndicesCSV))
+    }
+
+    @Callable
+    public func orderBattleSiegeEquipment(unitIndicesCSV: String, equipmentKey: String) -> Bool {
+        controller.orderBattleSiegeEquipment(unitIndices: Self.parseIntCSV(unitIndicesCSV), equipmentKey: equipmentKey)
+    }
+
+    @Callable
+    public func orderBattleAttackStructure(unitIndicesCSV: String, structureId: Int) -> Bool {
+        controller.orderBattleAttackStructure(unitIndices: Self.parseIntCSV(unitIndicesCSV), structureId: structureId)
+    }
+
+    @Callable
+    public func finishTacticalBattle() -> VariantDictionary {
+        Self.toVariantDictionary(controller.finishTacticalBattleData())
+    }
+
+    private static func parsePointCSV(_ csv: String) -> [TacticalPoint] {
+        guard !csv.isEmpty else { return [] }
+        var pts: [TacticalPoint] = []
+        for token in csv.split(separator: ";") {
+            let parts = token.split(separator: ",")
+            if parts.count == 2,
+               let x = Double(parts[0].trimmingCharacters(in: .whitespaces)),
+               let y = Double(parts[1].trimmingCharacters(in: .whitespaces)) {
+                pts.append(TacticalPoint(x: x, y: y))
+            }
+        }
+        return pts
     }
 
     private static func parseIntCSV(_ csv: String) -> [Int] {

@@ -5,7 +5,7 @@ Read this first, then `docs/ROADMAP.md` (the agreed plan), `docs/DESIGN.md`
 judgment calls) and `CLAUDE.md` (rules). This file says where the project
 stands, how to work on it, and what to do next.
 
-Last updated: session 7 (14 November 2026). Phases 0–8.5 are done: the screens now run in Godot on Mac, Windows and Linux (PR #21, Gemini wrote it, Claude reviewed and fixed it). Next: the owner play-tests the Godot version, then Phase 9 (battle view, in Godot), in three Gemini pull requests.
+Last updated: 14 November 2026 (`gemini/phase9-battle-view`). Phases 0–9 are built: Phase 9 adds the deterministic 2D real-time battle and siege-assault view in `Packages/GezCore/Sources/GezCore/Battle/` + `godot/scripts/BattleView.gd`. Next: Phase 10 (Navies).
 
 ## The owner
 
@@ -58,28 +58,23 @@ Everything below is built, tested on CI and visible in the app.
 | Government (Phase 5) | Stability −3…+3; 11 law areas with trade-offs (6 months to change); estates tied to pops (core four plus Janissaries, Mamluks, Rajputs, Tribes, Dhimmi) with power, loyalty and 23 privileges; a 4-tier reform tree per government type that can change the government |
 | Armies & logistics (Phase 6) | 15 unit types (5 core + 10 regional 1453 units), 39 starting standing armies (235 regiments, 225,000 men), three origins (levies from pops, standing professionals from manpower + market goods, mercenaries for gold), daily province-to-province movement (distance, terrain, rivers, roads, unit speed, commander Martial), supply limit & monthly attrition/reinforcement, great vassal open revolts, military AI |
 | Godot screens (Phase 8.5) | `godot/`: every Apple-app window, button, map mode, map icon and coat of arms (court, government, diplomacy, wars & peace, alerts, budget, trade, buildings, armies, game menu, nation picker); GezCore loaded through SwiftGodot (`godot/swift`, `GezGodotBridge`); exports for Mac, Windows and Linux on CI |
+| Battle view (Phase 9) | `Packages/GezCore/Sources/GezCore/Battle/` + `godot/scripts/BattleView.gd`: choice modal (Lead Battle in Person / Auto-Resolve), reproducible terrain/hills/forest/river+ford battlefields, deployment + ambush skip, real-time 10 Hz fixed-step combat (Pause/0.5x/1x/2x), click/box/move/path/frontline/attack/retreat orders (touch/Pencil friendly), 6 formations, 5 stances, flanking/morale/routing/fatigue/ammo, tactical AI, playable fort siege assaults (walls/towers/gate/keep/breaches/ladders/ram), and deterministic write-back (survivors, levy pops, commanders, war score, fort capture) with result panel |
 | App windows (old Apple app) | Top bar: treasury (Budget), Trade, Court, Stability (Government), Armies (manpower, field armies, commanders, levies, recruitment). Province panel tabs: Overview (holder, supply, levy, buildings), Economy, People. Market panel. Map modes Q–I; 2D army counters and marching arrows |
-| Tests | GezCore simulation tests (incl. `StartingWarsTests`, `FingerprintTests`, five long runs), GezGodot bridge tests, App snapshot tests; all green |
+| Tests | GezCore simulation tests (incl. `StartingWarsTests`, `FingerprintTests`, `BattleEngineTests`, five long runs), GezGodot bridge tests (incl. Phase 9 Part A–D bridge tests), App snapshot tests; all green |
 
 Also built (Phases 7–8): diplomacy, war and peace, auto-resolved battles,
 sieges, save/load and autosave, nation picker, alerts. Not started (later
-phases): the playable battle view, navies, religion and culture change,
+phases): navies, religion and culture change,
 plague, rebels, technology, events, sound, settings, multiplayer.
 
 ## What to do next
 
-1. **Owner play-test of the Godot version** on the Mac (`git pull`,
-   `cd godot && ./build_mac.sh`, Cmd+Q Godot, reopen, Play). Windows and
+1. **Owner play-test of Phase 9 (battle view) & Godot** on the Mac (`git pull`,
+   `./godot/build_mac.sh`, Cmd+Q Godot, reopen, Play). Windows and
    Linux builds are on every CI run's page under "Artifacts"
    (`gez-godot-windows`, `gez-godot-linux`, `gez-godot-macos`); unsigned, so
    Windows asks "More info → Run anyway".
-2. **Phase 9: battle view**, in Godot, split into three Gemini pull
-   requests: (1) battle rules in GezCore + fight/auto-resolve choice +
-   battlefield from terrain + deployment + basic real-time control;
-   (2) formations, stances, flanking, fatigue, ammunition, touch/Pencil;
-   (3) playable siege assaults. All battle rules in GezCore (deterministic,
-   fixed time step); Godot only draws. The prompt for (1) was given to the
-   owner on 14 Nov.
+2. **Phase 10: Navies**: ships, docks, 1453 fleets, naval battles, blockades, strait blocking, amphibious transport.
 3. Follow-ups: army table slots are never reused; the Ottomans start over
    their relation-slot limit (6/5); two temporary branches
    (`claude/fingerprint-base`, `claude/fingerprint-speedonly`) can be
