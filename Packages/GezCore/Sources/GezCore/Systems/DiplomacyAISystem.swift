@@ -190,11 +190,15 @@ public enum DiplomacyAISystem {
                 let myMen = armyTable.totalMen(of: aid)
                 guard myMen > 0 else { continue }
 
-                // Skip moving if we are already actively occupying this province
-                if let pOwner = world.provinces.owner[curProv.index],
-                   enemies.contains(pOwner),
-                   (world.provinces.occupiedBy[curProv.index].map { enemies.contains($0) } ?? true) {
-                    continue
+                // Skip moving if we are already actively occupying enemy land or liberating our occupied land
+                let curOcc = world.provinces.occupiedBy[curProv.index]
+                if let pOwner = world.provinces.owner[curProv.index] {
+                    if enemies.contains(pOwner) && (curOcc.map { enemies.contains($0) } ?? true) {
+                        continue
+                    }
+                    if pOwner == c, let occ = curOcc, enemies.contains(occ) {
+                        continue
+                    }
                 }
 
                 // 1. Check adjacent provinces for favorable enemy army engagement or undefended enemy land
@@ -287,7 +291,8 @@ public enum DiplomacyAISystem {
             let loserHuman = world.humanCountries.contains(loser)
             if winnerHuman { continue }
 
-            let monthsFought = max(0, (date.year - war.startDate.year) * 12 + (date.month - war.startDate.month))
+            let effectiveStart = max(war.startDate, Scenario1453.startDate)
+            let monthsFought = max(0, (date.year - effectiveStart.year) * 12 + (date.month - effectiveStart.month))
             let loserProvs = ownedProvinces[loser.index]
             let fullyOccupied = !loserProvs.isEmpty && loserProvs.allSatisfy { pid in
                 world.provinces.occupiedBy[pid.index].map { war.areEnemies($0, loser) } ?? false
