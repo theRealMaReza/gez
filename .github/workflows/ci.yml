@@ -195,6 +195,9 @@ jobs:
           "$GODOT_BIN" --headless --path godot --export-release "macOS" build/mac/Gez.app
           ./godot/stage_resources.sh godot/build/mac/Gez.app/Contents/Resources
           codesign --force --deep --sign - godot/build/mac/Gez.app || true
+          # Start the exported game once and check the Swift part loads.
+          (godot/build/mac/Gez.app/Contents/MacOS/Gez --headless --quit-after 30 2>&1 || true) | tee /tmp/gez-run.log
+          grep -q "1453 world loaded" /tmp/gez-run.log || { echo "::error::exported Mac game did not load the world"; exit 1; }
           ditto -c -k --sequesterRsrc --keepParent godot/build/mac/Gez.app godot/build/Gez-macOS.zip
       - name: Upload macOS export
         uses: actions/upload-artifact@v4
@@ -225,13 +228,17 @@ jobs:
         run: swift test --package-path godot/swift
       - name: Bundle Swift Linux runtime libs
         run: |
-          ldd godot/bin/libGezGodot.so godot/bin/libSwiftGodotRuntime.so 2>/dev/null \
-            | awk '/=> \/usr\/lib\/swift\// {print $3}' | sort -u \
-            | xargs -r -I{} cp -L -f {} godot/bin/
-          patchelf --set-rpath '$ORIGIN' godot/bin/libGezGodot.so || true
-          if [ -f godot/bin/libSwiftGodotRuntime.so ]; then
-            patchelf --set-rpath '$ORIGIN' godot/bin/libSwiftGodotRuntime.so || true
+          # Copy the Swift runtime next to the extension. (build_linux.sh has
+          # already set RUNPATH=$ORIGIN, so ldd cannot be used to find them.)
+          SWIFT_LIB="$(dirname "$(dirname "$(readlink -f "$(which swift)")")")/lib/swift/linux"
+          echo "Swift runtime: $SWIFT_LIB"
+          cp -L -f "$SWIFT_LIB"/*.so godot/bin/
+          for f in godot/bin/*.so; do patchelf --set-rpath '$ORIGIN' "$f"; done
+          # Fail here, not at the player's first launch, if anything is missing.
+          if LD_LIBRARY_PATH= ldd godot/bin/libGezGodot.so godot/bin/libSwiftGodotRuntime.so | grep "not found"; then
+            echo "::error::Swift libraries missing from godot/bin"; exit 1
           fi
+          ls -la godot/bin
       - name: Install Godot & export templates
         run: |
           mkdir -p "${RUNNER_TEMP}/godot"
@@ -250,6 +257,12 @@ jobs:
           "$GODOT_BIN" --headless --path godot --export-release "Linux" build/linux/Gez.x86_64
           cp -n godot/bin/*.so* godot/build/linux/ || true
           ./godot/stage_resources.sh godot/build/linux/Resources
+          if ldd godot/build/linux/libGezGodot.so | grep "not found"; then
+            echo "::error::exported Linux game is missing Swift libraries"; exit 1
+          fi
+          # Start the exported game once and check the Swift part loads.
+          timeout 300 godot/build/linux/Gez.x86_64 --headless --quit-after 30 2>&1 | tee /tmp/gez-run.log || true
+          grep -q "1453 world loaded" /tmp/gez-run.log || { echo "::error::exported Linux game did not load the world"; exit 1; }
           tar -C godot/build/linux -czf godot/build/Gez-Linux-x86_64.tar.gz .
       - name: Upload Linux export
         uses: actions/upload-artifact@v4
@@ -316,6 +329,11 @@ jobs:
           Copy-Item -Force S:\App\Resources\Terrain\terrain.jpg S:\godot\build\windows\Resources\Terrain\
           Copy-Item -Force S:\App\Resources\Heraldry\*.png S:\godot\build\windows\Resources\Heraldry\
           Get-ChildItem S:\godot\bin -Filter *.dll | Copy-Item -Force -Destination S:\godot\build\windows\
+          # Start the exported game once and check the Swift part loads.
+          $exe = if (Test-Path S:\godot\build\windows\Gez.console.exe) { "S:\godot\build\windows\Gez.console.exe" } else { "S:\godot\build\windows\Gez.exe" }
+          $log = & $exe --headless --quit-after 30 2>&1 | Out-String
+          Write-Host $log
+          if ($log -notmatch "1453 world loaded") { throw "exported Windows game did not load the world" }
           Compress-Archive -Path S:\godot\build\windows\* -DestinationPath S:\godot\build\Gez-Windows-x86_64.zip -Force
       - name: Upload Windows export
         uses: actions/upload-artifact@v4

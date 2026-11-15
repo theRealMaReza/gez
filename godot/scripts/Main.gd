@@ -109,6 +109,7 @@ var current_market_category: String = ""
 # Game menu widgets (center modal)
 var game_menu_panel: PanelContainer
 var menu_playing_label: Label
+var menu_playing_arms: TextureRect
 var menu_status_label: Label
 var save_name_input: LineEdit
 var autosave_option_btn: OptionButton
@@ -842,8 +843,16 @@ func _build_game_menu_panel() -> void:
 	close_btn.pressed.connect(func() -> void: game_menu_panel.visible = false)
 	header.add_child(close_btn)
 
+	var playing_row := HBoxContainer.new()
+	playing_row.add_theme_constant_override("separation", 8)
+	vbox.add_child(playing_row)
+	menu_playing_arms = TextureRect.new()
+	menu_playing_arms.custom_minimum_size = Vector2(28.0, 24.0)
+	menu_playing_arms.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	menu_playing_arms.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	playing_row.add_child(menu_playing_arms)
 	menu_playing_label = _make_label("Playing as Ottoman Empire · 30 May 1453", Color(0.90, 0.86, 0.78), 14)
-	vbox.add_child(menu_playing_label)
+	playing_row.add_child(menu_playing_label)
 
 	menu_status_label = _make_label("", Color(0.96, 0.84, 0.42), 12)
 	menu_status_label.visible = false
@@ -1041,6 +1050,8 @@ func _init_bridge_and_map() -> void:
 		selection_label.text = "Failed to load 1453 scenario from " + data_dir
 		push_error("GezGodotBridge.setup failed for path: " + data_dir)
 		return
+	# CI's export jobs look for this line to prove the exported game starts.
+	print("Gez: 1453 world loaded from ", data_dir)
 
 	var w: int = int(_call_bridge("getMapWidth", [], 3936))
 	var h: int = int(_call_bridge("getMapHeight", [], 2384))
@@ -1326,6 +1337,10 @@ func _refresh_game_menu() -> void:
 	var c_name: String = str(_call_bridge("getCountryName", [], "Observer"))
 	var d_text: String = str(_call_bridge("getDateText", [], "30 May 1453"))
 	menu_playing_label.text = "Playing as %s · %s" % [c_name, d_text]
+	# Same coat of arms as the top bar (the Apple game menu shows it too).
+	if menu_playing_arms != null and top_arms_rect != null:
+		menu_playing_arms.texture = top_arms_rect.texture
+		menu_playing_arms.visible = top_arms_rect.texture != null
 
 	var status: String = str(_call_bridge("getLastSaveStatus", [], ""))
 	menu_status_label.text = status

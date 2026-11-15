@@ -3788,9 +3788,9 @@ public final class GezGodotController {
     private static func treatyLabel(_ treaty: Treaty, player: CountryID) -> String {
         switch treaty.type {
         case .alliance: return "Alliance"
-        case .guarantee: return treaty.first == player ? "You guarantee them" : "They guarantee you"
+        case .guarantee: return treaty.first == player ? "Guaranteeing them" : "Guaranteed by them"
         case .nonAggression: return "Non-Aggression Pact"
-        case .militaryAccess: return "Military Access"
+        case .militaryAccess: return treaty.first == player ? "Granting Military Access" : "Have Military Access"
         case .truce: return "Truce"
         }
     }
