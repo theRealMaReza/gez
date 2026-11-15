@@ -398,7 +398,10 @@ jobs:
       GEZ_PROFILE: "1"
       GEZ_PROFILE_DAYS: "400"
       GEZ_PROFILE_SEED: "7"
+      # Also prints a monthly checksum of the world for 2 years: compare the
+      # FINGERPRINT lines of two branches to prove a speed-up changes nothing.
+      GEZ_FINGERPRINT: "1"
     steps:
       - uses: actions/checkout@v5
-      - name: Profile
-        run: swift test --package-path Packages/GezCore --filter testSystemTimings 2>&1 | grep -E "PROFILE|passed|failed|error"
+      - name: Profile and fingerprint
+        run: swift test -c release -Xswiftc -enable-testing --package-path Packages/GezCore --filter 'testSystemTimings|testPrintFingerprints' 2>&1 | grep -E "PROFILE|FINGERPRINT|passed|failed|error"

@@ -26,4 +26,5 @@ window/dpi/allow_hidpi=true
 [rendering]
 
 renderer/rendering_method="forward_plus"
+textures/vram_compression/import_etc2_astc=true
 environment/defaults/default_clear_color=Color(0.16, 0.25, 0.33, 1)

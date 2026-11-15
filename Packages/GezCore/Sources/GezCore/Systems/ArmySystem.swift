@@ -1433,6 +1433,20 @@ public enum ArmySystem {
             }
         }
 
+        // Soldier counts per province go stale when an AI disbands levies or
+        // recruits; recount before the next use so results match a live count.
+        var soldiersDirty = false
+        func recountSoldiers() {
+            soldiersInProv = [Int](repeating: 0, count: P)
+            for idx in 0..<world.military.armies.count where world.military.armies.alive[idx] {
+                let prov = world.military.armies.province[idx]
+                if prov.index < P {
+                    soldiersInProv[prov.index] += world.military.armies.totalMen(of: ArmyID(Int32(idx)))
+                }
+            }
+            soldiersDirty = false
+        }
+
         var atWarCountries = Set<CountryID>()
         for w in world.diplomacy.wars {
             atWarCountries.formUnion(w.attackers)
@@ -1470,6 +1484,7 @@ public enum ArmySystem {
                 let rebelMen = world.military.armies.totalMen(of: firstRebel)
                 if totalMenByCountry[c.index] < Int(Double(rebelMen) * 1.3) {
                     raiseAllLevies(&world, c)
+                    soldiersDirty = true
                 }
                 for aid in world.military.armies(of: c) {
                     let idx = Int(aid.rawValue)
@@ -1484,6 +1499,7 @@ public enum ArmySystem {
             if !atWarCountries.contains(c) && levyMenByCountry[c.index] > 0 {
                 disbandLevies(&world, of: c)
                 crownArmies = crownArmies.filter { world.military.armies.alive[Int($0.rawValue)] }
+                soldiersDirty = true
             }
 
             if !atWarCountries.contains(c) && crownArmies.count > 1 {
@@ -1501,6 +1517,7 @@ public enum ArmySystem {
                 crownArmies = crownArmies.filter { world.military.armies.alive[Int($0.rawValue)] }
             }
 
+            if soldiersDirty { recountSoldiers() }
             for aid in crownArmies {
                 let idx = Int(aid.rawValue)
                 guard world.military.armies.alive[idx], world.military.armies.path[idx].isEmpty else { continue }
@@ -1511,10 +1528,8 @@ public enum ArmySystem {
                         world.provinces.owner[$0.index] == c
                             && soldiersInProv[$0.index] + myMen <= supplyLimit(world, in: $0)
                     }) {
-                        if orderMove(&world, army: aid, to: nb) {
-                            soldiersInProv[prov.index] -= myMen
-                            soldiersInProv[nb.index] += myMen
-                        }
+                        // A marching army still counts where it stands (as before).
+                        orderMove(&world, army: aid, to: nb)
                     }
                 }
             }
@@ -1530,18 +1545,21 @@ public enum ArmySystem {
                   world.military.manpower[c.index] >= 2_000 else { continue }
 
             let targetStanding = Int((world.military.maxManpower[c.index] * 0.55).rounded())
-            guard totalMenByCountry[c.index] < targetStanding,
+            guard world.military.totalMen(of: c) < targetStanding,
                   let cap = world.countries.capital[c.index],
                   world.provinces.owner[cap.index] == c else { continue }
 
             let unlocked = availableUnits(world, for: c).filter { $0.category != .artillery }
             guard let chosen = unlocked.max(by: { ($0.attack + $0.defence) < ($1.attack + $1.defence) }) else { continue }
+            if soldiersDirty { recountSoldiers() }
             if soldiersInProv[cap.index] + chosen.maxMen <= supplyLimit(world, in: cap) {
                 let existingCapArmy = crownArmies.first {
                     world.military.armies.alive[Int($0.rawValue)]
                         && world.military.armies.province[Int($0.rawValue)] == cap
                 }
-                _ = recruitProfessional(&world, c, in: cap, unit: chosen.id, intoArmy: existingCapArmy)
+                if case .success = recruitProfessional(&world, c, in: cap, unit: chosen.id, intoArmy: existingCapArmy) {
+                    soldiersDirty = true
+                }
             }
         }
     }
