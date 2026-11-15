@@ -158,14 +158,138 @@ struct NavyTests {
     func testDeterminism() {
         let s1 = Simulation(world: Scenario1453.makeWorld(), startDate: Scenario1453.startDate, seed: 1453)
         let s2 = Simulation(world: Scenario1453.makeWorld(), startDate: Scenario1453.startDate, seed: 1453)
-        for _ in 0..<90 {
+        for _ in 0..<120 {
             s1.tick()
             s2.tick()
         }
         #expect(s1.world.navy.sailors == s2.world.navy.sailors)
         #expect(s1.world.navy.lastNavyUpkeep == s2.world.navy.lastNavyUpkeep)
+        #expect(s1.world.navy.lastAttritionLosses == s2.world.navy.lastAttritionLosses)
         #expect(s1.world.navy.fleets.location == s2.world.navy.fleets.location)
+        #expect(s1.world.navy.fleets.supply == s2.world.navy.fleets.supply)
         #expect(s1.world.navy.ships.hull == s2.world.navy.ships.hull)
         #expect(s1.world.navy.ships.crew == s2.world.navy.ships.crew)
+    }
+}
+
+@Suite("Navy (Part B)")
+struct NavyMovementAndAITests {
+
+    @Test("Fleets move zone to zone daily, dock in friendly ports, and speed scales with admiral Martial and inland galleys")
+    func testMovementAndAdmiralSpeed() throws {
+        let sim = Simulation(world: Scenario1453.makeWorld(), startDate: Scenario1453.startDate, seed: 1453)
+        let ven = try #require(sim.world.countries.id(forTag: "VEN"))
+        let venFleet = try #require(sim.world.navy.fleets(of: ven).first)
+        let aegeanS = try #require(sim.world.seaZones.id(named: "Southern Aegean"))
+        let ionian = try #require(sim.world.seaZones.id(named: "Ionian Sea"))
+        let northAdriatic = try #require(sim.world.seaZones.id(named: "Northern Adriatic"))
+
+        // Speed bonus: compare seaStepDays with Martial 12 vs Martial 1 admiral.
+        let loredan = try #require(sim.world.navy.fleets.admiral[venFleet.index])
+        sim.world.people.characters.skills[loredan.index][Skill.martial.rawValue] = 12
+        let fastDays = NavySystem.seaStepDays(sim.world, from: northAdriatic, to: ionian, fleet: venFleet)
+        sim.world.people.characters.skills[loredan.index][Skill.martial.rawValue] = 1
+        let slowDays = NavySystem.seaStepDays(sim.world, from: northAdriatic, to: ionian, fleet: venFleet)
+        #expect(fastDays < slowDays)
+
+        // Pure galley fleet gets inland-sea speed bonus in Ionian Sea vs Open Atlantic.
+        let galleyType = try #require(sim.world.navy.shipByKey["galley"])
+        let galleyFleet = sim.world.navy.fleets.append(name: "Galley Squadron", owner: ven, location: .sea(ionian))
+        let gIdx = sim.world.navy.ships.add(type: galleyType, fleet: galleyFleet, crew: 150)
+        sim.world.navy.fleets.shipIndices[galleyFleet.index].append(gIdx)
+        let openAtlantic = try #require(sim.world.seaZones.id(named: "Open Atlantic"))
+        #expect(NavySystem.fleetSpeed(sim.world, galleyFleet, in: ionian) > NavySystem.fleetSpeed(sim.world, galleyFleet, in: openAtlantic))
+
+        // Sail venFleet from Venice port into Southern Aegean then dock at Negroponte.
+        sim.world.humanCountries.insert(ven)
+        #expect(NavySystem.orderMoveFleet(&sim.world, venFleet, toSea: aegeanS))
+        for _ in 0..<25 { sim.tick() }
+        #expect(sim.world.navy.fleets.location[venFleet.index] == .sea(aegeanS))
+
+        let negroponte = try #require(sim.world.provinces.id(named: "Negroponte"))
+        #expect(NavySystem.orderDockFleet(&sim.world, venFleet, inPort: negroponte))
+        for _ in 0..<10 { sim.tick() }
+        #expect(sim.world.navy.fleets.location[venFleet.index] == .port(negroponte))
+    }
+
+    @Test("Split and merge organize ships cleanly within the same location")
+    func testSplitAndMerge() throws {
+        var w = try Scenario1453.loadBundled()
+        let ven = try #require(w.countries.id(forTag: "VEN"))
+        let venFleet = try #require(w.navy.fleets(of: ven).first)
+        let initialCount = w.navy.shipCount(of: venFleet)
+        #expect(initialCount >= 4)
+
+        let det = try #require(NavySystem.splitFleet(&w, fleet: venFleet))
+        #expect(w.navy.shipCount(of: venFleet) + w.navy.shipCount(of: det) == initialCount)
+        #expect(w.navy.fleets.location[venFleet.index] == w.navy.fleets.location[det.index])
+
+        let merged = NavySystem.mergeFleetsInLocation(&w, into: venFleet)
+        #expect(merged >= 1)
+        #expect(w.navy.shipCount(of: venFleet) == initialCount)
+        #expect(!w.navy.fleets.alive[det.index])
+    }
+
+    @Test("Sea attrition damages unsupplied ships while friendly ports repair hull and resupply")
+    func testAttritionAndPortRepair() throws {
+        let sim = Simulation(world: Scenario1453.makeWorld(), startDate: Scenario1453.startDate, seed: 1453)
+        let ven = try #require(sim.world.countries.id(forTag: "VEN"))
+        sim.world.humanCountries.insert(ven)
+        let fleet = try #require(sim.world.navy.fleets(of: ven).first)
+        let openAtlantic = try #require(sim.world.seaZones.id(named: "Open Atlantic"))
+
+        // Place fleet out of supply range in Open Atlantic with low supply.
+        sim.world.navy.fleets.location[fleet.index] = .sea(openAtlantic)
+        sim.world.navy.fleets.supply[fleet.index] = 15.0
+        for _ in 0..<25 { sim.tick() }
+
+        #expect(sim.world.navy.fleets.supply[fleet.index] == 0)
+        #expect(NavySystem.fleetAverageHull(sim.world, fleet) < 100.0)
+        #expect(sim.world.navy.lastAttritionLosses[ven.index] > 0)
+
+        // Return to friendly Venice port and run through 2 monthly ticks -> supply 100 and hull repairs.
+        let hullDamaged = NavySystem.fleetAverageHull(sim.world, fleet)
+        let venice = try #require(sim.world.provinces.id(named: "Venice"))
+        sim.world.navy.fleets.location[fleet.index] = .port(venice)
+        sim.world.navy.fleets.path[fleet.index].removeAll()
+        for _ in 0..<65 { sim.tick() }
+
+        #expect(sim.world.navy.fleets.supply[fleet.index] == 100.0)
+        #expect(NavySystem.fleetAverageHull(sim.world, fleet) > hullDamaged)
+    }
+
+    @Test("Fleet AI at war sends stronger fleets to hunt enemy fleets and blockade enemy ports")
+    func testFleetAIWarBehavior() throws {
+        let sim = Simulation(world: Scenario1453.makeWorld(), startDate: Scenario1453.startDate, seed: 1453)
+        let ven = try #require(sim.world.countries.id(forTag: "VEN"))
+        let pap = try #require(sim.world.countries.id(forTag: "PAP"))
+        let adriaticN = try #require(sim.world.seaZones.id(named: "Northern Adriatic"))
+
+        // Remove starting ships from PAP and give PAP a tiny 1-cog fleet in Northern Adriatic so VEN clearly overmatches it.
+        for f in sim.world.navy.fleets(of: pap) { sim.world.navy.fleets.alive[f.index] = false }
+        let ancona = try #require(sim.world.provinces.id(named: "Ancona"))
+        let cog = try #require(sim.world.navy.shipByKey["cog"])
+        let papWeakFleet = NavySystem.launchShip(&sim.world, country: pap, in: ancona, type: cog)
+        sim.world.navy.fleets.location[papWeakFleet.index] = .sea(adriaticN)
+        sim.world.humanCountries.insert(pap) // prevent PAP AI from fleeing instantly
+
+        // Declare war VEN -> PAP cleanly.
+        let war = War(
+            id: "test_ven_pap",
+            name: "Venetian-Papal War",
+            startDate: sim.date,
+            casusBelli: .claim,
+            warGoal: .conquerProvince(ancona),
+            attackers: [ven],
+            defenders: [pap]
+        )
+        sim.world.diplomacy.wars.append(war)
+
+        // Advance past next first-of-month so NavySystem.runAI runs.
+        for _ in 0..<35 { sim.tick() }
+        let venMainFleet = try #require(sim.world.navy.fleets(of: ven).first)
+        let mission = sim.world.navy.fleets.mission[venMainFleet.index]
+        #expect(mission == .hunt || mission == .blockade)
+        #expect(sim.world.navy.fleets.location[venMainFleet.index] != .port(try #require(sim.world.provinces.id(named: "Venice"))))
     }
 }
