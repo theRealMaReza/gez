@@ -1144,4 +1144,57 @@ struct GezGodotTests {
         #expect(stepped >= 1)
         _ = ownerCountry
     }
+
+    @Test("Phase 9 Part D bridge: finishTacticalBattle writes back results cleanly")
+    func phase9PartDWriteBackBridge() {
+        let controller = GezGodotController()
+        #expect(controller.setup(dataDirectoryPath: "", tag: "TUR"))
+        guard let s = controller.session,
+              let tur = s.world.countries.id(forTag: "TUR"),
+              let eng = s.world.countries.id(forTag: "ENG"),
+              let prov = s.world.provinces.ids.first(where: { s.world.provinces.fortLevel[$0.index] > 0 && s.world.provinces.owner[$0.index] != tur }) else {
+            Issue.record("Missing TUR/prov")
+            return
+        }
+        let targetOwner = s.world.provinces.owner[prov.index]
+        for aid in s.world.military.armies(in: prov) {
+            s.simulation.world.military.armies.remove(aid)
+        }
+        let inf = s.world.military.unit("infantry")!
+        s.simulation.world.military.armies.append(
+            name: "Ottoman Vanguard",
+            owner: tur,
+            province: prov,
+            regiments: [
+                Regiment(type: inf.id, origin: .professional, men: 2_000, morale: 3.0),
+                Regiment(type: inf.id, origin: .professional, men: 2_000, morale: 3.0)
+            ]
+        )
+        s.simulation.world.military.sieges.append(
+            Siege(province: prov, besieger: tur, startDate: Scenario1453.startDate, breached: true)
+        )
+        _ = controller.requestStormAssaultChoice(provinceIndex: prov.index)
+        #expect(controller.chooseLeadBattleInPerson())
+        #expect(controller.startTacticalBattle())
+
+        // Resolve tactical assault cleanly to completion
+        if var b = s.tacticalBattle {
+            let allAtt = (0..<b.units.count).filter { b.units.side[$0] == .attacker }
+            b.issueStanceOrder(unitIndices: allAtt, stance: .charge)
+            b.stepTicks(2400)
+            s.tacticalBattle = b
+        }
+        let preState = controller.battleStateData()
+        let endedPhase = preState["phase"] as? String ?? ""
+        #expect(endedPhase == "ended")
+        let preview = preState["resultPreview"] as? [String: Any] ?? [:]
+        #expect(!preview.isEmpty)
+
+        let res = controller.finishTacticalBattleData()
+        let wasApplied = res["applied"] as? Bool ?? false
+        let activeAfter = controller.isTacticalBattleActive()
+        #expect(wasApplied)
+        #expect(!activeAfter)
+        _ = (eng, targetOwner)
+    }
 }

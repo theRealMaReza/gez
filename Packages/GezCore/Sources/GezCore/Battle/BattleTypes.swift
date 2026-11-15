@@ -290,3 +290,89 @@ public struct PendingBattlePrompt: Sendable, Equatable {
         return false
     }
 }
+
+/// Summary of a finished tactical battle or siege assault written back to the campaign World.
+public struct TacticalBattleResult: Sendable, Equatable, Codable {
+    public let province: ProvinceID
+    public let provinceName: String
+    public let isAssault: Bool
+    public let winner: BattleSide
+    public let winnerCountry: CountryID
+    public let winnerName: String
+    public let attackerCountry: CountryID
+    public let defenderCountry: CountryID
+    public let attackerName: String
+    public let defenderName: String
+    public let attackerInitialMen: Int
+    public let attackerSurvivors: Int
+    public let attackerLosses: Int
+    public let defenderInitialMen: Int
+    public let defenderSurvivors: Int
+    public let defenderLosses: Int
+    public let wasStackwipe: Bool
+    public let fortCaptured: Bool
+    public let newBreachCreated: Bool
+    public let remainingGarrison: Int
+    public let warScoreDelta: Double
+    public let elapsedSeconds: Double
+    public let attackerCommanderName: String
+    public let attackerCommanderFate: CommanderFate
+    public let defenderCommanderName: String
+    public let defenderCommanderFate: CommanderFate
+
+    public init(
+        province: ProvinceID,
+        provinceName: String,
+        isAssault: Bool,
+        winner: BattleSide,
+        winnerCountry: CountryID,
+        winnerName: String,
+        attackerCountry: CountryID,
+        defenderCountry: CountryID,
+        attackerName: String,
+        defenderName: String,
+        attackerInitialMen: Int,
+        attackerSurvivors: Int,
+        attackerLosses: Int,
+        defenderInitialMen: Int,
+        defenderSurvivors: Int,
+        defenderLosses: Int,
+        wasStackwipe: Bool,
+        fortCaptured: Bool,
+        newBreachCreated: Bool,
+        remainingGarrison: Int,
+        warScoreDelta: Double,
+        elapsedSeconds: Double,
+        attackerCommanderName: String,
+        attackerCommanderFate: CommanderFate,
+        defenderCommanderName: String,
+        defenderCommanderFate: CommanderFate
+    ) {
+        self.province = province
+        self.provinceName = provinceName
+        self.isAssault = isAssault
+        self.winner = winner
+        self.winnerCountry = winnerCountry
+        self.winnerName = winnerName
+        self.attackerCountry = attackerCountry
+        self.defenderCountry = defenderCountry
+        self.attackerName = attackerName
+        self.defenderName = defenderName
+        self.attackerInitialMen = attackerInitialMen
+        self.attackerSurvivors = attackerSurvivors
+        self.attackerLosses = attackerLosses
+        self.defenderInitialMen = defenderInitialMen
+        self.defenderSurvivors = defenderSurvivors
+        self.defenderLosses = defenderLosses
+        self.wasStackwipe = wasStackwipe
+        self.fortCaptured = fortCaptured
+        self.newBreachCreated = newBreachCreated
+        self.remainingGarrison = remainingGarrison
+        self.warScoreDelta = warScoreDelta
+        self.elapsedSeconds = elapsedSeconds
+        self.attackerCommanderName = attackerCommanderName
+        self.attackerCommanderFate = attackerCommanderFate
+        self.defenderCommanderName = defenderCommanderName
+        self.defenderCommanderFate = defenderCommanderFate
+    }
+}

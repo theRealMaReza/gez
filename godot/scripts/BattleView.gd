@@ -52,6 +52,11 @@ var formation_buttons: Dictionary = {} # form_key -> Button
 var stance_buttons: Dictionary = {}    # stance_key -> Button
 var orders_panel: VBoxContainer
 var retreat_btn: Button
+var result_panel: PanelContainer
+var result_title_lbl: Label
+var result_sub_lbl: Label
+var result_body_lbl: Label
+var result_done_btn: Button
 
 var _refresh_accum: float = 0.0
 
@@ -60,7 +65,7 @@ func setup(p_main: Control, p_bridge: Variant) -> void:
 	bridge = p_bridge
 	name = "BattleView"
 	visible = false
-	set_anchors_preset(Control.PRESET_FULL_RECT)
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	_build_ui()
 
@@ -68,6 +73,7 @@ func set_bridge(p_bridge: Variant) -> void:
 	bridge = p_bridge
 
 func open_battle() -> void:
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	refresh_state()
 	if bool(state.get("active", false)):
 		visible = true
@@ -80,6 +86,8 @@ func open_battle() -> void:
 
 func close_battle() -> void:
 	visible = false
+	if result_panel != null:
+		result_panel.visible = false
 	selected_units.clear()
 	_clear_gestures()
 
@@ -125,14 +133,14 @@ func _make_label(txt: String, col := Color(0.95, 0.92, 0.84), font_size := 13) -
 
 func _build_ui() -> void:
 	var backdrop := ColorRect.new()
-	backdrop.set_anchors_preset(Control.PRESET_FULL_RECT)
 	backdrop.color = Color(0.06, 0.05, 0.04, 1.0)
 	add_child(backdrop)
+	backdrop.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 
 	root_vbox = VBoxContainer.new()
-	root_vbox.set_anchors_preset(Control.PRESET_FULL_RECT)
 	root_vbox.add_theme_constant_override("separation", 4)
 	add_child(root_vbox)
+	root_vbox.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 
 	# 1. Top Battle HUD (62px high)
 	top_bar = PanelContainer.new()
@@ -351,6 +359,52 @@ func _build_ui() -> void:
 	)
 	bot_hbox.add_child(start_battle_btn)
 
+	# 4. Centered Battle Result Panel (shown when phase == "ended")
+	result_panel = PanelContainer.new()
+	result_panel.name = "BattleResultPanel"
+	result_panel.visible = false
+	result_panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	result_panel.add_theme_stylebox_override("panel", _make_panel_style())
+	result_panel.custom_minimum_size = Vector2(540.0, 320.0)
+	add_child(result_panel)
+	result_panel.set_anchors_preset(Control.PRESET_CENTER)
+	result_panel.offset_left = -270.0
+	result_panel.offset_right = 270.0
+	result_panel.offset_top = -165.0
+	result_panel.offset_bottom = 165.0
+
+	var res_vbox := VBoxContainer.new()
+	res_vbox.add_theme_constant_override("separation", 10)
+	result_panel.add_child(res_vbox)
+
+	result_title_lbl = _make_label("Battle Concluded", Color(0.98, 0.88, 0.45), 20)
+	result_title_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	res_vbox.add_child(result_title_lbl)
+
+	result_sub_lbl = _make_label("", Color(0.88, 0.85, 0.76), 13)
+	result_sub_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	res_vbox.add_child(result_sub_lbl)
+
+	res_vbox.add_child(HSeparator.new())
+
+	result_body_lbl = _make_label("", Color(0.94, 0.92, 0.84), 13)
+	result_body_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	result_body_lbl.custom_minimum_size = Vector2(490.0, 145.0)
+	res_vbox.add_child(result_body_lbl)
+
+	result_done_btn = Button.new()
+	result_done_btn.text = "Return to Campaign Map"
+	result_done_btn.custom_minimum_size = Vector2(240.0, 44.0)
+	result_done_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	result_done_btn.modulate = Color(0.75, 1.0, 0.78)
+	result_done_btn.pressed.connect(func() -> void:
+		_call_bridge("finishTacticalBattle", [], {})
+		close_battle()
+		if main_view != null and main_view.has_method("_on_tactical_battle_closed"):
+			main_view.call("_on_tactical_battle_closed")
+	)
+	res_vbox.add_child(result_done_btn)
+
 func _unhandled_input(event: InputEvent) -> void:
 	if not visible:
 		return
@@ -491,16 +545,69 @@ func _sync_ui_from_state() -> void:
 	start_battle_btn.visible = is_deploy
 	if is_deploy:
 		status_hint_lbl.text = "Deployment: Drag your regiments within the highlighted zone, set formations, then press Start Battle."
+		result_panel.visible = false
 	elif ph == "ended":
 		var win_side := str(state.get("winner", "")).capitalize()
 		status_hint_lbl.text = "Battle Concluded — %s Victory!" % win_side
+		_sync_result_panel()
 	elif bool(state.get("attackerAmbushed", false)) and str(state.get("playerSide", "attacker")) == "attacker":
 		status_hint_lbl.text = "AMBUSH AT THE FORD! Choose Select/Move/Path/Frontline tools or right-click to issue orders."
+		result_panel.visible = false
 	else:
 		status_hint_lbl.text = "Active (%s) · Tools work with single-tap/drag (touch & Pencil friendly) or Right-Click Move." % str(state.get("speedLabel", "1x"))
+		result_panel.visible = false
 
 	_sync_tool_styles()
 	_update_selected_info()
+
+func _sync_result_panel() -> void:
+	if result_panel == null:
+		return
+	var res: Dictionary = state.get("resultPreview", {})
+	if res.is_empty():
+		result_panel.visible = false
+		return
+	var winner_side := str(res.get("winner", ""))
+	var p_side := str(state.get("playerSide", "attacker"))
+	var player_won := (winner_side == p_side)
+	var kind_lbl := "Storm Assault" if bool(res.get("isAssault", false)) else "Field Battle"
+	var prov := str(res.get("provinceName", state.get("provinceName", "")))
+	result_title_lbl.text = ("VICTORY AT %s!" if player_won else "DEFEAT AT %s") % prov.to_upper()
+	result_title_lbl.add_theme_color_override("font_color", Color(0.55, 0.96, 0.58) if player_won else Color(0.96, 0.45, 0.40))
+	result_sub_lbl.text = "%s · Winner: %s (%d s)" % [
+		kind_lbl,
+		str(res.get("winnerName", winner_side.capitalize())),
+		int(round(float(res.get("elapsedSeconds", 0.0))))
+	]
+
+	var att_init := int(res.get("attackerInitialMen", 0))
+	var att_loss := int(res.get("attackerLosses", 0))
+	var att_surv := int(res.get("attackerSurvivors", 0))
+	var def_init := int(res.get("defenderInitialMen", 0))
+	var def_loss := int(res.get("defenderLosses", 0))
+	var def_surv := int(res.get("defenderSurvivors", 0))
+	var ws_pct := float(res.get("warScoreDelta", 0.0)) * 100.0
+
+	var lines: PackedStringArray = [
+		"%s (Attacker): %s men -> %s lost, %s survived" % [str(res.get("attackerName", "Attacker")), _fmt_int(att_init), _fmt_int(att_loss), _fmt_int(att_surv)],
+		"  Commander: %s (%s)" % [str(res.get("attackerCommanderName", "")), str(res.get("attackerCommanderFate", "Active"))],
+		"%s (Defender): %s men -> %s lost, %s survived" % [str(res.get("defenderName", "Defender")), _fmt_int(def_init), _fmt_int(def_loss), _fmt_int(def_surv)],
+		"  Commander: %s (%s)" % [str(res.get("defenderCommanderName", "")), str(res.get("defenderCommanderFate", "Active"))],
+		"War Score Impact: +%.1f%%" % ws_pct
+	]
+	if bool(res.get("wasStackwipe", false)):
+		lines.append("Total Rout — Defeated army overrun!")
+	if bool(res.get("isAssault", false)):
+		var gar := int(res.get("remainingGarrison", 0))
+		if bool(res.get("fortCaptured", false)):
+			lines.append("Fortress Captured! New Garrison: %s men." % _fmt_int(gar))
+		elif bool(res.get("newBreachCreated", false)):
+			lines.append("Fort Held (Garrison: %s), but walls were BREACHED!" % _fmt_int(gar))
+		else:
+			lines.append("Fort Held — Remaining Garrison: %s men." % _fmt_int(gar))
+
+	result_body_lbl.text = "\n".join(lines)
+	result_panel.visible = true
 
 func _update_selected_info() -> void:
 	if selected_units.is_empty():

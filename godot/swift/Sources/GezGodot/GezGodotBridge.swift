@@ -4103,6 +4103,44 @@ public final class GezGodotController {
         session?.orderBattleAttackStructure(unitIndices: unitIndices, structureID: structureId) ?? false
     }
 
+    // MARK: - Phase 9 Part D: Battle Result Write-Back
+
+    public func finishTacticalBattleData() -> [String: Any] {
+        guard let res = session?.finishTacticalBattle() else {
+            return ["applied": false]
+        }
+        return Self.resultDict(res, applied: true)
+    }
+
+    private static func resultDict(_ r: TacticalBattleResult, applied: Bool) -> [String: Any] {
+        [
+            "applied": applied,
+            "provinceIndex": r.province.index,
+            "provinceName": r.provinceName,
+            "isAssault": r.isAssault,
+            "winner": r.winner == .attacker ? "attacker" : "defender",
+            "winnerName": r.winnerName,
+            "attackerName": r.attackerName,
+            "defenderName": r.defenderName,
+            "attackerInitialMen": r.attackerInitialMen,
+            "attackerSurvivors": r.attackerSurvivors,
+            "attackerLosses": r.attackerLosses,
+            "defenderInitialMen": r.defenderInitialMen,
+            "defenderSurvivors": r.defenderSurvivors,
+            "defenderLosses": r.defenderLosses,
+            "wasStackwipe": r.wasStackwipe,
+            "fortCaptured": r.fortCaptured,
+            "newBreachCreated": r.newBreachCreated,
+            "remainingGarrison": r.remainingGarrison,
+            "warScoreDelta": r.warScoreDelta,
+            "elapsedSeconds": r.elapsedSeconds,
+            "attackerCommanderName": r.attackerCommanderName,
+            "attackerCommanderFate": r.attackerCommanderFate.rawValue.capitalized,
+            "defenderCommanderName": r.defenderCommanderName,
+            "defenderCommanderFate": r.defenderCommanderFate.rawValue.capitalized
+        ]
+    }
+
     public func battleStateData() -> [String: Any] {
         guard let b = session?.tacticalBattle else {
             return ["active": false]
@@ -4253,6 +4291,7 @@ public final class GezGodotController {
             "structures": structureRows,
             "keepZone": keepZoneDict,
             "keepCaptureProgress": b.keepCaptureProgress,
+            "resultPreview": (b.phase == .ended) ? Self.resultDict(BattleWriteBack.previewResult(engine: b), applied: false) : [:],
             "units": unitRows
         ]
     }
@@ -5039,6 +5078,11 @@ public final class GezGodotBridge: RefCounted {
     @Callable
     public func orderBattleAttackStructure(unitIndicesCSV: String, structureId: Int) -> Bool {
         controller.orderBattleAttackStructure(unitIndices: Self.parseIntCSV(unitIndicesCSV), structureId: structureId)
+    }
+
+    @Callable
+    public func finishTacticalBattle() -> VariantDictionary {
+        Self.toVariantDictionary(controller.finishTacticalBattleData())
     }
 
     private static func parsePointCSV(_ csv: String) -> [TacticalPoint] {

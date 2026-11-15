@@ -2663,13 +2663,13 @@ func _build_battle_choice_modal() -> void:
 	battle_choice_panel.visible = false
 	battle_choice_panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	battle_choice_panel.add_theme_stylebox_override("panel", _make_panel_style(Color(0.14, 0.11, 0.08, 0.98)))
-	battle_choice_panel.set_anchors_preset(Control.PRESET_CENTER)
 	battle_choice_panel.custom_minimum_size = Vector2(490.0, 260.0)
+	add_child(battle_choice_panel)
+	battle_choice_panel.set_anchors_preset(Control.PRESET_CENTER)
 	battle_choice_panel.offset_left = -245.0
 	battle_choice_panel.offset_right = 245.0
 	battle_choice_panel.offset_top = -135.0
 	battle_choice_panel.offset_bottom = 135.0
-	add_child(battle_choice_panel)
 
 	var vbox := VBoxContainer.new()
 	vbox.add_theme_constant_override("separation", 10)
@@ -2757,3 +2757,11 @@ func open_battle_choice_modal() -> void:
 	]
 	battle_choice_details.text = "Attacker: %s\nDefender: %s" % [att_str, def_str]
 	battle_choice_panel.visible = true
+
+func _on_tactical_battle_closed() -> void:
+	_after_army_action()
+	_refresh_styles_and_country_labels()
+	_refresh_town_icons()
+	_refresh_top_bar()
+	if wars_ui != null:
+		wars_ui.call("refresh_if_open")

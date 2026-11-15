@@ -52,6 +52,7 @@ public final class GameSession {
     }
     public private(set) var pendingBattlePrompt: PendingBattlePrompt?
     public var tacticalBattle: BattleEngine?
+    public private(set) var lastTacticalBattleResult: TacticalBattleResult?
 
     public struct AdvanceOutcome: Sendable {
         public let daysAdvanced: Int
@@ -1205,5 +1206,28 @@ public final class GameSession {
         battle.issueAttackStructureOrder(unitIndices: owned, structureID: structureID)
         tacticalBattle = battle
         return true
+    }
+
+    // MARK: - Phase 9 Part D: Campaign Write-Back
+
+    public func previewTacticalBattleResult() -> TacticalBattleResult? {
+        guard let battle = tacticalBattle, battle.phase == .ended else { return nil }
+        return BattleWriteBack.previewResult(engine: battle)
+    }
+
+    @discardableResult
+    public func finishTacticalBattle() -> TacticalBattleResult? {
+        guard let battle = tacticalBattle, battle.phase == .ended else { return nil }
+        let res = BattleWriteBack.apply(
+            engine: battle,
+            to: &simulation.world,
+            simulation: simulation,
+            date: simulation.date
+        )
+        tacticalBattle = nil
+        lastTacticalBattleResult = res
+        speed = .paused
+        revision &+= 1
+        return res
     }
 }

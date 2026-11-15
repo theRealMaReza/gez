@@ -550,5 +550,182 @@ final class BattleEngineTests: XCTestCase {
         XCTAssertEqual(breachStorm.winner, .attacker)
         XCTAssertTrue(breachStorm.keepCaptured, "Holding inner keep uncontested must capture fort and win assault")
     }
+
+    // MARK: - Part D: Campaign Write-Back (Survivors, Morale, Levy Pops, Commanders, Breaches, Garrison, War Score, Fort Capture)
+
+    func testBattleWriteBackSurvivorsMoraleLevyPopsWarScoreCommanderFateAndFortCapture() throws {
+        // 1. Field battle write-back: survivors, morale, levy pop losses, war score, and report archival
+        let session = try GameSession(tag: "FRA", seed: 777)
+        session.interactiveBattlesEnabled = true
+        guard let fra = session.world.countries.id(forTag: "FRA"),
+              let eng = session.world.countries.id(forTag: "ENG"),
+              let paris = session.world.provinces.id(named: "Paris")
+                ?? session.world.provinces.ids.first(where: { session.world.provinces.owner[$0.index] == fra }),
+              let bordeaux = session.world.provinces.id(named: "Bordeaux") else {
+            XCTFail("Missing FRA/ENG/Paris/Bordeaux")
+            return
+        }
+        session.switchPlayer(to: fra)
+
+        // Ensure FRA and ENG are at war (they already start at war in 1453, fallback via CB if needed)
+        if session.world.diplomacy.activeWar(between: fra, and: eng) == nil,
+           let cb = session.world.diplomacy.availableCasusBelli(attacker: fra, defender: eng, in: session.world).first {
+            _ = session.declareWar(on: eng, cb: cb, breakTruce: true)
+        }
+        let warScoreBefore = session.world.diplomacy.activeWar(between: fra, and: eng)!.warScore
+
+        for aid in session.world.military.armies(in: paris) {
+            session.simulation.world.military.armies.remove(aid)
+        }
+        for aid in session.world.military.armies(in: bordeaux) {
+            session.simulation.world.military.armies.remove(aid)
+        }
+
+        // Raise levy from Paris so we verify real province pop deduction & partial survivor return!
+        let popBeforeRaise = session.world.provinces.population[paris.index]
+        let levyResult = ArmySystem.raiseLevies(&session.simulation.world, fra, in: paris)
+        guard case .success(let levyArmyID) = levyResult else {
+            XCTFail("Failed to raise levy in Paris: \(levyResult)")
+            return
+        }
+        let raisedLevyMen = session.world.military.armies.totalMen(of: levyArmyID)
+        let popWhileRaised = session.world.provinces.population[paris.index]
+        XCTAssertLessThan(popWhileRaised, popBeforeRaise, "Raising levies must deduct peasants from home province")
+
+        let inf = session.world.military.unit("infantry")!
+        // Move levy army to Bordeaux and assign a real commander
+        session.simulation.world.military.armies.province[Int(levyArmyID.rawValue)] = bordeaux
+        let cmdChar = session.world.people.characters.ids.first(where: {
+            session.world.people.characters.isAlive($0) && session.world.people.characters.court[$0.index] == fra
+        })
+        session.simulation.world.military.armies.commander[Int(levyArmyID.rawValue)] = cmdChar
+
+        let defArmy = session.simulation.world.military.armies.append(
+            name: "English Defenders",
+            owner: eng,
+            province: bordeaux,
+            regiments: [
+                Regiment(type: inf.id, origin: .professional, men: 3_000, morale: 3.0),
+                Regiment(type: inf.id, origin: .professional, men: 3_000, morale: 3.0),
+                Regiment(type: inf.id, origin: .professional, men: 3_000, morale: 3.0)
+            ]
+        )
+
+        _ = session.advanceDays(1)
+        XCTAssertNotNil(session.pendingBattlePrompt)
+        XCTAssertTrue(session.chooseLeadPendingBattleInPerson())
+        XCTAssertTrue(session.startTacticalBattle())
+
+        // Fight to completion under AI or charge
+        if var b = session.tacticalBattle {
+            let allAtt: [Int] = (0..<b.units.count).filter { b.units.side[$0] == .attacker }
+            b.issueStanceOrder(unitIndices: allAtt, stance: .charge)
+            b.stepTicks(1800)
+            session.tacticalBattle = b
+        }
+        XCTAssertEqual(session.tacticalBattle?.phase, BattleControlPhase.ended)
+
+        let expectedLevySurv = (0..<session.tacticalBattle!.units.count)
+            .filter { session.tacticalBattle!.units.sourceArmyID[$0] == levyArmyID && session.tacticalBattle!.units.origin[$0] == .levy }
+            .reduce(0) { $0 + session.tacticalBattle!.units.men[$1] }
+        XCTAssertLessThan(expectedLevySurv, raisedLevyMen, "Levy army should sustain battle casualties against 9,000 defenders")
+
+        let reportsBefore = session.world.military.recentBattles.count
+        guard let result = session.finishTacticalBattle() else {
+            XCTFail("finishTacticalBattle must return result")
+            return
+        }
+        XCTAssertNil(session.tacticalBattle)
+        XCTAssertTrue(session.world.military.battles.isEmpty)
+        XCTAssertEqual(session.world.military.recentBattles.count, reportsBefore + 1)
+
+        // Check war score updated
+        let warScoreAfter = session.world.diplomacy.activeWar(between: fra, and: eng)!.warScore
+        XCTAssertNotEqual(warScoreAfter, warScoreBefore, "Tactical battle must update active war score")
+        XCTAssertGreaterThan(result.warScoreDelta, 0.0)
+
+        // Check exact surviving levy men + permanent province pop casualty when disbanded
+        if expectedLevySurv > 0 {
+            XCTAssertEqual(session.world.military.armies.totalMen(of: levyArmyID), expectedLevySurv)
+            ArmySystem.disband(&session.simulation.world, army: levyArmyID)
+            let popAfterReturn = session.world.provinces.population[paris.index]
+            XCTAssertEqual(popAfterReturn, popWhileRaised + Double(expectedLevySurv), accuracy: 5.0)
+            if result.attackerLosses > 0 {
+                XCTAssertLessThan(popAfterReturn, popBeforeRaise, "Permanent levy casualties must reduce province pops")
+            }
+        }
+        _ = defArmy
+
+        // 2. Assault write-back: lost assault updates siege.breached & garrison; won assault captures fort!
+        guard let fortProv = session.world.provinces.ids.first(where: {
+            session.world.provinces.owner[$0.index] == eng && session.world.provinces.fortLevel[$0.index] > 0
+        }) else {
+            XCTFail("Missing fortified ENG province")
+            return
+        }
+        let pIdx = fortProv.index
+        session.simulation.world.provinces.occupiedBy[pIdx] = nil
+        session.simulation.world.provinces.fortGarrison[pIdx] = 600
+        session.simulation.world.military.sieges.append(
+            Siege(province: fortProv, besieger: fra, startDate: session.simulation.date, breached: false)
+        )
+        let stormArmy = session.simulation.world.military.armies.append(
+            name: "Assault Engineers",
+            owner: fra,
+            province: fortProv,
+            regiments: [Regiment(type: inf.id, origin: .professional, men: 1_500, morale: 3.0)]
+        )
+        var failAssault = BattleEngine(
+            world: session.world,
+            province: fortProv,
+            attackerCountry: fra,
+            defenderCountry: eng,
+            attackerArmies: [stormArmy],
+            fortLevel: session.world.provinces.fortLevel[pIdx],
+            existingBreach: false,
+            garrisonMen: 600,
+            playerSide: .attacker,
+            seed: 55
+        )
+        // Simulate a newly breached wall during assault, garrison partially reduced, attackers forced back
+        failAssault.structures[1].hp = 0
+        failAssault.structures[1].breached = true
+        for i in 0..<failAssault.units.count where failAssault.units.isGarrison[i] {
+            failAssault.units.men[i] = min(failAssault.units.men[i], 120)
+        }
+        failAssault.winner = .defender
+        failAssault.keepCaptured = false
+        failAssault.phase = .ended
+        session.tacticalBattle = failAssault
+
+        let failRes = session.finishTacticalBattle()!
+        XCTAssertTrue(failRes.newBreachCreated)
+        XCTAssertFalse(failRes.fortCaptured)
+        XCTAssertTrue(session.world.military.sieges.first(where: { $0.province == fortProv })!.breached, "New assault breach must persist on map siege")
+        XCTAssertEqual(session.world.provinces.fortGarrison[pIdx], failRes.remainingGarrison)
+
+        // Now won assault captures the fort cleanly
+        var winAssault = BattleEngine(
+            world: session.world,
+            province: fortProv,
+            attackerCountry: fra,
+            defenderCountry: eng,
+            attackerArmies: [stormArmy],
+            fortLevel: session.world.provinces.fortLevel[pIdx],
+            existingBreach: true,
+            garrisonMen: 200,
+            playerSide: .attacker,
+            seed: 56
+        )
+        winAssault.winner = .attacker
+        winAssault.keepCaptured = true
+        winAssault.phase = .ended
+        session.tacticalBattle = winAssault
+
+        let winRes = session.finishTacticalBattle()!
+        XCTAssertTrue(winRes.fortCaptured)
+        XCTAssertEqual(session.world.provinces.occupiedBy[pIdx], fra, "Won assault must capture the fort")
+        XCTAssertTrue(session.world.military.sieges.filter { $0.province == fortProv }.isEmpty)
+    }
 }
 

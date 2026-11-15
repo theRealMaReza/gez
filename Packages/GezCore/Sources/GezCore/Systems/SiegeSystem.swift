@@ -348,7 +348,7 @@ public enum SiegeSystem {
 
     // MARK: - Helpers
 
-    private static func captureFort(_ world: inout World, province pid: ProvinceID, capturer: CountryID) {
+    public static func captureFort(_ world: inout World, province pid: ProvinceID, capturer: CountryID) {
         let p = pid.index
         let cap = world.provinces.maxGarrison(of: pid)
         if world.provinces.owner[p] == capturer {
