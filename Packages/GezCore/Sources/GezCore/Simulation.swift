@@ -83,6 +83,7 @@ public final class Simulation {
             EconomySystem.runMonthly(&world)
             BuildingSystem.runMonthly(&world)
             ArmySystem.runMonthly(&world, date: date, random: &random)
+            NavySystem.runMonthly(&world)
             SiegeSystem.runMonthly(&world)
             FinanceSystem.runMonthly(&world)
             FinanceSystem.runAI(&world)

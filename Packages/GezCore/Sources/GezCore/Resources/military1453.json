@@ -1151,7 +1151,7 @@
       "country": "VEN",
       "name": "Condotta of Saint Mark",
       "province": 387,
-      "commander": "inv_ven_marshal",
+      "commander": null,
       "regiments": [
         {
           "type": "infantry",

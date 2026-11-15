@@ -23,6 +23,20 @@ public struct RegionID: Hashable, Sendable, Codable {
     public init(_ index: Int) { self.index = index }
 }
 
+public struct ShipTypeID: RawRepresentable, Hashable, Sendable, Codable {
+    public let rawValue: UInt8
+    public init(rawValue: UInt8) { self.rawValue = rawValue }
+    public init(_ index: Int) { self.rawValue = UInt8(index) }
+    public var index: Int { Int(rawValue) }
+}
+
+public struct FleetID: RawRepresentable, Hashable, Sendable, Codable {
+    public let rawValue: UInt16
+    public init(rawValue: UInt16) { self.rawValue = rawValue }
+    public init(_ index: Int) { self.rawValue = UInt16(index) }
+    public var index: Int { Int(rawValue) }
+}
+
 /// A pixel position on the province map image.
 public struct MapPoint: Hashable, Sendable, Codable {
     public var x: Int

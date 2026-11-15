@@ -129,36 +129,7 @@ public enum ArmySystem {
 
     /// True if `country` satisfies the unlock rules for `unitId`.
     public static func canRecruit(_ world: World, _ country: CountryID, _ unitId: UnitTypeID) -> Bool {
-        let u = world.military.unit(unitId)
-        if u.requires.isEmpty { return true }
-        let tag = world.countries.tag[country.index]
-        let gov = world.countries.government[country.index]
-        let cap = world.countries.capital[country.index]
-        let capRegion = cap.map { world.regionName(of: $0) }
-        let capCulture = cap.map { world.cultures.key[world.provinces.majorityCulture[$0.index].index] }
-        let rulerCulture = world.countries.ruler[country.index].map {
-            world.cultures.key[world.people.characters.culture[$0.index].index]
-        }
-        let estateKeys: Set<String> = Set(
-            world.government.estates[country.index].map { world.government.rules.estates[$0.index].key }
-        )
-
-        for clause in u.requires {
-            switch clause {
-            case .estate(let keys):
-                if keys.contains(where: { estateKeys.contains($0) }) { return true }
-            case .government(let govs):
-                if govs.contains(gov) { return true }
-            case .culture(let cultures):
-                if let rc = rulerCulture, cultures.contains(rc) { return true }
-                if let cc = capCulture, cultures.contains(cc) { return true }
-            case .region(let regions):
-                if let cr = capRegion, regions.contains(cr) { return true }
-            case .tags(let tags):
-                if tags.contains(tag) { return true }
-            }
-        }
-        return false
+        UnitUnlock.matches(world.military.unit(unitId).requires, in: world, for: country)
     }
 
     /// All unit types unlocked for `country`.

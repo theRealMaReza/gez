@@ -47,10 +47,12 @@ public enum Scenario1453 {
         try CharacterLoader.loadBundled(into: &world)
         try GovernmentLoader.loadBundled(into: &world)
         try MilitaryLoader.loadBundled(into: &world)
+        try NavyLoader.loadBundled(into: &world)
         try DiplomacyLoader.loadBundled(into: &world)
         MarketSystem.warmUp(&world, months: warmUpMonths)
         GovernmentSystem.settle(&world)
         ArmySystem.settle(&world, seedPool: true)
+        NavySystem.settle(&world, seedPool: true)
         return world
     }
 

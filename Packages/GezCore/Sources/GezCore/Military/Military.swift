@@ -55,6 +55,38 @@ public enum UnitUnlock: Sendable, Equatable {
     case culture([String])
     case region([String])
     case tags([String])
+
+    /// Returns true if `country` satisfies any unlock clause in `clauses` (or `clauses` is empty).
+    public static func matches(_ clauses: [UnitUnlock], in world: World, for country: CountryID) -> Bool {
+        if clauses.isEmpty { return true }
+        let tag = world.countries.tag[country.index]
+        let gov = world.countries.government[country.index]
+        let cap = world.countries.capital[country.index]
+        let capRegion = cap.map { world.regionName(of: $0) }
+        let capCulture = cap.map { world.cultures.key[world.provinces.majorityCulture[$0.index].index] }
+        let rulerCulture = world.countries.ruler[country.index].map {
+            world.cultures.key[world.people.characters.culture[$0.index].index]
+        }
+        let estateKeys: Set<String> = Set(
+            world.government.estates[country.index].map { world.government.rules.estates[$0.index].key }
+        )
+        for clause in clauses {
+            switch clause {
+            case .estate(let keys):
+                if keys.contains(where: { estateKeys.contains($0) }) { return true }
+            case .government(let govs):
+                if govs.contains(gov) { return true }
+            case .culture(let cultures):
+                if let rc = rulerCulture, cultures.contains(rc) { return true }
+                if let cc = capCulture, cultures.contains(cc) { return true }
+            case .region(let regions):
+                if let cr = capRegion, regions.contains(cr) { return true }
+            case .tags(let tags):
+                if tags.contains(tag) { return true }
+            }
+        }
+        return false
+    }
 }
 
 /// Static definition of a regiment type loaded from `military1453.json`.

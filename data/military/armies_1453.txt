@@ -41,7 +41,7 @@ SWI | Confederate Eidgenossen | Zurich | inv_swi_marshal | swiss_pikemen:2, hand
 
 ## Western Europe & Italy
 BUR | Ducal Host            | Brussels | philip_good  | cavalry:3, infantry:2, archers:2, artillery:1
-VEN | Condotta of Saint Mark | Venice  | inv_ven_marshal | infantry:2@mercenary, cavalry:1@mercenary, archers:1
+VEN | Condotta of Saint Mark | Venice  | -               | infantry:2@mercenary, cavalry:1@mercenary, archers:1
 MLO | Sforza Condotta       | Milan    | f_sforza     | cavalry:2, infantry:2, handgunners:1
 PAP | Papal Guard           | Rome     | -            | infantry:2@mercenary, cavalry:1
 NAP | Royal Army of Naples  | Naples   | ferrante     | cavalry:2, infantry:2, archers:1
