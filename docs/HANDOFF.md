@@ -86,6 +86,30 @@ plague, rebels, technology, events, sound, settings, multiplayer.
    deleted on GitHub (the workspace cannot delete branches); retire `App/`
    when the owner says so.
 
+### How Claude reviews Gemini's pull requests (owner's choice, 15 Nov 2026)
+The owner found full reviews too slow (each CI round with the three game
+builds takes ~40 min, the long simulations ~50 min). From Phase 11 on:
+- **During review**, wait only for the fast jobs: Simulation tests (Linux,
+  macOS, Windows) and Godot extension (macOS), ~10-15 min. Also do the
+  checks that need no CI (headless Godot parse check, bridge-call names
+  and argument counts, generators reproducible, code reading).
+- **Merge** when those are green and the owner agrees.
+- **After merging**, the push to `main` runs the Godot exports (which start
+  the exported game), the screenshots and the long simulations. Check them
+  then, and fix anything red directly on `main` or in a small follow-up PR.
+- Still run the profile/fingerprint job by hand (~5 min) when a PR changes
+  the daily or monthly tick, since speed regressions are easy to miss.
+
+### Session 7 review of PR #23 (navies)
+- Fixed: `NavySystem.runDaily` took ~4.3 ms/day (half the tick); dock
+  permissions are now built once a day (`NavySystem.dockFriends`, tested
+  against the pairwise check). Admirals and army commanders are different
+  people. Army path search skips strait checks when no hostile fleet is at
+  sea. The Godot top bar scales down to fit the window. History question:
+  Giacomo vs Alvise Loredan (HISTORY_NOTES).
+- The 10-year debug run went 163 s → 433 s with the navy; check it again
+  after the strait shortcut. The profile job now times the navy systems.
+
 ### Session 7 review of PR #22 (battle view)
 - Fixed: platform-independent battle maths (`Core/DetMath.swift`; the
   `BATTLE_CHECKSUM` printed by `BattleEngineTests` must match in the Mac,

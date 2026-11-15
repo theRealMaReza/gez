@@ -238,7 +238,7 @@ Built in one Gemini pull request (#22, parts A–D), reviewed by Claude. Owner's
 - [x] 4. **Playable siege assaults**: walls, towers, gate, keep, breaches, artillery bombardment, ladders, battering ram.
 - [x] 5. Results feed back to the campaign map (survivors, morale, levy pops, commanders, war score, fort breaches/garrison/capture) with Battle Result summary panel.
 
-### Phase 10: Navies
+### Phase 10: Navies ✅ (session 7, PR #23)
 Owner's choices:
 - **Ships, docks & 1453 fleets**: 4 core ship classes (Cogs for transport, Galleys for inland-sea oar combat in Med/Black Sea/Baltic/Red Sea, Carracks as heavy ocean warships, Light Ships/Caravels/Dhows for trade protection & scouting) + regional ships (Venetian Great Galleys, Ottoman galleys, Indian Ocean dhows and ghurabs via tech); built in coastal provinces with Docks using `timber`, `naval_supplies`, `cloth`, and `cannons`, drawing Sailors from coastal peasant/burgher pops, plus historical 30 May 1453 starting fleets.
 - **Naval operations**: Multi-day auto-resolved naval battles (cannon fire & boarding phases, galley bonus in inland seas, admiral Martial rolls, ship capture chance), port blockades (removing the -2 coastal fort siege penalty, cutting sea trade capacity, and adding war score), strait blocking (hostile fleets block enemy armies from crossing a strait unless they control both shores), and amphibious army transport (1 Cog/transport per 1,000 troops, with amphibious landing penalties in combat).
