@@ -1018,4 +1018,68 @@ struct GezGodotTests {
         let sig3 = controller.mapArmiesSignature()
         #expect(sig3 != sig1)
     }
+
+    @Test("Phase 9 Part A bridge: battle prompt, lead in person, deploy move, start, speed, tick")
+    func phase9PartABattleBridge() {
+        let controller = GezGodotController()
+        #expect(controller.setup(dataDirectoryPath: "", tag: "FRA"))
+        guard let s = controller.session,
+              let fra = s.world.countries.id(forTag: "FRA"),
+              let eng = s.world.countries.id(forTag: "ENG"),
+              let bordeaux = s.world.provinces.id(named: "Bordeaux") else {
+            Issue.record("Missing FRA/ENG/Bordeaux")
+            return
+        }
+
+        // Initial state: no prompt, no active battle
+        #expect(!controller.hasPendingBattlePrompt())
+        #expect(controller.pendingBattlePromptData()["active"] as? Bool == false)
+        #expect(!controller.isTacticalBattleActive())
+        #expect(controller.battleStateData()["active"] as? Bool == false)
+
+        // Invalid storm assault request reports cleanly
+        let badAssault = controller.requestStormAssaultChoice(provinceIndex: bordeaux.index)
+        #expect(badAssault["opened"] as? Bool == false)
+
+        // Trigger a player battle in Bordeaux
+        for aid in s.world.military.armies(in: bordeaux) {
+            s.simulation.world.military.armies.remove(aid)
+        }
+        let inf = s.world.military.unit("infantry")!
+        s.simulation.world.military.armies.append(
+            name: "French Guard",
+            owner: fra,
+            province: bordeaux,
+            regiments: [Regiment(type: inf.id, origin: .professional, men: 1_000, morale: 3.0)]
+        )
+        s.simulation.world.military.armies.append(
+            name: "English Guard",
+            owner: eng,
+            province: bordeaux,
+            regiments: [Regiment(type: inf.id, origin: .professional, men: 1_000, morale: 3.0)]
+        )
+        _ = s.advanceDays(1)
+        #expect(controller.hasPendingBattlePrompt())
+        let prompt = controller.pendingBattlePromptData()
+        #expect(prompt["active"] as? Bool == true)
+        #expect(prompt["provinceIndex"] as? Int == bordeaux.index)
+
+        // Lead Battle in Person
+        #expect(controller.chooseLeadBattleInPerson())
+        #expect(!controller.hasPendingBattlePrompt())
+        #expect(controller.isTacticalBattleActive())
+
+        let state1 = controller.battleStateData()
+        #expect(state1["active"] as? Bool == true)
+        #expect(state1["phase"] as? String == "deployment")
+        let units1 = state1["units"] as? [[String: Any]] ?? []
+        #expect(units1.count == 2)
+
+        // Move player unit in deployment zone & start battle
+        #expect(controller.deployMoveBattleUnit(unitIndex: 0, x: 220.0, y: 310.0, facing: 0.1))
+        #expect(controller.startTacticalBattle())
+        #expect(controller.setTacticalBattleSpeed(speedIndex: 2))
+        let ticked = controller.tickTacticalBattle(deltaSeconds: 0.5)
+        #expect(ticked >= 1)
+    }
 }

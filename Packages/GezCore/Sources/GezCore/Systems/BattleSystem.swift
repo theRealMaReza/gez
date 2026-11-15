@@ -70,7 +70,7 @@ public enum BattleSystem {
 
     // MARK: - 1. Battle Initiation & Reinforcement
 
-    private static func detectAndReinforceBattles(
+    static func detectAndReinforceBattles(
         _ world: inout World,
         date: GameDate,
         random: inout GameRandom
@@ -309,14 +309,19 @@ public enum BattleSystem {
         return count
     }
 
-    private static func advanceActiveBattles(
+    static func advanceActiveBattles(
         _ world: inout World,
         date: GameDate,
-        random: inout GameRandom
+        random: inout GameRandom,
+        skipBattleIDs: Set<String> = []
     ) {
         var remainingBattles: [Battle] = []
 
         for var battle in world.military.battles {
+            if skipBattleIDs.contains(battle.id) {
+                remainingBattles.append(battle)
+                continue
+            }
             battle.dayCount += 1
             if battle.dayCount > 1 {
                 battle.phaseDay += 1
@@ -618,7 +623,7 @@ public enum BattleSystem {
 
     // MARK: - 3. Unfortified Province Takeover Occupation
 
-    private static func advanceUnfortifiedOccupation(_ world: inout World) {
+    static func advanceUnfortifiedOccupation(_ world: inout World) {
         let activeBattleProvs = Set(world.military.battles.map(\.province))
         let armyIndex = world.military.armyIndexByProvince(provinceCount: world.provinces.count)
 

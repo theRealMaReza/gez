@@ -42,6 +42,16 @@ public final class GameSession {
 
     private var clock = GameClock()
     private var lastRunningSpeed: GameSpeed = .two
+    private var speedBeforeBattlePrompt: GameSpeed?
+
+    /// Interactive battle view support (enabled by Godot front-end; left false for App/ and pure simulation tests).
+    public var interactiveBattlesEnabled: Bool = false {
+        didSet {
+            simulation.interceptHumanBattles = interactiveBattlesEnabled
+        }
+    }
+    public private(set) var pendingBattlePrompt: PendingBattlePrompt?
+    public var tacticalBattle: BattleEngine?
 
     public struct AdvanceOutcome: Sendable {
         public let daysAdvanced: Int
@@ -107,17 +117,30 @@ public final class GameSession {
     /// Advances the simulation by an explicit number of days.
     @discardableResult
     public func advanceDays(_ days: Int) -> AdvanceOutcome {
-        guard days > 0 else {
+        guard days > 0, pendingBattlePrompt == nil, tacticalBattle == nil else {
             return AdvanceOutcome(daysAdvanced: 0, monthChanged: false, warsCountChanged: false, didAutosave: false)
         }
+        simulation.interceptHumanBattles = interactiveBattlesEnabled
         let prevMonth = simulation.date.month
         let prevWars = simulation.world.diplomacy.wars.count
         var didAutosave = false
+        var actualDays = 0
         for _ in 0..<days {
             simulation.tick()
+            actualDays += 1
             if autosaveFrequency.shouldAutosave(on: simulation.date) {
                 if (try? SaveStorage.autosave(simulation, playerTag: playerTag, in: savesDirectory)) != nil {
                     didAutosave = true
+                }
+            }
+            if interactiveBattlesEnabled, let bid = simulation.pendingHumanBattleID {
+                refreshPendingPrompt(forBattleID: bid)
+                if pendingBattlePrompt != nil {
+                    speedBeforeBattlePrompt = speed
+                    speed = .paused
+                    break
+                } else {
+                    simulation.pendingHumanBattleID = nil
                 }
             }
         }
@@ -128,7 +151,7 @@ public final class GameSession {
         }
         revision &+= 1
         return AdvanceOutcome(
-            daysAdvanced: days,
+            daysAdvanced: actualDays,
             monthChanged: date.month != prevMonth,
             warsCountChanged: simulation.world.diplomacy.wars.count != prevWars,
             didAutosave: didAutosave
@@ -575,6 +598,10 @@ public final class GameSession {
         let freshWorld = Scenario1453.makeWorld()
         let sim = Simulation(world: freshWorld, startDate: Scenario1453.startDate, seed: seed)
         simulation = sim
+        simulation.interceptHumanBattles = interactiveBattlesEnabled
+        pendingBattlePrompt = nil
+        tacticalBattle = nil
+        speedBeforeBattlePrompt = nil
         date = sim.date
         let picked = sim.world.countries.id(forTag: tag) ?? sim.world.countries.id(forTag: Scenario1453.defaultPlayerTag)
         playerCountry = picked
@@ -618,6 +645,10 @@ public final class GameSession {
         do {
             let loaded = try SaveStorage.load(from: entry.url)
             simulation = loaded.simulation
+            simulation.interceptHumanBattles = interactiveBattlesEnabled
+            pendingBattlePrompt = nil
+            tacticalBattle = nil
+            speedBeforeBattlePrompt = nil
             date = loaded.simulation.date
             if let tag = loaded.metadata.playerTag,
                let id = loaded.simulation.world.countries.id(forTag: tag) {
@@ -828,5 +859,252 @@ public final class GameSession {
             parts.append("\(subjects.count) subject\(subjects.count == 1 ? "" : "s")")
         }
         return parts.joined(separator: " · ")
+    }
+
+    // MARK: - Interactive Tactical Battles (Phase 9)
+
+    private func bestCommanderSummary(for armies: [ArmyID]) -> (name: String, martial: Int) {
+        var bestName = "Field Captain"
+        var bestMartial = 0
+        for aid in armies {
+            let idx = Int(aid.rawValue)
+            guard idx >= 0, idx < world.military.armies.count, world.military.armies.alive[idx] else { continue }
+            if let cmd = world.military.armies.commander[idx], world.people.characters.isAlive(cmd) {
+                let m = world.people.characters.skill(cmd, .martial)
+                if m > bestMartial || bestName == "Field Captain" {
+                    bestMartial = m
+                    bestName = world.people.characters.name[cmd.index]
+                }
+            }
+        }
+        return (bestName, bestMartial)
+    }
+
+    private func refreshPendingPrompt(forBattleID battleID: String) {
+        guard let battle = world.military.battles.first(where: { $0.id == battleID }) else {
+            pendingBattlePrompt = nil
+            return
+        }
+        let attC = battle.attackerCountry
+        let defC = battle.defenderCountry
+        let pSide: BattleSide
+        if let p = playerCountry {
+            pSide = (p == defC || world.diplomacy.areAllies(p, defC)) ? .defender : .attacker
+        } else {
+            pSide = .attacker
+        }
+        let attCmd = bestCommanderSummary(for: battle.attackers)
+        let defCmd = bestCommanderSummary(for: battle.defenders)
+        let attMen = battle.attackers.reduce(0) { $0 + world.military.armies.totalMen(of: $1) }
+        let defMen = battle.defenders.reduce(0) { $0 + world.military.armies.totalMen(of: $1) }
+        let pIdx = battle.province.index
+        pendingBattlePrompt = PendingBattlePrompt(
+            id: battle.id,
+            kind: .field(battleID: battle.id),
+            province: battle.province,
+            provinceName: world.provinces.name[pIdx],
+            terrain: world.provinces.terrain[pIdx],
+            isRiverCrossing: battle.isRiverCrossing,
+            attackerCountry: attC,
+            defenderCountry: defC,
+            attackerName: world.countries.name[attC.index],
+            defenderName: world.countries.name[defC.index],
+            attackerTag: world.countries.tag[attC.index],
+            defenderTag: world.countries.tag[defC.index],
+            attackerMen: max(battle.attackerInitialMen, attMen),
+            defenderMen: max(battle.defenderInitialMen, defMen),
+            attackerCommanderName: attCmd.name,
+            attackerCommanderMartial: attCmd.martial,
+            defenderCommanderName: defCmd.name,
+            defenderCommanderMartial: defCmd.martial,
+            playerSide: pSide,
+            fortLevel: world.provinces.fortLevel[pIdx],
+            breached: false,
+            attackerAmbushed: battle.isRiverCrossing
+        )
+    }
+
+    /// Requests the "Lead Battle in Person vs Auto-Resolve" choice for a fort storm assault.
+    /// Returns nil (with prompt unset) if preconditions fail; check `assaultFort` refusal reason.
+    @discardableResult
+    public func requestStormAssaultPrompt(in province: ProvinceID) -> (prompt: PendingBattlePrompt?, refusalReason: String?) {
+        guard pendingBattlePrompt == nil, tacticalBattle == nil else {
+            return (nil, "Another battle dialog is already open")
+        }
+        guard let player = playerCountry else {
+            return (nil, "No player country")
+        }
+        let pIdx = province.index
+        guard pIdx >= 0 && pIdx < world.provinces.count else {
+            return (nil, "Invalid province")
+        }
+        guard let siege = world.military.sieges.first(where: { $0.province == province }) else {
+            return (nil, "No active siege in \(world.provinces.name[pIdx])")
+        }
+        guard siege.besieger == player else {
+            return (nil, "Only the siege leader can order a Storm Assault")
+        }
+        guard siege.breached else {
+            return (nil, "Walls are not breached yet")
+        }
+        guard world.military.battle(in: province) == nil else {
+            return (nil, "Field battle in progress.")
+        }
+        let attackers = SiegeSystem.besiegers(in: province, attacker: player, world: world)
+        let attMen = attackers.reduce(0) { $0 + world.military.armies.totalMen(of: $1) }
+        guard attMen >= 500 else {
+            return (nil, "Insufficient besiegers to assault.")
+        }
+        guard let defOwner = world.provinces.controller(of: province) else {
+            return (nil, "No defender holds the fort")
+        }
+        let garrison = max(1, world.provinces.fortGarrison[pIdx])
+        let attCmd = bestCommanderSummary(for: attackers)
+
+        speedBeforeBattlePrompt = speed
+        speed = .paused
+        let prompt = PendingBattlePrompt(
+            id: "assault_\(pIdx)_\(simulation.ticksRun)",
+            kind: .assault(province: province),
+            province: province,
+            provinceName: world.provinces.name[pIdx],
+            terrain: world.provinces.terrain[pIdx],
+            isRiverCrossing: false,
+            attackerCountry: player,
+            defenderCountry: defOwner,
+            attackerName: world.countries.name[player.index],
+            defenderName: world.countries.name[defOwner.index],
+            attackerTag: world.countries.tag[player.index],
+            defenderTag: world.countries.tag[defOwner.index],
+            attackerMen: attMen,
+            defenderMen: garrison,
+            attackerCommanderName: attCmd.name,
+            attackerCommanderMartial: attCmd.martial,
+            defenderCommanderName: "Castellan of \(world.provinces.name[pIdx])",
+            defenderCommanderMartial: 4 + min(4, world.provinces.fortLevel[pIdx]),
+            playerSide: .attacker,
+            fortLevel: world.provinces.fortLevel[pIdx],
+            breached: siege.breached,
+            attackerAmbushed: false
+        )
+        pendingBattlePrompt = prompt
+        revision &+= 1
+        return (prompt, nil)
+    }
+
+    /// Resolves the open battle prompt by choosing "Auto-Resolve" (existing BattleSystem / SiegeSystem).
+    @discardableResult
+    public func chooseAutoResolvePendingBattle() -> AssaultResult? {
+        guard let prompt = pendingBattlePrompt else { return nil }
+        pendingBattlePrompt = nil
+        switch prompt.kind {
+        case .field(let battleID):
+            simulation.autoResolveBattleIDs.insert(battleID)
+            if simulation.pendingHumanBattleID == battleID {
+                simulation.pendingHumanBattleID = nil
+            }
+            if let prevSpeed = speedBeforeBattlePrompt, prevSpeed != .paused {
+                speed = prevSpeed
+            }
+            speedBeforeBattlePrompt = nil
+            revision &+= 1
+            return nil
+        case .assault(let province):
+            speedBeforeBattlePrompt = nil
+            return assaultFort(in: province)
+        }
+    }
+
+    /// Resolves the open battle prompt by choosing "Lead Battle in Person".
+    @discardableResult
+    public func chooseLeadPendingBattleInPerson() -> Bool {
+        guard let prompt = pendingBattlePrompt else { return false }
+        let battleSeed = UInt64(max(1, simulation.ticksRun))
+            ^ UInt64(prompt.province.index + 1) &* 0x517CC1B727220A95
+            ^ BattlefieldGenerator.stableHash64(prompt.id)
+
+        switch prompt.kind {
+        case .field(let battleID):
+            guard let battle = world.military.battles.first(where: { $0.id == battleID }) else {
+                pendingBattlePrompt = nil
+                simulation.pendingHumanBattleID = nil
+                return false
+            }
+            pendingBattlePrompt = nil
+            if simulation.pendingHumanBattleID == battleID {
+                simulation.pendingHumanBattleID = nil
+            }
+            simulation.activeTacticalBattleID = battleID
+            speed = .paused
+            tacticalBattle = BattleEngine(
+                world: world,
+                battle: battle,
+                playerSide: prompt.playerSide,
+                seed: battleSeed
+            )
+            revision &+= 1
+            return true
+        case .assault(let province):
+            guard let siege = world.military.sieges.first(where: { $0.province == province }) else {
+                pendingBattlePrompt = nil
+                return false
+            }
+            let attackers = SiegeSystem.besiegers(in: province, attacker: siege.besieger, world: world)
+            pendingBattlePrompt = nil
+            speed = .paused
+            tacticalBattle = BattleEngine(
+                world: world,
+                province: province,
+                attackerCountry: prompt.attackerCountry,
+                defenderCountry: prompt.defenderCountry,
+                attackerArmies: attackers,
+                fortLevel: max(1, prompt.fortLevel),
+                existingBreach: siege.breached,
+                garrisonMen: max(100, world.provinces.fortGarrison[province.index]),
+                playerSide: .attacker,
+                seed: battleSeed
+            )
+            revision &+= 1
+            return true
+        }
+    }
+
+    /// Moves a player unit inside its deployment zone during Deployment phase.
+    @discardableResult
+    public func deployMoveBattleUnit(unitIndex: Int, x: Double, y: Double, facing: Double? = nil) -> Bool {
+        guard var battle = tacticalBattle else { return false }
+        let ok = battle.deployMoveUnit(unitIndex: unitIndex, x: x, y: y, facing: facing)
+        tacticalBattle = battle
+        if ok { revision &+= 1 }
+        return ok
+    }
+
+    /// Ends the deployment phase and starts the real-time tactical battle.
+    @discardableResult
+    public func startTacticalBattle() -> Bool {
+        guard var battle = tacticalBattle else { return false }
+        let ok = battle.startBattle()
+        tacticalBattle = battle
+        if ok { revision &+= 1 }
+        return ok
+    }
+
+    /// Sets speed (`0` paused, `1` 0.5x, `2` 1x, `3` 2x) for the active tactical battle.
+    @discardableResult
+    public func setTacticalBattleSpeed(_ speedRaw: Int) -> Bool {
+        guard var battle = tacticalBattle, let spd = BattleSpeed(rawValue: speedRaw) else { return false }
+        battle.setSpeed(spd)
+        tacticalBattle = battle
+        revision &+= 1
+        return true
+    }
+
+    /// Advances the active tactical battle by real-time `deltaSeconds`. Returns ticks stepped.
+    @discardableResult
+    public func tickTacticalBattle(deltaSeconds: Double) -> Int {
+        guard var battle = tacticalBattle else { return 0 }
+        let ticks = battle.tick(deltaSeconds: deltaSeconds)
+        tacticalBattle = battle
+        return ticks
     }
 }

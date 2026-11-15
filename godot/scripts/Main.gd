@@ -12,6 +12,7 @@ const CourtPanelScript := preload("res://scripts/CourtPanel.gd")
 const GovernmentPanelScript := preload("res://scripts/GovernmentPanel.gd")
 const DiplomacyPanelScript := preload("res://scripts/DiplomacyPanel.gd")
 const WarsPanelScript := preload("res://scripts/WarsPanel.gd")
+const BattleViewScript := preload("res://scripts/BattleView.gd")
 
 var bridge: RefCounted = null
 var warned_missing_methods: Dictionary = {}
@@ -130,6 +131,13 @@ var picker_treasury_label: Label
 var picker_provinces_label: Label
 var selected_picker_tag: String = "TUR"
 var cached_all_countries: Array = []
+
+# Tactical battle modal & view (Phase 9)
+var battle_choice_panel: PanelContainer
+var battle_choice_title: Label
+var battle_choice_sub: Label
+var battle_choice_details: Label
+var battle_view: Control
 
 # Heraldry cache (tag -> Texture2D)
 var arms_cache: Dictionary = {}
@@ -295,6 +303,13 @@ func _build_scene_ui() -> void:
 
 	# 9. Game menu panel (center)
 	_build_game_menu_panel()
+
+	# 10. Battle choice modal & 2D tactical battle view (Phase 9)
+	_build_battle_choice_modal()
+	battle_view = Control.new()
+	battle_view.set_script(BattleViewScript)
+	add_child(battle_view)
+	battle_view.call("setup", self, bridge)
 
 func _make_panel_style(bg := Color(0.14, 0.11, 0.08, 0.96)) -> StyleBoxFlat:
 	var s := StyleBoxFlat.new()
@@ -1103,6 +1118,8 @@ func _init_bridge_and_map() -> void:
 	_refresh_all_labels()
 	_refresh_town_icons()
 	_populate_autosave_options()
+	if battle_view != null:
+		battle_view.call("set_bridge", bridge)
 	_refresh_top_bar()
 	_refresh_armies()
 
@@ -1143,8 +1160,10 @@ func _process(delta: float) -> void:
 		_last_fps = cur_fps
 		fps_label.text = "%d FPS" % cur_fps
 
+	var in_battle := (battle_view != null and battle_view.visible) or (battle_choice_panel != null and battle_choice_panel.visible)
+
 	# Arrow-key panning when no text input is focused
-	if not _is_text_input_focused():
+	if not in_battle and not _is_text_input_focused():
 		var pan_dir := Vector2.ZERO
 		if Input.is_key_pressed(KEY_LEFT):
 			pan_dir.x += 1.0
@@ -1158,10 +1177,14 @@ func _process(delta: float) -> void:
 			offset = _clamped_offset(offset + pan_dir.normalized() * 650.0 * delta, zoom)
 			_sync_camera_uniforms()
 
-	if bridge == null:
+	if bridge == null or in_battle:
 		return
 
 	var mask: int = int(_call_bridge("tickFrame", [delta], 0))
+	if bool(_call_bridge("hasPendingBattlePrompt", [], false)):
+		open_battle_choice_modal()
+		_refresh_top_bar()
+		_refresh_armies()
 	if mask != 0:
 		_refresh_top_bar()
 		if (mask & 1) != 0:
@@ -2203,6 +2226,8 @@ func _on_viewport_resized() -> void:
 		_sync_camera_uniforms()
 
 func _unhandled_input(event: InputEvent) -> void:
+	if (battle_view != null and battle_view.visible) or (battle_choice_panel != null and battle_choice_panel.visible):
+		return
 	if event is InputEventKey and event.pressed and not event.echo:
 		if event.keycode == KEY_ESCAPE:
 			if int(_call_bridge("getMoveModeArmyId", [], -1)) >= 0:
@@ -2631,3 +2656,104 @@ func _after_court_or_gov_action() -> void:
 		gov_ui.call("refresh_if_open")
 	if province_panel.visible:
 		_refresh_province_panel()
+
+func _build_battle_choice_modal() -> void:
+	battle_choice_panel = PanelContainer.new()
+	battle_choice_panel.name = "BattleChoiceModal"
+	battle_choice_panel.visible = false
+	battle_choice_panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	battle_choice_panel.add_theme_stylebox_override("panel", _make_panel_style(Color(0.14, 0.11, 0.08, 0.98)))
+	battle_choice_panel.set_anchors_preset(Control.PRESET_CENTER)
+	battle_choice_panel.custom_minimum_size = Vector2(490.0, 260.0)
+	battle_choice_panel.offset_left = -245.0
+	battle_choice_panel.offset_right = 245.0
+	battle_choice_panel.offset_top = -135.0
+	battle_choice_panel.offset_bottom = 135.0
+	add_child(battle_choice_panel)
+
+	var vbox := VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 10)
+	battle_choice_panel.add_child(vbox)
+
+	battle_choice_title = _make_label("Battle Imminent!", Color(0.98, 0.88, 0.48), 18)
+	battle_choice_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	vbox.add_child(battle_choice_title)
+
+	battle_choice_sub = _make_label("", Color(0.90, 0.86, 0.78), 13)
+	battle_choice_sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	vbox.add_child(battle_choice_sub)
+
+	vbox.add_child(HSeparator.new())
+
+	battle_choice_details = _make_label("", Color(0.94, 0.91, 0.84), 13)
+	battle_choice_details.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	battle_choice_details.custom_minimum_size = Vector2(440.0, 72.0)
+	vbox.add_child(battle_choice_details)
+
+	var btn_row := HBoxContainer.new()
+	btn_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	btn_row.add_theme_constant_override("separation", 16)
+	vbox.add_child(btn_row)
+
+	var lead_btn := Button.new()
+	lead_btn.text = "Lead Battle in Person"
+	lead_btn.custom_minimum_size = Vector2(210.0, 46.0)
+	lead_btn.modulate = Color(0.75, 1.0, 0.78)
+	lead_btn.pressed.connect(func() -> void:
+		battle_choice_panel.visible = false
+		if bool(_call_bridge("chooseLeadBattleInPerson", [], false)):
+			if battle_view != null:
+				battle_view.call("open_battle")
+		_refresh_top_bar()
+	)
+	btn_row.add_child(lead_btn)
+
+	var auto_btn := Button.new()
+	auto_btn.text = "Auto-Resolve"
+	auto_btn.custom_minimum_size = Vector2(180.0, 46.0)
+	auto_btn.modulate = Color(0.96, 0.84, 0.56)
+	auto_btn.pressed.connect(func() -> void:
+		battle_choice_panel.visible = false
+		_call_bridge("chooseAutoResolveBattle", [], {})
+		_after_army_action()
+		_refresh_styles_and_country_labels()
+	)
+	btn_row.add_child(auto_btn)
+
+func open_battle_choice_modal() -> void:
+	if bridge == null or battle_choice_panel == null:
+		return
+	var prompt: Dictionary = _call_bridge("getPendingBattlePrompt", [], {})
+	if not bool(prompt.get("active", false)):
+		battle_choice_panel.visible = false
+		return
+	var prov_name: String = str(prompt.get("provinceName", "Province"))
+	var terr_name: String = str(prompt.get("terrainName", "Plains"))
+	var is_assault := bool(prompt.get("isAssault", false))
+	var is_river := bool(prompt.get("isRiverCrossing", false))
+	var att_ambushed := bool(prompt.get("attackerAmbushed", false)) and str(prompt.get("playerSide", "attacker")) == "attacker"
+
+	battle_choice_title.text = ("Storm Assault at %s" % prov_name) if is_assault else ("Battle at %s" % prov_name)
+	var extra := ""
+	if is_assault:
+		extra = " · Fort Lv %d (Walls Breached)" % int(prompt.get("fortLevel", 1))
+	elif is_river:
+		extra = " · River Crossing" + (" (Ambushed!)" if att_ambushed else "")
+	battle_choice_sub.text = "Terrain: %s%s" % [terr_name, extra]
+
+	var att_str := "%s (%s) — %d men · Cmdr: %s (Martial %d)" % [
+		str(prompt.get("attackerName", "Attacker")),
+		str(prompt.get("attackerTag", "")),
+		int(prompt.get("attackerMen", 0)),
+		str(prompt.get("attackerCommander", "Field Captain")),
+		int(prompt.get("attackerMartial", 0))
+	]
+	var def_str := "%s (%s) — %d men · Cmdr: %s (Martial %d)" % [
+		str(prompt.get("defenderName", "Defender")),
+		str(prompt.get("defenderTag", "")),
+		int(prompt.get("defenderMen", 0)),
+		str(prompt.get("defenderCommander", "Castellan")),
+		int(prompt.get("defenderMartial", 0))
+	]
+	battle_choice_details.text = "Attacker: %s\nDefender: %s" % [att_str, def_str]
+	battle_choice_panel.visible = true
