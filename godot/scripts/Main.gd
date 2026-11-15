@@ -3,7 +3,10 @@ extends Control
 const MapShader := preload("res://shaders/map.gdshader")
 const LabelsLayerScript := preload("res://scripts/MapLabelsLayer.gd")
 const ArmiesLayerScript := preload("res://scripts/MapArmiesLayer.gd")
+const RoutesLayerScript := preload("res://scripts/MapRoutesLayer.gd")
 const ArmyPanelScript := preload("res://scripts/ArmyPanel.gd")
+const BudgetPanelScript := preload("res://scripts/BudgetPanel.gd")
+const TradePanelScript := preload("res://scripts/TradePanel.gd")
 
 var bridge: RefCounted = null
 var warned_missing_methods: Dictionary = {}
@@ -12,13 +15,17 @@ var map_rect: ColorRect
 var map_material: ShaderMaterial
 var labels_layer: Control
 var armies_layer: Control
+var routes_layer: Control
 var army_ui: Control
+var budget_ui: Control
+var trade_ui: Control
 
 # Top bar widgets
 var top_country_btn: Button
 var top_arms_rect: TextureRect
 var country_label: Label
-var ducats_label: Label
+var treasury_btn: Button
+var trade_btn: Button
 var armies_btn: Button
 var date_label: Label
 var selection_label: Label
@@ -154,6 +161,15 @@ func _build_scene_ui() -> void:
 	armies_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(armies_layer)
 
+	# 2c. Player trade routes overlay (visible & redrawn only while Trade window is open)
+	routes_layer = Control.new()
+	routes_layer.name = "RoutesLayer"
+	routes_layer.set_script(RoutesLayerScript)
+	routes_layer.visible = false
+	routes_layer.set_anchors_preset(Control.PRESET_FULL_RECT)
+	routes_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(routes_layer)
+
 	# 3. Top bar panel
 	_build_top_bar()
 
@@ -175,6 +191,23 @@ func _build_scene_ui() -> void:
 	army_ui.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(army_ui)
 	army_ui.call("setup", self)
+
+	# 6c. Economy windows (Budget & Trade)
+	budget_ui = Control.new()
+	budget_ui.name = "BudgetUI"
+	budget_ui.set_script(BudgetPanelScript)
+	budget_ui.set_anchors_preset(Control.PRESET_FULL_RECT)
+	budget_ui.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(budget_ui)
+	budget_ui.call("setup", self)
+
+	trade_ui = Control.new()
+	trade_ui.name = "TradeUI"
+	trade_ui.set_script(TradePanelScript)
+	trade_ui.set_anchors_preset(Control.PRESET_FULL_RECT)
+	trade_ui.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(trade_ui)
+	trade_ui.call("setup", self)
 
 	# 7. Market panel (bottom-right, left of zoom buttons)
 	_build_market_panel()
@@ -234,11 +267,21 @@ func _build_top_bar() -> void:
 
 	hbox.add_child(_make_separator())
 
-	var ducats_prefix := _make_label("Ducats:", Color(0.80, 0.75, 0.65), 14)
-	hbox.add_child(ducats_prefix)
+	treasury_btn = Button.new()
+	treasury_btn.text = "Ducats: 0 (+0.0/mo)"
+	treasury_btn.custom_minimum_size = Vector2(150.0, 30.0)
+	treasury_btn.tooltip_text = "Budget, taxes, loans & inflation"
+	treasury_btn.pressed.connect(_toggle_budget_window)
+	hbox.add_child(treasury_btn)
 
-	ducats_label = _make_label("0 (+0.0/mo)", Color(0.96, 0.82, 0.32), 15)
-	hbox.add_child(ducats_label)
+	hbox.add_child(_make_separator())
+
+	trade_btn = Button.new()
+	trade_btn.text = "Trade"
+	trade_btn.custom_minimum_size = Vector2(68.0, 30.0)
+	trade_btn.tooltip_text = "Trade routes, merchant capacity, tolls & embargoes"
+	trade_btn.pressed.connect(_toggle_trade_window)
+	hbox.add_child(trade_btn)
 
 	hbox.add_child(_make_separator())
 
@@ -246,10 +289,7 @@ func _build_top_bar() -> void:
 	armies_btn.text = "Armies 0 · MP 0"
 	armies_btn.custom_minimum_size = Vector2(140.0, 30.0)
 	armies_btn.tooltip_text = "Armies & Recruitment (Levies, Professionals, Mercenaries)"
-	armies_btn.pressed.connect(func() -> void:
-		if army_ui != null:
-			army_ui.call("toggle_armies_window")
-	)
+	armies_btn.pressed.connect(_toggle_armies_window)
 	hbox.add_child(armies_btn)
 
 	hbox.add_child(_make_separator())
@@ -919,6 +959,12 @@ func _process(delta: float) -> void:
 				_refresh_province_panel()
 			if market_panel.visible:
 				_refresh_market_panel()
+			if budget_ui != null:
+				budget_ui.call("refresh_if_open")
+			if trade_ui != null:
+				trade_ui.call("refresh_if_open")
+				if bool(trade_ui.call("is_open")):
+					_refresh_trade_routes()
 		if (mask & 4) != 0:
 			_refresh_styles_and_country_labels()
 		if (mask & 8) != 0 and game_menu_panel.visible:
@@ -948,7 +994,8 @@ func _refresh_top_bar() -> void:
 	var c_tag: String = str(_call_bridge("getCountryTag", [], "OBS"))
 	top_country_btn.text = "%s (%s)" % [c_name, c_tag]
 	top_arms_rect.texture = _get_country_arms_texture(c_tag)
-	ducats_label.text = str(_call_bridge("getDucatsText", [], "0 (+0.0/mo)"))
+	if treasury_btn != null:
+		treasury_btn.text = "Ducats: %s" % str(_call_bridge("getDucatsText", [], "0 (+0.0/mo)"))
 	if armies_btn != null:
 		armies_btn.text = str(_call_bridge("getTopBarArmiesText", [], "Armies 0 · MP 0"))
 	date_label.text = str(_call_bridge("getDateText", [], "30 May 1453"))
@@ -1100,11 +1147,13 @@ func _after_world_replaced() -> void:
 	sea_panel.visible = false
 	open_market_index = -1
 	market_panel.visible = false
+	_close_top_left_windows()
 	_refresh_all_labels()
 	_refresh_styles_and_country_labels()
 	_refresh_top_bar()
 	_refresh_play_as_button()
 	_refresh_armies()
+	_refresh_trade_routes()
 
 func _refresh_armies() -> void:
 	if bridge == null:
@@ -1139,6 +1188,7 @@ func _toggle_nation_picker() -> void:
 
 func _open_nation_picker() -> void:
 	game_menu_panel.visible = false
+	_close_top_left_windows()
 	nation_picker_panel.visible = true
 	var cur_tag: String = str(_call_bridge("getCountryTag", [], "TUR"))
 	if not cur_tag.is_empty() and cur_tag != "OBS":
@@ -1231,8 +1281,7 @@ func _on_picker_switch_pressed() -> void:
 		_refresh_top_bar()
 		_refresh_play_as_button()
 		_refresh_armies()
-		if province_panel.visible:
-			_refresh_province_panel()
+		_after_economy_action()
 
 func _on_picker_start_pressed() -> void:
 	var details: Dictionary = _call_bridge("getCountryDetails", [selected_picker_tag], {})
@@ -1361,13 +1410,33 @@ func _build_province_overview_tab(d: Dictionary) -> void:
 
 	# Buildings section
 	_add_kv_row(prov_content_box, "Buildings", str(d.get("slotsText", "0 / 0 slots")))
-	var built_arr: Array = d.get("builtBuildings", [])
-	if built_arr.is_empty():
-		prov_content_box.add_child(_make_label("None built", Color(0.70, 0.66, 0.58), 12))
+	var built_details_var: Variant = d.get("builtBuildingDetails", [])
+	var built_details: Array = built_details_var if built_details_var is Array else []
+	if not built_details.is_empty():
+		for bd in built_details:
+			if bd is Dictionary:
+				var bdict: Dictionary = bd
+				var bname: String = str(bdict.get("name", ""))
+				var blvl: int = int(bdict.get("level", 1))
+				var bmax: int = int(bdict.get("maxLevel", 3))
+				var bup: String = str(bdict.get("upkeepText", ""))
+				var title_txt := "%s Lv %d/%d" % [bname, blvl, bmax]
+				if not bup.is_empty():
+					title_txt += " · upkeep %s" % bup
+				prov_content_box.add_child(_make_label(title_txt, Color(0.94, 0.90, 0.80), 12))
+				var beff: String = str(bdict.get("effectText", ""))
+				if not beff.is_empty():
+					var eff_lbl := _make_label("  " + beff, Color(0.76, 0.72, 0.64), 11)
+					eff_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+					prov_content_box.add_child(eff_lbl)
 	else:
-		var built_lbl := _make_label(", ".join(PackedStringArray(built_arr)), Color(0.94, 0.90, 0.80), 12)
-		built_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		prov_content_box.add_child(built_lbl)
+		var built_arr: Array = d.get("builtBuildings", [])
+		if built_arr.is_empty():
+			prov_content_box.add_child(_make_label("None built", Color(0.70, 0.66, 0.58), 12))
+		else:
+			var built_lbl := _make_label(", ".join(PackedStringArray(built_arr)), Color(0.94, 0.90, 0.80), 12)
+			built_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			prov_content_box.add_child(built_lbl)
 
 	var constructions: Array = d.get("constructions", [])
 	for con in constructions:
@@ -1375,8 +1444,19 @@ func _build_province_overview_tab(d: Dictionary) -> void:
 			var cname: String = str(con.get("name", ""))
 			var clvl: int = int(con.get("level", 1))
 			var cmo: int = int(con.get("monthsLeft", 0))
+			var ctot: int = int(con.get("totalMonths", cmo))
 			var cprog: float = float(con.get("progress", 0.0)) * 100.0
-			prov_content_box.add_child(_make_label("Building %s %d (%d%% · %d mo left)" % [cname, clvl, int(cprog), cmo], Color(0.96, 0.84, 0.42), 12))
+			var c_row := VBoxContainer.new()
+			c_row.add_theme_constant_override("separation", 2)
+			c_row.add_child(_make_label("Building %s Lv %d (%d%% · %d/%d mo left)" % [cname, clvl, int(round(cprog)), cmo, ctot], Color(0.96, 0.84, 0.42), 12))
+			var c_bar := ProgressBar.new()
+			c_bar.min_value = 0.0
+			c_bar.max_value = 100.0
+			c_bar.value = clampf(cprog, 0.0, 100.0)
+			c_bar.show_percentage = false
+			c_bar.custom_minimum_size = Vector2(0.0, 8.0)
+			c_row.add_child(c_bar)
+			prov_content_box.add_child(c_row)
 
 	if is_mine:
 		var build_toggle := Button.new()
@@ -1416,25 +1496,61 @@ func _build_province_overview_tab(d: Dictionary) -> void:
 					continue
 				var t_idx: int = int(opt.get("typeIndex", -1))
 				var b_name: String = str(opt.get("name", ""))
+				var base_name: String = str(opt.get("baseName", b_name))
+				var cur_lvl: int = int(opt.get("currentLevel", 0))
+				var max_lvl: int = int(opt.get("maxLevel", 3))
+				var next_lvl: int = int(opt.get("level", 1))
 				var b_cost: int = int(opt.get("cost", 0))
+				var b_ducats_base: int = int(opt.get("ducatsBase", b_cost))
 				var b_months: int = int(opt.get("months", 0))
+				var mats_txt: String = str(opt.get("materialsText", "None"))
 				var can_build: bool = bool(opt.get("canBuild", false))
+				var is_applicable: bool = bool(opt.get("isApplicable", true))
 				var refusal: String = str(opt.get("refusalReason", ""))
 				var effect: String = str(opt.get("effectText", ""))
 
+				var card := VBoxContainer.new()
+				card.add_theme_constant_override("separation", 2)
+				prov_content_box.add_child(card)
+
+				var hdr := HBoxContainer.new()
+				hdr.add_theme_constant_override("separation", 6)
+				card.add_child(hdr)
+
+				var lvl_str := "Lv %d/%d" % [cur_lvl, max_lvl] if cur_lvl >= max_lvl else "Lv %d → %d/%d" % [cur_lvl, next_lvl, max_lvl]
+				var title_col := Color(0.95, 0.92, 0.84) if (can_build or is_applicable) else Color(0.62, 0.58, 0.52)
+				var title_lbl := _make_label("%s (%s)" % [base_name, lvl_str], title_col, 12)
+				title_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+				hdr.add_child(title_lbl)
+
 				var b_btn := Button.new()
-				b_btn.text = "%s — %dd · %d mo" % [b_name, b_cost, b_months]
-				b_btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
-				b_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+				b_btn.text = "%dd · %d mo" % [b_cost, b_months]
 				b_btn.disabled = not can_build
-				b_btn.tooltip_text = refusal if not refusal.is_empty() else effect
+				b_btn.tooltip_text = refusal if not refusal.is_empty() else ("Build " + b_name)
 				var build_idx := t_idx
 				b_btn.pressed.connect(func() -> void:
 					if bool(_call_bridge("buildInSelectedProvince", [build_idx], false)):
-						_refresh_province_panel()
-						_refresh_top_bar()
+						_after_economy_action()
 				)
-				prov_content_box.add_child(b_btn)
+				hdr.add_child(b_btn)
+
+				var cost_txt := "Cost: %dd (base %dd) · Goods: %s" % [b_cost, b_ducats_base, mats_txt]
+				var cost_lbl := _make_label(cost_txt, Color(0.82, 0.78, 0.70), 11)
+				cost_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+				card.add_child(cost_lbl)
+
+				if not effect.is_empty():
+					var eff_lbl := _make_label(effect, Color(0.72, 0.78, 0.68), 11)
+					eff_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+					card.add_child(eff_lbl)
+
+				if not can_build and not refusal.is_empty():
+					var ref_col := Color(0.95, 0.44, 0.38) if is_applicable else Color(0.70, 0.55, 0.50)
+					var ref_lbl := _make_label(refusal, ref_col, 11)
+					ref_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+					card.add_child(ref_lbl)
+
+				card.add_child(HSeparator.new())
 
 func _build_province_economy_tab(d: Dictionary) -> void:
 	var hdr := HBoxContainer.new()
@@ -1636,9 +1752,20 @@ func _refresh_market_panel() -> void:
 		)
 		row.add_child(swatch)
 
-		var n_lbl := _make_label(str(g.get("name", "")), Color(0.94, 0.90, 0.82), 12)
-		n_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		row.add_child(n_lbl)
+		var g_idx: int = int(g.get("goodIndex", -1))
+		var g_btn := Button.new()
+		g_btn.text = str(g.get("name", ""))
+		g_btn.flat = true
+		g_btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		g_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		g_btn.tooltip_text = "Import into this market in Trade"
+		var good_idx_copy := g_idx
+		var mkt_idx_copy := open_market_index
+		g_btn.pressed.connect(func() -> void:
+			if trade_ui != null and good_idx_copy >= 0 and mkt_idx_copy >= 0:
+				trade_ui.call("plan_import", good_idx_copy, mkt_idx_copy)
+		)
+		row.add_child(g_btn)
 
 		var trend: String = str(g.get("trend", "·"))
 		var price_col := Color(0.95, 0.52, 0.45) if trend == "▲" else (Color(0.55, 0.92, 0.58) if trend == "▼" else Color(0.92, 0.89, 0.82))
@@ -1729,6 +1856,8 @@ func _sync_camera_uniforms() -> void:
 		labels_layer.call("update_camera", zoom, offset)
 	if armies_layer != null:
 		armies_layer.call("update_camera", zoom, offset)
+	if routes_layer != null:
+		routes_layer.call("update_camera", zoom, offset)
 
 func _on_viewport_resized() -> void:
 	if zoom <= 0.0:
@@ -1922,8 +2051,7 @@ func _on_play_as_pressed() -> void:
 		_refresh_top_bar()
 		_refresh_play_as_button()
 		_refresh_armies()
-		if province_panel.visible:
-			_refresh_province_panel()
+		_after_economy_action()
 
 func _on_pause_pressed() -> void:
 	_call_bridge("togglePause")
@@ -1932,3 +2060,65 @@ func _on_pause_pressed() -> void:
 func _on_speed_selected(spd: int) -> void:
 	_call_bridge("setSpeed", [spd])
 	_refresh_top_bar()
+
+func _close_top_left_windows(except_key: String = "") -> void:
+	if except_key != "budget" and budget_ui != null:
+		budget_ui.call("close_window")
+	if except_key != "trade" and trade_ui != null:
+		trade_ui.call("close_window")
+	if except_key != "armies" and army_ui != null:
+		var aw: Variant = army_ui.get("armies_window_panel")
+		if aw is Control:
+			(aw as Control).visible = false
+
+func _toggle_budget_window() -> void:
+	if budget_ui == null:
+		return
+	var opening: bool = not bool(budget_ui.call("is_open"))
+	if opening:
+		_close_top_left_windows("budget")
+	budget_ui.call("toggle_window")
+
+func _toggle_trade_window() -> void:
+	if trade_ui == null:
+		return
+	var opening: bool = not bool(trade_ui.call("is_open"))
+	if opening:
+		_close_top_left_windows("trade")
+	trade_ui.call("toggle_window")
+
+func _toggle_armies_window() -> void:
+	if army_ui == null:
+		return
+	var aw: Variant = army_ui.get("armies_window_panel")
+	var was_open: bool = (aw is Control) and (aw as Control).visible
+	if not was_open:
+		_close_top_left_windows("armies")
+	army_ui.call("toggle_armies_window")
+
+func _on_trade_window_visibility_changed(is_now_open: bool) -> void:
+	if routes_layer != null:
+		routes_layer.call("set_active", is_now_open)
+		if is_now_open:
+			_refresh_trade_routes()
+
+func _refresh_trade_routes() -> void:
+	if bridge == null or routes_layer == null:
+		return
+	if trade_ui == null or not bool(trade_ui.call("is_open")):
+		return
+	var d_var: Variant = _call_bridge("getMapTradeRoutesData", [], {})
+	var d: Dictionary = d_var if d_var is Dictionary else {}
+	routes_layer.call("set_routes_data", d)
+
+func _after_economy_action() -> void:
+	_refresh_top_bar()
+	if budget_ui != null:
+		budget_ui.call("refresh_if_open")
+	if trade_ui != null:
+		trade_ui.call("refresh_if_open")
+		_refresh_trade_routes()
+	if province_panel.visible:
+		_refresh_province_panel()
+	if market_panel.visible:
+		_refresh_market_panel()

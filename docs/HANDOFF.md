@@ -69,8 +69,9 @@ events, sound, menus, settings, multiplayer.
 1. **Phase 8.5: move the screens to Godot** (ROADMAP). Steps 1–2 merged
    (#17, 14 Nov): the owner said go; map looks right, a bit sluggish.
    Step 3a (game menu, nation picker, province panel with Overview/Economy/People tabs and market panel, map modes Q–I) is merged (#18, 14 Nov).
-   Step 3b (army counters on the map with marching arrows and battle/siege markers, army selection panel with regiments/commander/morale/supply/attrition and Move/Split/Merge/Disband/Assign commander, right-click province move orders, recruiting levies/professionals/mercenaries from the province panel and top-bar Armies window, and siege progress + Storm Assault in the province panel) is built in `godot/`.
-   Next: steps 3c–e, one Gemini PR each (Gemini 4 Hydrogen, high). Running
+   Step 3b (army counters on the map with marching arrows and battle/siege markers, army selection panel with regiments/commander/morale/supply/attrition and Move/Split/Merge/Disband/Assign commander, right-click province move orders, recruiting levies/professionals/mercenaries from the province panel and top-bar Armies window, and siege progress + Storm Assault in the province panel) is merged.
+   Step 3c (Budget window with last-month breakdown, per-class tax sliders, loans & banks, debasement, inflation & bankruptcy warning; Trade window with routes, route planner & refusal reasons, toll policy, embargoes & map trade routes layer; full province building list with levels, slots, construction progress, ducat & good costs, effects & refusal reasons) is built in `godot/`.
+   Next: steps 3d–e, one Gemini PR each (Gemini 4 Hydrogen, high). Running
    it on the Mac: `git pull`, `godot/build_mac.sh`, then quit Godot with
    Cmd+Q and reopen (it loads the Swift extension only at startup; a stale
    extension shows "Nonexistent function" errors).
