@@ -504,8 +504,14 @@ public enum ArmySystem {
     ) -> [CharacterID] {
         let ch = world.people.characters
         let ruler = world.countries.ruler[country.index]
+        // A fleet's admiral cannot also lead an army (review fix, Phase 10).
+        var admirals = Set<CharacterID>()
+        for f in 0..<world.navy.fleets.count where world.navy.fleets.alive[f] {
+            if let a = world.navy.fleets.admiral[f] { admirals.insert(a) }
+        }
         return courtPool.filter { cid in
-            guard ch.court[cid.index] == country, ch.isAlive(cid), !rebelLeaders.contains(cid) else { return false }
+            guard ch.court[cid.index] == country, ch.isAlive(cid), !rebelLeaders.contains(cid),
+                  !admirals.contains(cid) else { return false }
             guard ch.age(cid, on: date) >= CharacterSystem.adultAge else { return false }
             if ch.female[cid.index] && cid != ruler { return false }
             return true

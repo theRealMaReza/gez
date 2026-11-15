@@ -637,4 +637,21 @@ struct NavyTransportTests {
         }
         #expect(landedOnRhodes)
     }
+
+    /// Nobody commands an army and a fleet at the same time (review fix).
+    @Test("No character leads both an army and a fleet")
+    func noCharacterLeadsBothAnArmyAndAFleet() {
+        let sim = Simulation(world: Scenario1453.makeWorld(), startDate: Scenario1453.startDate, seed: 1453)
+        for _ in 0..<62 { sim.tick() }
+        let w = sim.world
+        var admirals = Set<CharacterID>()
+        for f in 0..<w.navy.fleets.count where w.navy.fleets.alive[f] {
+            if let a = w.navy.fleets.admiral[f] { admirals.insert(a) }
+        }
+        for a in 0..<w.military.armies.count where w.military.armies.alive[a] {
+            if let cmd = w.military.armies.commander[a] {
+                #expect(!admirals.contains(cmd), "\(w.people.characters.name[cmd.index]) leads an army and a fleet")
+            }
+        }
+    }
 }

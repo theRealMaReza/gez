@@ -59,16 +59,25 @@ extension NavySystem {
                 // Assign an admiral if fleet has >= 3 ships and no admiral yet.
                 if world.navy.fleets.admiral[i] == nil && world.navy.shipCount(of: fid) >= 3 {
                     // Quick pick from unused living male courtier/ruler excluded? Prefer non-ruler figure/marshal.
+                    // Nobody already commanding a fleet or an army (review fix);
+                    // ties in Martial go to the lower id, so the pick is fixed.
+                    var busy = Set<CharacterID>()
+                    for f in 0..<world.navy.fleets.count where world.navy.fleets.alive[f] {
+                        if let a = world.navy.fleets.admiral[f] { busy.insert(a) }
+                    }
+                    for a in 0..<world.military.armies.count where world.military.armies.alive[a] {
+                        if let cmd = world.military.armies.commander[a] { busy.insert(cmd) }
+                    }
                     let cands = world.people.characters.ids.filter { cid in
                         world.people.characters.court[cid.index] == c
                             && world.people.characters.isAlive(cid)
                             && !world.people.characters.female[cid.index]
                             && world.countries.ruler[c.index] != cid
-                            && !(0..<world.navy.fleets.count).contains {
-                                world.navy.fleets.alive[$0] && world.navy.fleets.admiral[$0] == cid
-                            }
+                            && !busy.contains(cid)
                     }.sorted {
-                        world.people.characters.skill($0, .martial) > world.people.characters.skill($1, .martial)
+                        let ma = world.people.characters.skill($0, .martial)
+                        let mb = world.people.characters.skill($1, .martial)
+                        return ma != mb ? ma > mb : $0.index < $1.index
                     }
                     if let pick = cands.first {
                         assignAdmiral(&world, fleet: fid, admiral: pick)

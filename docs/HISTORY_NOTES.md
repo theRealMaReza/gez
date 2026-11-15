@@ -448,3 +448,8 @@ including small transport fustas):
 | FRA, ENG | Normandy Fleet (`Caen`), Channel Fleet (`London`) | `bueil` (Jean V de Bueil, Admiral of France), `henry_holland` (Duke of Exeter) | Channel squadrons on station in May 1453 before the Castillon summer crossing? |
 | POR, CAS | Armada of Lisbon (`Lisbon`), Castilian Armada (`Jerez`) | `henry_nav` (Henry the Navigator — patron/organizer rather than sea admiral?), `enriquez` (Almirante Fadrique Enríquez) | Using Henry the Navigator as Portugal's fleet commander is a convenience stand-in for an overseas captain? |
 | GEN, LUB, DAN, MAM, GUJ, CLT | Genoa/Chios, Lübeck, Copenhagen, Alexandria/Suez, Cambay, Calicut | `inv_*_marshal` (invented admirals where 1453 fleet captains are not clearly documented in the roster) | Individual Genoese, Hanseatic, Danish, Mamluk and Indian Ocean admirals on 30 May 1453 remain unverified and use placeholder marshals? |
+
+Claude's review (session 7): the Venetian captain-general sent toward
+Constantinople in spring 1453 is usually named as **Giacomo** Loredan, not
+Alvise Loredan (Alvise held the post in other years). The data keeps
+`loredan_alvise` until the owner decides: swap to Giacomo Loredan?
