@@ -210,7 +210,8 @@ version matches it; the owner decides when to retire it.
    a. Game menu (new, load, save), nation picker, province panel, map modes. ✅
    b. Armies: counters on the map, select, move, recruit, sieges. ✅
    c. Economy: budget, trade, buildings. ✅
-   d. Court, government and laws; diplomacy, war and peace; alerts.
+   d. Court, government and laws (step 3d1); diplomacy, war and peace,
+      alerts (step 3d2). Two pull requests, because both are large.
    e. Speed: find and fix the sluggishness the owner noticed. Reuse the
       ideas in closed PR #15 (commit bd4221e on branch
       `gemini/phase8-balance-and-docs`): tick speed-ups and the fix that
