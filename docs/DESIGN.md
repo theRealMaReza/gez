@@ -391,6 +391,26 @@ Pure-Swift naval simulation in `Packages/GezCore/Sources/GezCore/Navy/` and `Sys
 - **Naval transport & amphibious landings (`Systems/NavyTransportSystem.swift`)**:
   - Armies embark onto friendly/allied Cogs in port (`1` transport ship per `1,000` men), sail aboard the fleet, disembark onto accessible or hostile coastal shores (`-2` amphibious combat penalty for recent landings), and are routed overseas by military AI when no same-landmass war target exists.
 
+### Religion and culture (Phase 11, owner's choices)
+Pure-Swift faith and culture systems in `Packages/GezCore/Sources/GezCore/Faith/` and `Systems/{FaithSystem,MovementSystem,CultureSystem}.swift`, using struct-of-arrays (`ProvinceTable` conversion/assimilation progress, `religiousUnrest`, `devastation`, `famine`, `lastNetMigration`; `CountryTable.prestige`, `primaryCulture`, `acceptedCultures`) and deterministic `GameRandom`:
+
+- **Conversion & missionaries (`FaithSystem.swift`)**:
+  - Monthly pop conversion fraction is `(passive + missionary) * clergyFactor * templeFactor * familyFactor`, capped at `0.25/month`, where `basePassiveConversionRate = 0.0005` (`0.05%/mo`) and `missionaryConversionBonus = 0.012` (`1.20%/mo`, costing `0.50` ducats/mo).
+  - Multipliers: **Faith law** (`orthodoxy` passive `1.6x` / missionary `1.25x`; `tolerance` `0.6x` / `0.9x`; `open` `0.2x` / `0.5x`), **Clergy loyalty** `0.5 + loyalty/100` (`0.5x` to `1.5x`), **Temples** `+35%` per level (`templeConversionBonusPerLevel = 0.35`), and **same religion family** `1.25x` vs `0.85x` across families.
+  - **Blocks & slowdowns**: Muslim owners with non-Muslim pops are completely blocked by the Dhimmi `millet` privilege and slowed (`0.5x`/`0.55x` passive, `0.7x`/`0.75x` missionary) by `own_courts` / `lower_jizya`; Catholic ↔ Hussite conversion is blocked while `hussiteCompactsActive` holds.
+  - Missionary cap: `1` base slot, `+1` at `≥ 180` total development, `+1` under `orthodoxy` law.
+- **Religious unrest (`FaithSystem.swift`)**: stored as `0...100` per province (`religiousUnrest`) for Phase 12 rebels, converging at `0.25/month` toward a target driven by non-state pop share, `orthodoxy`/`tolerance`/`open` law modifiers, Dhimmi privilege relief, and recent conquest/conversion.
+- **Holy sites (`data/faith/holy_sites.txt` -> `tools/faith/faithgen.py` -> `faith1453.json`)**: 43 sacred sites (Rome, Konstantiniyye, Jerusalem, Mecca, Medina, Najaf/Kufa, Karbala/Hillah, Benares/Varanasi, Bodh Gaya, Aksum, etc.). Each unoccupied held site sacred to the state religion grants `+0.05/month` (`+0.6/yr`) prestige (decay `0.005/month`), `+3%` Clergy target loyalty (capped at `+12%`), and `-5%` stability-raising cost (capped at `-25%`).
+- **Historical movements (`MovementSystem.swift`)**:
+  - **Bohemia (1453+)**: Utraquist / Taborite question (`resolveHussiteQuestion`: uphold Basel Compacts, Taborite revival breaking the Compacts and adopting Hussite, or submit to Rome).
+  - **Sufi orders & Safaviyya**: Sufi order influence grows across Muslim lands; Ardabil's Safaviyya advances through `growing -> militant (Qizilbash) -> triumphant (Safavid Twelver state)` from the late 15th/early 16th century via condition + date window + `GameRandom`.
+  - **Reformation (`.protestant`, `.reformed`)**: Never triggers before `1500` (`minReformationYear = 1500`); Centres of Reformation appear probabilistically in the ~1517 window (and by ~1530 in Catholic realms with unsatisfied/low-Clergy-loyalty conditions) and spread to home provinces, adjacent neighbours, and trade-route partners.
+- **Accepted cultures & assimilation (`CultureSystem.swift`)**:
+  - Government rank (`Duchy` `<45` dev = `1` slot, `Kingdom` `45...124` dev = `2` slots, `Empire` `≥125` dev = `3` slots; subjects capped at `Duchy`) plus `accepted_cultures` modifiers from `faith`/`crown` laws determine accepted-culture slots.
+  - Non-accepted cultures incur tax (`0.90` same family / `0.80` foreign), manpower (`0.80` / `0.50`), and pop satisfaction (`-0.04` / `-0.09`) penalties; revoking acceptance inflicts `-0.08` satisfaction on that culture.
+  - **Slow assimilation**: up to `0.0025/month` (capped `0.05`) when state and province religions match, pop satisfaction is `≥ 0.55`, and adjacent provinces or the province itself holds the target culture.
+- **Devastation, famine & pop-conserving migration (`CultureSystem.swift`)**: War (`siegeDevastationGain = 0.08`, `battleDevastationGain = 0.05`, peacetime decay `0.025/mo`), heavy religious persecution, and staple-food shortfall push pops to relocate to neighbouring provinces and along active trade-route markets (`maxMonthlyMigrationRate = 0.12/mo`), conserving total world population bit-for-bit.
+
 ## Architecture
 
 | Layer | Tech | Notes |

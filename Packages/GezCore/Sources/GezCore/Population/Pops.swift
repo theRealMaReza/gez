@@ -128,60 +128,20 @@ public struct PopTable: Sendable {
     }
 
     /// Rebuilds the SoA pop table deterministically from live rows plus any newly split rows,
-    /// pruning depleted rows (`size <= 1e-9`) and merging matching identities cleanly.
+    /// pruning depleted rows (`size <= 1e-9`) and merging matching identities cleanly per province.
     public mutating func rebuild(provinceCount: Int, extraRows: [Row] = []) {
-        struct Key: Hashable {
-            let province: Int
+        struct LocalKey: Hashable {
             let culture: Int
             let religion: Religion
             let sect: Sect?
             let socialClass: SocialClass
         }
-        var grouped: [Key: (size: Double, satWeighted: Double)] = [:]
-        grouped.reserveCapacity(count + extraRows.count)
-
-        @inline(__always)
-        func accumulate(province: ProvinceID, culture: CultureID, religion: Religion, sect: Sect?, socialClass: SocialClass, size: Double, satisfaction: Double) {
-            guard size > 1e-9 else { return }
-            let key = Key(province: province.index, culture: culture.index, religion: religion, sect: sect, socialClass: socialClass)
-            if let existing = grouped[key] {
-                grouped[key] = (existing.size + size, existing.satWeighted + satisfaction * size)
-            } else {
-                grouped[key] = (size, satisfaction * size)
+        var extrasByProv: [Int: [Row]] = [:]
+        if !extraRows.isEmpty {
+            extrasByProv.reserveCapacity(min(provinceCount, extraRows.count))
+            for row in extraRows where row.size > 1e-9 && row.province.index < provinceCount {
+                extrasByProv[row.province.index, default: []].append(row)
             }
-        }
-
-        for i in 0..<count {
-            accumulate(
-                province: province[i],
-                culture: culture[i],
-                religion: religion[i],
-                sect: sect[i],
-                socialClass: socialClass[i],
-                size: size[i],
-                satisfaction: satisfaction[i]
-            )
-        }
-        for row in extraRows {
-            accumulate(
-                province: row.province,
-                culture: row.culture,
-                religion: row.religion,
-                sect: row.sect,
-                socialClass: row.socialClass,
-                size: row.size,
-                satisfaction: row.satisfaction
-            )
-        }
-
-        let sorted = grouped.sorted { lhs, rhs in
-            if lhs.key.province != rhs.key.province { return lhs.key.province < rhs.key.province }
-            if lhs.key.culture != rhs.key.culture { return lhs.key.culture < rhs.key.culture }
-            if lhs.key.religion.rawValue != rhs.key.religion.rawValue { return lhs.key.religion.rawValue < rhs.key.religion.rawValue }
-            if (lhs.key.sect?.rawValue ?? "") != (rhs.key.sect?.rawValue ?? "") {
-                return (lhs.key.sect?.rawValue ?? "") < (rhs.key.sect?.rawValue ?? "")
-            }
-            return lhs.key.socialClass.rawValue < rhs.key.socialClass.rawValue
         }
 
         var newProvince: [ProvinceID] = []
@@ -191,32 +151,73 @@ public struct PopTable: Sendable {
         var newClass: [SocialClass] = []
         var newSize: [Double] = []
         var newSatisfaction: [Double] = []
-        newProvince.reserveCapacity(sorted.count)
-        newCulture.reserveCapacity(sorted.count)
-        newReligion.reserveCapacity(sorted.count)
-        newSect.reserveCapacity(sorted.count)
-        newClass.reserveCapacity(sorted.count)
-        newSize.reserveCapacity(sorted.count)
-        newSatisfaction.reserveCapacity(sorted.count)
+        let est = count + extraRows.count
+        newProvince.reserveCapacity(est)
+        newCulture.reserveCapacity(est)
+        newReligion.reserveCapacity(est)
+        newSect.reserveCapacity(est)
+        newClass.reserveCapacity(est)
+        newSize.reserveCapacity(est)
+        newSatisfaction.reserveCapacity(est)
 
         var newRanges = Array(repeating: 0..<0, count: provinceCount)
-        var cursor = 0
-        var p = 0
-        while p < provinceCount {
-            let start = cursor
-            while cursor < sorted.count && sorted[cursor].key.province == p {
-                let item = sorted[cursor]
-                newProvince.append(ProvinceID(p))
-                newCulture.append(CultureID(item.key.culture))
-                newReligion.append(item.key.religion)
-                newSect.append(item.key.sect)
-                newClass.append(item.key.socialClass)
-                newSize.append(item.value.size)
-                newSatisfaction.append(item.value.size > 0 ? item.value.satWeighted / item.value.size : 0.5)
-                cursor += 1
+        for p in 0..<provinceCount {
+            let start = newProvince.count
+            let pid = ProvinceID(p)
+            let range = self.range(for: pid)
+
+            if let extras = extrasByProv[p] {
+                var grouped: [LocalKey: (size: Double, satWeighted: Double)] = [:]
+                grouped.reserveCapacity(range.count + extras.count)
+                for i in range {
+                    let sz = size[i]
+                    guard sz > 1e-9 else { continue }
+                    let key = LocalKey(culture: culture[i].index, religion: religion[i], sect: sect[i], socialClass: socialClass[i])
+                    if let cur = grouped[key] {
+                        grouped[key] = (cur.size + sz, cur.satWeighted + satisfaction[i] * sz)
+                    } else {
+                        grouped[key] = (sz, satisfaction[i] * sz)
+                    }
+                }
+                for row in extras {
+                    let key = LocalKey(culture: row.culture.index, religion: row.religion, sect: row.sect, socialClass: row.socialClass)
+                    if let cur = grouped[key] {
+                        grouped[key] = (cur.size + row.size, cur.satWeighted + row.satisfaction * row.size)
+                    } else {
+                        grouped[key] = (row.size, row.satisfaction * row.size)
+                    }
+                }
+                let sorted = grouped.sorted { lhs, rhs in
+                    if lhs.key.culture != rhs.key.culture { return lhs.key.culture < rhs.key.culture }
+                    if lhs.key.religion.rawValue != rhs.key.religion.rawValue { return lhs.key.religion.rawValue < rhs.key.religion.rawValue }
+                    if (lhs.key.sect?.rawValue ?? "") != (rhs.key.sect?.rawValue ?? "") {
+                        return (lhs.key.sect?.rawValue ?? "") < (rhs.key.sect?.rawValue ?? "")
+                    }
+                    return lhs.key.socialClass.rawValue < rhs.key.socialClass.rawValue
+                }
+                for item in sorted {
+                    newProvince.append(pid)
+                    newCulture.append(CultureID(item.key.culture))
+                    newReligion.append(item.key.religion)
+                    newSect.append(item.key.sect)
+                    newClass.append(item.key.socialClass)
+                    newSize.append(item.value.size)
+                    newSatisfaction.append(item.value.size > 0 ? item.value.satWeighted / item.value.size : 0.5)
+                }
+            } else {
+                for i in range {
+                    let sz = size[i]
+                    guard sz > 1e-9 else { continue }
+                    newProvince.append(pid)
+                    newCulture.append(culture[i])
+                    newReligion.append(religion[i])
+                    newSect.append(sect[i])
+                    newClass.append(socialClass[i])
+                    newSize.append(sz)
+                    newSatisfaction.append(satisfaction[i])
+                }
             }
-            newRanges[p] = start..<cursor
-            p += 1
+            newRanges[p] = start..<newProvince.count
         }
 
         self.province = newProvince
@@ -323,15 +324,22 @@ extension World {
     /// Recomputes each province's cached population and majority religion
     /// and culture from its pops.
     public mutating func refreshProvinceSummaries() {
-        for p in 0..<provinces.count {
+        refreshProvinceSummaries(for: 0..<provinces.count)
+    }
+
+    /// Recomputes cached population and majority religion/culture only for the specified province indices.
+    public mutating func refreshProvinceSummaries<S: Sequence>(for provinceIndices: S) where S.Element == Int {
+        for p in provinceIndices where p >= 0 && p < provinces.count {
             let id = ProvinceID(p)
             var total = 0.0
             var byReligion: [Religion: Double] = [:]
             var byCulture: [CultureID: Double] = [:]
             for i in pops.range(for: id) {
-                total += pops.size[i]
-                byReligion[pops.religion[i], default: 0] += pops.size[i]
-                byCulture[pops.culture[i], default: 0] += pops.size[i]
+                let sz = pops.size[i]
+                guard sz > 0 else { continue }
+                total += sz
+                byReligion[pops.religion[i], default: 0] += sz
+                byCulture[pops.culture[i], default: 0] += sz
             }
             provinces.population[p] = total
             if let top = byReligion.max(by: { a, b in a.value == b.value ? a.key.rawValue > b.key.rawValue : a.value < b.value }) {

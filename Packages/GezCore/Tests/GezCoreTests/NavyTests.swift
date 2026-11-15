@@ -399,11 +399,12 @@ struct NavyBattleAndBlockadeTests {
 
     @Test("Galleys perform stronger in inland seas than in open oceans")
     func testGalleyInlandSeaCombatBonus() throws {
-        let aegean = try #require(Scenario1453.makeWorld().seaZones.id(named: "Northern Aegean"))
-        let atlantic = try #require(Scenario1453.makeWorld().seaZones.id(named: "Open Atlantic"))
+        let baseWorld = Scenario1453.makeWorld()
+        let aegean = try #require(baseWorld.seaZones.id(named: "Northern Aegean"))
+        let atlantic = try #require(baseWorld.seaZones.id(named: "Open Atlantic"))
 
-        func runClash(in zone: SeaZoneID) throws -> Int {
-            let sim = Simulation(world: Scenario1453.makeWorld(), startDate: Scenario1453.startDate, seed: 555)
+        func runClash(in zone: SeaZoneID, seed: UInt64) throws -> Int {
+            let sim = Simulation(world: baseWorld, startDate: Scenario1453.startDate, seed: seed)
             let ven = try #require(sim.world.countries.id(forTag: "VEN"))
             let gen = try #require(sim.world.countries.id(forTag: "GEN"))
             sim.world.humanCountries.insert(ven)
@@ -427,8 +428,9 @@ struct NavyBattleAndBlockadeTests {
             return 0
         }
 
-        let inlandNet = try runClash(in: aegean)
-        let oceanNet = try runClash(in: atlantic)
+        let seeds: [UInt64] = [101, 202, 555, 777, 1453]
+        let inlandNet = try seeds.reduce(0) { try $0 + runClash(in: aegean, seed: $1) }
+        let oceanNet = try seeds.reduce(0) { try $0 + runClash(in: atlantic, seed: $1) }
         #expect(inlandNet > oceanNet)
     }
 

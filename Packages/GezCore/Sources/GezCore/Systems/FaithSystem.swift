@@ -385,6 +385,8 @@ public enum FaithSystem {
         // 3. Province-by-province conversion and unrest.
         var pendingAdds: [PopTable.Row] = []
         var anyZeroRows = false
+        var dirtyProvinces: [Int] = []
+        dirtyProvinces.reserveCapacity(256)
         let compactsActive = world.faith.hussiteCompactsActive
 
         for p in 0..<P {
@@ -407,6 +409,8 @@ public enum FaithSystem {
             let hasMiss = missionaryInProvince[p]
 
             let range = world.pops.range(for: pid)
+            var provPendingStatePop = 0.0
+            var convertedHere = false
             // Compute monthly conversions on non-state rows.
             for i in range {
                 let sz = world.pops.size[i]
@@ -453,11 +457,13 @@ public enum FaithSystem {
                 }
 
                 world.pops.size[i] -= delta
+                convertedHere = true
                 if let j = mergedIdx {
                     let prev = world.pops.size[j]
                     world.pops.satisfaction[j] = (world.pops.satisfaction[j] * prev + sat * delta) / (prev + delta)
                     world.pops.size[j] = prev + delta
                 } else {
+                    provPendingStatePop += delta
                     pendingAdds.append(PopTable.Row(
                         province: pid,
                         culture: culture,
@@ -469,10 +475,11 @@ public enum FaithSystem {
                     ))
                 }
             }
+            if convertedHere { dirtyProvinces.append(p) }
 
             // Recompute conversion progress & religious unrest inputs from updated pops in this province.
-            var totalPop = 0.0
-            var statePop = 0.0
+            var totalPop = provPendingStatePop
+            var statePop = provPendingStatePop
             var wrongPop = 0.0
             for i in range {
                 let s = world.pops.size[i]
@@ -483,10 +490,6 @@ public enum FaithSystem {
                 } else {
                     wrongPop += s
                 }
-            }
-            for row in pendingAdds where row.province == pid {
-                totalPop += row.size
-                if row.religion == stateRel { statePop += row.size } else { wrongPop += row.size }
             }
             world.provinces.conversionProgress[p] = totalPop > 0 ? min(1, statePop / totalPop) : 1.0
 
@@ -523,6 +526,8 @@ public enum FaithSystem {
         if !pendingAdds.isEmpty || anyZeroRows {
             world.pops.rebuild(provinceCount: P, extraRows: pendingAdds)
         }
-        world.refreshProvinceSummaries()
+        if !dirtyProvinces.isEmpty {
+            world.refreshProvinceSummaries(for: dirtyProvinces)
+        }
     }
 }

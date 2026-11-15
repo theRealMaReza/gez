@@ -1303,4 +1303,83 @@ struct GezGodotTests {
         controller.clearSelectedFleet()
         #expect(controller.selectedFleetId == -1)
     }
+
+    @Test("Phase 11 bridge: Religion window, missionaries, Hussites, Reformation adoption, cultures & overlay")
+    func religionAndCultureBridge() {
+        let controller = GezGodotController()
+        #expect(controller.setup(dataDirectoryPath: "", tag: "TUR"))
+        guard let s = controller.session else {
+            Issue.record("Missing session")
+            return
+        }
+
+        // 1. Religion window & top bar details for Ottomans
+        let top = controller.playerTopBarDetails()
+        #expect((top["religionButtonText"] as? String)?.contains("Sunni") == true)
+
+        let relWin = controller.religionWindowDetails()
+        #expect((relWin["hasPlayer"] as? Bool) == true)
+        #expect((relWin["stateReligion"] as? String) == "Sunni")
+        #expect((relWin["primaryCultureName"] as? String) == "Turkish")
+        #expect((relWin["acceptedSlotsMax"] as? Int ?? 0) >= 3)
+        let allSites = relWin["allHolySites"] as? [[String: Any]] ?? []
+        #expect(!allSites.isEmpty) // Holy sites catalog loaded (Rome, Konstantiniyye, Mecca, Jerusalem...)
+
+        // 2. Send missionary to Thessaloniki (Orthodox Balkan province), verify province details & overlay, recall
+        let tur = s.playerCountry!
+        let thessaloniki = s.world.provinces.id(named: "Thessaloniki")
+            ?? (0..<s.world.provinces.count).first(where: {
+                s.world.provinces.owner[$0] == tur
+                    && FaithSystem.missionaryRefusal(s.world, by: tur, in: ProvinceID($0)) == nil
+            }).map(ProvinceID.init)!
+        #expect(controller.selectProvinceByIndex(thessaloniki.index) >= 2)
+        let beforeProv = controller.selectedProvinceDetails()
+        #expect((beforeProv["hasMissionary"] as? Bool) == false)
+        #expect(beforeProv["conversionText"] != nil)
+        #expect(beforeProv["assimilationText"] != nil)
+        #expect(beforeProv["religiousUnrestText"] != nil)
+
+        let sendRes = controller.sendMissionary(provinceIndex: thessaloniki.index)
+        #expect((sendRes["ok"] as? Bool) == true)
+        let duringProv = controller.selectedProvinceDetails()
+        #expect((duringProv["hasMissionary"] as? Bool) == true)
+
+        let overlay = controller.faithOverlayData()
+        #expect(!(overlay["holySites"] as? [[String: Any]] ?? []).isEmpty)
+        #expect(!(overlay["missionaries"] as? [[String: Any]] ?? []).isEmpty)
+
+        #expect(controller.recallMissionary(provinceIndex: thessaloniki.index))
+        #expect((controller.selectedProvinceDetails()["hasMissionary"] as? Bool) == false)
+
+        // 3. Accept & revoke Greek culture via bridge
+        let greek = s.world.cultures.id(forKey: "greek")!
+        let accRes = controller.acceptCulture(cultureIndex: greek.index)
+        #expect((accRes["ok"] as? Bool) == true)
+        #expect((controller.religionWindowDetails()["acceptedSlotsUsed"] as? Int ?? 0) >= 1)
+        #expect(controller.revokeCulture(cultureIndex: greek.index))
+
+        // 4. Switch to Bohemia (BOH) and resolve Hussite question via bridge
+        #expect(controller.startNewGame(tag: "BOH"))
+        let bohWin = controller.religionWindowDetails()
+        #expect((bohWin["isBohemia"] as? Bool) == true)
+        #expect((bohWin["hussiteCompactsActive"] as? Bool) == true)
+        #expect(controller.resolveHussiteQuestion(choiceKey: "taboriteRevival"))
+        let bohWinAfter = controller.religionWindowDetails()
+        #expect((bohWinAfter["hussiteCompactsActive"] as? Bool) == false)
+        #expect((bohWinAfter["hussiteOutcome"] as? String) == "taboriteRevival")
+
+        // 5. Reformation adoption callable (verify true once Reformation starts & Protestant exists)
+        #expect(controller.startNewGame(tag: "HAB"))
+        controller.session?.simulation.world.faith.reformationStarted = true
+        controller.session?.simulation.world.faith.reformationReligions.insert(.protestant)
+        #expect(controller.adoptReformationReligion(religionKey: "protestant"))
+        #expect((controller.religionWindowDetails()["stateReligionKey"] as? String) == "protestant")
+
+        // 6. Verify Papal/Mamluk heldHolySites non-empty in 1453 & advanceSimulationDays
+        #expect(controller.startNewGame(tag: "MAM"))
+        let mamHeld = controller.religionWindowDetails()["heldHolySites"] as? [[String: Any]] ?? []
+        #expect(!mamHeld.isEmpty)
+        #expect(controller.advanceSimulationDays(30))
+        #expect((controller.playerTopBarDetails()["dateText"] as? String) != "30 May 1453")
+    }
 }

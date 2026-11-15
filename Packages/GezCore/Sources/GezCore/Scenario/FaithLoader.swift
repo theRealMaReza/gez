@@ -26,7 +26,7 @@ public enum FaithLoader {
     }
 
     public static func loadBundled(into world: inout World) throws {
-        guard let url = Bundle.module.url(forResource: "faith1453", withExtension: "json") else {
+        guard let url = GezResources.url(forResource: "faith1453", withExtension: "json") else {
             throw LoadError.missingResource
         }
         try load(from: Data(contentsOf: url), into: &world)

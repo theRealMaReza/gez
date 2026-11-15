@@ -149,6 +149,16 @@ public final class GezGodotController {
         let rgb = playerColor
         let status = session?.playerTopBarStatus()
         let alertsSig = activeAlertsSignature()
+        let stateReligionName = session.flatMap { s in
+            s.playerCountry.map { s.world.countries.religion[$0.index].displayName }
+        } ?? "Observer"
+        let missUsed = session.flatMap { s in
+            s.playerCountry.map { FaithSystem.activeMissionaries(s.world, for: $0).count }
+        } ?? 0
+        let missMax = session.flatMap { s in
+            s.playerCountry.map { FaithSystem.maxMissionaries(s.world, $0) }
+        } ?? 0
+        let religionBtnText = session?.playerCountry != nil ? "\(stateReligionName) · \(missUsed)/\(missMax)" : "Religion"
         return [
             "playerCountryIndex": session?.playerCountry?.index ?? -1,
             "name": countryName,
@@ -162,8 +172,10 @@ public final class GezGodotController {
             "fleetsText": topBarFleetsText,
             "stability": playerStability,
             "stabilityText": topBarStabilityText,
+            "religionButtonText": religionBtnText,
             "activeWarsCount": status?.activeWars ?? 0,
             "pendingPeaceOffersCount": status?.pendingPeaceOffers ?? 0,
+            "year": session?.date.year ?? 1453,
             "dateText": dateText,
             "isPaused": isPaused,
             "speed": speed,
@@ -866,6 +878,71 @@ public final class GezGodotController {
             sufiText = ""
         }
 
+        // Phase 11: Conversion, Assimilation, Unrest, Holy Sites, & Reformation
+        let provB = peopleShowState ? w.breakdown(of: province) : breakdown
+        let stateRelShare: Double
+        if let owner, provB.total > 0 {
+            let sr = w.countries.religion[owner.index]
+            stateRelShare = (provB.byReligion[sr] ?? 0) / provB.total
+        } else {
+            stateRelShare = p.conversionProgress[i]
+        }
+        let primaryCultShare: Double
+        if let owner, provB.total > 0 {
+            let pc = w.countries.primaryCulture[owner.index]
+            primaryCultShare = (provB.byCulture[pc] ?? 0) / provB.total
+        } else {
+            primaryCultShare = p.assimilationProgress[i]
+        }
+        let convProgress = stateRelShare
+        let assimProgress = primaryCultShare
+        let relUnrest = p.religiousUnrest[i]
+        let devastation = p.devastation[i]
+        let famine = p.famine[i]
+        let netMigration = p.lastNetMigration[i]
+        let hasMissionary = FaithSystem.hasMissionary(w, in: province)
+        let missRefusal: MissionaryRefusal? = s.playerCountry.flatMap {
+            FaithSystem.missionaryRefusal(w, by: $0, in: province)
+        }
+        let canSendMissionary = isPlayerOwned && (missRefusal == nil)
+
+        var rateText = "—"
+        if let owner {
+            let ownerRel = w.countries.religion[owner.index]
+            let provBreakdown = w.breakdown(of: province)
+            let wrongReligions = provBreakdown.byReligion
+                .filter { $0.key != ownerRel && $0.value > 0.01 }
+                .sorted { $0.value > $1.value }
+            if let topWrong = wrongReligions.first {
+                let rate = FaithSystem.monthlyConversionRate(world: w, province: province, from: topWrong.key)
+                if rate > 0 {
+                    rateText = String(format: "+%.2f%%/mo", rate * 100.0)
+                } else {
+                    rateText = "Blocked"
+                }
+            } else {
+                rateText = "100% state faith"
+            }
+        }
+
+        let provHolySites: [[String: Any]] = FaithSystem.holySites(in: province, world: w).map { site in
+            [
+                "name": site.name,
+                "religions": site.religions.map(\.displayName).joined(separator: ", ")
+            ]
+        }
+        let refCentreDict: [String: Any]
+        if let rc = w.faith.reformationCentres.first(where: { $0.province == province }) {
+            refCentreDict = [
+                "exists": true,
+                "religion": rc.religion.displayName,
+                "foundedYear": rc.foundedYear,
+                "monthsActive": rc.monthsActive
+            ]
+        } else {
+            refCentreDict = ["exists": false]
+        }
+
         return [
             "hasSelection": true,
             "provinceIndex": i,
@@ -946,7 +1023,25 @@ public final class GezGodotController {
             "cultures": cultures,
             "religions": religions,
             "classes": classes,
-            "sufiText": sufiText
+            "sufiText": sufiText,
+            "conversionProgress": convProgress,
+            "conversionText": Self.formatPercent(convProgress),
+            "assimilationProgress": assimProgress,
+            "assimilationText": Self.formatPercent(assimProgress),
+            "religiousUnrest": relUnrest,
+            "religiousUnrestText": String(format: "%.1f", relUnrest),
+            "devastation": devastation,
+            "devastationText": Self.formatPercent(devastation),
+            "famine": famine,
+            "famineText": Self.formatPercent(famine),
+            "netMigration": netMigration,
+            "netMigrationText": (netMigration >= 0 ? "+" : "") + "\(Int(netMigration.rounded()))",
+            "hasMissionary": hasMissionary,
+            "canSendMissionary": canSendMissionary,
+            "missionaryRefusal": missRefusal?.reason ?? "",
+            "monthlyConversionRateText": rateText,
+            "holySites": provHolySites,
+            "reformationCentre": refCentreDict
         ]
     }
 
@@ -3133,6 +3228,449 @@ public final class GezGodotController {
         return s.world.government.reforms[player.index].count > beforeCount
     }
 
+    // MARK: - Phase 11: Religion, Holy Sites, Movements & Culture
+
+    public func religionWindowDetails() -> [String: Any] {
+        guard let s = session, let player = s.playerCountry else {
+            return ["hasPlayer": false]
+        }
+        let w = s.world
+        let c = w.countries
+        let g = w.government
+        let stateRel = c.religion[player.index]
+        let relRGB = stateRel.color
+        let prestige = c.prestige[player.index]
+        let faithKey = FaithSystem.faithLawKey(w, player)
+        let faithLawTitle: String
+        if let area = g.rules.lawAreas.first(where: { $0.key == "faith" }),
+           let opt = area.options.first(where: { $0.key == faithKey }) {
+            faithLawTitle = opt.name
+        } else {
+            faithLawTitle = faithKey.capitalized
+        }
+        let clergyLoyalty = FaithSystem.clergyLoyalty(w, player)
+
+        let activeMiss = FaithSystem.activeMissionaries(w, for: player)
+        let maxMiss = FaithSystem.maxMissionaries(w, player)
+        let activeMissProvinceIDs = Set(activeMiss.map(\.province))
+
+        let activeMissionariesList: [[String: Any]] = activeMiss.map { m in
+            let pi = m.province.index
+            let provName = pi < w.provinces.count ? w.provinces.name[pi] : "Province #\(pi)"
+            let b = w.breakdown(of: m.province)
+            let topWrong = b.byReligion.filter { $0.key != stateRel && $0.value > 0.01 }.max(by: { $0.value < $1.value })
+            let rate = topWrong.map {
+                FaithSystem.monthlyConversionRate(world: w, province: m.province, from: $0.key, hasMissionary: true)
+            } ?? 0.0
+            let rateText = rate > 0 ? String(format: "+%.2f%%/mo", rate * 100.0) : "Blocked"
+            let majRel = b.religionShares().first?.0.displayName ?? stateRel.displayName
+            return [
+                "provinceIndex": pi,
+                "provinceName": provName,
+                "majorityReligion": majRel,
+                "conversionText": Self.formatPercent(b.total > 0 ? ((b.byReligion[stateRel] ?? 0) / b.total) : w.provinces.conversionProgress[pi]),
+                "rateText": rateText,
+                "unrestText": String(format: "%.1f", w.provinces.religiousUnrest[pi])
+            ]
+        }
+
+        // Owned provinces where non-state pops exist, prioritized by wrong-faith pop count.
+        struct ProvRow {
+            let index: Int
+            let wrongPop: Double
+            let dict: [String: Any]
+        }
+        var provRows: [ProvRow] = []
+        for pi in 0..<w.provinces.count where w.provinces.owner[pi] == player {
+            let pid = ProvinceID(pi)
+            let b = w.breakdown(of: pid)
+            let statePop = b.byReligion[stateRel] ?? 0
+            let wrongPop = max(0.0, b.total - statePop)
+            let convProg = b.total > 0 ? (statePop / b.total) : w.provinces.conversionProgress[pi]
+            guard wrongPop >= 10.0 || activeMissProvinceIDs.contains(pid) else { continue }
+            let hasMiss = activeMissProvinceIDs.contains(pid)
+            let refusal = FaithSystem.missionaryRefusal(w, by: player, in: pid)
+            let topWrong = b.byReligion.filter { $0.key != stateRel && $0.value > 0.01 }.max(by: { $0.value < $1.value })
+            let rate = topWrong.map {
+                FaithSystem.monthlyConversionRate(world: w, province: pid, from: $0.key, hasMissionary: hasMiss)
+            } ?? 0.0
+            let rateText: String
+            if rate > 0 {
+                rateText = String(format: "+%.2f%%/mo", rate * 100.0)
+            } else if case .blockedByPrivilege(let why)? = refusal {
+                rateText = "Blocked (\(why))"
+            } else {
+                rateText = "Blocked"
+            }
+            let majRel = b.religionShares().first?.0.displayName ?? stateRel.displayName
+            provRows.append(ProvRow(
+                index: pi,
+                wrongPop: wrongPop,
+                dict: [
+                    "provinceIndex": pi,
+                    "provinceName": w.provinces.name[pi],
+                    "majorityReligion": majRel,
+                    "wrongPopText": Self.formatPeople(wrongPop),
+                    "conversionText": Self.formatPercent(convProg),
+                    "rateText": rateText,
+                    "unrestText": String(format: "%.1f", w.provinces.religiousUnrest[pi]),
+                    "hasMissionary": hasMiss,
+                    "canSend": refusal == nil,
+                    "refusal": refusal?.reason ?? ""
+                ]
+            ))
+        }
+        provRows.sort {
+            let aMiss = ($0.dict["hasMissionary"] as? Bool) ?? false
+            let bMiss = ($1.dict["hasMissionary"] as? Bool) ?? false
+            if aMiss != bMiss { return aMiss && !bMiss }
+            if $0.wrongPop != $1.wrongPop { return $0.wrongPop > $1.wrongPop }
+            return $0.index < $1.index
+        }
+        let convertibleProvinces = Array(provRows.prefix(60).map(\.dict))
+
+        // Holy sites held & overview
+        let heldSites = FaithSystem.holySitesHeld(in: w, by: player)
+        let heldList: [[String: Any]] = heldSites.map { site in
+            [
+                "name": site.name,
+                "provinceIndex": site.province.index,
+                "provinceName": w.provinces.name[site.province.index],
+                "religions": site.religions.map(\.displayName).joined(separator: ", ")
+            ]
+        }
+        let heldSet = Set(heldSites.map(\.province))
+        var allSitesList: [[String: Any]] = w.faith.holySites.map { site in
+            let pi = site.province.index
+            let owner = pi < w.provinces.count ? w.provinces.owner[pi] : nil
+            let ownerTag = owner.map { c.tag[$0.index] } ?? "—"
+            let ownerName = owner.map { c.name[$0.index] } ?? "Unclaimed"
+            let sacredToPlayer = site.isSacred(to: stateRel)
+            let isHeld = heldSet.contains(site.province) && owner == player && sacredToPlayer
+            return [
+                "name": site.name,
+                "provinceIndex": pi,
+                "provinceName": pi < w.provinces.count ? w.provinces.name[pi] : "",
+                "ownerTag": ownerTag,
+                "ownerName": ownerName,
+                "religions": site.religions.map(\.displayName).joined(separator: ", "),
+                "isSacredToPlayer": sacredToPlayer,
+                "isHeldByPlayer": isHeld
+            ]
+        }
+        allSitesList.sort {
+            let aHeld = ($0["isHeldByPlayer"] as? Bool) ?? false
+            let bHeld = ($1["isHeldByPlayer"] as? Bool) ?? false
+            if aHeld != bHeld { return aHeld && !bHeld }
+            let aSac = ($0["isSacredToPlayer"] as? Bool) ?? false
+            let bSac = ($1["isSacredToPlayer"] as? Bool) ?? false
+            if aSac != bSac { return aSac && !bSac }
+            return (($0["name"] as? String) ?? "") < (($1["name"] as? String) ?? "")
+        }
+
+        let loyaltyBonus = min(
+            FaithModel.maxHolySiteClergyLoyalty,
+            Double(heldSites.count) * FaithModel.holySiteClergyLoyalty
+        )
+        let stabDiscount = min(
+            FaithModel.maxHolySiteStabilityDiscount,
+            Double(heldSites.count) * FaithModel.holySiteStabilityDiscount
+        )
+
+        // Historical Movements
+        let isBohemia = (c.tag[player.index] == "BOH")
+        let canProtestant = w.faith.reformationStarted && (stateRel == .catholic && w.faith.reformationReligions.contains(.protestant))
+        let canReformed = w.faith.reformationStarted && ((stateRel == .catholic || stateRel == .protestant) && w.faith.reformationReligions.contains(.reformed))
+        let refCentresList: [[String: Any]] = w.faith.reformationCentres.map { rc in
+            let pi = rc.province.index
+            let ownerTag = (pi < w.provinces.count ? w.provinces.owner[pi].map { c.tag[$0.index] } : nil) ?? "—"
+            return [
+                "provinceIndex": pi,
+                "provinceName": pi < w.provinces.count ? w.provinces.name[pi] : "Province #\(pi)",
+                "ownerTag": ownerTag,
+                "religion": rc.religion.displayName,
+                "religionKey": rc.religion.rawValue,
+                "foundedYear": rc.foundedYear,
+                "monthsActive": rc.monthsActive
+            ]
+        }
+
+        // Culture section
+        let rank = CultureSystem.governmentRank(w, player)
+        let primaryCid = c.primaryCulture[player.index]
+        let primaryFamily = primaryCid.index < w.cultures.count ? w.cultures.family[primaryCid.index] : ""
+        let acceptedSet = c.acceptedCultures[player.index]
+        let slotsMax = CultureSystem.acceptedCultureSlots(w, player)
+
+        var realmPopByCulture: [Int: Double] = [:]
+        var totalRealmPop = 0.0
+        for pi in 0..<w.provinces.count where w.provinces.owner[pi] == player {
+            for k in w.pops.range(for: ProvinceID(pi)) {
+                let sz = w.pops.size[k]
+                let cidIdx = w.pops.culture[k].index
+                realmPopByCulture[cidIdx, default: 0] += sz
+                totalRealmPop += sz
+            }
+        }
+        realmPopByCulture[primaryCid.index, default: 0] += 0
+        for ac in acceptedSet {
+            realmPopByCulture[ac.index, default: 0] += 0
+        }
+
+        var cultureRows: [(isPrimary: Bool, isAccepted: Bool, pop: Double, cidIdx: Int, dict: [String: Any])] = []
+        for (cidIdx, pop) in realmPopByCulture where cidIdx >= 0 && cidIdx < w.cultures.count {
+            let cid = CultureID(cidIdx)
+            let isPrimary = (cid == primaryCid)
+            let isAccepted = acceptedSet.contains(cid)
+            let fam = w.cultures.family[cidIdx]
+            let sameFamily = (fam == primaryFamily)
+            let taxMult: Double
+            let mpMult: Double
+            let moodDelta: Double
+            if isPrimary || isAccepted {
+                taxMult = CultureModel.taxAccepted
+                mpMult = CultureModel.manpowerAccepted
+                moodDelta = CultureModel.moodAccepted
+            } else if sameFamily {
+                taxMult = CultureModel.taxSameFamily
+                mpMult = CultureModel.manpowerSameFamily
+                moodDelta = CultureModel.moodSameFamily
+            } else {
+                taxMult = CultureModel.taxForeign
+                mpMult = CultureModel.manpowerForeign
+                moodDelta = CultureModel.moodForeign
+            }
+            let refusal = CultureSystem.acceptRefusal(w, country: player, culture: cid)
+            let share = totalRealmPop > 0 ? pop / totalRealmPop : 0
+            cultureRows.append((
+                isPrimary: isPrimary,
+                isAccepted: isAccepted,
+                pop: pop,
+                cidIdx: cidIdx,
+                dict: [
+                    "cultureIndex": cidIdx,
+                    "name": w.cultures.name[cidIdx],
+                    "family": fam.replacingOccurrences(of: "_", with: " ").capitalized,
+                    "populationText": Self.formatPeople(pop),
+                    "shareText": Self.formatPercent(share),
+                    "isPrimary": isPrimary,
+                    "isAccepted": isAccepted,
+                    "sameFamily": sameFamily,
+                    "taxText": "\(Int((taxMult * 100).rounded()))%",
+                    "manpowerText": "\(Int((mpMult * 100).rounded()))%",
+                    "moodText": moodDelta == 0 ? "+0%" : String(format: "%+.0f%%", moodDelta * 100.0),
+                    "canAccept": refusal == nil,
+                    "acceptRefusal": refusal?.reason ?? ""
+                ]
+            ))
+        }
+        cultureRows.sort {
+            if $0.isPrimary != $1.isPrimary { return $0.isPrimary }
+            if $0.isAccepted != $1.isAccepted { return $0.isAccepted }
+            if $0.pop != $1.pop { return $0.pop > $1.pop }
+            return $0.cidIdx < $1.cidIdx
+        }
+
+        return [
+            "hasPlayer": true,
+            "playerTag": c.tag[player.index],
+            "playerName": c.name[player.index],
+            "stateReligion": stateRel.displayName,
+            "stateReligionKey": stateRel.rawValue,
+            "stateReligionFamily": stateRel.family.displayName,
+            "stateReligionColorR": Int(relRGB.r),
+            "stateReligionColorG": Int(relRGB.g),
+            "stateReligionColorB": Int(relRGB.b),
+            "prestige": prestige,
+            "prestigeText": String(format: "%+.1f", prestige),
+            "faithLawName": faithLawTitle,
+            "clergyLoyaltyText": "\(Int(clergyLoyalty.rounded()))%",
+            "missionaryMonthlyCost": FaithModel.missionaryMonthlyCost,
+            "missionariesUsed": activeMiss.count,
+            "missionariesMax": maxMiss,
+            "activeMissionaries": activeMissionariesList,
+            "convertibleProvinces": convertibleProvinces,
+            "heldHolySites": heldList,
+            "allHolySites": allSitesList,
+            "holySitePrestigeYearText": String(format: "%+.1f/yr", Double(heldSites.count) * FaithModel.holySiteMonthlyPrestige * 12.0),
+            "holySiteClergyBonusText": String(format: "+%.0f%%", loyaltyBonus),
+            "holySiteStabilityDiscountText": String(format: "-%.0f%%", stabDiscount * 100.0),
+            "isBohemia": isBohemia,
+            "hussiteOutcome": w.faith.hussiteOutcome.rawValue,
+            "hussiteOutcomeName": w.faith.hussiteOutcome.displayName,
+            "hussiteCompactsActive": w.faith.hussiteCompactsActive,
+            "safaviyyaPhase": w.faith.safaviyyaPhase.displayName,
+            "safaviyyaStrengthText": Self.formatPercent(w.faith.safaviyyaStrength),
+            "safaviyyaYear": w.faith.safaviyyaYear ?? 0,
+            "reformationStarted": w.faith.reformationStarted,
+            "reformationCentres": refCentresList,
+            "canAdoptProtestant": canProtestant,
+            "canAdoptReformed": canReformed,
+            "governmentRank": rank.displayName,
+            "primaryCultureIndex": primaryCid.index,
+            "primaryCultureName": primaryCid.index < w.cultures.count ? w.cultures.name[primaryCid.index] : "",
+            "primaryCultureFamily": primaryFamily.replacingOccurrences(of: "_", with: " ").capitalized,
+            "acceptedSlotsUsed": acceptedSet.count,
+            "acceptedSlotsMax": slotsMax,
+            "cultures": cultureRows.map(\.dict)
+        ]
+    }
+
+    public func sendMissionary(provinceIndex: Int) -> [String: Any] {
+        guard let s = session,
+              provinceIndex >= 0, provinceIndex < s.world.provinces.count else {
+            return ["ok": false, "reason": "Invalid province."]
+        }
+        if let refusal = s.sendMissionary(to: ProvinceID(provinceIndex)) {
+            return ["ok": false, "reason": refusal.reason]
+        }
+        return ["ok": true, "reason": ""]
+    }
+
+    @discardableResult
+    public func recallMissionary(provinceIndex: Int) -> Bool {
+        guard let s = session,
+              provinceIndex >= 0, provinceIndex < s.world.provinces.count else {
+            return false
+        }
+        return s.recallMissionary(from: ProvinceID(provinceIndex))
+    }
+
+    @discardableResult
+    public func resolveHussiteQuestion(choiceKey: String) -> Bool {
+        guard let s = session,
+              let choice = HussiteOutcome(rawValue: choiceKey.trimmingCharacters(in: .whitespacesAndNewlines)) else {
+            return false
+        }
+        return s.resolveHussiteQuestion(choice)
+    }
+
+    @discardableResult
+    public func adoptReformationReligion(religionKey: String) -> Bool {
+        guard let s = session,
+              let rel = Religion(rawValue: religionKey.trimmingCharacters(in: .whitespacesAndNewlines)) else {
+            return false
+        }
+        return s.adoptReformationReligion(rel)
+    }
+
+    public func acceptCulture(cultureIndex: Int) -> [String: Any] {
+        guard let s = session,
+              cultureIndex >= 0, cultureIndex < s.world.cultures.count else {
+            return ["ok": false, "reason": "Invalid culture."]
+        }
+        if let err = s.acceptCulture(CultureID(cultureIndex)) {
+            return ["ok": false, "reason": err.reason]
+        }
+        return ["ok": true, "reason": ""]
+    }
+
+    @discardableResult
+    public func revokeCulture(cultureIndex: Int) -> Bool {
+        guard let s = session,
+              cultureIndex >= 0, cultureIndex < s.world.cultures.count else {
+            return false
+        }
+        return s.revokeCulture(CultureID(cultureIndex))
+    }
+
+    @discardableResult
+    public func advanceSimulationDays(_ days: Int) -> Bool {
+        guard let s = session, days > 0 else { return false }
+        let prevInteractive = s.interactiveBattlesEnabled
+        s.interactiveBattlesEnabled = false
+        s.advanceDays(days)
+        s.interactiveBattlesEnabled = prevInteractive
+        s.rebuildLabels()
+        townIconsRevision &+= 1
+        return true
+    }
+
+    public func faithOverlayData() -> [String: Any] {
+        guard let s = session else {
+            return ["holySites": [], "missionaries": [], "centres": [], "migrations": []]
+        }
+        let w = s.world
+        let player = s.playerCountry
+        let playerRel = player.map { w.countries.religion[$0.index] }
+
+        let holySites: [[String: Any]] = w.faith.holySites.compactMap { site in
+            let pi = site.province.index
+            guard pi < s.provincePositions.count, pi < w.provinces.count else { return nil }
+            let pos = s.provincePositions[pi]
+            let owner = w.provinces.owner[pi]
+            let isSacred = playerRel.map { site.isSacred(to: $0) } ?? false
+            let isHeld = isSacred && owner != nil && owner == player && w.provinces.occupiedBy[pi] == nil
+            return [
+                "provinceIndex": pi,
+                "name": site.name,
+                "x": pos.x,
+                "y": pos.y,
+                "isSacredToPlayer": isSacred,
+                "isHeldByPlayer": isHeld
+            ]
+        }
+
+        let missionaries: [[String: Any]] = w.faith.missionaries.compactMap { m in
+            let pi = m.province.index
+            guard pi < s.provincePositions.count else { return nil }
+            let pos = s.provincePositions[pi]
+            return [
+                "provinceIndex": pi,
+                "x": pos.x,
+                "y": pos.y,
+                "isPlayer": m.country == player
+            ]
+        }
+
+        let centres: [[String: Any]] = w.faith.reformationCentres.compactMap { rc in
+            let pi = rc.province.index
+            guard pi < s.provincePositions.count else { return nil }
+            let pos = s.provincePositions[pi]
+            let rgb = rc.religion.color
+            return [
+                "provinceIndex": pi,
+                "x": pos.x,
+                "y": pos.y,
+                "religion": rc.religion.displayName,
+                "religionKey": rc.religion.rawValue,
+                "colorR": Int(rgb.r),
+                "colorG": Int(rgb.g),
+                "colorB": Int(rgb.b)
+            ]
+        }
+
+        var migEntries: [(absNet: Double, pi: Int, net: Double)] = []
+        for pi in 0..<min(w.provinces.count, s.provincePositions.count) {
+            let net = w.provinces.lastNetMigration[pi]
+            if abs(net) >= 50.0 {
+                migEntries.append((abs(net), pi, net))
+            }
+        }
+        migEntries.sort {
+            if $0.absNet != $1.absNet { return $0.absNet > $1.absNet }
+            return $0.pi < $1.pi
+        }
+        let migrations: [[String: Any]] = migEntries.prefix(60).map { entry in
+            let pos = s.provincePositions[entry.pi]
+            let rounded = Int(entry.net.rounded())
+            return [
+                "provinceIndex": entry.pi,
+                "x": pos.x,
+                "y": pos.y,
+                "netMigration": entry.net,
+                "text": (rounded >= 0 ? "+" : "") + "\(rounded)"
+            ]
+        }
+
+        return [
+            "holySites": holySites,
+            "missionaries": missionaries,
+            "centres": centres,
+            "migrations": migrations
+        ]
+    }
+
     private static func formatEffectsText(_ fx: Effects, _ w: World) -> String {
         var parts: [String] = []
         for m in Modifier.allCases where fx[m] != 0 {
@@ -5052,6 +5590,53 @@ public final class GezGodotBridge: RefCounted {
     @Callable
     public func adoptReform(optionIndex: Int) -> Bool {
         controller.adoptReform(optionIndex: optionIndex)
+    }
+
+    // MARK: - Phase 11: Religion, Missionaries, Movements & Culture Callables
+
+    @Callable
+    public func getReligionWindowDetails() -> VariantDictionary {
+        Self.toVariantDictionary(controller.religionWindowDetails())
+    }
+
+    @Callable
+    public func sendMissionary(provinceIndex: Int) -> VariantDictionary {
+        Self.toVariantDictionary(controller.sendMissionary(provinceIndex: provinceIndex))
+    }
+
+    @Callable
+    public func recallMissionary(provinceIndex: Int) -> Bool {
+        controller.recallMissionary(provinceIndex: provinceIndex)
+    }
+
+    @Callable
+    public func resolveHussiteQuestion(choiceKey: String) -> Bool {
+        controller.resolveHussiteQuestion(choiceKey: choiceKey)
+    }
+
+    @Callable
+    public func adoptReformationReligion(religionKey: String) -> Bool {
+        controller.adoptReformationReligion(religionKey: religionKey)
+    }
+
+    @Callable
+    public func acceptCulture(cultureIndex: Int) -> VariantDictionary {
+        Self.toVariantDictionary(controller.acceptCulture(cultureIndex: cultureIndex))
+    }
+
+    @Callable
+    public func revokeCulture(cultureIndex: Int) -> Bool {
+        controller.revokeCulture(cultureIndex: cultureIndex)
+    }
+
+    @Callable
+    public func advanceSimulationDays(days: Int) -> Bool {
+        controller.advanceSimulationDays(days)
+    }
+
+    @Callable
+    public func getFaithOverlayData() -> VariantDictionary {
+        Self.toVariantDictionary(controller.faithOverlayData())
     }
 
     // MARK: - Step 3d2: Diplomacy, Wars, Peace & Alerts Callables

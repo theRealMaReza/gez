@@ -6,12 +6,14 @@ const LabelsLayerScript := preload("res://scripts/MapLabelsLayer.gd")
 const ArmiesLayerScript := preload("res://scripts/MapArmiesLayer.gd")
 const FleetsLayerScript := preload("res://scripts/MapFleetsLayer.gd")
 const RoutesLayerScript := preload("res://scripts/MapRoutesLayer.gd")
+const FaithLayerScript := preload("res://scripts/MapFaithLayer.gd")
 const ArmyPanelScript := preload("res://scripts/ArmyPanel.gd")
 const FleetPanelScript := preload("res://scripts/FleetPanel.gd")
 const BudgetPanelScript := preload("res://scripts/BudgetPanel.gd")
 const TradePanelScript := preload("res://scripts/TradePanel.gd")
 const CourtPanelScript := preload("res://scripts/CourtPanel.gd")
 const GovernmentPanelScript := preload("res://scripts/GovernmentPanel.gd")
+const ReligionPanelScript := preload("res://scripts/ReligionPanel.gd")
 const DiplomacyPanelScript := preload("res://scripts/DiplomacyPanel.gd")
 const WarsPanelScript := preload("res://scripts/WarsPanel.gd")
 const BattleViewScript := preload("res://scripts/BattleView.gd")
@@ -46,12 +48,14 @@ var _style_img: Image = null
 var armies_layer: Control
 var fleets_layer: Control
 var routes_layer: Control
+var faith_layer: Control
 var army_ui: Control
 var fleet_ui: Control
 var budget_ui: Control
 var trade_ui: Control
 var court_ui: Control
 var gov_ui: Control
+var religion_ui: Control
 var diplomacy_ui: Control
 var wars_ui: Control
 
@@ -63,6 +67,8 @@ var treasury_btn: Button
 var trade_btn: Button
 var court_btn: Button
 var stability_btn: Button
+var religion_btn: Button
+var _last_rel_btn_str: String = ""
 var inflation_label: Label
 var diplomacy_btn: Button
 var wars_btn: Button
@@ -242,6 +248,15 @@ func _build_scene_ui() -> void:
 	routes_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(routes_layer)
 
+	# 2d. Religion & Culture map overlay (visible only in religion/culture map modes)
+	faith_layer = Control.new()
+	faith_layer.name = "FaithLayer"
+	faith_layer.set_script(FaithLayerScript)
+	faith_layer.visible = false
+	faith_layer.set_anchors_preset(Control.PRESET_FULL_RECT)
+	faith_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(faith_layer)
+
 	# 3. Top bar panel & alerts row
 	_build_top_bar()
 	_build_alerts_bar()
@@ -306,6 +321,14 @@ func _build_scene_ui() -> void:
 	gov_ui.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(gov_ui)
 	gov_ui.call("setup", self)
+
+	religion_ui = Control.new()
+	religion_ui.name = "ReligionUI"
+	religion_ui.set_script(ReligionPanelScript)
+	religion_ui.set_anchors_preset(Control.PRESET_FULL_RECT)
+	religion_ui.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(religion_ui)
+	religion_ui.call("setup", self)
 
 	# 6e. Diplomacy & Wars/Peace windows
 	diplomacy_ui = PanelContainer.new()
@@ -428,6 +451,13 @@ func _build_top_bar() -> void:
 	stability_btn.tooltip_text = "Government: stability, estates, laws & reforms"
 	stability_btn.pressed.connect(_toggle_government_window)
 	hbox.add_child(stability_btn)
+
+	religion_btn = Button.new()
+	religion_btn.text = "Religion"
+	religion_btn.custom_minimum_size = Vector2(82.0, 30.0)
+	religion_btn.tooltip_text = "Religion, holy sites, missionaries, movements & accepted cultures"
+	religion_btn.pressed.connect(_toggle_religion_window)
+	hbox.add_child(religion_btn)
 
 	hbox.add_child(_make_separator())
 
@@ -1248,8 +1278,13 @@ func _process(delta: float) -> void:
 				court_ui.call("refresh_if_open")
 			if gov_ui != null:
 				gov_ui.call("refresh_if_open")
+			if religion_ui != null:
+				religion_ui.call("refresh_if_open")
 			if diplomacy_ui != null:
 				diplomacy_ui.call("refresh_if_open")
+			if current_map_mode == "religion" or current_map_mode == "culture":
+				_refresh_styles_and_country_labels()
+				_refresh_faith_overlay()
 		if (mask & 4) != 0:
 			_refresh_styles_and_country_labels()
 		if (mask & 6) != 0:
@@ -1283,14 +1318,16 @@ func _refresh_styles_and_country_labels() -> void:
 func _fit_top_bar() -> void:
 	if top_bar_hbox == null or top_bar_panel == null:
 		return
-	var need := top_bar_hbox.get_combined_minimum_size().x
-	# The panel grows with its buttons, so measure against the window.
-	var avail := get_viewport_rect().size.x - 32.0
+	var need := top_bar_hbox.get_combined_minimum_size().x + 32.0
+	var vw := get_viewport_rect().size.x
 	var s := 1.0
-	if need > 0.0 and avail > 0.0 and need > avail:
-		s = maxf(0.6, avail / need)
-	if not is_equal_approx(top_bar_hbox.scale.x, s):
-		top_bar_hbox.scale = Vector2(s, s)
+	if need > 0.0 and vw > 0.0 and need > vw:
+		s = maxf(0.6, vw / need)
+	top_bar_panel.anchor_right = 0.0
+	top_bar_panel.pivot_offset = Vector2.ZERO
+	top_bar_panel.scale = Vector2(s, s)
+	if vw > 0.0:
+		top_bar_panel.size = Vector2(vw / s, top_bar_panel.size.y)
 
 func _refresh_top_bar() -> void:
 	call_deferred("_fit_top_bar")
@@ -1333,6 +1370,11 @@ func _refresh_top_bar() -> void:
 		if stab_neg != _last_stab_neg:
 			_last_stab_neg = stab_neg
 			stability_btn.modulate = Color(0.98, 0.55, 0.50) if stab < 0 else Color(0.95, 0.92, 0.85)
+	if religion_btn != null:
+		var r_str: String = str(top.get("religionButtonText", "Religion"))
+		if r_str != _last_rel_btn_str:
+			_last_rel_btn_str = r_str
+			religion_btn.text = r_str
 	if wars_btn != null:
 		var wars_cnt: int = int(top.get("activeWarsCount", 0))
 		var pending_cnt: int = int(top.get("pendingPeaceOffersCount", 0))
@@ -1397,6 +1439,7 @@ func _select_map_mode(mode_key: String) -> void:
 	_update_map_mode_button_styles()
 	_sync_camera_uniforms()
 	_refresh_styles_and_country_labels()
+	_refresh_faith_overlay()
 
 func _update_map_mode_button_styles() -> void:
 	for k in map_mode_buttons.keys():
@@ -1533,6 +1576,7 @@ func _after_world_replaced() -> void:
 	_refresh_armies()
 	_refresh_fleets()
 	_refresh_trade_routes()
+	_refresh_faith_overlay()
 
 func _refresh_armies(force: bool = false) -> void:
 	if bridge == null:
@@ -2130,6 +2174,74 @@ func _build_province_people_tab(d: Dictionary) -> void:
 		s_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		prov_content_box.add_child(s_lbl)
 
+	if not prov_people_show_state:
+		prov_content_box.add_child(HSeparator.new())
+		var p_idx: int = int(d.get("provinceIndex", -1))
+		var is_mine: bool = bool(d.get("isPlayerOwned", false))
+		var conv_rate := str(d.get("monthlyConversionRateText", "—"))
+		_add_kv_row(
+			prov_content_box,
+			"Conversion",
+			"%s (%s)" % [str(d.get("conversionText", "100%")), conv_rate]
+		)
+		_add_kv_row(prov_content_box, "Assimilation", str(d.get("assimilationText", "100%")))
+		_add_kv_row(prov_content_box, "Religious Unrest", str(d.get("religiousUnrestText", "0.0")))
+		_add_kv_row(
+			prov_content_box,
+			"Migration / Devast.",
+			"%s · Devast %s" % [str(d.get("netMigrationText", "+0")), str(d.get("devastationText", "0%"))]
+		)
+
+		var hs_list: Array = d.get("holySites", [])
+		for hs_v in hs_list:
+			if hs_v is Dictionary:
+				var hs: Dictionary = hs_v
+				var hl := _make_label(
+					"Holy Site: %s (%s)" % [str(hs.get("name", "")), str(hs.get("religions", ""))],
+					Color(0.95, 0.84, 0.42),
+					12
+				)
+				hl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+				prov_content_box.add_child(hl)
+
+		var rc_v: Variant = d.get("reformationCentre", {})
+		if rc_v is Dictionary and bool((rc_v as Dictionary).get("exists", false)):
+			var rc := rc_v as Dictionary
+			prov_content_box.add_child(_make_label(
+				"Centre of Reformation: %s (%d)" % [str(rc.get("religion", "")), int(rc.get("foundedYear", 0))],
+				Color(0.98, 0.68, 0.42),
+				12
+			))
+
+		if is_mine and p_idx >= 0:
+			var has_miss := bool(d.get("hasMissionary", false))
+			if has_miss:
+				var rec_btn := Button.new()
+				rec_btn.text = "Recall Missionary"
+				rec_btn.pressed.connect(func() -> void:
+					_call_bridge("recallMissionary", [p_idx], false)
+					_refresh_province_panel()
+					_refresh_top_bar()
+					_refresh_faith_overlay()
+					if religion_ui != null:
+						religion_ui.call("refresh_if_open")
+				)
+				prov_content_box.add_child(rec_btn)
+			else:
+				var send_btn := Button.new()
+				send_btn.text = "Send Missionary (0.5/mo)"
+				send_btn.disabled = not bool(d.get("canSendMissionary", false))
+				send_btn.tooltip_text = str(d.get("missionaryRefusal", ""))
+				send_btn.pressed.connect(func() -> void:
+					_call_bridge("sendMissionary", [p_idx], {})
+					_refresh_province_panel()
+					_refresh_top_bar()
+					_refresh_faith_overlay()
+					if religion_ui != null:
+						religion_ui.call("refresh_if_open")
+				)
+				prov_content_box.add_child(send_btn)
+
 func _append_province_docks_section(d: Dictionary) -> void:
 	var has_docks: bool = bool(d.get("hasDocks", false))
 	var blockaded: bool = bool(d.get("isPortBlockaded", false))
@@ -2395,6 +2507,8 @@ func _sync_camera_uniforms() -> void:
 		fleets_layer.call("update_camera", zoom, offset)
 	if routes_layer != null:
 		routes_layer.call("update_camera", zoom, offset)
+	if faith_layer != null:
+		faith_layer.call("update_camera", zoom, offset)
 
 func _on_viewport_resized() -> void:
 	if zoom <= 0.0:
@@ -2628,6 +2742,8 @@ func _close_top_left_windows(except_key: String = "") -> void:
 		court_ui.call("close_window")
 	if except_key != "government" and gov_ui != null:
 		gov_ui.call("close_window")
+	if except_key != "religion" and religion_ui != null:
+		religion_ui.call("close_window")
 	if except_key != "diplomacy" and diplomacy_ui != null:
 		diplomacy_ui.call("close_window")
 	if except_key != "wars" and wars_ui != null:
@@ -2672,6 +2788,25 @@ func _toggle_government_window() -> void:
 	if opening:
 		_close_top_left_windows("government")
 	gov_ui.call("toggle_window")
+
+func _toggle_religion_window() -> void:
+	if religion_ui == null:
+		return
+	var opening: bool = not bool(religion_ui.call("is_open"))
+	if opening:
+		_close_top_left_windows("religion")
+	religion_ui.call("toggle_window")
+
+func _refresh_faith_overlay() -> void:
+	if faith_layer == null or bridge == null:
+		return
+	if current_map_mode == "religion" or current_map_mode == "culture":
+		var data_v: Variant = _call_bridge("getFaithOverlayData", [], {})
+		var data: Dictionary = data_v if data_v is Dictionary else {}
+		faith_layer.call("set_overlay_data", current_map_mode, data)
+		faith_layer.call("update_camera", zoom, offset)
+	else:
+		faith_layer.call("set_overlay_data", current_map_mode, {})
 
 func _toggle_diplomacy_window() -> void:
 	if diplomacy_ui == null:

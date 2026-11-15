@@ -25,8 +25,8 @@ public enum GovernmentRank: String, Sendable, Codable, CaseIterable {
 public enum CultureModel {
     /// Tax efficiency multipliers by cultural acceptance tier.
     public static let taxAccepted = 1.0
-    public static let taxSameFamily = 0.85
-    public static let taxForeign = 0.67
+    public static let taxSameFamily = 0.90
+    public static let taxForeign = 0.80
 
     /// Manpower / levy multipliers by cultural acceptance tier.
     public static let manpowerAccepted = 1.0
@@ -259,6 +259,8 @@ public enum CultureSystem {
     private static func runAssimilation(_ world: inout World, provinceCount P: Int, countryCount C: Int) {
         var pending: [PopTable.Row] = []
         var anyZero = false
+        var dirty: [Int] = []
+        dirty.reserveCapacity(128)
 
         for p in 0..<P {
             let pid = ProvinceID(p)
@@ -271,13 +273,25 @@ public enum CultureSystem {
             let targetCulture = world.countries.primaryCulture[o]
             let stateRel = world.countries.religion[o]
 
-            // Must either already be majority targetCulture or border a province whose majority is targetCulture.
             let nearTargetCulture = world.provinces.majorityCulture[p] == targetCulture
                 || world.provinces.neighbors[p].contains { world.provinces.majorityCulture[$0.index] == targetCulture }
+            let canAssimilate = nearTargetCulture && world.provinces.religion[p] == stateRel
 
             let range = world.pops.range(for: pid)
             var totalPop = 0.0
             var targetPop = 0.0
+            var changedHere = false
+
+            if !canAssimilate {
+                for i in range {
+                    let sz = world.pops.size[i]
+                    guard sz > 1e-9 else { continue }
+                    totalPop += sz
+                    if world.pops.culture[i] == targetCulture { targetPop += sz }
+                }
+                world.provinces.assimilationProgress[p] = totalPop > 0 ? min(1.0, targetPop / totalPop) : 1.0
+                continue
+            }
 
             for i in range {
                 let sz = world.pops.size[i]
@@ -291,10 +305,7 @@ public enum CultureSystem {
                     continue
                 }
 
-                // Conditions: same religion, content, and bordering/within targetCulture provinces.
-                guard nearTargetCulture,
-                      world.pops.religion[i] == stateRel,
-                      world.provinces.religion[p] == stateRel,
+                guard world.pops.religion[i] == stateRel,
                       sat >= CultureModel.minAssimilationSatisfaction else {
                     totalPop += sz
                     continue
@@ -325,6 +336,7 @@ public enum CultureSystem {
                 }
 
                 world.pops.size[i] -= delta
+                changedHere = true
                 if let j = mergedIdx {
                     let prev = world.pops.size[j]
                     world.pops.satisfaction[j] = (world.pops.satisfaction[j] * prev + sat * delta) / (prev + delta)
@@ -343,12 +355,15 @@ public enum CultureSystem {
                 totalPop += sz
                 targetPop += delta
             }
+            if changedHere { dirty.append(p) }
             world.provinces.assimilationProgress[p] = totalPop > 0 ? min(1.0, targetPop / totalPop) : 1.0
         }
 
         if !pending.isEmpty || anyZero {
             world.pops.rebuild(provinceCount: P, extraRows: pending)
-            world.refreshProvinceSummaries()
+        }
+        if !dirty.isEmpty {
+            world.refreshProvinceSummaries(for: dirty)
         }
     }
 
@@ -423,6 +438,7 @@ public enum CultureSystem {
 
         var pending: [PopTable.Row] = []
         var anyZero = false
+        var dirtySet = Array(repeating: false, count: P)
 
         for p in 0..<P {
             let dev = world.provinces.devastation[p]
@@ -510,21 +526,39 @@ public enum CultureSystem {
                     let clampedShare = min(movable - actualMoved, share)
                     guard clampedShare > 0.001 else { continue }
                     actualMoved += clampedShare
-                    pending.append(PopTable.Row(
-                        province: ProvinceID(dest.prov),
-                        culture: cult,
-                        religion: rel,
-                        sect: sect,
-                        socialClass: cls,
-                        size: clampedShare,
-                        satisfaction: sat
-                    ))
+                    let destID = ProvinceID(dest.prov)
+                    var mergedIdx: Int?
+                    for j in world.pops.range(for: destID) where world.pops.culture[j] == cult
+                        && world.pops.religion[j] == rel
+                        && world.pops.sect[j] == sect
+                        && world.pops.socialClass[j] == cls
+                        && world.pops.size[j] > 0 {
+                        mergedIdx = j
+                        break
+                    }
+                    if let j = mergedIdx {
+                        let prev = world.pops.size[j]
+                        world.pops.satisfaction[j] = (world.pops.satisfaction[j] * prev + sat * clampedShare) / (prev + clampedShare)
+                        world.pops.size[j] = prev + clampedShare
+                    } else {
+                        pending.append(PopTable.Row(
+                            province: destID,
+                            culture: cult,
+                            religion: rel,
+                            sect: sect,
+                            socialClass: cls,
+                            size: clampedShare,
+                            satisfaction: sat
+                        ))
+                    }
+                    dirtySet[dest.prov] = true
                     world.provinces.lastNetMigration[dest.prov] += clampedShare
                 }
 
                 if actualMoved > 0 {
                     world.pops.size[i] -= actualMoved
                     if world.pops.size[i] <= 1e-9 { anyZero = true }
+                    dirtySet[p] = true
                     world.provinces.lastNetMigration[p] -= actualMoved
                 }
             }
@@ -532,7 +566,10 @@ public enum CultureSystem {
 
         if !pending.isEmpty || anyZero {
             world.pops.rebuild(provinceCount: P, extraRows: pending)
-            world.refreshProvinceSummaries()
+        }
+        let dirtyProvs = (0..<P).filter { dirtySet[$0] }
+        if !dirtyProvs.isEmpty {
+            world.refreshProvinceSummaries(for: dirtyProvs)
         }
     }
 }
