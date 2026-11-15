@@ -158,14 +158,15 @@ GitHub Release on the website repo, and add "how to open an app from an
 unidentified developer" steps to the page.
 
 ### Releasing a download (from 14 Nov 2026)
-`.github/workflows/release.yml` ("Release", run by hand with a version
-name) takes the newest CI run on `main` whose Mac, Windows and Linux
-Godot builds all passed and publishes them as a GitHub Release on the
-**website repo** (not this one, which goes private later), as
-`Gez-Mac.zip`, `Gez-Windows.zip`, `Gez-Linux.tar.gz`. The website links
-to `.../releases/latest/download/<file>`, so it never needs editing per
-release. Needs the secret `WEBSITE_TOKEN` (fine-grained token, Contents
-read/write on the website repo only; the owner made it, never in chat).
+The **website repo** has `.github/workflows/release.yml` ("Release", run
+by hand with a version name; Claude can dispatch it). It takes the newest
+CI run on this repo's `main` whose Mac, Windows and Linux Godot exports
+all passed and publishes them as a Release of the website repo:
+`Gez-Mac.zip`, `Gez-Windows.zip`, `Gez-Linux.tar.gz`. The site links to
+`.../releases/latest/download/<file>`, so it never needs editing per
+release. While this repo is public no secret is needed. **When it goes
+private**, the owner adds a secret `GAME_TOKEN` to the website repo
+(fine-grained, Actions: Read on this repo only; never in chat).
 Builds are unsigned: Mac needs right-click > Open, Windows shows
 SmartScreen (More info > Run anyway) until the Microsoft Store.
 
