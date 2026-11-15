@@ -862,6 +862,19 @@ public enum ArmySystem {
         }
 
         let roadType = world.economy.buildingType(key: "road")
+        // A strait can only be closed by a fleet at war with the mover; if no
+        // such fleet is at sea anywhere, skip the per-edge strait check
+        // (review speed-up; same answers as canCrossStrait).
+        var straitsMayBeClosed = false
+        if let mover = armyOwner {
+            for f in 0..<world.navy.fleets.count where world.navy.fleets.alive[f] {
+                if case .sea = world.navy.fleets.location[f],
+                   world.diplomacy.isAtWar(world.navy.fleets.owner[f], mover) {
+                    straitsMayBeClosed = true
+                    break
+                }
+            }
+        }
         let speedMult = effectiveArmySpeed(world, army: army)
 
         var bestForTier = Array(repeating: -1, count: pools.count)
@@ -902,7 +915,7 @@ public enum ArmySystem {
             for nb in world.provinces.neighbors[u] {
                 let v = nb.index
                 if visited[v] { continue }
-                if let mover = armyOwner, !canCrossStrait(world, from: uPid, to: nb, for: mover) {
+                if straitsMayBeClosed, let mover = armyOwner, !canCrossStrait(world, from: uPid, to: nb, for: mover) {
                     continue
                 }
                 if !uAllowsAllNeighbors && v != start.index {
