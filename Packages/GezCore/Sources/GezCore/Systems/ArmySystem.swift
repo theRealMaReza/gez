@@ -632,6 +632,44 @@ public enum ArmySystem {
         return max(1.0, (rawDays * 10.0).rounded() / 10.0)
     }
 
+    /// True if `country`'s army can cross from `a` to `b`. Straits are blocked by
+    /// hostile fleets in the strait's sea zone unless `country`'s side controls both shores.
+    public static func canCrossStrait(
+        _ world: World,
+        from a: ProvinceID,
+        to b: ProvinceID,
+        for country: CountryID
+    ) -> Bool {
+        let seas = world.straitSeaZones(between: a, and: b)
+        if seas.isEmpty { return true }
+
+        func sideControls(_ ctrl: CountryID?) -> Bool {
+            guard let ctrl else { return false }
+            if ctrl == country { return true }
+            if world.countries.overlord[ctrl.index] == country || world.countries.overlord[country.index] == ctrl {
+                return true
+            }
+            return world.diplomacy.hasTreaty(.alliance, between: country, and: ctrl) || world.diplomacy.wars.contains { war in
+                (war.isAttacker(country) && war.isAttacker(ctrl)) ||
+                (war.isDefender(country) && war.isDefender(ctrl))
+            }
+        }
+
+        if sideControls(world.provinces.controller(of: a)) && sideControls(world.provinces.controller(of: b)) {
+            return true
+        }
+
+        for sz in seas {
+            for fid in world.navy.fleets(inSea: sz) where world.navy.shipCount(of: fid) > 0 {
+                let fOwner = world.navy.fleets.owner[fid.index]
+                if world.diplomacy.isAtWar(fOwner, country) {
+                    return false
+                }
+            }
+        }
+        return true
+    }
+
     /// Labels each province with the id of the land mass it belongs to
     /// (provinces connected through `neighbors`). Two provinces with different
     /// labels cannot be reached from each other by marching, so callers can
@@ -853,6 +891,9 @@ public enum ArmySystem {
             for nb in world.provinces.neighbors[u] {
                 let v = nb.index
                 if visited[v] { continue }
+                if let mover = armyOwner, !canCrossStrait(world, from: uPid, to: nb, for: mover) {
+                    continue
+                }
                 if !uAllowsAllNeighbors && v != start.index {
                     let vFriend: Bool
                     if let vCtrl = world.provinces.controller(of: nb), isFriendOrAllyArr[vCtrl.index] {
@@ -927,8 +968,15 @@ public enum ArmySystem {
             let aid = ArmyID(Int32(i))
             if world.military.isInBattle(aid) { continue }
             guard let nextHop = world.military.armies.path[i].first else { continue }
+            let cur = world.military.armies.province[i]
+            if !world.military.armies.isRebel[i],
+               !canCrossStrait(world, from: cur, to: nextHop, for: world.military.armies.owner[i]) {
+                world.military.armies.path[i].removeAll()
+                world.military.armies.moveStepDays[i] = 0
+                world.military.armies.moveProgressDays[i] = 0
+                continue
+            }
             if world.military.armies.moveStepDays[i] <= 0 {
-                let cur = world.military.armies.province[i]
                 world.military.armies.moveStepDays[i] = stepDays(world, from: cur, to: nextHop, army: aid)
             }
             let pace = world.military.armies.isRetreating[i] ? 1.5 : 1.0

@@ -50,6 +50,7 @@ public final class Simulation {
         // Daily systems go here.
         ArmySystem.runDaily(&world, date: date, random: &random)
         NavySystem.runDaily(&world, date: date, random: &random)
+        NavyBattleSystem.runDaily(&world, date: date, random: &random)
         if interceptHumanBattles {
             BattleSystem.detectAndReinforceBattles(&world, date: date, random: &random)
             // Every new battle of the player's waits (day 0) until the player

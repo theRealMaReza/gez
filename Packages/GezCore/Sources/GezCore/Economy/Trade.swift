@@ -243,11 +243,15 @@ public enum TradeSystem {
             bonusLand[m.index] = 0.1 * level(m, "road") + 0.1 * level(m, "market_hall") + routesBonus
             bonusSea[m.index] = 0.2 * level(m, "port") + 0.1 * level(m, "market_hall")
         }
+        let seaMultipliers = NavyBattleSystem.marketSeaTradeMultipliers(world)
         return eco.marketLinks.enumerated().map { k, link in
             let sea = k < eco.marketLinkIsSea.count && eco.marketLinkIsSea[k]
             let bonus = sea ? bonusSea[link.0.index] + bonusSea[link.1.index]
                             : bonusLand[link.0.index] + bonusLand[link.1.index]
-            return (sea ? TradeModel.seaLinkCapacity : TradeModel.landLinkCapacity) * (1 + bonus)
+            let blockadeMult = (sea && seaMultipliers != nil)
+                ? min(seaMultipliers![link.0.index], seaMultipliers![link.1.index])
+                : 1.0
+            return (sea ? TradeModel.seaLinkCapacity : TradeModel.landLinkCapacity) * (1 + bonus) * blockadeMult
         }
     }
 

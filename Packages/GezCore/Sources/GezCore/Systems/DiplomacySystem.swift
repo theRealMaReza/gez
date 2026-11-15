@@ -184,7 +184,34 @@ public enum DiplomacySystem {
                 }
 
                 let occNet = max(-0.75, min(0.75, occAtt - occDef))
-                let combined = war.battleWarScore + occNet + war.tickingWarScore
+
+                // 3. Slow naval blockade war score (-0.15 ... +0.15)
+                var attCoastalDev = 0, attBlockadedDev = 0
+                var defCoastalDev = 0, defBlockadedDev = 0
+                for p in 0..<world.provinces.count {
+                    let pid = ProvinceID(p)
+                    guard world.hasSeaAccess(pid), let owner = world.provinces.owner[p] else { continue }
+                    let dev = max(1, world.provinces.development[p])
+                    if war.isDefender(owner) {
+                        defCoastalDev += dev
+                        if NavyBattleSystem.isBlockadedBySide(world, province: pid, blockaders: war.attackers) {
+                            defBlockadedDev += dev
+                        }
+                    } else if war.isAttacker(owner) {
+                        attCoastalDev += dev
+                        if NavyBattleSystem.isBlockadedBySide(world, province: pid, blockaders: war.defenders) {
+                            attBlockadedDev += dev
+                        }
+                    }
+                }
+                let defRatio = Double(defBlockadedDev) / Double(max(1, defCoastalDev))
+                let attRatio = Double(attBlockadedDev) / Double(max(1, attCoastalDev))
+                let blockadeDelta = 0.0008 * (defRatio - attRatio)
+                if blockadeDelta != 0 {
+                    war.blockadeWarScore = max(-0.15, min(0.15, war.blockadeWarScore + blockadeDelta))
+                }
+
+                let combined = war.battleWarScore + occNet + war.tickingWarScore + war.blockadeWarScore
                 war.warScore = max(-1.0, min(1.0, combined))
             }
 

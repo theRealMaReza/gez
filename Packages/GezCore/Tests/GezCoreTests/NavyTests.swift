@@ -293,3 +293,228 @@ struct NavyMovementAndAITests {
         #expect(sim.world.navy.fleets.location[venMainFleet.index] != .port(try #require(sim.world.provinces.id(named: "Venice"))))
     }
 }
+
+@Suite("Navy (Part C)")
+struct NavyBattleAndBlockadeTests {
+
+    private func makeFleet(
+        _ world: inout World,
+        name: String,
+        owner: CountryID,
+        sea: SeaZoneID,
+        ships: [(ShipTypeID, Int)],
+        admiral: CharacterID? = nil
+    ) -> FleetID {
+        let fid = world.navy.fleets.append(name: name, owner: owner, location: .sea(sea), admiral: admiral)
+        for (tid, count) in ships {
+            let st = world.navy.shipType(tid)
+            for _ in 0..<count {
+                let sIdx = world.navy.ships.add(type: tid, fleet: fid, hull: 100.0, crew: st.maxCrew, morale: 3.0)
+                world.navy.fleets.shipIndices[fid.index].append(sIdx)
+            }
+        }
+        return fid
+    }
+
+    @Test("Stronger fleet wins multi-day naval battle, captures ships, retreats loser, and grants war score")
+    func testStrongerFleetWinsAndCapturesAndGrantsWarScore() throws {
+        let sim = Simulation(world: Scenario1453.makeWorld(), startDate: Scenario1453.startDate, seed: 42)
+        let ven = try #require(sim.world.countries.id(forTag: "VEN"))
+        let tur = try #require(sim.world.countries.id(forTag: "TUR"))
+        let aegeanS = try #require(sim.world.seaZones.id(named: "Southern Aegean"))
+        sim.world.humanCountries.insert(ven)
+        sim.world.humanCountries.insert(tur)
+
+        // Isolate test clash in Southern Aegean with clear size advantage + high Martial admiral for VEN.
+        for f in sim.world.navy.fleets(of: ven) { sim.world.navy.fleets.alive[f.index] = false }
+        for f in sim.world.navy.fleets(of: tur) { sim.world.navy.fleets.alive[f.index] = false }
+
+        let war = War(
+            id: "ven_tur_naval",
+            name: "Aegean War",
+            startDate: sim.date,
+            casusBelli: .claim,
+            warGoal: .superiority,
+            attackers: [ven],
+            defenders: [tur]
+        )
+        sim.world.diplomacy.wars.append(war)
+
+        let carrack = try #require(sim.world.navy.shipByKey["carrack"])
+        let galley = try #require(sim.world.navy.shipByKey["galley"])
+        let cog = try #require(sim.world.navy.shipByKey["cog"])
+
+        let loredan = try #require(sim.world.people.characters.id(forKey: "loredan_alvise"))
+        sim.world.people.characters.skills[loredan.index][Skill.martial.rawValue] = 10
+
+        let venFleet = makeFleet(&sim.world, name: "Grand Armada", owner: ven, sea: aegeanS,
+                                 ships: [(carrack, 6), (galley, 8)], admiral: loredan)
+        let turFleet = makeFleet(&sim.world, name: "Turkish Flotilla", owner: tur, sea: aegeanS,
+                                 ships: [(galley, 4), (cog, 4)])
+
+        // Battle should start on day 1 and finish within <= 15 days.
+        for _ in 0..<18 {
+            sim.tick()
+            if !sim.world.navy.recentBattles.isEmpty { break }
+        }
+
+        let report = try #require(sim.world.navy.recentBattles.last)
+        #expect(report.winnerCountry == ven)
+        #expect(report.days >= 2)
+        #expect(report.warScoreDelta > 0)
+        #expect(sim.world.navy.fleets.location[venFleet.index] == .sea(aegeanS))
+        if sim.world.navy.fleets.alive[turFleet.index] {
+            // Defeated surviving fleet retreated away from Southern Aegean toward port.
+            #expect(sim.world.navy.fleets.location[turFleet.index] != .sea(aegeanS) ||
+                    sim.world.navy.fleets.destinationPort[turFleet.index] != nil)
+        }
+        let updatedWar = try #require(sim.world.diplomacy.activeWar(between: ven, and: tur))
+        #expect(updatedWar.battleWarScore > 0)
+
+        // Verify ship capture mechanics trigger across battered boarding engagements.
+        var totalCaptured = report.attackerShipsCaptured + report.defenderShipsCaptured
+        if totalCaptured == 0 {
+            for trial in 1...12 {
+                let s = Simulation(world: Scenario1453.makeWorld(), startDate: Scenario1453.startDate, seed: UInt64(trial * 77))
+                s.world.humanCountries.insert(ven)
+                s.world.humanCountries.insert(tur)
+                for f in s.world.navy.fleets(of: ven) { s.world.navy.fleets.alive[f.index] = false }
+                for f in s.world.navy.fleets(of: tur) { s.world.navy.fleets.alive[f.index] = false }
+                s.world.diplomacy.wars.append(war)
+                _ = makeFleet(&s.world, name: "CapV", owner: ven, sea: aegeanS, ships: [(carrack, 5), (galley, 10)], admiral: loredan)
+                _ = makeFleet(&s.world, name: "CapT", owner: tur, sea: aegeanS, ships: [(cog, 12)])
+                for _ in 0..<16 {
+                    s.tick()
+                    if let r = s.world.navy.recentBattles.last {
+                        totalCaptured += r.attackerShipsCaptured + r.defenderShipsCaptured
+                        break
+                    }
+                }
+                if totalCaptured > 0 { break }
+            }
+        }
+        #expect(totalCaptured > 0)
+    }
+
+    @Test("Galleys perform stronger in inland seas than in open oceans")
+    func testGalleyInlandSeaCombatBonus() throws {
+        let aegean = try #require(Scenario1453.makeWorld().seaZones.id(named: "Northern Aegean"))
+        let atlantic = try #require(Scenario1453.makeWorld().seaZones.id(named: "Open Atlantic"))
+
+        func runClash(in zone: SeaZoneID) throws -> Int {
+            let sim = Simulation(world: Scenario1453.makeWorld(), startDate: Scenario1453.startDate, seed: 555)
+            let ven = try #require(sim.world.countries.id(forTag: "VEN"))
+            let gen = try #require(sim.world.countries.id(forTag: "GEN"))
+            sim.world.humanCountries.insert(ven)
+            sim.world.humanCountries.insert(gen)
+            for f in sim.world.navy.fleets(of: ven) { sim.world.navy.fleets.alive[f.index] = false }
+            for f in sim.world.navy.fleets(of: gen) { sim.world.navy.fleets.alive[f.index] = false }
+            sim.world.diplomacy.wars.append(War(
+                id: "galley_test", name: "Galley Clash", startDate: sim.date,
+                casusBelli: .claim, warGoal: .superiority, attackers: [ven], defenders: [gen]
+            ))
+            let galley = try #require(sim.world.navy.shipByKey["galley"])
+            let light = try #require(sim.world.navy.shipByKey["light_ship"])
+            _ = makeFleet(&sim.world, name: "VenG", owner: ven, sea: zone, ships: [(galley, 8)])
+            _ = makeFleet(&sim.world, name: "GenL", owner: gen, sea: zone, ships: [(light, 8)])
+            for _ in 0..<18 {
+                sim.tick()
+                if let r = sim.world.navy.recentBattles.last {
+                    return r.defenderShipsLost - r.attackerShipsLost
+                }
+            }
+            return 0
+        }
+
+        let inlandNet = try runClash(in: aegean)
+        let oceanNet = try runClash(in: atlantic)
+        #expect(inlandNet > oceanNet)
+    }
+
+    @Test("Blockade removes coastal siege penalty, cuts sea trade capacity, and ticks blockade war score")
+    func testBlockadeEffects() throws {
+        let sim = Simulation(world: Scenario1453.makeWorld(), startDate: Scenario1453.startDate, seed: 1453)
+        let ven = try #require(sim.world.countries.id(forTag: "VEN"))
+        let pap = try #require(sim.world.countries.id(forTag: "PAP"))
+        let ancona = try #require(sim.world.provinces.id(named: "Ancona"))
+        let adriaticS = try #require(sim.world.provinceSeas[ancona.index].first)
+        sim.world.humanCountries.insert(ven)
+        sim.world.humanCountries.insert(pap)
+
+        sim.world.diplomacy.wars.append(War(
+            id: "blockade_war", name: "Ancona War", startDate: sim.date,
+            casusBelli: .claim, warGoal: .conquerProvince(ancona), attackers: [ven], defenders: [pap]
+        ))
+
+        // Put PAP fort in Ancona and besiege it with VEN army while PAP ships are cleared.
+        sim.world.provinces.fortLevel[ancona.index] = 1
+        sim.world.provinces.fortGarrison[ancona.index] = 1000
+        let inf = try #require(sim.world.military.unitByKey["infantry"])
+        _ = ArmySystem.recruitProfessional(&sim.world, ven, in: ancona, unit: inf)
+        // Hack army owner standing directly in ancona as besieging army
+        let armyId = sim.world.military.armies.append(
+            name: "Siege Force", owner: ven, province: ancona,
+            regiments: [Regiment(type: inf, origin: .professional, men: 3000, morale: 3.0)]
+        )
+        #expect(sim.world.military.armies.alive[Int(armyId.rawValue)])
+
+        // Day 1 without fleet blockade: siege exists and `blockaded == false` (takes -2 coastal penalty).
+        sim.tick()
+        let unblockedSiege = try #require(sim.world.military.siege(in: ancona))
+        #expect(!unblockedSiege.blockaded)
+        let capBefore = TradeSystem.linkCapacities(sim.world)
+
+        // Move VEN fleet into sea zone touching Ancona and Naples/Adriatic market centres -> blockades Ancona & Venice/Rome sea links.
+        let venMarketProv = try #require(sim.world.provinces.id(named: "Venice"))
+        _ = venMarketProv
+        let carrack = try #require(sim.world.navy.shipByKey["carrack"])
+        let bFleet = makeFleet(&sim.world, name: "Blockaders", owner: ven, sea: adriaticS, ships: [(carrack, 4)])
+        #expect(sim.world.navy.fleets.alive[bFleet.index])
+
+        for _ in 0..<20 { sim.tick() }
+        let blockedSiege = try #require(sim.world.military.siege(in: ancona))
+        #expect(blockedSiege.blockaded)
+        #expect(sim.world.navy.blockadedProvinces.contains(ancona))
+
+        let capAfter = TradeSystem.linkCapacities(sim.world)
+        let seaIndices = sim.world.economy.marketLinkIsSea.indices.filter { sim.world.economy.marketLinkIsSea[$0] }
+        #expect(seaIndices.contains { capAfter[$0] < capBefore[$0] })
+
+        let warAfter = try #require(sim.world.diplomacy.activeWar(between: ven, and: pap))
+        #expect(warAfter.blockadeWarScore > 0)
+    }
+
+    @Test("Hostile fleet blocks strait crossing unless marching side controls both shores")
+    func testStraitBlocking() throws {
+        var world = try Scenario1453.loadBundled()
+        let cas = try #require(world.countries.id(forTag: "CAS"))
+        let gra = try #require(world.countries.id(forTag: "GRA"))
+        let por = try #require(world.countries.id(forTag: "POR"))
+        let gibraltar = try #require(world.provinces.id(named: "Gibraltar"))
+        let ceuta = try #require(world.provinces.id(named: "Ceuta"))
+        let alboran = try #require(world.straitSeaZones(between: gibraltar, and: ceuta).first)
+
+        // CAS war with POR & GRA: GRA controls Gibraltar, POR controls Ceuta. CAS has hostile POR fleet in Alboran Sea.
+        world.diplomacy.wars.append(War(
+            id: "strait_war", name: "Strait Test", startDate: Scenario1453.startDate,
+            casusBelli: .claim, warGoal: .superiority, attackers: [cas], defenders: [por, gra]
+        ))
+        let inf = try #require(world.military.unitByKey["infantry"])
+        let army = world.military.armies.append(
+            name: "Crossers", owner: cas, province: gibraltar,
+            regiments: [Regiment(type: inf, origin: .professional, men: 2000, morale: 3.0)]
+        )
+        let carrack = try #require(world.navy.shipByKey["carrack"])
+        _ = makeFleet(&world, name: "Strait Blockade", owner: por, sea: alboran, ships: [(carrack, 3)])
+
+        // Neither shore controlled by CAS -> hostile fleet blocks path across Gibraltar-Ceuta.
+        #expect(!ArmySystem.canCrossStrait(world, from: gibraltar, to: ceuta, for: cas))
+        #expect(ArmySystem.findPath(world, from: gibraltar, to: ceuta, army: army).isEmpty)
+
+        // If CAS controls both shores (Gibraltar and Ceuta), army MAY cross despite hostile fleet!
+        world.provinces.occupiedBy[gibraltar.index] = cas
+        world.provinces.occupiedBy[ceuta.index] = cas
+        #expect(ArmySystem.canCrossStrait(world, from: gibraltar, to: ceuta, for: cas))
+        #expect(ArmySystem.findPath(world, from: gibraltar, to: ceuta, army: army) == [ceuta])
+    }
+}
