@@ -3,6 +3,7 @@ extends Control
 var main_view: Control = null
 
 var armies_window_panel: PanelContainer
+var armies_window_arms: TextureRect
 var armies_window_box: VBoxContainer
 
 var selected_army_panel: PanelContainer
@@ -64,7 +65,13 @@ func _build_armies_window_panel() -> void:
 	armies_window_panel.add_child(outer)
 
 	var header := HBoxContainer.new()
+	header.add_theme_constant_override("separation", 8)
 	outer.add_child(header)
+	armies_window_arms = TextureRect.new()
+	armies_window_arms.custom_minimum_size = Vector2(26.0, 20.0)
+	armies_window_arms.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	armies_window_arms.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	header.add_child(armies_window_arms)
 	var title := _make_label("Armies", Color(0.97, 0.90, 0.68), 18)
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	header.add_child(title)
@@ -366,6 +373,14 @@ func refresh_armies_window() -> void:
 	if not bool(d.get("valid", false)):
 		armies_window_box.add_child(_make_label("No active player country.", Color(0.80, 0.75, 0.66), 13))
 		return
+	if armies_window_arms != null and main_view != null and main_view.has_method("_get_country_arms_texture"):
+		armies_window_arms.texture = main_view.call(
+			"_get_country_arms_texture",
+			str(d.get("playerTag", "")),
+			int(d.get("playerColorR", 180)),
+			int(d.get("playerColorG", 140)),
+			int(d.get("playerColorB", 80))
+		)
 
 	# 1. National manpower & force totals
 	_add_kv_row(armies_window_box, "National manpower", str(d.get("manpowerText", "0 / 0")), Color(0.98, 0.92, 0.72))

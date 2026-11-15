@@ -960,4 +960,39 @@ struct GezGodotTests {
         #expect(controller.respondToPendingPeaceOffer(warID: "fake-offer-1", accept: false))
         #expect(!controller.respondToPendingPeaceOffer(warID: "missing-offer", accept: false))
     }
+
+    @Test("Map town icons expose coordinates, dev, forts, capitals, ports, and revision tracking")
+    func townIconsAndHeraldryMetadata() {
+        let controller = GezGodotController()
+        #expect(controller.setup(dataDirectoryPath: "", tag: "TUR"))
+        let rev0 = controller.townIconsRevision
+        #expect(rev0 >= 1)
+
+        let metrics = controller.townIconMetrics()
+        #expect(!metrics.isEmpty)
+        #expect(metrics.count % 6 == 0)
+
+        let count = metrics.count / 6
+        var hasCapital = false
+        var hasPort = false
+        var hasFort = false
+        for i in 0..<count {
+            let base = i * 6
+            let dev = metrics[base + 2]
+            let fort = metrics[base + 3]
+            let isCap = metrics[base + 4] >= 0.5
+            let isPort = metrics[base + 5] >= 0.5
+            #expect(dev >= 1.0)
+            if isCap { hasCapital = true }
+            if isPort { hasPort = true }
+            if fort >= 2.0 { hasFort = true }
+        }
+        #expect(hasCapital)
+        #expect(hasPort)
+        #expect(hasFort)
+
+        let armiesWin = controller.armiesWindowDetails()
+        #expect(armiesWin["playerTag"] as? String == "TUR")
+        #expect(armiesWin["playerColorR"] as? Int != nil)
+    }
 }

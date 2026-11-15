@@ -533,15 +533,19 @@ func _refresh_policy(d: Dictionary) -> void:
 			erow.add_theme_constant_override("separation", 6)
 			policy_box.add_child(erow)
 
-			var swatch := ColorRect.new()
-			swatch.custom_minimum_size = Vector2(10.0, 10.0)
-			swatch.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-			swatch.color = Color(
-				float(ed.get("colorR", 180)) / 255.0,
-				float(ed.get("colorG", 180)) / 255.0,
-				float(ed.get("colorB", 180)) / 255.0
-			)
-			erow.add_child(swatch)
+			var arms := TextureRect.new()
+			arms.custom_minimum_size = Vector2(20.0, 15.0)
+			arms.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+			arms.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			if main_view != null and main_view.has_method("_get_country_arms_texture"):
+				arms.texture = main_view.call(
+					"_get_country_arms_texture",
+					str(ed.get("tag", "")),
+					int(ed.get("colorR", 180)),
+					int(ed.get("colorG", 140)),
+					int(ed.get("colorB", 80))
+				)
+			erow.add_child(arms)
 
 			var nl := _make_label(str(ed.get("name", "")), Color(0.95, 0.92, 0.84), 12)
 			nl.size_flags_horizontal = Control.SIZE_EXPAND_FILL

@@ -1,6 +1,7 @@
 extends Control
 
 const MapShader := preload("res://shaders/map.gdshader")
+const IconsLayerScript := preload("res://scripts/MapIconsLayer.gd")
 const LabelsLayerScript := preload("res://scripts/MapLabelsLayer.gd")
 const ArmiesLayerScript := preload("res://scripts/MapArmiesLayer.gd")
 const RoutesLayerScript := preload("res://scripts/MapRoutesLayer.gd")
@@ -17,7 +18,9 @@ var warned_missing_methods: Dictionary = {}
 
 var map_rect: ColorRect
 var map_material: ShaderMaterial
+var icons_layer: Control
 var labels_layer: Control
+var last_town_icons_rev: int = -1
 var armies_layer: Control
 var routes_layer: Control
 var army_ui: Control
@@ -111,6 +114,7 @@ var cached_all_countries: Array = []
 
 # Heraldry cache (tag -> Texture2D)
 var arms_cache: Dictionary = {}
+var arms_icon_cache: Dictionary = {}
 
 # Map dimensions & GPU textures
 var map_size := Vector2(3936.0, 2384.0)
@@ -160,6 +164,14 @@ func _build_scene_ui() -> void:
 	map_material.shader = MapShader
 	map_rect.material = map_material
 	add_child(map_rect)
+
+	# 1b. Town icons layer (towns, capitals, forts, ports — redrawn only on camera or icon change)
+	icons_layer = Control.new()
+	icons_layer.name = "MapIconsLayer"
+	icons_layer.set_script(IconsLayerScript)
+	icons_layer.set_anchors_preset(Control.PRESET_FULL_RECT)
+	icons_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(icons_layer)
 
 	# 2. Country / Sea / Province labels overlay
 	labels_layer = Control.new()
@@ -958,6 +970,21 @@ func _get_country_arms_texture(tag: String, r: int = 180, g: int = 140, b: int =
 	arms_cache[cache_key] = fallback_tex
 	return fallback_tex
 
+func _get_country_arms_icon(tag: String, r: int = 180, g: int = 140, b: int = 80) -> Texture2D:
+	var cache_key := tag if not tag.is_empty() else ("rgb_%d_%d_%d" % [r, g, b])
+	if arms_icon_cache.has(cache_key):
+		return arms_icon_cache[cache_key]
+	var full_tex := _get_country_arms_texture(tag, r, g, b)
+	var img := full_tex.get_image()
+	if img != null and not img.is_empty():
+		var scaled := img.duplicate()
+		scaled.resize(22, 16, Image.INTERPOLATE_BILINEAR)
+		var icon_tex := ImageTexture.create_from_image(scaled)
+		arms_icon_cache[cache_key] = icon_tex
+		return icon_tex
+	arms_icon_cache[cache_key] = full_tex
+	return full_tex
+
 func _init_bridge_and_map() -> void:
 	if not ClassDB.class_exists(&"GezGodotBridge"):
 		selection_label.text = "ERROR: GezGodotBridge GDExtension not loaded. Run ./build_mac.sh first."
@@ -1003,9 +1030,20 @@ func _init_bridge_and_map() -> void:
 		map_material.set_shader_parameter("terrain_tex", terrain_tex)
 
 	_refresh_all_labels()
+	_refresh_town_icons()
 	_populate_autosave_options()
 	_refresh_top_bar()
 	_refresh_armies()
+
+func _refresh_town_icons() -> void:
+	if bridge == null or icons_layer == null:
+		return
+	var rev: int = int(_call_bridge("getTownIconsRevision", [], -1))
+	if rev == last_town_icons_rev and rev >= 0:
+		return
+	last_town_icons_rev = rev
+	var packed: PackedFloat32Array = _call_bridge("getTownIconsData", [], PackedFloat32Array())
+	icons_layer.call("set_icons_data", packed, rev)
 
 func _refresh_all_labels() -> void:
 	if bridge == null:
@@ -1078,6 +1116,8 @@ func _process(delta: float) -> void:
 				diplomacy_ui.call("refresh_if_open")
 		if (mask & 4) != 0:
 			_refresh_styles_and_country_labels()
+		if (mask & 6) != 0:
+			_refresh_town_icons()
 		if (mask & 8) != 0 and game_menu_panel.visible:
 			_refresh_game_menu()
 
@@ -1281,6 +1321,7 @@ func _after_world_replaced() -> void:
 	_close_top_left_windows()
 	_refresh_all_labels()
 	_refresh_styles_and_country_labels()
+	_refresh_town_icons()
 	_refresh_top_bar()
 	_refresh_play_as_button()
 	_refresh_armies()
@@ -1333,8 +1374,12 @@ func _open_nation_picker() -> void:
 			continue
 		var tag: String = str(item.get("tag", ""))
 		var cname: String = str(item.get("name", tag))
+		var cr: int = int(item.get("colorR", 180))
+		var cg: int = int(item.get("colorG", 140))
+		var cb: int = int(item.get("colorB", 80))
 		var btn := Button.new()
 		btn.text = cname
+		btn.icon = _get_country_arms_icon(tag, cr, cg, cb)
 		var t := tag
 		btn.pressed.connect(func() -> void: _select_picker_country(t, true))
 		picker_featured_flow.add_child(btn)
@@ -1355,8 +1400,12 @@ func _refresh_picker_country_list() -> void:
 			continue
 		var provs: int = int(item.get("provinces", 0))
 		var dev: int = int(item.get("development", 0))
+		var cr: int = int(item.get("colorR", 180))
+		var cg: int = int(item.get("colorG", 140))
+		var cb: int = int(item.get("colorB", 80))
 		var btn := Button.new()
 		btn.text = "%s (%s) — %d prov, %d dev" % [cname, tag, provs, dev]
+		btn.icon = _get_country_arms_icon(tag, cr, cg, cb)
 		btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		if tag == selected_picker_tag:
@@ -1454,7 +1503,8 @@ func _refresh_province_panel() -> void:
 	var cr: int = int(d.get("ownerColorR", 196))
 	var cg: int = int(d.get("ownerColorG", 182))
 	var cb: int = int(d.get("ownerColorB", 150))
-	prov_owner_arms.texture = _get_country_arms_texture(owner_tag, cr, cg, cb)
+	prov_owner_arms.visible = not owner_tag.is_empty()
+	prov_owner_arms.texture = _get_country_arms_texture(owner_tag, cr, cg, cb) if prov_owner_arms.visible else null
 	prov_owner_label.text = owner_name
 	prov_owner_index = int(d.get("ownerIndex", -1))
 	if prov_diplomacy_btn != null:
@@ -2003,6 +2053,8 @@ func _sync_camera_uniforms() -> void:
 	var default_tint := clampf(0.72 - 0.2 * zoom, 0.38, 0.66)
 	var tint: float = float(_call_bridge("getTintForZoom", [zoom], default_tint))
 	map_material.set_shader_parameter("tint", tint)
+	if icons_layer != null:
+		icons_layer.call("update_camera", zoom, offset)
 	if labels_layer != null:
 		labels_layer.call("update_camera", zoom, offset)
 	if armies_layer != null:
@@ -2379,6 +2431,7 @@ func _focus_and_select_province(prov_idx: int) -> void:
 func _after_diplomacy_action(refresh_map: bool = false) -> void:
 	if refresh_map:
 		_refresh_styles_and_country_labels()
+		_refresh_town_icons()
 	_refresh_top_bar()
 	if diplomacy_ui != null:
 		diplomacy_ui.call("refresh_if_open")

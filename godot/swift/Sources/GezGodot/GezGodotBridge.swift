@@ -11,6 +11,7 @@ public final class GezGodotController {
 
     public private(set) var session: GameSession?
     public var mapMode: MapModeKind = .political
+    public private(set) var townIconsRevision: Int = 0
 
     public init() {}
 
@@ -23,9 +24,19 @@ public final class GezGodotController {
             let s = try GameSession(tag: tag)
             s.autosaveFrequency = .never
             self.session = s
+            townIconsRevision &+= 1
             return true
         } catch {
             return false
+        }
+    }
+
+    private func refreshTownIconsIfChanged() {
+        guard let s = session else { return }
+        let before = s.townIcons
+        s.rebuildTownIcons()
+        if s.townIcons != before {
+            townIconsRevision &+= 1
         }
     }
 
@@ -233,6 +244,9 @@ public final class GezGodotController {
             s.rebuildLabels()
             mask |= 4
         }
+        if (mask & 6) != 0 {
+            refreshTownIconsIfChanged()
+        }
         if outcome.didAutosave { mask |= 8 }
         return mask
     }
@@ -306,7 +320,11 @@ public final class GezGodotController {
             s.refreshSavedGames()
         }
         guard index >= 0 && index < s.savedGames.count else { return false }
-        return s.loadGame(s.savedGames[index])
+        let ok = s.loadGame(s.savedGames[index])
+        if ok {
+            townIconsRevision &+= 1
+        }
+        return ok
     }
 
     @discardableResult
@@ -411,6 +429,7 @@ public final class GezGodotController {
         let normalized = tag.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
         guard s.world.countries.id(forTag: normalized) != nil else { return false }
         s.startNewGame(tag: normalized)
+        townIconsRevision &+= 1
         return true
     }
 
@@ -1473,8 +1492,14 @@ public final class GezGodotController {
             recruitUnits = Self.buildRecruitUnitsList(world: w, country: player, province: p)
         }
 
+        let playerRGB = Self.countryRGB(w, player)
         return [
             "valid": true,
+            "playerTag": w.countries.tag[player.index],
+            "playerName": w.countries.name[player.index],
+            "playerColorR": Int(playerRGB.r),
+            "playerColorG": Int(playerRGB.g),
+            "playerColorB": Int(playerRGB.b),
             "manpower": mp,
             "maxManpower": maxMP,
             "monthlyManpowerGain": gain,
@@ -3613,6 +3638,7 @@ public final class GezGodotController {
         let res = s.proposePeace(offer)
         switch res {
         case .success(let totalCost):
+            townIconsRevision &+= 1
             return ["ok": true, "error": "", "totalCost": totalCost]
         case .failure(let err):
             let msg: String
@@ -3634,6 +3660,9 @@ public final class GezGodotController {
             return false
         }
         s.respondToPendingPeaceOffer(offer, accept: accept)
+        if accept {
+            townIconsRevision &+= 1
+        }
         return true
     }
 
@@ -3823,6 +3852,26 @@ public final class GezGodotController {
         return packLabels(s.seaLabels)
     }
 
+    // MARK: - Step 3f: Map Town Icons (Development, Capitals, Forts, Ports)
+
+    /// Packs `TownIconInfo` entries as stride-6 floats:
+    /// `[x, y, development, fortLevel, isCapital (0/1), isPort (0/1), ...]`.
+    public func townIconMetrics() -> [Float] {
+        guard let s = session else { return [] }
+        let icons = s.townIcons
+        var out: [Float] = []
+        out.reserveCapacity(icons.count * 6)
+        for icon in icons {
+            out.append(Float(icon.x))
+            out.append(Float(icon.y))
+            out.append(Float(icon.development))
+            out.append(Float(icon.fortLevel))
+            out.append(icon.isCapital ? 1.0 : 0.0)
+            out.append(icon.isPort ? 1.0 : 0.0)
+        }
+        return out
+    }
+
     private func packLabels(_ labels: [MapLabelInfo]) -> (texts: [String], metrics: [Float]) {
         var texts: [String] = []
         var metrics: [Float] = []
@@ -3974,6 +4023,16 @@ public final class GezGodotBridge: RefCounted {
     @Callable
     public func getSeaLabelMetrics() -> PackedFloat32Array {
         PackedFloat32Array(controller.seaLabelData().metrics)
+    }
+
+    @Callable
+    public func getTownIconsRevision() -> Int {
+        controller.townIconsRevision
+    }
+
+    @Callable
+    public func getTownIconsData() -> PackedFloat32Array {
+        PackedFloat32Array(controller.townIconMetrics())
     }
 
     // MARK: - Step 3a: Map Modes

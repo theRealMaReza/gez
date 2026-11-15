@@ -148,7 +148,14 @@ func refresh() -> void:
 		var item: Dictionary = item_v
 		var c_idx: int = int(item.get("index", -1))
 		country_indices.append(c_idx)
-		country_picker.add_item(str(item.get("displayName", "")))
+		var icon_tex: Texture2D = main.call(
+			"_get_country_arms_icon",
+			str(item.get("tag", "")),
+			int(item.get("colorR", 196)),
+			int(item.get("colorG", 182)),
+			int(item.get("colorB", 150))
+		)
+		country_picker.add_icon_item(icon_tex, str(item.get("displayName", "")))
 		if c_idx == resolved_idx:
 			picker_select = country_indices.size() - 1
 	if picker_select >= 0:
