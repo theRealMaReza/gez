@@ -9,6 +9,8 @@ const BudgetPanelScript := preload("res://scripts/BudgetPanel.gd")
 const TradePanelScript := preload("res://scripts/TradePanel.gd")
 const CourtPanelScript := preload("res://scripts/CourtPanel.gd")
 const GovernmentPanelScript := preload("res://scripts/GovernmentPanel.gd")
+const DiplomacyPanelScript := preload("res://scripts/DiplomacyPanel.gd")
+const WarsPanelScript := preload("res://scripts/WarsPanel.gd")
 
 var bridge: RefCounted = null
 var warned_missing_methods: Dictionary = {}
@@ -23,6 +25,8 @@ var budget_ui: Control
 var trade_ui: Control
 var court_ui: Control
 var gov_ui: Control
+var diplomacy_ui: Control
+var wars_ui: Control
 
 # Top bar widgets
 var top_country_btn: Button
@@ -32,7 +36,11 @@ var treasury_btn: Button
 var trade_btn: Button
 var court_btn: Button
 var stability_btn: Button
+var diplomacy_btn: Button
+var wars_btn: Button
 var armies_btn: Button
+var alerts_scroll: ScrollContainer
+var alerts_hbox: HBoxContainer
 var date_label: Label
 var selection_label: Label
 var fps_label: Label
@@ -51,6 +59,8 @@ var prov_title_label: Label
 var prov_subtitle_label: Label
 var prov_owner_arms: TextureRect
 var prov_owner_label: Label
+var prov_diplomacy_btn: Button
+var prov_owner_index: int = -1
 var prov_capital_label: Label
 var prov_occupied_label: Label
 var prov_status_label: Label
@@ -176,8 +186,9 @@ func _build_scene_ui() -> void:
 	routes_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(routes_layer)
 
-	# 3. Top bar panel
+	# 3. Top bar panel & alerts row
 	_build_top_bar()
+	_build_alerts_bar()
 
 	# 4. Map mode bar (top-right, below top bar)
 	_build_map_mode_bar()
@@ -231,6 +242,19 @@ func _build_scene_ui() -> void:
 	gov_ui.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(gov_ui)
 	gov_ui.call("setup", self)
+
+	# 6e. Diplomacy & Wars/Peace windows
+	diplomacy_ui = PanelContainer.new()
+	diplomacy_ui.name = "DiplomacyUI"
+	diplomacy_ui.set_script(DiplomacyPanelScript)
+	add_child(diplomacy_ui)
+	diplomacy_ui.call("setup", self)
+
+	wars_ui = Control.new()
+	wars_ui.name = "WarsUI"
+	wars_ui.set_script(WarsPanelScript)
+	add_child(wars_ui)
+	wars_ui.call("setup", self)
 
 	# 7. Market panel (bottom-right, left of zoom buttons)
 	_build_market_panel()
@@ -323,6 +347,23 @@ func _build_top_bar() -> void:
 	stability_btn.tooltip_text = "Government: stability, estates, laws & reforms"
 	stability_btn.pressed.connect(_toggle_government_window)
 	hbox.add_child(stability_btn)
+
+	hbox.add_child(_make_separator())
+
+	diplomacy_btn = Button.new()
+	diplomacy_btn.text = "Diplomacy"
+	diplomacy_btn.custom_minimum_size = Vector2(82.0, 30.0)
+	diplomacy_btn.tooltip_text = "Diplomacy, treaties, coalitions & war declarations"
+	diplomacy_btn.pressed.connect(_toggle_diplomacy_window)
+	hbox.add_child(diplomacy_btn)
+
+	wars_btn = Button.new()
+	wars_btn.text = "Wars"
+	wars_btn.visible = false
+	wars_btn.custom_minimum_size = Vector2(72.0, 30.0)
+	wars_btn.tooltip_text = "Active wars, war score, allies & peace negotiations"
+	wars_btn.pressed.connect(_toggle_wars_window)
+	hbox.add_child(wars_btn)
 
 	hbox.add_child(_make_separator())
 
@@ -492,6 +533,15 @@ func _build_province_panel() -> void:
 	prov_owner_label = _make_label("Owner", Color(0.95, 0.92, 0.85), 14)
 	prov_owner_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	owner_row.add_child(prov_owner_label)
+	prov_diplomacy_btn = Button.new()
+	prov_diplomacy_btn.text = "Diplomacy"
+	prov_diplomacy_btn.visible = false
+	prov_diplomacy_btn.tooltip_text = "Open Diplomacy with this country"
+	prov_diplomacy_btn.pressed.connect(func() -> void:
+		if prov_owner_index >= 0:
+			_open_diplomacy_with(prov_owner_index)
+	)
+	owner_row.add_child(prov_diplomacy_btn)
 	prov_capital_label = _make_label("★ Capital", Color(0.98, 0.84, 0.32), 12)
 	owner_row.add_child(prov_capital_label)
 
@@ -1006,6 +1056,8 @@ func _process(delta: float) -> void:
 			_refresh_armies()
 			if province_panel.visible and current_prov_tab == "overview":
 				_refresh_province_panel()
+			if wars_ui != null:
+				wars_ui.call("refresh_if_open")
 		if (mask & 2) != 0:
 			# Monthly tick updated economy, constructions, populations, or markets
 			if province_panel.visible:
@@ -1022,6 +1074,8 @@ func _process(delta: float) -> void:
 				court_ui.call("refresh_if_open")
 			if gov_ui != null:
 				gov_ui.call("refresh_if_open")
+			if diplomacy_ui != null:
+				diplomacy_ui.call("refresh_if_open")
 		if (mask & 4) != 0:
 			_refresh_styles_and_country_labels()
 		if (mask & 8) != 0 and game_menu_panel.visible:
@@ -1062,6 +1116,16 @@ func _refresh_top_bar() -> void:
 		var stab: int = int(top.get("stability", 0))
 		stability_btn.text = str(top.get("stabilityText", "Stability +0"))
 		stability_btn.modulate = Color(0.98, 0.55, 0.50) if stab < 0 else Color(0.95, 0.92, 0.85)
+	if wars_btn != null:
+		var wars_cnt: int = int(top.get("activeWarsCount", 0))
+		var pending_cnt: int = int(top.get("pendingPeaceOffersCount", 0))
+		wars_btn.visible = (wars_cnt > 0) or (pending_cnt > 0)
+		if pending_cnt > 0:
+			wars_btn.text = "Wars (%d) · %d Offer" % [wars_cnt, pending_cnt]
+			wars_btn.modulate = Color(1.0, 0.62, 0.35)
+		else:
+			wars_btn.text = "Wars (%d)" % wars_cnt
+			wars_btn.modulate = Color(1.0, 0.68, 0.65)
 	if armies_btn != null:
 		armies_btn.text = str(top.get("armiesText", _call_bridge("getTopBarArmiesText", [], "Armies 0 · MP 0")))
 	date_label.text = str(_call_bridge("getDateText", [], "30 May 1453"))
@@ -1073,6 +1137,7 @@ func _refresh_top_bar() -> void:
 	for i in range(speed_buttons.size()):
 		var active := (not paused) and (spd == i + 1)
 		speed_buttons[i].modulate = Color(1.0, 0.88, 0.40) if active else Color(0.85, 0.85, 0.85)
+	_refresh_alerts_bar()
 
 # MARK: - Map Modes (Q to I)
 
@@ -1391,6 +1456,9 @@ func _refresh_province_panel() -> void:
 	var cb: int = int(d.get("ownerColorB", 150))
 	prov_owner_arms.texture = _get_country_arms_texture(owner_tag, cr, cg, cb)
 	prov_owner_label.text = owner_name
+	prov_owner_index = int(d.get("ownerIndex", -1))
+	if prov_diplomacy_btn != null:
+		prov_diplomacy_btn.visible = bool(d.get("isForeignOwner", false)) and prov_owner_index >= 0
 	prov_capital_label.visible = bool(d.get("isCapital", false))
 
 	var occ: String = str(d.get("occupiedByName", ""))
@@ -2153,6 +2221,10 @@ func _close_top_left_windows(except_key: String = "") -> void:
 		court_ui.call("close_window")
 	if except_key != "government" and gov_ui != null:
 		gov_ui.call("close_window")
+	if except_key != "diplomacy" and diplomacy_ui != null:
+		diplomacy_ui.call("close_window")
+	if except_key != "wars" and wars_ui != null:
+		wars_ui.call("close_window")
 	if except_key != "armies" and army_ui != null:
 		var aw: Variant = army_ui.get("armies_window_panel")
 		if aw is Control:
@@ -2189,6 +2261,141 @@ func _toggle_government_window() -> void:
 	if opening:
 		_close_top_left_windows("government")
 	gov_ui.call("toggle_window")
+
+func _toggle_diplomacy_window() -> void:
+	if diplomacy_ui == null:
+		return
+	var opening: bool = not bool(diplomacy_ui.call("is_open"))
+	if opening:
+		_close_top_left_windows("diplomacy")
+	diplomacy_ui.call("toggle_window")
+
+func _toggle_wars_window() -> void:
+	if wars_ui == null:
+		return
+	var opening: bool = not bool(wars_ui.call("is_open"))
+	if opening:
+		_close_top_left_windows("wars")
+	wars_ui.call("toggle_window")
+
+func _open_diplomacy_with(country_idx: int = -1) -> void:
+	if diplomacy_ui == null:
+		return
+	_close_top_left_windows("diplomacy")
+	diplomacy_ui.call("open_with_country", country_idx)
+
+func _open_wars_and_peace(war_id: String = "") -> void:
+	if wars_ui == null:
+		return
+	_close_top_left_windows("wars")
+	wars_ui.call("open_wars_window")
+	if not war_id.is_empty():
+		wars_ui.call("open_peace_for_war", war_id)
+
+func _build_alerts_bar() -> void:
+	alerts_scroll = ScrollContainer.new()
+	alerts_scroll.name = "AlertsBar"
+	alerts_scroll.position = Vector2(12.0, 52.0)
+	alerts_scroll.custom_minimum_size = Vector2(820.0, 34.0)
+	alerts_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	alerts_scroll.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	alerts_scroll.visible = false
+	add_child(alerts_scroll)
+
+	alerts_hbox = HBoxContainer.new()
+	alerts_hbox.add_theme_constant_override("separation", 6)
+	alerts_scroll.add_child(alerts_hbox)
+
+func _refresh_alerts_bar() -> void:
+	if alerts_scroll == null or alerts_hbox == null or bridge == null:
+		return
+	_clear_children(alerts_hbox)
+	var alerts: Array = _call_bridge("getActiveAlerts", [], [])
+	if alerts.is_empty():
+		alerts_scroll.visible = false
+		return
+	alerts_scroll.visible = true
+	for a_v in alerts:
+		if not (a_v is Dictionary):
+			continue
+		var a: Dictionary = a_v
+		var kind: String = str(a.get("kind", ""))
+		var btn := Button.new()
+		btn.text = str(a.get("label", "Alert"))
+		match kind:
+			"peaceOffer":
+				btn.modulate = Color(1.0, 0.65, 0.35)
+			"underSiege", "coalition", "bankrupt":
+				btn.modulate = Color(1.0, 0.45, 0.42)
+			"breach", "disloyalEstate":
+				btn.modulate = Color(1.0, 0.72, 0.38)
+			_:
+				btn.modulate = Color(0.92, 0.80, 0.56)
+		var alert_copy := a.duplicate()
+		btn.pressed.connect(func() -> void:
+			_on_alert_pressed(alert_copy)
+		)
+		alerts_hbox.add_child(btn)
+
+func _on_alert_pressed(alert: Dictionary) -> void:
+	var kind: String = str(alert.get("kind", ""))
+	var p_idx: int = int(alert.get("provinceIndex", -1))
+	var war_id: String = str(alert.get("warID", ""))
+	match kind:
+		"peaceOffer":
+			_open_wars_and_peace(war_id)
+		"breach", "underSiege":
+			if p_idx >= 0:
+				_focus_and_select_province(p_idx)
+		"coalition":
+			_open_diplomacy_with(-1)
+		"lowStability", "disloyalEstate":
+			_close_top_left_windows("government")
+			if gov_ui != null:
+				gov_ui.call("open_window")
+		"refusingVassal":
+			_close_top_left_windows("court")
+			if court_ui != null:
+				court_ui.call("open_window")
+		"bankrupt", "highInflation":
+			_close_top_left_windows("budget")
+			if budget_ui != null:
+				budget_ui.call("open_window")
+
+func _focus_and_select_province(prov_idx: int) -> void:
+	if prov_idx < 0:
+		return
+	_select_province_by_index(prov_idx)
+	var fp_var: Variant = _call_bridge("getProvinceFocusPoint", [prov_idx], {})
+	var fp: Dictionary = fp_var if fp_var is Dictionary else {}
+	if bool(fp.get("hasCenter", false)) and zoom > 0.0:
+		var fx: float = float(fp.get("x", 0.0))
+		var fy: float = float(fp.get("y", 0.0))
+		var x: float = size.x * 0.5 - fx * zoom
+		var y: float = size.y * 0.5 - fy * zoom
+		offset = _clamped_offset(Vector2(x, y), zoom)
+		_sync_camera_uniforms()
+
+func _after_diplomacy_action(refresh_map: bool = false) -> void:
+	if refresh_map:
+		_refresh_styles_and_country_labels()
+	_refresh_top_bar()
+	if diplomacy_ui != null:
+		diplomacy_ui.call("refresh_if_open")
+	if wars_ui != null:
+		wars_ui.call("refresh_if_open")
+	if gov_ui != null:
+		gov_ui.call("refresh_if_open")
+	if court_ui != null:
+		court_ui.call("refresh_if_open")
+	if budget_ui != null:
+		budget_ui.call("refresh_if_open")
+	if trade_ui != null:
+		trade_ui.call("refresh_if_open")
+	if province_panel.visible:
+		_refresh_province_panel()
+	if army_ui != null:
+		_refresh_armies()
 
 func _toggle_armies_window() -> void:
 	if army_ui == null:

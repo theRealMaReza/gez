@@ -856,4 +856,108 @@ struct GezGodotTests {
             #expect(!adopted.isEmpty)
         }
     }
+
+    @Test("Diplomacy, War, Peace Negotiation, Pending Peace Offers, and Alerts bridge methods & bounds checks")
+    func diplomacyWarsPeaceAndAlertsBridge() {
+        let controller = GezGodotController()
+        #expect(controller.setup(dataDirectoryPath: "", tag: "TUR"))
+        guard let s = controller.session, let player = s.playerCountry else {
+            Issue.record("Missing session or player")
+            return
+        }
+
+        // Out-of-bounds checks
+        #expect(!controller.setSelectedDiplomacyCountry(-1))
+        #expect(!controller.setSelectedDiplomacyCountry(999_999))
+        #expect(!controller.setSelectedDiplomacyCountry(player.index))
+        #expect(!controller.toggleAlliance(countryIndex: 999_999))
+        #expect(!controller.toggleGuarantee(countryIndex: 999_999))
+        #expect(!controller.toggleNonAggression(countryIndex: 999_999))
+        #expect(!controller.toggleMilitaryAccess(countryIndex: 999_999))
+        #expect(!controller.improveRelations(countryIndex: 999_999))
+        #expect(controller.provinceFocusPoint(provinceIndex: -1)["hasCenter"] as? Bool == false)
+        #expect(controller.provinceFocusPoint(provinceIndex: 999_999)["hasCenter"] as? Bool == false)
+        #expect((controller.declareWar(targetCountryIndex: 999_999, cbIndex: 0)["ok"] as? Bool) == false)
+
+        // Diplomacy details & actions
+        let dip = controller.diplomacyDetails()
+        #expect(dip["hasPlayer"] as? Bool == true)
+        #expect((dip["relationSlotsCap"] as? Int ?? 0) > 0)
+        let countries = dip["countries"] as? [[String: Any]] ?? []
+        #expect(!countries.isEmpty)
+
+        // Pick a neighbor NOT at war yet with positive or boostable opinion
+        let nonWarCountry = countries.first {
+            ($0["isAtWar"] as? Bool == false)
+        }
+        guard let targetIdx = nonWarCountry?["index"] as? Int else {
+            Issue.record("Expected at least one peaceful foreign country")
+            return
+        }
+        #expect(controller.setSelectedDiplomacyCountry(targetIdx))
+        let targetDip = controller.diplomacyDetails(targetCountryIndex: targetIdx)
+        let targetInfo = targetDip["target"] as? [String: Any] ?? [:]
+        #expect(targetInfo["hasTarget"] as? Bool == true)
+        #expect(!(targetInfo["casusBelli"] as? [[String: Any]] ?? []).isEmpty)
+
+        // Improve relations, toggle guarantee/access/NAP/alliance
+        s.simulation.world.diplomacy.setOpinion(of: player, by: CountryID(targetIdx), value: 10)
+        #expect(controller.improveRelations(countryIndex: targetIdx))
+        let afterImprove = (controller.diplomacyDetails(targetCountryIndex: targetIdx)["target"] as? [String: Any])?["opinion"] as? Int ?? 0
+        #expect(afterImprove == 25)
+
+        #expect(controller.toggleAlliance(countryIndex: targetIdx))
+        #expect(((controller.diplomacyDetails(targetCountryIndex: targetIdx)["target"] as? [String: Any])?["isAllied"] as? Bool) == true)
+        #expect(controller.toggleAlliance(countryIndex: targetIdx))
+        #expect(controller.toggleGuarantee(countryIndex: targetIdx))
+        #expect(controller.toggleGuarantee(countryIndex: targetIdx))
+        #expect(controller.toggleNonAggression(countryIndex: targetIdx))
+        #expect(controller.toggleNonAggression(countryIndex: targetIdx))
+        #expect(controller.toggleMilitaryAccess(countryIndex: targetIdx))
+        #expect(controller.toggleMilitaryAccess(countryIndex: targetIdx))
+
+        // Declare war on a fresh country with no truce (remove truce if present to make deterministic)
+        s.simulation.world.diplomacy.removeTreaty(.truce, between: player, and: CountryID(targetIdx))
+        let warRes = controller.declareWar(targetCountryIndex: targetIdx, cbIndex: 0, breakTruce: true)
+        #expect(warRes["ok"] as? Bool == true)
+        let warID = warRes["warID"] as? String ?? ""
+        #expect(!warID.isEmpty)
+
+        // Top bar & Wars details
+        let top = controller.playerTopBarDetails()
+        #expect((top["activeWarsCount"] as? Int ?? 0) >= 1)
+
+        // Occupy one province of target so occupiedProvinces & peace negotiation work cleanly
+        if let enemyProv = s.world.provinces(ownedBy: CountryID(targetIdx)).first {
+            s.simulation.world.provinces.occupiedBy[enemyProv.index] = player
+            #expect(controller.provinceFocusPoint(provinceIndex: enemyProv.index)["hasCenter"] as? Bool == true)
+        }
+
+        let wars = controller.warsDetails(includeAIWars: false)["wars"] as? [[String: Any]] ?? []
+        #expect(wars.contains { ($0["warID"] as? String) == warID })
+
+        // Peace negotiation details
+        let peace = controller.peaceNegotiationDetails(warID: warID, indemnityAmount: 50, includeReparations: true)
+        #expect(peace["valid"] as? Bool == true)
+        #expect((peace["totalCost"] as? Int ?? 0) > 0)
+        #expect((peace["cedeProvinces"] as? [[String: Any]] ?? []).isEmpty == false)
+
+        // White peace at 100% battle WS to verify proposePeaceOffer succeeds
+        if let idx = s.simulation.world.diplomacy.wars.firstIndex(where: { $0.id == warID }) {
+            s.simulation.world.diplomacy.wars[idx].warScore = 1.0
+        }
+        let propRes = controller.proposePeaceOffer(warID: warID)
+        #expect(propRes["ok"] as? Bool == true)
+        #expect(s.world.diplomacy.wars.contains { $0.id == warID } == false)
+
+        // Pending peace offer & activeAlerts
+        let fakeOffer = PeaceOffer(warID: "fake-offer-1", winner: CountryID(targetIdx), loser: player, demands: [])
+        s.simulation.world.diplomacy.pendingPeaceOffers.append(fakeOffer)
+        s.simulation.world.government.stability[player.index] = -2
+        let alerts = controller.activeAlerts()
+        #expect(alerts.contains { ($0["kind"] as? String) == "peaceOffer" })
+        #expect(alerts.contains { ($0["kind"] as? String) == "lowStability" })
+        #expect(controller.respondToPendingPeaceOffer(warID: "fake-offer-1", accept: false))
+        #expect(!controller.respondToPendingPeaceOffer(warID: "missing-offer", accept: false))
+    }
 }

@@ -135,7 +135,9 @@ public final class GezGodotController {
 
     public func playerTopBarDetails() -> [String: Any] {
         let rgb = playerColor
+        let status = session?.playerTopBarStatus()
         return [
+            "playerCountryIndex": session?.playerCountry?.index ?? -1,
             "name": countryName,
             "tag": countryTag,
             "colorR": Int(rgb.r),
@@ -144,7 +146,9 @@ public final class GezGodotController {
             "ducatsText": ducatsText,
             "armiesText": topBarArmiesText,
             "stability": playerStability,
-            "stabilityText": topBarStabilityText
+            "stabilityText": topBarStabilityText,
+            "activeWarsCount": status?.activeWars ?? 0,
+            "pendingPeaceOffersCount": status?.pendingPeaceOffers ?? 0
         ]
     }
 
@@ -807,6 +811,8 @@ public final class GezGodotController {
             "subtitle": "\(w.stateName(of: province)) · \(w.regionName(of: province))",
             "ownerTag": ownerTag,
             "ownerName": ownerName,
+            "ownerIndex": owner?.index ?? -1,
+            "isForeignOwner": (owner != nil && !isPlayerOwned),
             "ownerColorR": Int(ownerRGB.r),
             "ownerColorG": Int(ownerRGB.g),
             "ownerColorB": Int(ownerRGB.b),
@@ -3034,6 +3040,718 @@ public final class GezGodotController {
         return parts.joined(separator: "; ")
     }
 
+    // MARK: - Step 3d2: Diplomacy, Wars, Peace & Alerts
+
+    public private(set) var selectedDiplomacyCountryIndex: Int = -1
+
+    public func provinceFocusPoint(provinceIndex: Int) -> [String: Any] {
+        guard let s = session,
+              provinceIndex >= 0 && provinceIndex < s.provincePositions.count else {
+            return ["hasCenter": false]
+        }
+        let pos = s.provincePositions[provinceIndex]
+        return [
+            "hasCenter": true,
+            "x": pos.x,
+            "y": pos.y
+        ]
+    }
+
+    public func activeAlerts() -> [[String: Any]] {
+        guard let s = session else { return [] }
+        return s.activeAlerts().map { info in
+            [
+                "id": info.id,
+                "kind": info.kind.rawValue,
+                "label": info.label,
+                "provinceIndex": info.province?.index ?? -1,
+                "warID": info.warID ?? ""
+            ]
+        }
+    }
+
+    @discardableResult
+    public func setSelectedDiplomacyCountry(_ countryIndex: Int) -> Bool {
+        guard let s = session, let player = s.playerCountry,
+              countryIndex >= 0 && countryIndex < s.world.countries.count,
+              countryIndex != player.index else {
+            return false
+        }
+        selectedDiplomacyCountryIndex = countryIndex
+        return true
+    }
+
+    public func diplomacyDetails(targetCountryIndex: Int = -1, searchQuery: String = "", breakTruce: Bool = false) -> [String: Any] {
+        guard let s = session, let player = s.playerCountry else {
+            return ["hasPlayer": false]
+        }
+        let w = s.world
+        let d = w.diplomacy
+        let usedSlots = d.usedRelationSlots(for: player, world: w)
+        let capSlots = d.relationSlots(for: player, world: w)
+        let coalitionSet = d.coalitions[player] ?? []
+
+        let allSovereigns = w.countries.ids
+            .filter { $0 != player && !w.provinces(ownedBy: $0).isEmpty }
+            .sorted { a, b in
+                let warA = d.isAtWar(player, a) ? 0 : 1
+                let warB = d.isAtWar(player, b) ? 0 : 1
+                if warA != warB { return warA < warB }
+                let allyA = d.areAllies(player, a) ? 0 : 1
+                let allyB = d.areAllies(player, b) ? 0 : 1
+                if allyA != allyB { return allyA < allyB }
+                return w.countries.name[a.index] < w.countries.name[b.index]
+            }
+
+        let trimmedQuery = searchQuery.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        let filteredSovereigns = allSovereigns.filter { cid in
+            trimmedQuery.isEmpty
+                || w.countries.name[cid.index].lowercased().contains(trimmedQuery)
+                || w.countries.tag[cid.index].lowercased().contains(trimmedQuery)
+        }
+
+        let countryRows: [[String: Any]] = filteredSovereigns.map { cid in
+            let rgb = Self.countryRGB(w, cid)
+            let isAtWar = d.isAtWar(player, cid)
+            let isAlly = d.areAllies(player, cid)
+            let prefix = isAtWar ? "[WAR] " : (isAlly ? "[ALLY] " : "")
+            return [
+                "index": cid.index,
+                "name": w.countries.name[cid.index],
+                "tag": w.countries.tag[cid.index],
+                "displayName": "\(prefix)\(w.countries.name[cid.index]) (\(w.countries.tag[cid.index]))",
+                "colorR": Int(rgb.r),
+                "colorG": Int(rgb.g),
+                "colorB": Int(rgb.b),
+                "isAtWar": isAtWar,
+                "isAlly": isAlly,
+                "inCoalition": coalitionSet.contains(cid),
+                "opinion": d.opinion(of: player, by: cid)
+            ]
+        }
+
+        var resolvedTarget: CountryID? = nil
+        if targetCountryIndex >= 0 && targetCountryIndex < w.countries.count && targetCountryIndex != player.index {
+            resolvedTarget = CountryID(targetCountryIndex)
+            selectedDiplomacyCountryIndex = targetCountryIndex
+        } else if selectedDiplomacyCountryIndex >= 0 && selectedDiplomacyCountryIndex < w.countries.count && selectedDiplomacyCountryIndex != player.index {
+            resolvedTarget = CountryID(selectedDiplomacyCountryIndex)
+        } else if let first = filteredSovereigns.first ?? allSovereigns.first {
+            resolvedTarget = first
+            selectedDiplomacyCountryIndex = first.index
+        } else {
+            selectedDiplomacyCountryIndex = -1
+        }
+
+        var targetInfo: [String: Any] = ["hasTarget": false]
+        if let target = resolvedTarget {
+            let ti = target.index
+            let rgb = Self.countryRGB(w, target)
+            let opinion = d.opinion(of: player, by: target)
+            let trust = d.trust(of: player, by: target)
+            let ae = Int(d.aggressiveExpansion(of: player, by: target).rounded())
+            let atWar = d.isAtWar(player, target)
+            let activeWar = d.activeWar(between: player, and: target)
+            let inCoalition = coalitionSet.contains(target)
+
+            let treaties: [[String: Any]] = d.treaties.filter { $0.involves(player, target) }.map { tr in
+                [
+                    "type": tr.type.rawValue,
+                    "label": Self.treatyLabel(tr, player: player),
+                    "expiry": tr.expiry?.description ?? ""
+                ]
+            }
+
+            let cbs = d.availableCasusBelli(attacker: player, defender: target, in: w).enumerated().map { idx, cb in
+                let costNote: String = (cb.type == .noCB) ? "Costs: -2 Stability, +20 AE" : "No stability penalty"
+                return [
+                    "index": idx,
+                    "type": cb.type.rawValue,
+                    "name": cb.name,
+                    "description": cb.description,
+                    "costNote": costNote,
+                    "warGoalLabel": Self.warGoalLabel(cb.warGoal, world: w),
+                    "targetProvinceIndex": cb.targetProvince?.index ?? -1
+                ] as [String: Any]
+            }
+
+            let validation = d.canDeclareWar(attacker: player, defender: target, breakTruce: breakTruce, world: w)
+            let validationStatus: String
+            let validationMessage: String
+            switch validation {
+            case .valid:
+                validationStatus = "valid"
+                validationMessage = ""
+            case .requiresTruceBreak(let until):
+                validationStatus = "requiresTruceBreak"
+                validationMessage = "Break active truce (expires \(until.description)): -5 Stability, +50 AE, -30 Trust"
+            case .invalid(let reason):
+                validationStatus = "invalid"
+                validationMessage = reason
+            }
+
+            targetInfo = [
+                "hasTarget": true,
+                "index": ti,
+                "name": w.countries.name[ti],
+                "tag": w.countries.tag[ti],
+                "colorR": Int(rgb.r),
+                "colorG": Int(rgb.g),
+                "colorB": Int(rgb.b),
+                "government": w.countries.government[ti].displayName,
+                "religion": w.countries.religion[ti].rawValue.capitalized,
+                "opinion": opinion,
+                "trust": trust,
+                "ae": ae,
+                "atWar": atWar,
+                "warID": activeWar?.id ?? "",
+                "inCoalition": inCoalition,
+                "treaties": treaties,
+                "isAllied": d.areAllies(player, target),
+                "isGuaranteed": d.hasTreaty(.guarantee, between: player, and: target),
+                "hasNonAggression": d.hasTreaty(.nonAggression, between: player, and: target),
+                "hasMilitaryAccess": d.hasTreaty(.militaryAccess, between: player, and: target),
+                "isEmbargoed": w.countries.embargoes[player.index].contains(target),
+                "canImproveRelations": opinion < 100,
+                "casusBelli": cbs,
+                "warValidationStatus": validationStatus,
+                "warValidationMessage": validationMessage
+            ]
+        }
+
+        let coalitionNames = coalitionSet.sorted { $0.index < $1.index }.map { w.countries.name[$0.index] }
+
+        return [
+            "hasPlayer": true,
+            "usedRelationSlots": usedSlots,
+            "relationSlotsCap": capSlots,
+            "overSlotLimit": usedSlots > capSlots,
+            "coalitionCount": coalitionSet.count,
+            "coalitionSummary": coalitionNames.joined(separator: ", "),
+            "countries": countryRows,
+            "selectedTargetIndex": resolvedTarget?.index ?? -1,
+            "target": targetInfo
+        ]
+    }
+
+    @discardableResult
+    public func toggleAlliance(countryIndex: Int) -> Bool {
+        guard let s = session, let player = s.playerCountry,
+              countryIndex >= 0 && countryIndex < s.world.countries.count,
+              countryIndex != player.index else { return false }
+        s.toggleAlliance(with: CountryID(countryIndex))
+        return true
+    }
+
+    @discardableResult
+    public func toggleGuarantee(countryIndex: Int) -> Bool {
+        guard let s = session, let player = s.playerCountry,
+              countryIndex >= 0 && countryIndex < s.world.countries.count,
+              countryIndex != player.index else { return false }
+        s.toggleGuarantee(with: CountryID(countryIndex))
+        return true
+    }
+
+    @discardableResult
+    public func toggleNonAggression(countryIndex: Int) -> Bool {
+        guard let s = session, let player = s.playerCountry,
+              countryIndex >= 0 && countryIndex < s.world.countries.count,
+              countryIndex != player.index else { return false }
+        s.toggleNonAggression(with: CountryID(countryIndex))
+        return true
+    }
+
+    @discardableResult
+    public func toggleMilitaryAccess(countryIndex: Int) -> Bool {
+        guard let s = session, let player = s.playerCountry,
+              countryIndex >= 0 && countryIndex < s.world.countries.count,
+              countryIndex != player.index else { return false }
+        s.toggleMilitaryAccess(with: CountryID(countryIndex))
+        return true
+    }
+
+    @discardableResult
+    public func improveRelations(countryIndex: Int) -> Bool {
+        guard let s = session, let player = s.playerCountry,
+              countryIndex >= 0 && countryIndex < s.world.countries.count,
+              countryIndex != player.index else { return false }
+        let before = s.world.diplomacy.opinion(of: player, by: CountryID(countryIndex))
+        s.improveRelations(with: CountryID(countryIndex))
+        let after = s.world.diplomacy.opinion(of: player, by: CountryID(countryIndex))
+        return after > before
+    }
+
+    @discardableResult
+    public func declareWar(targetCountryIndex: Int, cbIndex: Int, breakTruce: Bool = false) -> [String: Any] {
+        guard let s = session, let player = s.playerCountry else {
+            return ["ok": false, "error": "No active game.", "warID": ""]
+        }
+        let w = s.world
+        guard targetCountryIndex >= 0 && targetCountryIndex < w.countries.count,
+              targetCountryIndex != player.index else {
+            return ["ok": false, "error": "Invalid target country.", "warID": ""]
+        }
+        let target = CountryID(targetCountryIndex)
+        let cbs = w.diplomacy.availableCasusBelli(attacker: player, defender: target, in: w)
+        guard cbIndex >= 0 && cbIndex < cbs.count else {
+            return ["ok": false, "error": "Invalid Casus Belli.", "warID": ""]
+        }
+        let res = s.declareWar(on: target, cb: cbs[cbIndex], breakTruce: breakTruce)
+        switch res {
+        case .success(let war):
+            return ["ok": true, "error": "", "warID": war.id]
+        case .failure(let err):
+            return ["ok": false, "error": err.description, "warID": ""]
+        }
+    }
+
+    public func warsDetails(includeAIWars: Bool = false) -> [String: Any] {
+        guard let s = session, let player = s.playerCountry else {
+            return ["hasPlayer": false, "pendingOffers": [[String: Any]](), "wars": [[String: Any]]()]
+        }
+        let w = s.world
+        let d = w.diplomacy
+
+        let pendingOffers: [[String: Any]] = d.pendingPeaceOffers
+            .filter { $0.loser == player }
+            .map { offer in
+                let rgb = Self.countryRGB(w, offer.winner)
+                return [
+                    "warID": offer.warID,
+                    "senderIndex": offer.winner.index,
+                    "senderName": w.countries.name[offer.winner.index],
+                    "senderTag": w.countries.tag[offer.winner.index],
+                    "senderColorR": Int(rgb.r),
+                    "senderColorG": Int(rgb.g),
+                    "senderColorB": Int(rgb.b),
+                    "isWhitePeace": offer.demands.isEmpty,
+                    "demandLabels": offer.demands.map { Self.describeDemand($0, world: w) }
+                ]
+            }
+
+        let wars = includeAIWars ? d.wars : d.activeWars(for: player)
+        let warRows: [[String: Any]] = wars.map { war in
+            let wsPct = Int((war.warScore * 100.0).rounded())
+            let battlePct = Int((war.battleWarScore * 100.0).rounded())
+            let tickingPct = Int((war.tickingWarScore * 100.0).rounded())
+            let occPct = wsPct - battlePct - tickingPct
+
+            let attackersList: [[String: Any]] = war.attackers.map { Self.countryPill($0, world: w) }
+            let defendersList: [[String: Any]] = war.defenders.map { Self.countryPill($0, world: w) }
+
+            var occupiedList: [[String: Any]] = []
+            for pIdx in 0..<w.provinces.count {
+                guard let owner = w.provinces.owner[pIdx],
+                      let occ = w.provinces.occupiedBy[pIdx],
+                      war.areEnemies(owner, occ) else { continue }
+                occupiedList.append([
+                    "provinceIndex": pIdx,
+                    "provinceName": w.provinces.name[pIdx],
+                    "ownerTag": w.countries.tag[owner.index],
+                    "occupierTag": w.countries.tag[occ.index],
+                    "byAttacker": war.isAttacker(occ)
+                ])
+            }
+
+            let isParticipant = war.isParticipant(player)
+            let isAttacker = war.isAttacker(player)
+            let enemyLeader = isAttacker ? war.primaryDefender : war.primaryAttacker
+            var uncalledAllies: [[String: Any]] = []
+            if isParticipant {
+                for cid in w.countries.ids where cid != player && !war.isParticipant(cid) && d.areAllies(player, cid) {
+                    let eval = d.evaluateCallToArms(
+                        ally: cid,
+                        caller: player,
+                        enemy: enemyLeader,
+                        isDefensive: war.isDefender(player),
+                        in: w
+                    )
+                    let rgb = Self.countryRGB(w, cid)
+                    uncalledAllies.append([
+                        "countryIndex": cid.index,
+                        "name": w.countries.name[cid.index],
+                        "tag": w.countries.tag[cid.index],
+                        "colorR": Int(rgb.r),
+                        "colorG": Int(rgb.g),
+                        "colorB": Int(rgb.b),
+                        "willAccept": eval.willAccept,
+                        "score": eval.score,
+                        "reasonsText": eval.reasons.joined(separator: ", ")
+                    ])
+                }
+            }
+
+            return [
+                "warID": war.id,
+                "name": war.name,
+                "startDate": war.startDate.description,
+                "casusBelli": war.casusBelli.rawValue,
+                "warGoal": Self.warGoalLabel(war.warGoal, world: w),
+                "playerIsParticipant": isParticipant,
+                "playerIsAttacker": isAttacker,
+                "warScorePct": wsPct,
+                "battlePct": battlePct,
+                "occupationPct": occPct,
+                "tickingPct": tickingPct,
+                "attackersText": war.attackers.map { w.countries.tag[$0.index] }.joined(separator: ", "),
+                "defendersText": war.defenders.map { w.countries.tag[$0.index] }.joined(separator: ", "),
+                "attackers": attackersList,
+                "defenders": defendersList,
+                "occupiedProvinces": occupiedList,
+                "primaryEnemyIndex": enemyLeader.index,
+                "primaryEnemyTag": w.countries.tag[enemyLeader.index],
+                "uncalledAllies": uncalledAllies
+            ]
+        }
+
+        return [
+            "hasPlayer": true,
+            "pendingOffers": pendingOffers,
+            "wars": warRows
+        ]
+    }
+
+    @discardableResult
+    public func callAllyToWar(allyCountryIndex: Int, warID: String) -> [String: Any] {
+        guard let s = session, let player = s.playerCountry else {
+            return ["accepted": false, "message": "No active game."]
+        }
+        guard allyCountryIndex >= 0 && allyCountryIndex < s.world.countries.count,
+              allyCountryIndex != player.index else {
+            return ["accepted": false, "message": "Invalid ally."]
+        }
+        let ally = CountryID(allyCountryIndex)
+        let allyName = s.world.countries.name[allyCountryIndex]
+        let res = s.callAllyToWar(ally, warID: warID)
+        switch res {
+        case .accepted:
+            return ["accepted": true, "message": "\(allyName) joined the war."]
+        case .declined(let reasons):
+            let why = reasons.isEmpty ? "Declined" : reasons.joined(separator: "; ")
+            return ["accepted": false, "message": "\(allyName) declined: \(why)"]
+        }
+    }
+
+    public func peaceNegotiationDetails(
+        warID: String,
+        provinceIndices: [Int] = [],
+        indemnityAmount: Double = 0.0,
+        includeReparations: Bool = false,
+        subjectMode: Int = 0,
+        releaseCountryIndices: [Int] = [],
+        annulPartnerIndices: [Int] = []
+    ) -> [String: Any] {
+        guard let s = session, let player = s.playerCountry else {
+            return ["valid": false, "error": "No active game."]
+        }
+        let w = s.world
+        let d = w.diplomacy
+        guard let war = d.wars.first(where: { $0.id == warID }), war.isParticipant(player) else {
+            return ["valid": false, "error": "War not found."]
+        }
+        let loser = war.isAttacker(player) ? war.primaryDefender : war.primaryAttacker
+        let loserRGB = Self.countryRGB(w, loser)
+
+        let loserProvs = w.provinces(ownedBy: loser).sorted { a, b in
+            let aOcc = w.provinces.occupiedBy[a.index].map { war.areEnemies($0, loser) } ?? false
+            let bOcc = w.provinces.occupiedBy[b.index].map { war.areEnemies($0, loser) } ?? false
+            if aOcc != bOcc { return aOcc }
+            return w.provinces.name[a.index] < w.provinces.name[b.index]
+        }
+
+        let cedeRows: [[String: Any]] = loserProvs.map { pid in
+            let cost = d.peaceDemandCost(.cedeProvince(province: pid, to: player), loser: loser, war: war, in: w)
+            let isOcc = w.provinces.occupiedBy[pid.index].map { war.areEnemies($0, loser) } ?? false
+            let isCore = w.provinces.cores[pid.index].contains(player)
+            let isClaim = w.provinces.claims[pid.index].contains(player)
+            return [
+                "provinceIndex": pid.index,
+                "name": w.provinces.name[pid.index],
+                "development": w.provinces.development[pid.index],
+                "isOccupied": isOcc,
+                "isCore": isCore,
+                "isClaim": isClaim,
+                "cost": cost
+            ]
+        }
+
+        var coreHolders = Set<CountryID>()
+        for pid in loserProvs {
+            for cid in w.provinces.cores[pid.index] where cid != loser && cid != player {
+                coreHolders.insert(cid)
+            }
+        }
+        let releaseRows: [[String: Any]] = coreHolders
+            .sorted { w.countries.name[$0.index] < w.countries.name[$1.index] }
+            .map { cid in
+                let rgb = Self.countryRGB(w, cid)
+                let coreCount = loserProvs.filter { w.provinces.cores[$0.index].contains(cid) }.count
+                let cost = d.peaceDemandCost(.releaseNation(country: cid), loser: loser, war: war, in: w)
+                return [
+                    "countryIndex": cid.index,
+                    "name": w.countries.name[cid.index],
+                    "tag": w.countries.tag[cid.index],
+                    "colorR": Int(rgb.r),
+                    "colorG": Int(rgb.g),
+                    "colorB": Int(rgb.b),
+                    "provinceCount": coreCount,
+                    "cost": cost
+                ]
+            }
+
+        var annulSet = Set<CountryID>()
+        for tr in d.treaties where tr.type == .alliance || tr.type == .guarantee || tr.type == .nonAggression {
+            if tr.first == loser && tr.second != player {
+                annulSet.insert(tr.second)
+            } else if tr.second == loser && tr.first != player {
+                annulSet.insert(tr.first)
+            }
+        }
+        let annulRows: [[String: Any]] = annulSet
+            .sorted { w.countries.name[$0.index] < w.countries.name[$1.index] }
+            .map { cid in
+                let rgb = Self.countryRGB(w, cid)
+                let cost = d.peaceDemandCost(.annulTreaty(with: cid), loser: loser, war: war, in: w)
+                return [
+                    "countryIndex": cid.index,
+                    "name": w.countries.name[cid.index],
+                    "tag": w.countries.tag[cid.index],
+                    "colorR": Int(rgb.r),
+                    "colorG": Int(rgb.g),
+                    "colorB": Int(rgb.b),
+                    "cost": cost
+                ]
+            }
+
+        let demands = Self.buildPeaceDemands(
+            world: w,
+            player: player,
+            loser: loser,
+            provinceIndices: provinceIndices,
+            indemnityAmount: indemnityAmount,
+            includeReparations: includeReparations,
+            subjectMode: subjectMode,
+            releaseCountryIndices: releaseCountryIndices,
+            annulPartnerIndices: annulPartnerIndices
+        )
+        let offer = PeaceOffer(warID: war.id, winner: player, loser: loser, demands: demands)
+        let eval = d.evaluatePeaceOffer(offer, date: s.date, in: w)
+        let truceYears = d.truceDurationYears(forPeaceCost: eval.totalCost)
+        let ae = Int(d.aggressiveExpansionForPeace(offer, war: war, in: w).rounded())
+
+        let factors: [[String: Any]] = eval.factors.map { f in
+            [
+                "name": f.name,
+                "score": f.score,
+                "scoreText": f.score >= 0 ? "+\(f.score)" : "\(f.score)"
+            ]
+        }
+
+        let indemnityCost = indemnityAmount > 0 ? d.peaceDemandCost(.ducatIndemnity(amount: indemnityAmount), loser: loser, war: war, in: w) : 0
+        let reparationsCost = d.peaceDemandCost(.warReparations, loser: loser, war: war, in: w)
+        let vassalCost = d.peaceDemandCost(.makeVassal, loser: loser, war: war, in: w)
+        let tributaryCost = d.peaceDemandCost(.makeTributary, loser: loser, war: war, in: w)
+
+        return [
+            "valid": true,
+            "warID": war.id,
+            "warName": war.name,
+            "warScorePct": Int((war.warScore * 100.0).rounded()),
+            "loserIndex": loser.index,
+            "loserName": w.countries.name[loser.index],
+            "loserTag": w.countries.tag[loser.index],
+            "loserColorR": Int(loserRGB.r),
+            "loserColorG": Int(loserRGB.g),
+            "loserColorB": Int(loserRGB.b),
+            "cedeProvinces": cedeRows,
+            "releaseCandidates": releaseRows,
+            "annulCandidates": annulRows,
+            "reparationsCost": reparationsCost,
+            "indemnityCost": indemnityCost,
+            "vassalCost": vassalCost,
+            "tributaryCost": tributaryCost,
+            "totalCost": eval.totalCost,
+            "exceedsCost": eval.totalCost > 100,
+            "truceYears": truceYears,
+            "ae": ae,
+            "willAccept": eval.willAccept,
+            "score": eval.score,
+            "factors": factors
+        ]
+    }
+
+    @discardableResult
+    public func proposePeaceOffer(
+        warID: String,
+        provinceIndices: [Int] = [],
+        indemnityAmount: Double = 0.0,
+        includeReparations: Bool = false,
+        subjectMode: Int = 0,
+        releaseCountryIndices: [Int] = [],
+        annulPartnerIndices: [Int] = []
+    ) -> [String: Any] {
+        guard let s = session, let player = s.playerCountry else {
+            return ["ok": false, "error": "No active game."]
+        }
+        let w = s.world
+        guard let war = w.diplomacy.wars.first(where: { $0.id == warID }), war.isParticipant(player) else {
+            return ["ok": false, "error": "War not found."]
+        }
+        let loser = war.isAttacker(player) ? war.primaryDefender : war.primaryAttacker
+        let demands = Self.buildPeaceDemands(
+            world: w,
+            player: player,
+            loser: loser,
+            provinceIndices: provinceIndices,
+            indemnityAmount: indemnityAmount,
+            includeReparations: includeReparations,
+            subjectMode: subjectMode,
+            releaseCountryIndices: releaseCountryIndices,
+            annulPartnerIndices: annulPartnerIndices
+        )
+        let offer = PeaceOffer(warID: war.id, winner: player, loser: loser, demands: demands)
+        let res = s.proposePeace(offer)
+        switch res {
+        case .success(let totalCost):
+            return ["ok": true, "error": "", "totalCost": totalCost]
+        case .failure(let err):
+            let msg: String
+            switch err {
+            case .warNotFound: msg = "War not found."
+            case .notBelligerents: msg = "Invalid belligerents."
+            case .exceedsMaxCost(let c): msg = "Demand cost (\(c)%) exceeds 100%."
+            case .invalidDemand(let r): msg = r
+            case .rejected(let eval): msg = "Peace offer refused (score \(eval.score))."
+            }
+            return ["ok": false, "error": msg]
+        }
+    }
+
+    @discardableResult
+    public func respondToPendingPeaceOffer(warID: String, accept: Bool) -> Bool {
+        guard let s = session, let player = s.playerCountry,
+              let offer = s.world.diplomacy.pendingPeaceOffers.first(where: { $0.warID == warID && $0.loser == player }) else {
+            return false
+        }
+        s.respondToPendingPeaceOffer(offer, accept: accept)
+        return true
+    }
+
+    private static func buildPeaceDemands(
+        world w: World,
+        player: CountryID,
+        loser: CountryID,
+        provinceIndices: [Int],
+        indemnityAmount: Double,
+        includeReparations: Bool,
+        subjectMode: Int,
+        releaseCountryIndices: [Int],
+        annulPartnerIndices: [Int]
+    ) -> [PeaceDemand] {
+        var demands: [PeaceDemand] = []
+        let cleanProvs = Array(Set(provinceIndices.filter {
+            $0 >= 0 && $0 < w.provinces.count && w.provinces.owner[$0] == loser
+        })).sorted()
+        for pIdx in cleanProvs {
+            demands.append(.cedeProvince(province: ProvinceID(pIdx), to: player))
+        }
+        if includeReparations {
+            demands.append(.warReparations)
+        }
+        if indemnityAmount > 0 {
+            demands.append(.ducatIndemnity(amount: indemnityAmount))
+        }
+        if subjectMode == 1 {
+            demands.append(.makeVassal)
+        } else if subjectMode == 2 {
+            demands.append(.makeTributary)
+        }
+        let cleanReleases = Array(Set(releaseCountryIndices.filter {
+            $0 >= 0 && $0 < w.countries.count && $0 != loser.index && $0 != player.index
+        })).sorted()
+        for cIdx in cleanReleases {
+            demands.append(.releaseNation(country: CountryID(cIdx)))
+        }
+        let cleanAnnuls = Array(Set(annulPartnerIndices.filter {
+            $0 >= 0 && $0 < w.countries.count && $0 != loser.index && $0 != player.index
+        })).sorted()
+        for cIdx in cleanAnnuls {
+            demands.append(.annulTreaty(with: CountryID(cIdx)))
+        }
+        return demands
+    }
+
+    private static func countryPill(_ cid: CountryID, world w: World) -> [String: Any] {
+        let rgb = countryRGB(world: w, cid)
+        return [
+            "index": cid.index,
+            "name": w.countries.name[cid.index],
+            "tag": w.countries.tag[cid.index],
+            "colorR": Int(rgb.r),
+            "colorG": Int(rgb.g),
+            "colorB": Int(rgb.b)
+        ]
+    }
+
+    private static func countryRGB(world w: World, _ cid: CountryID) -> RGB {
+        guard cid.index >= 0 && cid.index < w.countries.color.count else {
+            return RGB(196, 182, 150)
+        }
+        return w.countries.color[cid.index]
+    }
+
+    private static func countryRGB(_ w: World, _ cid: CountryID) -> RGB {
+        countryRGB(world: w, cid)
+    }
+
+    private static func treatyLabel(_ treaty: Treaty, player: CountryID) -> String {
+        switch treaty.type {
+        case .alliance: return "Alliance"
+        case .guarantee: return treaty.first == player ? "You guarantee them" : "They guarantee you"
+        case .nonAggression: return "Non-Aggression Pact"
+        case .militaryAccess: return "Military Access"
+        case .truce: return "Truce"
+        }
+    }
+
+    private static func warGoalLabel(_ goal: WarGoal, world w: World) -> String {
+        switch goal {
+        case .conquerProvince(let pid):
+            if pid.index >= 0 && pid.index < w.provinces.count {
+                return "Conquer \(w.provinces.name[pid.index])"
+            }
+            return "Conquer province"
+        case .defendCapital(let pid):
+            if pid.index >= 0 && pid.index < w.provinces.count {
+                return "Defend \(w.provinces.name[pid.index])"
+            }
+            return "Defend capital"
+        case .superiority:
+            return "Superiority"
+        }
+    }
+
+    private static func describeDemand(_ demand: PeaceDemand, world: World) -> String {
+        switch demand {
+        case .cedeProvince(let pid, let to):
+            return "Cede \(world.provinces.name[pid.index]) to \(world.countries.name[to.index])"
+        case .returnCore(let pid, let to):
+            return "Return core \(world.provinces.name[pid.index]) to \(world.countries.name[to.index])"
+        case .ducatIndemnity(let amount):
+            return "\(Int(amount)) Ducats Indemnity"
+        case .warReparations:
+            return "War Reparations (10% income, 10 years)"
+        case .makeVassal:
+            return "Force Vassalization"
+        case .makeTributary:
+            return "Force Tributary"
+        case .annulTreaty(let with):
+            return "Annul treaties with \(world.countries.name[with.index])"
+        case .releaseNation(let country):
+            return "Release \(world.countries.name[country.index])"
+        }
+    }
+
     // MARK: - Map Texture Buffers
 
     /// Raw little-endian `UInt16` bytes (`width * height * 2`) for `Image.FORMAT_RG8`.
@@ -3675,6 +4393,120 @@ public final class GezGodotBridge: RefCounted {
     @Callable
     public func adoptReform(optionIndex: Int) -> Bool {
         controller.adoptReform(optionIndex: optionIndex)
+    }
+
+    // MARK: - Step 3d2: Diplomacy, Wars, Peace & Alerts Callables
+
+    @Callable
+    public func getProvinceFocusPoint(provinceIndex: Int) -> VariantDictionary {
+        Self.toVariantDictionary(controller.provinceFocusPoint(provinceIndex: provinceIndex))
+    }
+
+    @Callable
+    public func getActiveAlerts() -> VariantArray {
+        Self.toVariantArray(controller.activeAlerts())
+    }
+
+    @Callable
+    public func setSelectedDiplomacyCountry(countryIndex: Int) -> Bool {
+        controller.setSelectedDiplomacyCountry(countryIndex)
+    }
+
+    @Callable
+    public func getDiplomacyDetails(targetCountryIndex: Int, searchQuery: String, breakTruce: Bool) -> VariantDictionary {
+        Self.toVariantDictionary(controller.diplomacyDetails(targetCountryIndex: targetCountryIndex, searchQuery: searchQuery, breakTruce: breakTruce))
+    }
+
+    @Callable
+    public func toggleAlliance(countryIndex: Int) -> Bool {
+        controller.toggleAlliance(countryIndex: countryIndex)
+    }
+
+    @Callable
+    public func toggleGuarantee(countryIndex: Int) -> Bool {
+        controller.toggleGuarantee(countryIndex: countryIndex)
+    }
+
+    @Callable
+    public func toggleNonAggression(countryIndex: Int) -> Bool {
+        controller.toggleNonAggression(countryIndex: countryIndex)
+    }
+
+    @Callable
+    public func toggleMilitaryAccess(countryIndex: Int) -> Bool {
+        controller.toggleMilitaryAccess(countryIndex: countryIndex)
+    }
+
+    @Callable
+    public func improveRelations(countryIndex: Int) -> Bool {
+        controller.improveRelations(countryIndex: countryIndex)
+    }
+
+    @Callable
+    public func declareWar(targetCountryIndex: Int, cbIndex: Int, breakTruce: Bool) -> VariantDictionary {
+        Self.toVariantDictionary(controller.declareWar(targetCountryIndex: targetCountryIndex, cbIndex: cbIndex, breakTruce: breakTruce))
+    }
+
+    @Callable
+    public func getWarsDetails(includeAIWars: Bool) -> VariantDictionary {
+        Self.toVariantDictionary(controller.warsDetails(includeAIWars: includeAIWars))
+    }
+
+    @Callable
+    public func callAllyToWar(allyCountryIndex: Int, warID: String) -> VariantDictionary {
+        Self.toVariantDictionary(controller.callAllyToWar(allyCountryIndex: allyCountryIndex, warID: warID))
+    }
+
+    @Callable
+    public func getPeaceNegotiationDetails(
+        warID: String,
+        provinceIndicesCSV: String,
+        indemnityAmount: Double,
+        includeReparations: Bool,
+        subjectMode: Int,
+        releaseCountryIndicesCSV: String,
+        annulPartnerIndicesCSV: String
+    ) -> VariantDictionary {
+        Self.toVariantDictionary(controller.peaceNegotiationDetails(
+            warID: warID,
+            provinceIndices: Self.parseIntCSV(provinceIndicesCSV),
+            indemnityAmount: indemnityAmount,
+            includeReparations: includeReparations,
+            subjectMode: subjectMode,
+            releaseCountryIndices: Self.parseIntCSV(releaseCountryIndicesCSV),
+            annulPartnerIndices: Self.parseIntCSV(annulPartnerIndicesCSV)
+        ))
+    }
+
+    @Callable
+    public func proposePeaceOffer(
+        warID: String,
+        provinceIndicesCSV: String,
+        indemnityAmount: Double,
+        includeReparations: Bool,
+        subjectMode: Int,
+        releaseCountryIndicesCSV: String,
+        annulPartnerIndicesCSV: String
+    ) -> VariantDictionary {
+        Self.toVariantDictionary(controller.proposePeaceOffer(
+            warID: warID,
+            provinceIndices: Self.parseIntCSV(provinceIndicesCSV),
+            indemnityAmount: indemnityAmount,
+            includeReparations: includeReparations,
+            subjectMode: subjectMode,
+            releaseCountryIndices: Self.parseIntCSV(releaseCountryIndicesCSV),
+            annulPartnerIndices: Self.parseIntCSV(annulPartnerIndicesCSV)
+        ))
+    }
+
+    @Callable
+    public func respondToPendingPeaceOffer(warID: String, accept: Bool) -> Bool {
+        controller.respondToPendingPeaceOffer(warID: warID, accept: accept)
+    }
+
+    private static func parseIntCSV(_ csv: String) -> [Int] {
+        guard !csv.isEmpty else { return [] }
+        return csv.split(separator: ",").compactMap { Int($0.trimmingCharacters(in: .whitespaces)) }
     }
 
     // MARK: - Variant Conversion Helpers
