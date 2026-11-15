@@ -1399,4 +1399,19 @@ public final class GameSession {
         if ok { revision &+= 1 }
         return ok
     }
+
+    @discardableResult
+    public func resolveHussiteQuestion(_ choice: HussiteOutcome) -> Bool {
+        let ok = MovementSystem.resolveHussiteQuestion(&simulation.world, choice: choice, by: playerCountry, date: date)
+        if ok { revision &+= 1 }
+        return ok
+    }
+
+    @discardableResult
+    public func adoptReformationReligion(_ religion: Religion) -> Bool {
+        guard let player = playerCountry else { return false }
+        let ok = MovementSystem.adoptReformationReligion(&simulation.world, country: player, religion: religion, date: date)
+        if ok { revision &+= 1 }
+        return ok
+    }
 }

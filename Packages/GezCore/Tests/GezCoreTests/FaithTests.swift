@@ -216,4 +216,114 @@ final class FaithTests: XCTestCase {
         XCTAssertEqual(restored.world.pops.size, sim1.world.pops.size)
         XCTAssertEqual(restored.world.provinces.religiousUnrest, sim1.world.provinces.religiousUnrest)
     }
+
+    // MARK: - Part B: Historical Movements
+
+    func testHussiteQuestionDecisionsAndAIResolution() throws {
+        var world = Scenario1453.makeWorld()
+        let boh = try XCTUnwrap(world.countries.id(forTag: "BOH"))
+        let pap = try XCTUnwrap(world.countries.id(forTag: "PAP"))
+        let prague = try XCTUnwrap(world.countries.capital[boh.index])
+        XCTAssertEqual(world.faith.hussiteOutcome, .unresolved)
+        XCTAssertTrue(world.faith.hussiteCompactsActive)
+
+        // Taborite revival ends Compacts and lowers Papal opinion
+        let opinBefore = world.diplomacy.opinion(of: boh, by: pap)
+        XCTAssertTrue(MovementSystem.resolveHussiteQuestion(&world, choice: .taboriteRevival, by: boh, date: GameDate(year: 1456, month: 4, day: 1)))
+        XCTAssertEqual(world.faith.hussiteOutcome, .taboriteRevival)
+        XCTAssertFalse(world.faith.hussiteCompactsActive)
+        XCTAssertLessThan(world.diplomacy.opinion(of: boh, by: pap), opinBefore)
+        XCTAssertGreaterThan(FaithSystem.monthlyConversionRate(world: world, province: prague, from: .catholic), 0)
+
+        // Separate run: AI resolves Hussite question probabilistically over 1454-1475
+        var aiWorld = Scenario1453.makeWorld()
+        var rng = GameRandom(seed: 42)
+        for yr in 1453...1478 {
+            for mo in 1...12 {
+                MovementSystem.runMonthly(&aiWorld, date: GameDate(year: yr, month: mo, day: 1), random: &rng)
+            }
+        }
+        XCTAssertNotEqual(aiWorld.faith.hussiteOutcome, .unresolved)
+    }
+
+    func testSufiOrdersAndSafaviyyaQizilbashRise() throws {
+        var world = Scenario1453.makeWorld()
+        let ardabil = try XCTUnwrap(world.provinces.id(named: "Ardabil"))
+        let twelverBefore = popCount(in: world, province: ardabil, religion: .twelver)
+        let safStrengthBefore = world.faith.safaviyyaStrength
+        XCTAssertEqual(world.faith.safaviyyaPhase, .growing)
+
+        var rng = GameRandom(seed: 1453)
+        for yr in 1453...1518 {
+            for mo in 1...12 {
+                MovementSystem.runMonthly(&world, date: GameDate(year: yr, month: mo, day: 1), random: &rng)
+            }
+        }
+
+        XCTAssertGreaterThan(world.faith.safaviyyaStrength, safStrengthBefore)
+        XCTAssertTrue(world.faith.safaviyyaPhase == .militant || world.faith.safaviyyaPhase == .triumphant)
+        XCTAssertGreaterThan(popCount(in: world, province: ardabil, religion: .twelver), twelverBefore)
+        XCTAssertNotNil(world.faith.safaviyyaYear)
+        if world.faith.safaviyyaPhase == .triumphant, let owner = world.provinces.owner[ardabil.index] {
+            XCTAssertEqual(world.countries.religion[owner.index], .twelver)
+        }
+    }
+
+    func testReformationNeverBefore1500AppearsBy1530AndSpreadsAlongTradeRoutes() throws {
+        var w1 = Scenario1453.makeWorld()
+        var w2 = w1
+        var rng1 = GameRandom(seed: 2026)
+        var rng2 = GameRandom(seed: 2026)
+
+        // Check every month from 1453 to 1532: must NOT appear before 1500, MUST appear before end of 1530.
+        var appearedBefore1500 = false
+        for yr in 1453...1532 {
+            for mo in 1...12 {
+                let d = GameDate(year: yr, month: mo, day: 1)
+                MovementSystem.runMonthly(&w1, date: d, random: &rng1)
+                MovementSystem.runMonthly(&w2, date: d, random: &rng2)
+                if yr < 1500 && (!w1.faith.reformationCentres.isEmpty || w1.faith.reformationStarted) {
+                    appearedBefore1500 = true
+                }
+            }
+            if yr == 1530 {
+                XCTAssertTrue(w1.faith.reformationStarted, "Reformation should appear by 1530")
+                XCTAssertFalse(w1.faith.reformationCentres.isEmpty)
+            }
+        }
+        XCTAssertFalse(appearedBefore1500, "Reformation must never appear before 1500")
+        XCTAssertTrue(w1.faith.reformationReligions.contains(.protestant))
+        XCTAssertTrue(w1.faith.reformationReligions.contains(.reformed))
+
+        // Determinism: identical outputs for identical seeds
+        XCTAssertEqual(w1.faith, w2.faith)
+        XCTAssertEqual(w1.pops.size, w2.pops.size)
+
+        // Verify pops converted both in a centre's home province AND in a trade-route partner market!
+        let centre = try XCTUnwrap(w1.faith.reformationCentres.first)
+        XCTAssertGreaterThan(popCount(in: w1, province: centre.province, religion: centre.religion), 0)
+
+        let homeMarket = w1.economy.provinceMarket[centre.province.index]
+        let linkedMarkets = Set(w1.economy.routes.compactMap { r -> MarketID? in
+            if r.from == homeMarket { return r.to }
+            if r.to == homeMarket { return r.from }
+            return nil
+        })
+        var tradeConvertsFound = false
+        for p in 0..<w1.provinces.count where ProvinceID(p) != centre.province && linkedMarkets.contains(w1.economy.provinceMarket[p]) {
+            if popCount(in: w1, province: ProvinceID(p), religion: centre.religion) > 0 {
+                tradeConvertsFound = true
+                break
+            }
+        }
+        XCTAssertTrue(tradeConvertsFound, "Reformation should spread along trade routes to linked markets")
+
+        // Verify save/load preserves Reformation centres & movement phases cleanly
+        let sim = Simulation(restoringWorld: w1, date: GameDate(year: 1532, month: 12, day: 1), random: rng1, ticksRun: 100)
+        let data = try SaveStorage.encodeArchive(sim, name: "reformation_save", playerTag: "TUR")
+        let loaded = try SaveStorage.decodeArchive(from: data).simulation
+        XCTAssertEqual(loaded.world.faith.reformationCentres, w1.faith.reformationCentres)
+        XCTAssertEqual(loaded.world.faith.safaviyyaPhase, w1.faith.safaviyyaPhase)
+        XCTAssertEqual(loaded.world.faith.hussiteOutcome, w1.faith.hussiteOutcome)
+    }
 }
