@@ -375,7 +375,7 @@ jobs:
         run: |
           GODOT_BIN="${RUNNER_TEMP}/godot/Godot_v${GODOT_VERSION}_linux.x86_64"
           "$GODOT_BIN" --headless --path godot --import
-          xvfb-run -a -s "-screen 0 1600x960x24" \
+          xvfb-run -a -s "-screen 0 1440x900x24" \
             "$GODOT_BIN" --rendering-driver opengl3 --path godot --script res://scripts/capture_snapshots.gd
       - name: Upload Godot screenshots
         if: always()

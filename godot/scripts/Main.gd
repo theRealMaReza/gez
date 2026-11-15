@@ -56,6 +56,7 @@ var treasury_btn: Button
 var trade_btn: Button
 var court_btn: Button
 var stability_btn: Button
+var inflation_label: Label
 var diplomacy_btn: Button
 var wars_btn: Button
 var armies_btn: Button
@@ -334,7 +335,7 @@ func _build_top_bar() -> void:
 	hbox.add_child(top_arms_rect)
 
 	top_country_btn = Button.new()
-	top_country_btn.text = "Ottoman Empire (TUR)"
+	top_country_btn.text = "Ottoman Empire"
 	top_country_btn.flat = true
 	top_country_btn.tooltip_text = "Choose nation / New Game"
 	top_country_btn.add_theme_color_override("font_color", Color(0.97, 0.88, 0.62))
@@ -345,9 +346,9 @@ func _build_top_bar() -> void:
 	hbox.add_child(_make_separator())
 
 	treasury_btn = Button.new()
-	treasury_btn.text = "Ducats: 0 (+0.0/mo)"
+	treasury_btn.text = "0 (+0.0/mo)"
 	treasury_btn.custom_minimum_size = Vector2(150.0, 30.0)
-	treasury_btn.tooltip_text = "Budget, taxes, loans & inflation"
+	treasury_btn.tooltip_text = "Ducats in the treasury (change last month). Opens the budget: taxes, loans & inflation"
 	treasury_btn.pressed.connect(_toggle_budget_window)
 	hbox.add_child(treasury_btn)
 
@@ -395,6 +396,12 @@ func _build_top_bar() -> void:
 	wars_btn.pressed.connect(_toggle_wars_window)
 	hbox.add_child(wars_btn)
 
+	inflation_label = _make_label("Inflation 0%", Color(0.92, 0.42, 0.38), 12)
+	inflation_label.tooltip_text = "Inflation raises costs; see the Budget window"
+	inflation_label.mouse_filter = Control.MOUSE_FILTER_PASS
+	inflation_label.visible = false
+	hbox.add_child(inflation_label)
+
 	hbox.add_child(_make_separator())
 
 	armies_btn = Button.new()
@@ -408,6 +415,10 @@ func _build_top_bar() -> void:
 
 	selection_label = _make_label("Click a province to inspect", Color(0.86, 0.83, 0.76), 13)
 	selection_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	# May shrink (with "…") so the date, pause and speed buttons always fit.
+	selection_label.clip_text = true
+	selection_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	selection_label.custom_minimum_size = Vector2(0.0, 0.0)
 	hbox.add_child(selection_label)
 
 	play_as_btn = Button.new()
@@ -450,12 +461,11 @@ func _build_top_bar() -> void:
 		speed_box.add_child(b)
 		speed_buttons.append(b)
 
-	hbox.add_child(_make_separator())
-
-	fps_label = _make_label("60 FPS", Color(0.72, 0.82, 0.72), 13)
-	fps_label.custom_minimum_size = Vector2(58.0, 0.0)
-	fps_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	hbox.add_child(fps_label)
+	# Frame counter sits at the bottom centre of the map, not in the full top bar.
+	fps_label = _make_label("60 FPS", Color(0.72, 0.82, 0.72), 12)
+	fps_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(fps_label)
+	fps_label.set_anchors_and_offsets_preset(Control.PRESET_CENTER_BOTTOM, Control.PRESET_MODE_MINSIZE, 6)
 
 func _build_map_mode_bar() -> void:
 	var mode_panel := PanelContainer.new()
@@ -1213,17 +1223,22 @@ func _refresh_top_bar() -> void:
 	var country_str := "%s (%s)" % [c_name, c_tag]
 	if country_str != _last_top_country_str:
 		_last_top_country_str = country_str
-		top_country_btn.text = country_str
+		top_country_btn.text = c_name
+		top_country_btn.tooltip_text = "%s · choose or switch nation" % country_str
 	var arms_key := "%s|%d|%d|%d" % [c_tag, cr, cg, cb]
 	if arms_key != _last_top_arms_key:
 		_last_top_arms_key = arms_key
 		top_arms_rect.texture = _get_country_arms_texture(c_tag, cr, cg, cb)
 
 	if treasury_btn != null:
-		var duc_str := "Ducats: %s" % str(top.get("ducatsText", "0 (+0.0/mo)"))
+		var duc_str := str(top.get("ducatsText", "0 (+0.0/mo)"))
 		if duc_str != _last_ducats_str:
 			_last_ducats_str = duc_str
 			treasury_btn.text = duc_str
+	if inflation_label != null:
+		var infl: int = int(top.get("inflationPercent", 0))
+		inflation_label.visible = infl >= 1
+		inflation_label.text = "Inflation %d%%" % infl
 	if stability_btn != null:
 		var stab: int = int(top.get("stability", 0))
 		var stab_str: String = str(top.get("stabilityText", "Stability +0"))

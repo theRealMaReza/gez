@@ -156,6 +156,7 @@ public final class GezGodotController {
             "colorG": Int(rgb.g),
             "colorB": Int(rgb.b),
             "ducatsText": ducatsText,
+            "inflationPercent": playerInflationPercent,
             "armiesText": topBarArmiesText,
             "stability": playerStability,
             "stabilityText": topBarStabilityText,
@@ -175,6 +176,12 @@ public final class GezGodotController {
 
     public var monthlyNet: Double {
         session?.playerTopBarStatus()?.monthlyNet ?? 0
+    }
+
+    /// Inflation in whole percent (the top bar shows it from 1%, like the Apple app).
+    public var playerInflationPercent: Int {
+        guard let s = session, let p = s.playerCountry else { return 0 }
+        return Int((s.world.countries.inflation[p.index] * 100).rounded())
     }
 
     public var ducatsText: String {

@@ -14,8 +14,9 @@ func _initialize() -> void:
 		out_dir = ProjectSettings.globalize_path("res://snapshots")
 	DirAccess.make_dir_recursive_absolute(out_dir)
 
-	root.size = Vector2i(1600, 960)
-	DisplayServer.window_set_size(Vector2i(1600, 960))
+	# The game's default window (project.godot), so overflow shows up here.
+	root.size = Vector2i(1440, 900)
+	DisplayServer.window_set_size(Vector2i(1440, 900))
 
 	root_node = main_scene.instantiate()
 	root.add_child(root_node)

@@ -724,6 +724,8 @@ struct GezGodotTests {
         let topBar = controller.playerTopBarDetails()
         #expect(topBar["tag"] as? String == "TUR")
         #expect((topBar["stabilityText"] as? String)?.hasPrefix("Stability") == true)
+        // Inflation for the top bar badge, in whole percent (0 at the start).
+        #expect((topBar["inflationPercent"] as? Int).map { $0 >= 0 } == true)
 
         let court = controller.courtDetails()
         #expect(court["valid"] as? Bool == true)
@@ -910,6 +912,10 @@ struct GezGodotTests {
         #expect(((controller.diplomacyDetails(targetCountryIndex: targetIdx)["target"] as? [String: Any])?["isAllied"] as? Bool) == true)
         #expect(controller.toggleAlliance(countryIndex: targetIdx))
         #expect(controller.toggleGuarantee(countryIndex: targetIdx))
+        // The treaty list says which way a guarantee goes (as in the Apple app).
+        let guaranteeLabels = (((controller.diplomacyDetails(targetCountryIndex: targetIdx)["target"] as? [String: Any])?["treaties"]
+            as? [[String: Any]]) ?? []).compactMap { $0["label"] as? String }
+        #expect(guaranteeLabels.contains("Guaranteeing them"))
         #expect(controller.toggleGuarantee(countryIndex: targetIdx))
         #expect(controller.toggleNonAggression(countryIndex: targetIdx))
         #expect(controller.toggleNonAggression(countryIndex: targetIdx))
