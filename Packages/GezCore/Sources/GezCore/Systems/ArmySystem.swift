@@ -1542,8 +1542,8 @@ public enum ArmySystem {
                     world.military.armies.alive[Int($0.rawValue)]
                         && world.military.armies.province[Int($0.rawValue)] == cap
                 }
-                if case .success = recruitProfessional(&world, c, in: cap, unit: chosen.id, intoArmy: nil)
-                    _ = existingCapArmy {
+                if case .success = recruitProfessional(&world, c, in: cap, unit: chosen.id, intoArmy: nil) {
+                    _ = existingCapArmy
                     soldiersDirty = true
                 }
             }
