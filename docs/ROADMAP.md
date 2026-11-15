@@ -209,7 +209,7 @@ version matches it; the owner decides when to retire it.
    request per part:
    a. Game menu (new, load, save), nation picker, province panel, map modes. ✅
    b. Armies: counters on the map, select, move, recruit, sieges. ✅
-   c. Economy: budget, trade, buildings.
+   c. Economy: budget, trade, buildings. ✅
    d. Court, government and laws; diplomacy, war and peace; alerts.
    e. Speed: find and fix the sluggishness the owner noticed.
 4. **Builds**: Godot headless exports for Mac, Windows and Linux on CI;

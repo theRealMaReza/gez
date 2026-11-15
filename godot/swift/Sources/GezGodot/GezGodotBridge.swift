@@ -590,6 +590,21 @@ public final class GezGodotController {
         let builtStrings = built.map { t in
             "\(Self.buildingName(t, in: province, world: w)) \(eco.buildings.level(province, t))"
         }
+        let builtBuildingDetails: [[String: Any]] = built.map { t in
+            let bType = eco.buildingTypes[t.index]
+            let lvl = eco.buildings.level(province, t)
+            let monthlyUpkeep = BuildingSystem.yearlyUpkeep(bType, levels: lvl) / 12.0
+            return [
+                "typeIndex": t.index,
+                "name": Self.buildingName(t, in: province, world: w),
+                "level": lvl,
+                "maxLevel": BuildingType.maxLevel,
+                "category": bType.category.displayName,
+                "effectText": Self.buildingEffectText(bType.effect, world: w),
+                "upkeepMonthly": monthlyUpkeep,
+                "upkeepText": monthlyUpkeep > 0 ? String(format: "%.1f/mo", monthlyUpkeep) : ""
+            ]
+        }
         let constructions: [[String: Any]] = eco.buildings.constructions
             .filter { $0.province == province }
             .map { con in
@@ -597,7 +612,9 @@ public final class GezGodotController {
                     "name": Self.buildingName(con.type, in: province, world: w),
                     "level": con.level,
                     "progress": con.progress,
-                    "monthsLeft": con.monthsLeft
+                    "progressPercent": Int((con.progress * 100).rounded()),
+                    "monthsLeft": con.monthsLeft,
+                    "totalMonths": con.totalMonths
                 ]
             }
         let slotsUsed = eco.buildings.slotsUsed(province)
@@ -612,27 +629,60 @@ public final class GezGodotController {
             let hiddenRefusals: Set<BuildingSystem.Refusal> = [
                 .needsCoast, .wrongGood, .wrongTerrain, .wrongReligion, .maxLevel, .notOwner
             ]
+            var applicableOptions: [[String: Any]] = []
+            var inapplicableOptions: [[String: Any]] = []
             for t in allTypes {
+                let currentLevel = eco.buildings.level(province, t)
                 let placeRefusal = BuildingSystem.refusal(w, player, province, t, checkMoney: false)
-                if placeRefusal.map({ !hiddenRefusals.contains($0) }) ?? true {
-                    let refusal = BuildingSystem.refusal(w, player, province, t)
-                    let nextLevel = BuildingSystem.nextLevel(w, province, t)
-                    let bType = eco.buildingTypes[t.index]
-                    let cost = Int(BuildingSystem.cost(w, province, t).rounded())
-                    let months = bType.months(forLevel: nextLevel)
-                    buildableOptions.append([
-                        "typeIndex": t.index,
-                        "category": bType.category.rawValue,
-                        "name": "\(Self.buildingName(t, in: province, world: w)) \(nextLevel)",
-                        "level": nextLevel,
-                        "cost": cost,
-                        "months": months,
-                        "canBuild": refusal == nil,
-                        "refusalReason": refusal?.reason ?? "",
-                        "effectText": Self.buildingEffectText(bType.effect, world: w)
+                let isApplicable = placeRefusal.map { !hiddenRefusals.contains($0) } ?? true
+                let refusal = BuildingSystem.refusal(w, player, province, t)
+                let nextLevel = min(BuildingType.maxLevel, BuildingSystem.nextLevel(w, province, t))
+                let bType = eco.buildingTypes[t.index]
+                let ducatsBase = Int(bType.ducats(forLevel: nextLevel).rounded())
+                let cost = Int(BuildingSystem.cost(w, province, t).rounded())
+                let months = bType.months(forLevel: nextLevel)
+                var materialsList: [[String: Any]] = []
+                var materialParts: [String] = []
+                for (g, amount) in bType.materials {
+                    let gName = eco.goods.name[g.index]
+                    let amtText = amount == amount.rounded() ? "\(Int(amount))" : String(format: "%.1f", amount)
+                    materialsList.append([
+                        "goodIndex": g.index,
+                        "name": gName,
+                        "amount": amount,
+                        "amountText": amtText
                     ])
+                    materialParts.append("\(amtText) \(gName)")
+                }
+                let materialsText = materialParts.isEmpty ? "None" : materialParts.joined(separator: ", ")
+                let baseName = Self.buildingName(t, in: province, world: w)
+                let optionDict: [String: Any] = [
+                    "typeIndex": t.index,
+                    "category": bType.category.rawValue,
+                    "name": currentLevel >= BuildingType.maxLevel ? "\(baseName) \(currentLevel)" : "\(baseName) \(nextLevel)",
+                    "baseName": baseName,
+                    "currentLevel": currentLevel,
+                    "maxLevel": BuildingType.maxLevel,
+                    "level": nextLevel,
+                    "ducatsBase": ducatsBase,
+                    "cost": cost,
+                    "months": months,
+                    "materials": materialsList,
+                    "materialsText": materialsText,
+                    "canBuild": refusal == nil,
+                    "isApplicable": isApplicable,
+                    "refusalReason": refusal?.reason ?? "",
+                    "effectText": Self.buildingEffectText(bType.effect, world: w)
+                ]
+                if isApplicable {
+                    applicableOptions.append(optionDict)
+                } else {
+                    inapplicableOptions.append(optionDict)
                 }
             }
+            let canBuildFirst = applicableOptions.filter { ($0["canBuild"] as? Bool) == true }
+            let blockedApplicable = applicableOptions.filter { ($0["canBuild"] as? Bool) != true }
+            buildableOptions = canBuildFirst + blockedApplicable + inapplicableOptions
         }
 
         // Economy
@@ -776,6 +826,7 @@ public final class GezGodotController {
             "slotsTotal": slotsTotal,
             "slotsText": slotsText,
             "builtBuildings": builtStrings,
+            "builtBuildingDetails": builtBuildingDetails,
             "constructions": constructions,
             "buildCategories": buildCategories,
             "buildableOptions": buildableOptions,
@@ -1625,6 +1676,628 @@ public final class GezGodotController {
         ]
     }
 
+    // MARK: - Step 3c: Budget & Trade
+
+    public static func taxLevelName(_ level: Double) -> String {
+        switch level {
+        case ..<0.01: return "None"
+        case ..<0.76: return "Low"
+        case ..<1.01: return "Normal"
+        case ..<1.51: return "High"
+        default: return "Crushing"
+        }
+    }
+
+    /// Detailed breakdown for the top-bar Budget window (`App/Shared/BudgetView.swift`).
+    public func budgetDetails() -> [String: Any] {
+        guard let s = session, let player = s.playerCountry else {
+            return ["valid": false]
+        }
+        let w = s.world
+        let c = player.index
+        let tax = w.countries.lastTax[c]
+        let isDebasing = w.countries.debasing[c]
+        let debaseIncome = isDebasing ? w.countries.lastMonthlyIncome[c] * Finance.debaseOngoingIncome : 0.0
+        let income = w.countries.lastMonthlyIncome[c] + debaseIncome
+        let spend = w.countries.lastMonthlyExpenses[c]
+        let net = income - spend
+        let vassalTax = w.countries.lastVassalTax[c]
+        let trade = w.countries.lastTrade[c]
+        let tolls = w.countries.lastTolls[c]
+        let buildingUpkeep = w.countries.lastUpkeep[c]
+        let armyUpkeep = w.military.lastArmyUpkeep[c]
+        let interest = w.countries.lastInterest[c]
+        let treasury = w.countries.treasury[c]
+        let bankruptMonths = w.countries.bankruptMonthsLeft[c]
+        let bankruptcyWarning = bankruptMonths > 0
+            ? "Bankrupt: no loans, income -25% and unrest for \(bankruptMonths) more months"
+            : ""
+
+        var taxBreakdown: [[String: Any]] = []
+        var taxes: [[String: Any]] = []
+        let ownedProvinces = w.provinces(ownedBy: player)
+        for tc in TaxClass.allCases {
+            let amount = tax[tc.rawValue]
+            taxBreakdown.append([
+                "taxClassIndex": tc.rawValue,
+                "name": "Tax on \(tc.socialClass.displayName.lowercased())",
+                "className": tc.socialClass.displayName,
+                "amount": amount,
+                "amountText": String(format: "%.1f", amount)
+            ])
+            let level = w.countries.taxLevel[c][tc.rawValue]
+            let sat = w.satisfaction(of: tc.socialClass, in: ownedProvinces)
+            let satPct = sat.map { Int(($0 * 100).rounded()) } ?? 0
+            taxes.append([
+                "taxClassIndex": tc.rawValue,
+                "name": tc.socialClass.displayName,
+                "level": level,
+                "maxLevel": Finance.maxTaxLevel,
+                "levelName": Self.taxLevelName(level),
+                "hasSatisfaction": sat != nil,
+                "satisfactionPercent": satPct,
+                "satisfactionText": sat != nil ? "Content: \(satPct)%" : ""
+            ])
+        }
+
+        let inflation = w.countries.inflation[c]
+        let canDebase = GovernmentSystem.canDebase(w, player)
+        let quickDebase = max(10.0, w.countries.lastMonthlyIncome[c] * Finance.debaseOnceMonths)
+        let debaseOnceInflationPct = Finance.debaseOnceInflation * 100.0
+        let canToggleDebasing = (canDebase && bankruptMonths == 0) || isDebasing
+
+        let loans: [[String: Any]] = w.finance.loans.enumerated()
+            .filter { $0.element.country == player }
+            .map { entry in
+                let idx = entry.offset
+                let loan = entry.element
+                let bankName = loan.bank.index < w.finance.banks.count ? w.finance.banks.name[loan.bank.index] : "Bank"
+                return [
+                    "loanIndex": idx,
+                    "bankIndex": loan.bank.index,
+                    "bankName": bankName,
+                    "principal": loan.principal,
+                    "ratePercent": loan.rate * 100.0,
+                    "monthsLeft": loan.monthsLeft,
+                    "detailsText": String(format: "%.0f at %.1f%% · %d mo", loan.principal, loan.rate * 100.0, loan.monthsLeft),
+                    "canRepay": treasury >= loan.principal
+                ]
+            }
+
+        let banks: [[String: Any]] = w.finance.banks.ids
+            .compactMap { b in w.loanRate(b, for: player).map { (b, $0) } }
+            .sorted { $0.1 < $1.1 }
+            .map { entry in
+                let bank = entry.0
+                let rate = entry.1
+                let cap = w.finance.banks.capital[bank.index]
+                let amounts: [[String: Any]] = Finance.loanSizes.map { amt in
+                    [
+                        "amount": amt,
+                        "label": "+\(Int(amt))",
+                        "canBorrow": cap >= amt
+                    ]
+                }
+                return [
+                    "bankIndex": bank.index,
+                    "name": w.finance.banks.name[bank.index],
+                    "rate": rate,
+                    "ratePercent": rate * 100.0,
+                    "capital": cap,
+                    "rateText": String(format: "%.1f%% a year · %.0f to lend", rate * 100.0, cap),
+                    "amounts": amounts
+                ]
+            }
+
+        return [
+            "valid": true,
+            "treasury": treasury,
+            "treasuryText": String(format: "%.1f", treasury),
+            "monthlyIncome": income,
+            "monthlyExpenses": spend,
+            "monthlyNet": net,
+            "balanceText": String(format: "%+.1f / month", net),
+            "vassalTax": vassalTax,
+            "vassalTaxText": String(format: "−%.1f", vassalTax),
+            "debaseOngoingIncome": debaseIncome,
+            "debaseOngoingIncomeText": String(format: "%.1f", debaseIncome),
+            "merchants": trade,
+            "merchantsText": String(format: "%+.1f", trade),
+            "tolls": tolls,
+            "tollsText": String(format: "%.1f", tolls),
+            "buildingUpkeep": buildingUpkeep,
+            "buildingUpkeepText": String(format: "−%.1f", buildingUpkeep),
+            "armyUpkeep": armyUpkeep,
+            "armyUpkeepText": String(format: "−%.1f", armyUpkeep),
+            "interest": interest,
+            "interestText": String(format: "−%.1f", interest),
+            "taxBreakdown": taxBreakdown,
+            "taxes": taxes,
+            "inflation": inflation,
+            "inflationPercent": inflation * 100.0,
+            "inflationText": String(format: "%.1f%%", inflation * 100.0),
+            "canDebase": canDebase,
+            "canDebaseOnce": canDebase,
+            "debaseRefusal": canDebase ? "" : "Your Sound money law forbids debasing the coin.",
+            "debaseOnceGain": quickDebase,
+            "debaseOnceInflationPercent": debaseOnceInflationPct,
+            "debaseOnceText": String(format: "Debase once: +%.0f, +%.0f%% inflation", quickDebase, debaseOnceInflationPct),
+            "isDebasing": isDebasing,
+            "canToggleDebasing": canToggleDebasing,
+            "debaseOngoingText": String(
+                format: "Keep debasing (+%.0f%% income, +%.1f%% inflation a month)",
+                Finance.debaseOngoingIncome * 100.0,
+                Finance.debaseOngoingInflation * 100.0
+            ),
+            "isBankrupt": bankruptMonths > 0,
+            "bankruptMonthsLeft": bankruptMonths,
+            "bankruptcyWarning": bankruptcyWarning,
+            "loans": loans,
+            "banks": banks
+        ]
+    }
+
+    @discardableResult
+    public func setTaxLevel(taxClassIndex: Int, level: Double) -> Bool {
+        guard let s = session,
+              s.playerCountry != nil,
+              taxClassIndex >= 0 && taxClassIndex < TaxClass.allCases.count,
+              let tc = TaxClass(rawValue: taxClassIndex),
+              level.isFinite else {
+            return false
+        }
+        s.setTax(tc, level: level)
+        return true
+    }
+
+    @discardableResult
+    public func borrowFromBank(bankIndex: Int, amount: Double) -> Bool {
+        guard let s = session,
+              let player = s.playerCountry,
+              bankIndex >= 0 && bankIndex < s.world.finance.banks.count,
+              amount > 0 && amount.isFinite else {
+            return false
+        }
+        let bank = BankID(bankIndex)
+        guard s.world.loanRate(bank, for: player) != nil,
+              s.world.finance.banks.capital[bankIndex] >= amount else {
+            return false
+        }
+        let countBefore = s.world.finance.loans.count
+        s.borrow(from: bank, amount: amount)
+        return s.world.finance.loans.count > countBefore
+    }
+
+    @discardableResult
+    public func repayLoan(loanIndex: Int) -> Bool {
+        guard let s = session,
+              let player = s.playerCountry,
+              loanIndex >= 0 && loanIndex < s.world.finance.loans.count else {
+            return false
+        }
+        let loan = s.world.finance.loans[loanIndex]
+        guard loan.country == player,
+              s.world.countries.treasury[player.index] >= loan.principal else {
+            return false
+        }
+        let countBefore = s.world.finance.loans.count
+        s.repay(loan: loanIndex)
+        return s.world.finance.loans.count < countBefore
+    }
+
+    @discardableResult
+    public func debaseOnce() -> Double {
+        guard let s = session,
+              let player = s.playerCountry,
+              GovernmentSystem.canDebase(s.world, player) else {
+            return 0.0
+        }
+        return s.debaseOnce()
+    }
+
+    @discardableResult
+    public func setDebasing(on: Bool) -> Bool {
+        guard let s = session, let player = s.playerCountry else {
+            return false
+        }
+        if on && (s.world.countries.bankruptMonthsLeft[player.index] > 0 || !GovernmentSystem.canDebase(s.world, player)) {
+            return false
+        }
+        s.setDebasing(on)
+        return s.world.countries.debasing[player.index] == on
+    }
+
+    private static func routeTollRateShare(world w: World, owner: CountryID, path: [MarketID]) -> Double {
+        guard path.count > 2 else { return 0.0 }
+        var share = 0.0
+        for s in 1..<(path.count - 1) {
+            if let o = w.marketOwner(path[s]), o != owner {
+                share += w.countries.tollPolicy[o.index].rate
+            }
+        }
+        return share
+    }
+
+    /// Detailed breakdown for the top-bar Trade window (`App/Shared/TradeView.swift`).
+    public func tradeWindowDetails(
+        draftGoodIndex: Int = -1,
+        draftFromMarketIndex: Int = -1,
+        draftToMarketIndex: Int = -1,
+        draftVolume: Double = 25.0
+    ) -> [String: Any] {
+        guard let s = session, let player = s.playerCountry else {
+            return ["valid": false]
+        }
+        let w = s.world
+        let eco = w.economy
+        let used = w.tradeCapacityUsed(player)
+        let total = w.tradeCapacity(player)
+
+        let playerRoutes: [[String: Any]] = eco.routes.enumerated()
+            .filter { $0.element.owner == player }
+            .map { entry in
+                let idx = entry.offset
+                let r = entry.element
+                let rgb = eco.goods.color[r.good.index]
+                let gName = eco.goods.name[r.good.index]
+                let fromName = eco.markets.name[r.from.index]
+                let toName = eco.markets.name[r.to.index]
+                let isBlocked = r.path.isEmpty
+                let isLosing = r.monthsLosing > 0
+                let movedYr = r.moved * 12.0
+                let profitYr = r.profit * 12.0
+                let buyPrice = eco.markets.price(r.from, r.good)
+                let tollShare = Self.routeTollRateShare(world: w, owner: player, path: r.path)
+                let tollsYr = isBlocked ? 0.0 : movedYr * buyPrice * tollShare
+                let pathText = isBlocked
+                    ? "Blocked: no open way"
+                    : "Via " + r.path.map { eco.markets.name[$0.index] }.joined(separator: " → ")
+                let detailsText: String
+                if isBlocked {
+                    detailsText = "Blocked: no open way"
+                } else {
+                    let losingSuffix = isLosing ? " · losing money" : ""
+                    detailsText = String(
+                        format: "%.0f of %.0f/yr · %+.1f/yr · tolls %.1f/yr%@",
+                        movedYr, r.volume, profitYr, tollsYr, losingSuffix
+                    )
+                }
+                return [
+                    "routeIndex": idx,
+                    "goodIndex": r.good.index,
+                    "goodName": gName,
+                    "colorR": Int(rgb.r),
+                    "colorG": Int(rgb.g),
+                    "colorB": Int(rgb.b),
+                    "fromMarketIndex": r.from.index,
+                    "fromMarketName": fromName,
+                    "toMarketIndex": r.to.index,
+                    "toMarketName": toName,
+                    "titleText": "\(gName): \(fromName) → \(toName)",
+                    "movedYearly": movedYr,
+                    "volume": r.volume,
+                    "profitYearly": profitYr,
+                    "tollsYearly": tollsYr,
+                    "isBlocked": isBlocked,
+                    "isLosing": isLosing,
+                    "monthsLosing": r.monthsLosing,
+                    "pathText": pathText,
+                    "detailsText": detailsText
+                ]
+            }
+
+        var goodsList: [[String: Any]] = []
+        for cat in GoodCategory.allCases {
+            for g in eco.goods.ids where eco.goods.category[g.index] == cat {
+                let rgb = eco.goods.color[g.index]
+                goodsList.append([
+                    "goodIndex": g.index,
+                    "name": eco.goods.name[g.index],
+                    "categoryKey": cat.rawValue,
+                    "categoryTitle": cat.displayName,
+                    "colorR": Int(rgb.r),
+                    "colorG": Int(rgb.g),
+                    "colorB": Int(rgb.b)
+                ])
+            }
+        }
+
+        let categories: [[String: Any]] = [["key": "", "title": "All"]] + GoodCategory.allCases.map {
+            ["key": $0.rawValue, "title": $0.displayName]
+        }
+
+        let validDraftGood = (draftGoodIndex >= 0 && draftGoodIndex < eco.goods.count) ? GoodID(draftGoodIndex) : nil
+        let sortedMarkets = eco.markets.ids.sorted { eco.markets.name[$0.index] < eco.markets.name[$1.index] }
+        let marketsList: [[String: Any]] = sortedMarkets.map { m in
+            let name = eco.markets.name[m.index]
+            let price = validDraftGood.map { eco.markets.price(m, $0) } ?? 0.0
+            let priceText = validDraftGood != nil ? String(format: "%.1f", price) : ""
+            return [
+                "marketIndex": m.index,
+                "name": name,
+                "price": price,
+                "priceText": priceText,
+                "label": validDraftGood != nil ? "\(name) (\(priceText))" : name
+            ]
+        }
+
+        var sourceSuggestions: [[String: Any]] = []
+        if let g = validDraftGood {
+            let destID = (draftToMarketIndex >= 0 && draftToMarketIndex < eco.markets.count) ? MarketID(draftToMarketIndex) : nil
+            let bestSources = eco.markets.ids
+                .filter { $0 != destID && eco.markets.supply[eco.markets.slot($0, g)] > 0 }
+                .sorted { eco.markets.price($0, g) < eco.markets.price($1, g) }
+                .prefix(5)
+            for m in bestSources {
+                let p = eco.markets.price(m, g)
+                let pText = String(format: "%.1f", p)
+                sourceSuggestions.append([
+                    "marketIndex": m.index,
+                    "name": eco.markets.name[m.index],
+                    "price": p,
+                    "priceText": pText,
+                    "label": "\(eco.markets.name[m.index]) (\(pText))"
+                ])
+            }
+        }
+
+        let tollPolicies: [[String: Any]] = TollPolicy.allCases.map { p in
+            ["key": p.rawValue, "title": p.displayName]
+        }
+
+        let embargoSet = w.countries.embargoes[player.index]
+        let embargoes: [[String: Any]] = embargoSet.sorted { $0.index < $1.index }.map { c in
+            let rgb = w.countries.color[c.index]
+            return [
+                "countryIndex": c.index,
+                "tag": w.countries.tag[c.index],
+                "name": w.countries.name[c.index],
+                "colorR": Int(rgb.r),
+                "colorG": Int(rgb.g),
+                "colorB": Int(rgb.b)
+            ]
+        }
+
+        let tradingCountries = Set(eco.routes.map(\.owner)).subtracting([player]).subtracting(embargoSet)
+            .sorted { w.countries.name[$0.index] < w.countries.name[$1.index] }
+        let embargoCandidates: [[String: Any]] = tradingCountries.map { c in
+            [
+                "countryIndex": c.index,
+                "tag": w.countries.tag[c.index],
+                "name": w.countries.name[c.index]
+            ]
+        }
+
+        let estimate = (draftGoodIndex >= 0 && draftFromMarketIndex >= 0 && draftToMarketIndex >= 0)
+            ? estimateTradeRoute(
+                goodIndex: draftGoodIndex,
+                fromMarketIndex: draftFromMarketIndex,
+                toMarketIndex: draftToMarketIndex,
+                volume: draftVolume
+            )
+            : ["hasEstimate": false, "canCreate": false, "refusalReason": ""]
+
+        return [
+            "valid": true,
+            "capacityUsed": used,
+            "capacityTotal": total,
+            "capacityRatio": min(used, total) / max(total, 1.0),
+            "capacityText": String(format: "%.0f / %.0f", used, total),
+            "lastTrade": w.countries.lastTrade[player.index],
+            "lastTolls": w.countries.lastTolls[player.index],
+            "lastMonthText": String(
+                format: "Last month: merchants %+.1f, tolls %+.1f",
+                w.countries.lastTrade[player.index],
+                w.countries.lastTolls[player.index]
+            ),
+            "routes": playerRoutes,
+            "goodCategories": categories,
+            "goods": goodsList,
+            "markets": marketsList,
+            "sourceSuggestions": sourceSuggestions,
+            "volumes": TradeSystem.volumes,
+            "tollPolicyKey": w.countries.tollPolicy[player.index].rawValue,
+            "tollPolicies": tollPolicies,
+            "embargoes": embargoes,
+            "embargoCandidates": embargoCandidates,
+            "estimate": estimate
+        ]
+    }
+
+    public func estimateTradeRoute(
+        goodIndex: Int,
+        fromMarketIndex: Int,
+        toMarketIndex: Int,
+        volume: Double
+    ) -> [String: Any] {
+        guard let s = session, let player = s.playerCountry else {
+            return ["hasEstimate": false, "canCreate": false, "refusalReason": "No active country"]
+        }
+        let w = s.world
+        let eco = w.economy
+        guard goodIndex >= 0 && goodIndex < eco.goods.count,
+              fromMarketIndex >= 0 && fromMarketIndex < eco.markets.count,
+              toMarketIndex >= 0 && toMarketIndex < eco.markets.count,
+              volume > 0 && volume.isFinite else {
+            return ["hasEstimate": false, "canCreate": false, "refusalReason": "Invalid route selection"]
+        }
+        let good = GoodID(goodIndex)
+        let fromM = MarketID(fromMarketIndex)
+        let toM = MarketID(toMarketIndex)
+        if fromM == toM {
+            return [
+                "hasEstimate": true,
+                "canCreate": false,
+                "refusalReason": TradeSystem.Refusal.sameMarket.reason,
+                "summaryText": "",
+                "pathText": ""
+            ]
+        }
+        guard let est = w.routeEstimate(owner: player, good: good, from: fromM, to: toM, volume: volume) else {
+            return [
+                "hasEstimate": true,
+                "canCreate": false,
+                "refusalReason": TradeSystem.Refusal.noPath.reason,
+                "summaryText": "",
+                "pathText": ""
+            ]
+        }
+        let buy = eco.markets.price(fromM, good)
+        let sell = eco.markets.price(toM, good)
+        let tollShare = Self.routeTollRateShare(world: w, owner: player, path: est.path)
+        let tollsYearly = volume * buy * tollShare
+        let hasCapacity = (w.tradeCapacityUsed(player) + est.capacity <= w.tradeCapacity(player))
+        let refusal = hasCapacity ? "" : TradeSystem.Refusal.noCapacity.reason
+        let pathText = "Via " + est.path.map { eco.markets.name[$0.index] }.joined(separator: " → ")
+        let summaryText = String(
+            format: "Buy at %.1f, sell at %.1f · %+.0f/yr · tolls %.1f/yr · uses %.0f capacity",
+            buy, sell, est.profit, tollsYearly, est.capacity
+        )
+        return [
+            "hasEstimate": true,
+            "buyPrice": buy,
+            "sellPrice": sell,
+            "profit": est.profit,
+            "estimatedTolls": tollsYearly,
+            "capacity": est.capacity,
+            "pathText": pathText,
+            "summaryText": summaryText,
+            "canCreate": hasCapacity,
+            "refusalReason": refusal
+        ]
+    }
+
+    public func createTradeRoute(
+        goodIndex: Int,
+        fromMarketIndex: Int,
+        toMarketIndex: Int,
+        volume: Double
+    ) -> [String: Any] {
+        guard let s = session, s.playerCountry != nil else {
+            return ["created": false, "refusalReason": "No active country"]
+        }
+        let eco = s.world.economy
+        guard goodIndex >= 0 && goodIndex < eco.goods.count,
+              fromMarketIndex >= 0 && fromMarketIndex < eco.markets.count,
+              toMarketIndex >= 0 && toMarketIndex < eco.markets.count,
+              volume > 0 && volume.isFinite else {
+            return ["created": false, "refusalReason": "Invalid route selection"]
+        }
+        let refusal = s.createRoute(
+            good: GoodID(goodIndex),
+            from: MarketID(fromMarketIndex),
+            to: MarketID(toMarketIndex),
+            volume: volume
+        )
+        return [
+            "created": refusal == nil,
+            "refusalReason": refusal?.reason ?? ""
+        ]
+    }
+
+    @discardableResult
+    public func cancelTradeRoute(routeIndex: Int) -> Bool {
+        guard let s = session,
+              let player = s.playerCountry,
+              routeIndex >= 0 && routeIndex < s.world.economy.routes.count,
+              s.world.economy.routes[routeIndex].owner == player else {
+            return false
+        }
+        s.cancelRoute(routeIndex)
+        return true
+    }
+
+    @discardableResult
+    public func setTollPolicy(key: String) -> Bool {
+        guard let s = session,
+              s.playerCountry != nil,
+              let policy = TollPolicy(rawValue: key.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()) else {
+            return false
+        }
+        s.setTollPolicy(policy)
+        return true
+    }
+
+    @discardableResult
+    public func toggleEmbargo(countryIndex: Int) -> Bool {
+        guard let s = session,
+              let player = s.playerCountry,
+              countryIndex >= 0 && countryIndex < s.world.countries.count,
+              CountryID(countryIndex) != player else {
+            return false
+        }
+        s.toggleEmbargo(CountryID(countryIndex))
+        return true
+    }
+
+    /// Data for `MapRoutesLayer.gd`: player's trade routes and market centres.
+    public func mapTradeRoutesData() -> [String: Any] {
+        guard let s = session, let player = s.playerCountry else {
+            return ["signature": "empty", "markets": [], "routes": []]
+        }
+        let w = s.world
+        let eco = w.economy
+        let centres = s.marketCentrePoints
+
+        var playerEndpoints = Set<Int>()
+        var routesOut: [[String: Any]] = []
+        var sigParts: [String] = [w.countries.tag[player.index]]
+
+        for (idx, r) in eco.routes.enumerated() where r.owner == player {
+            guard r.from.index < centres.count && r.to.index < centres.count else { continue }
+            playerEndpoints.insert(r.from.index)
+            playerEndpoints.insert(r.to.index)
+            let fromPt = centres[r.from.index]
+            let toPt = centres[r.to.index]
+            var pts: [Double] = []
+            for m in r.path where m.index >= 0 && m.index < centres.count {
+                pts.append(centres[m.index].x)
+                pts.append(centres[m.index].y)
+                playerEndpoints.insert(m.index)
+            }
+            let isBlocked = r.path.count < 2
+            let isLosing = r.monthsLosing > 0
+            let value = max(r.moved * 12.0, r.volume * 0.25) * eco.goods.basePrice[r.good.index]
+            let rgb = eco.goods.color[r.good.index]
+            let pathSig = r.path.map { String($0.index) }.joined(separator: "-")
+            sigParts.append("\(idx):\(r.good.index):\(r.from.index):\(r.to.index):\(Int(r.volume)):\(pathSig):\(Int(r.moved * 10)):\(r.monthsLosing)")
+
+            routesOut.append([
+                "routeIndex": idx,
+                "goodName": eco.goods.name[r.good.index],
+                "colorR": Int(rgb.r),
+                "colorG": Int(rgb.g),
+                "colorB": Int(rgb.b),
+                "isBlocked": isBlocked,
+                "isLosing": isLosing,
+                "value": value,
+                "fromX": fromPt.x,
+                "fromY": fromPt.y,
+                "toX": toPt.x,
+                "toY": toPt.y,
+                "points": pts
+            ])
+        }
+
+        var marketsOut: [[String: Any]] = []
+        for m in eco.markets.ids where m.index < centres.count {
+            let pt = centres[m.index]
+            marketsOut.append([
+                "marketIndex": m.index,
+                "name": eco.markets.name[m.index],
+                "x": pt.x,
+                "y": pt.y,
+                "isPlayerEndpoint": playerEndpoints.contains(m.index)
+            ])
+        }
+
+        return [
+            "signature": sigParts.joined(separator: "|"),
+            "markets": marketsOut,
+            "routes": routesOut
+        ]
+    }
+
     private static func buildRecruitUnitsList(world w: World, country: CountryID, province: ProvinceID) -> [[String: Any]] {
         let units = ArmySystem.availableUnits(w, for: country)
         let currentMercs = w.military.totalMen(of: country, origin: .mercenary)
@@ -2211,6 +2884,109 @@ public final class GezGodotBridge: RefCounted {
     @Callable
     public func assaultFort(provinceIndex: Int) -> VariantDictionary {
         Self.toVariantDictionary(controller.assaultFort(provinceIndex: provinceIndex))
+    }
+
+    // MARK: - Step 3c: Budget & Trade
+
+    @Callable
+    public func getBudgetDetails() -> VariantDictionary {
+        Self.toVariantDictionary(controller.budgetDetails())
+    }
+
+    @Callable
+    public func setTaxLevel(taxClassIndex: Int, level: Double) -> Bool {
+        controller.setTaxLevel(taxClassIndex: taxClassIndex, level: level)
+    }
+
+    @Callable
+    public func borrowFromBank(bankIndex: Int, amount: Double) -> Bool {
+        controller.borrowFromBank(bankIndex: bankIndex, amount: amount)
+    }
+
+    @Callable
+    public func repayLoan(loanIndex: Int) -> Bool {
+        controller.repayLoan(loanIndex: loanIndex)
+    }
+
+    @Callable
+    public func debaseOnce() -> Double {
+        controller.debaseOnce()
+    }
+
+    @Callable
+    public func setDebasing(on: Bool) -> Bool {
+        controller.setDebasing(on: on)
+    }
+
+    @Callable
+    public func getTradeWindowDetails(
+        draftGoodIndex: Int,
+        draftFromMarketIndex: Int,
+        draftToMarketIndex: Int,
+        draftVolume: Double
+    ) -> VariantDictionary {
+        Self.toVariantDictionary(
+            controller.tradeWindowDetails(
+                draftGoodIndex: draftGoodIndex,
+                draftFromMarketIndex: draftFromMarketIndex,
+                draftToMarketIndex: draftToMarketIndex,
+                draftVolume: draftVolume
+            )
+        )
+    }
+
+    @Callable
+    public func estimateTradeRoute(
+        goodIndex: Int,
+        fromMarketIndex: Int,
+        toMarketIndex: Int,
+        volume: Double
+    ) -> VariantDictionary {
+        Self.toVariantDictionary(
+            controller.estimateTradeRoute(
+                goodIndex: goodIndex,
+                fromMarketIndex: fromMarketIndex,
+                toMarketIndex: toMarketIndex,
+                volume: volume
+            )
+        )
+    }
+
+    @Callable
+    public func createTradeRoute(
+        goodIndex: Int,
+        fromMarketIndex: Int,
+        toMarketIndex: Int,
+        volume: Double
+    ) -> VariantDictionary {
+        Self.toVariantDictionary(
+            controller.createTradeRoute(
+                goodIndex: goodIndex,
+                fromMarketIndex: fromMarketIndex,
+                toMarketIndex: toMarketIndex,
+                volume: volume
+            )
+        )
+    }
+
+    @Callable
+    public func cancelTradeRoute(routeIndex: Int) -> Bool {
+        controller.cancelTradeRoute(routeIndex: routeIndex)
+    }
+
+    @Callable
+    public func setTollPolicy(key: String) -> Bool {
+        controller.setTollPolicy(key: key)
+    }
+
+    @Callable
+    public func toggleEmbargo(countryIndex: Int) -> Bool {
+        controller.toggleEmbargo(countryIndex: countryIndex)
+    }
+
+    @Callable
+    public func getMapTradeRoutesData() -> VariantDictionary {
+        Self.toVariantDictionary(controller.mapTradeRoutesData())
     }
 
     // MARK: - Variant Conversion Helpers

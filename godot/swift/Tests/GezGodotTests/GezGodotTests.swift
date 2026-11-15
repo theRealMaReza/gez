@@ -467,4 +467,252 @@ struct GezGodotTests {
             #expect((afterAssault["assaultResultText"] as? String)?.isEmpty == false)
         }
     }
+
+    @Test("Budget bridge handles summary, tax sliders, loans, debasement, and bankruptcy checks")
+    func budgetBridgeOperations() {
+        let controller = GezGodotController()
+        let emptyBudget = controller.budgetDetails()
+        #expect(emptyBudget["valid"] as? Bool == false)
+        let r0 = controller.setTaxLevel(taxClassIndex: 0, level: 0.25)
+        let r1 = controller.borrowFromBank(bankIndex: 0, amount: 50.0)
+        let r2 = controller.repayLoan(loanIndex: 0)
+        let r3 = controller.debaseOnce()
+        let r4 = controller.setDebasing(on: true)
+        #expect(!r0)
+        #expect(!r1)
+        #expect(!r2)
+        #expect(r3 == 0)
+        #expect(!r4)
+
+        let setupOk = controller.setup(dataDirectoryPath: "", tag: "TUR")
+        #expect(setupOk)
+        let initial = controller.budgetDetails()
+        #expect(initial["valid"] as? Bool == true)
+        #expect(initial["isBankrupt"] as? Bool == false)
+        #expect((initial["bankruptcyWarning"] as? String)?.isEmpty == true)
+
+        let taxes = initial["taxes"] as? [[String: Any]] ?? []
+        #expect(taxes.count == TaxClass.allCases.count)
+        let banks = initial["banks"] as? [[String: Any]] ?? []
+        #expect(!banks.isEmpty)
+
+        // Tax slider range and index checks.
+        let badTax1 = controller.setTaxLevel(taxClassIndex: -1, level: 0.2)
+        let badTax2 = controller.setTaxLevel(taxClassIndex: 99, level: 0.2)
+        let badTax3 = controller.setTaxLevel(taxClassIndex: 0, level: .nan)
+        let goodTax = controller.setTaxLevel(taxClassIndex: 0, level: 0.35)
+        #expect(!badTax1)
+        #expect(!badTax2)
+        #expect(!badTax3)
+        #expect(goodTax)
+        let afterTax = controller.budgetDetails()
+        let updatedTaxes = afterTax["taxes"] as? [[String: Any]] ?? []
+        #expect(abs((updatedTaxes[0]["level"] as? Double ?? 0.0) - 0.35) < 0.001)
+
+        // Borrowing & repaying loans + out-of-range checks.
+        let firstBankIndex = banks[0]["bankIndex"] as? Int ?? 0
+        let firstAmount = (banks[0]["amounts"] as? [Double])?.first ?? 50.0
+        let badBank1 = controller.borrowFromBank(bankIndex: -1, amount: 50.0)
+        let badBank2 = controller.borrowFromBank(bankIndex: 999, amount: 50.0)
+        let badAmt1 = controller.borrowFromBank(bankIndex: firstBankIndex, amount: 0.0)
+        let badAmt2 = controller.borrowFromBank(bankIndex: firstBankIndex, amount: .infinity)
+        #expect(!badBank1)
+        #expect(!badBank2)
+        #expect(!badAmt1)
+        #expect(!badAmt2)
+
+        let treasuryBeforeLoan = afterTax["treasury"] as? Double ?? 0.0
+        let initialLoansCount = (afterTax["loans"] as? [[String: Any]] ?? []).count
+        let borrowOk = controller.borrowFromBank(bankIndex: firstBankIndex, amount: firstAmount)
+        #expect(borrowOk)
+        let afterLoan = controller.budgetDetails()
+        let loansAfterBorrow = afterLoan["loans"] as? [[String: Any]] ?? []
+        #expect(loansAfterBorrow.count == initialLoansCount + 1)
+        #expect((afterLoan["treasury"] as? Double ?? 0.0) >= treasuryBeforeLoan + firstAmount - 0.01)
+
+        let badRepay1 = controller.repayLoan(loanIndex: -1)
+        let badRepay2 = controller.repayLoan(loanIndex: 999_999)
+        let borrowedLoanIdx = loansAfterBorrow.last?["loanIndex"] as? Int ?? -1
+        let repayOk = controller.repayLoan(loanIndex: borrowedLoanIdx)
+        #expect(!badRepay1)
+        #expect(!badRepay2)
+        #expect(repayOk)
+        let afterRepay = controller.budgetDetails()
+        let loansAfterRepay = afterRepay["loans"] as? [[String: Any]] ?? []
+        #expect(loansAfterRepay.count == initialLoansCount)
+
+        // Debase once & ongoing debasement toggle.
+        let inflationBefore = afterRepay["inflation"] as? Double ?? 0.0
+        let treasuryBeforeDebase = afterRepay["treasury"] as? Double ?? 0.0
+        let gained = controller.debaseOnce()
+        #expect(gained > 0.0)
+        let afterDebase = controller.budgetDetails()
+        #expect((afterDebase["treasury"] as? Double ?? 0.0) > treasuryBeforeDebase)
+        #expect((afterDebase["inflation"] as? Double ?? 0.0) > inflationBefore)
+
+        let debaseOnOk = controller.setDebasing(on: true)
+        #expect(debaseOnOk)
+        #expect(controller.budgetDetails()["isDebasing"] as? Bool == true)
+        let debaseOffOk = controller.setDebasing(on: false)
+        #expect(debaseOffOk)
+        #expect(controller.budgetDetails()["isDebasing"] as? Bool == false)
+
+        // Bankruptcy warning flag surfaces cleanly.
+        if let s = controller.session, let player = s.playerCountry {
+            s.simulation.world.countries.bankruptMonthsLeft[player.index] = 10
+            let bankruptBudget = controller.budgetDetails()
+            #expect(bankruptBudget["isBankrupt"] as? Bool == true)
+            #expect(bankruptBudget["bankruptMonthsLeft"] as? Int == 10)
+            #expect((bankruptBudget["bankruptcyWarning"] as? String)?.isEmpty == false)
+        }
+    }
+
+    @Test("Trade bridge handles route estimate/create/cancel, toll policy, embargoes, and map routes")
+    func tradeBridgeOperations() {
+        let controller = GezGodotController()
+        let emptyTrade = controller.tradeWindowDetails()
+        #expect(emptyTrade["valid"] as? Bool == false)
+        #expect(controller.estimateTradeRoute(goodIndex: 0, fromMarketIndex: 0, toMarketIndex: 1, volume: 25)["hasEstimate"] as? Bool == false)
+        #expect(controller.createTradeRoute(goodIndex: 0, fromMarketIndex: 0, toMarketIndex: 1, volume: 25)["created"] as? Bool == false)
+        #expect(!controller.cancelTradeRoute(routeIndex: 0))
+        #expect(!controller.setTollPolicy(key: "normal"))
+        #expect(!controller.toggleEmbargo(countryIndex: 0))
+
+        #expect(controller.setup(dataDirectoryPath: "", tag: "TUR"))
+        let details = controller.tradeWindowDetails()
+        #expect(details["valid"] as? Bool == true)
+        let goods = details["goods"] as? [[String: Any]] ?? []
+        let markets = details["markets"] as? [[String: Any]] ?? []
+        let policies = details["tollPolicies"] as? [[String: Any]] ?? []
+        #expect(!goods.isEmpty)
+        #expect(markets.count >= 2)
+        #expect(!policies.isEmpty)
+
+        // Out-of-range & invalid inputs.
+        #expect(controller.estimateTradeRoute(goodIndex: -1, fromMarketIndex: 0, toMarketIndex: 1, volume: 25)["hasEstimate"] as? Bool == false)
+        #expect(controller.estimateTradeRoute(goodIndex: 0, fromMarketIndex: -1, toMarketIndex: 1, volume: 25)["hasEstimate"] as? Bool == false)
+        #expect(controller.estimateTradeRoute(goodIndex: 0, fromMarketIndex: 0, toMarketIndex: 999, volume: 25)["hasEstimate"] as? Bool == false)
+        #expect(controller.estimateTradeRoute(goodIndex: 0, fromMarketIndex: 0, toMarketIndex: 0, volume: 25)["canCreate"] as? Bool == false)
+        #expect(!controller.cancelTradeRoute(routeIndex: -1))
+        #expect(!controller.cancelTradeRoute(routeIndex: 999_999))
+        #expect(!controller.setTollPolicy(key: "invalid_policy"))
+        #expect(!controller.toggleEmbargo(countryIndex: -1))
+        #expect(!controller.toggleEmbargo(countryIndex: 999_999))
+
+        // Foreign country cannot be cancelled by player, and self cannot be embargoed.
+        if let s = controller.session, let player = s.playerCountry {
+            #expect(!controller.toggleEmbargo(countryIndex: player.index))
+            if let foreignIdx = s.world.economy.routes.firstIndex(where: { $0.owner != player }) {
+                #expect(!controller.cancelTradeRoute(routeIndex: foreignIdx))
+            }
+            if let otherCountry = s.world.countries.ids.first(where: { $0 != player }) {
+                #expect(controller.toggleEmbargo(countryIndex: otherCountry.index))
+                let afterEmbargo = controller.tradeWindowDetails()
+                let embList = afterEmbargo["embargoes"] as? [[String: Any]] ?? []
+                #expect(embList.contains { ($0["countryIndex"] as? Int) == otherCountry.index })
+                #expect(controller.toggleEmbargo(countryIndex: otherCountry.index))
+                let afterLift = controller.tradeWindowDetails()
+                let liftList = afterLift["embargoes"] as? [[String: Any]] ?? []
+                #expect(!liftList.contains { ($0["countryIndex"] as? Int) == otherCountry.index })
+            }
+        }
+
+        // Toll policy update.
+        if let targetPolicyKey = policies.last?["key"] as? String {
+            #expect(controller.setTollPolicy(key: targetPolicyKey))
+            #expect(controller.tradeWindowDetails()["tollPolicyKey"] as? String == targetPolicyKey)
+        }
+
+        // Find a valid reachable route pair, create it, inspect map route layer data + signature, then cancel it.
+        var foundPair: (good: Int, fromM: Int, toM: Int)? = nil
+        outer: for g in goods.prefix(10) {
+            guard let gIdx = g["goodIndex"] as? Int else { continue }
+            let dForGood = controller.tradeWindowDetails(draftGoodIndex: gIdx)
+            let sugs = dForGood["sourceSuggestions"] as? [[String: Any]] ?? []
+            guard let src = sugs.first?["marketIndex"] as? Int else { continue }
+            for m in markets {
+                guard let dst = m["marketIndex"] as? Int, dst != src else { continue }
+                let est = controller.estimateTradeRoute(goodIndex: gIdx, fromMarketIndex: src, toMarketIndex: dst, volume: 10.0)
+                if est["canCreate"] as? Bool == true {
+                    foundPair = (gIdx, src, dst)
+                    break outer
+                }
+            }
+        }
+
+        if let pair = foundPair {
+            let mapBefore = controller.mapTradeRoutesData()
+            let sigBefore = mapBefore["signature"] as? String ?? ""
+            let routesBeforeCount = (controller.tradeWindowDetails()["routes"] as? [[String: Any]] ?? []).count
+
+            let createdRes = controller.createTradeRoute(
+                goodIndex: pair.good,
+                fromMarketIndex: pair.fromM,
+                toMarketIndex: pair.toM,
+                volume: 10.0
+            )
+            #expect(createdRes["created"] as? Bool == true)
+
+            let afterCreate = controller.tradeWindowDetails()
+            let routesAfter = afterCreate["routes"] as? [[String: Any]] ?? []
+            #expect(routesAfter.count == routesBeforeCount + 1)
+
+            let mapAfter = controller.mapTradeRoutesData()
+            let sigAfter = mapAfter["signature"] as? String ?? ""
+            #expect(sigAfter != sigBefore)
+            #expect(!(mapAfter["markets"] as? [[String: Any]] ?? []).isEmpty)
+
+            if let createdIdx = routesAfter.last?["routeIndex"] as? Int {
+                #expect(controller.cancelTradeRoute(routeIndex: createdIdx))
+                let afterCancel = controller.tradeWindowDetails()
+                #expect((afterCancel["routes"] as? [[String: Any]] ?? []).count == routesBeforeCount)
+                let sigCancelled = controller.mapTradeRoutesData()["signature"] as? String ?? ""
+                #expect(sigCancelled != sigAfter)
+            }
+        }
+    }
+
+    @Test("Province building details expose levels, costs, materials, construction progress, and refusals")
+    func selectedProvinceBuildingsDetails() {
+        let controller = GezGodotController()
+        #expect(controller.setup(dataDirectoryPath: "", tag: "TUR"))
+        guard let s = controller.session, let player = s.playerCountry else {
+            Issue.record("Missing session or player")
+            return
+        }
+        guard let ownedProv = s.world.provinces.ids.first(where: { s.world.provinces.owner[$0.index] == player }) else {
+            Issue.record("No owned province for TUR")
+            return
+        }
+        s.select(province: ownedProv)
+
+        let provDetails = controller.selectedProvinceDetails()
+        #expect(provDetails["isPlayerOwned"] as? Bool == true)
+        #expect((provDetails["slotsTotal"] as? Int ?? 0) >= 0)
+        #expect(!(provDetails["slotsText"] as? String ?? "").isEmpty)
+
+        let options = provDetails["buildableOptions"] as? [[String: Any]] ?? []
+        #expect(options.count == s.world.economy.buildingTypes.count)
+        let firstWithMaterials = options.first { !($0["materials"] as? [[String: Any]] ?? []).isEmpty }
+        #expect(firstWithMaterials != nil)
+        #expect((firstWithMaterials?["materialsText"] as? String)?.isEmpty == false)
+
+        if let buildable = options.first(where: { $0["canBuild"] as? Bool == true }),
+           let typeIdx = buildable["typeIndex"] as? Int {
+            #expect((buildable["effectText"] as? String)?.isEmpty == false)
+            let buildOk = controller.buildInSelectedProvince(buildingTypeIndex: typeIdx)
+            #expect(buildOk)
+
+            let afterBuild = controller.selectedProvinceDetails()
+            let constructions = afterBuild["constructions"] as? [[String: Any]] ?? []
+            #expect(!constructions.isEmpty)
+            #expect((constructions[0]["totalMonths"] as? Int ?? 0) > 0)
+            #expect((constructions[0]["monthsLeft"] as? Int ?? 0) > 0)
+
+            let updatedOptions = afterBuild["buildableOptions"] as? [[String: Any]] ?? []
+            let matching = updatedOptions.first { $0["typeIndex"] as? Int == typeIdx }
+            #expect(matching?["canBuild"] as? Bool == false)
+            #expect((matching?["refusalReason"] as? String)?.isEmpty == false)
+        }
+    }
 }
