@@ -1186,4 +1186,24 @@ public final class GameSession {
         tacticalBattle = battle
         return true
     }
+
+    @discardableResult
+    public func orderBattleSiegeEquipment(unitIndices: [Int], equipment: SiegeEquipmentKind) -> Bool {
+        guard var battle = tacticalBattle, battle.phase != .ended, battle.isAssault else { return false }
+        let owned = playerControlledIndices(from: unitIndices, in: battle)
+        guard !owned.isEmpty else { return false }
+        battle.issueSiegeEquipmentOrder(unitIndices: owned, equipment: equipment)
+        tacticalBattle = battle
+        return true
+    }
+
+    @discardableResult
+    public func orderBattleAttackStructure(unitIndices: [Int], structureID: Int) -> Bool {
+        guard var battle = tacticalBattle, battle.phase == .active, battle.isAssault else { return false }
+        let owned = playerControlledIndices(from: unitIndices, in: battle)
+        guard !owned.isEmpty else { return false }
+        battle.issueAttackStructureOrder(unitIndices: owned, structureID: structureID)
+        tacticalBattle = battle
+        return true
+    }
 }

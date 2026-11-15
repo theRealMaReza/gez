@@ -18,6 +18,11 @@ public enum BattleAI {
     }
 
     private static func updateSide(_ side: BattleSide, engine: inout BattleEngine) {
+        if engine.isAssault {
+            updateAssaultSide(side, engine: &engine)
+            return
+        }
+
         let ownInit = max(1, engine.units.totalInitialMen(on: side))
         let ownMen = engine.units.totalMen(on: side)
         let enemyMen = engine.units.totalMen(on: side.opposite)
@@ -126,6 +131,135 @@ public enum BattleAI {
                     engine.units.targetUnit[i] = target
                 }
                 engine.units.updateFootprint(for: i)
+            }
+        }
+    }
+
+    private static func updateAssaultSide(_ side: BattleSide, engine: inout BattleEngine) {
+        let kz = engine.battlefield.keepZone ?? TacticalRect(x: 965.0, y: 290.0, width: 165.0, height: 220.0)
+        let firstBreach = engine.structures.first(where: { $0.kind != .keep && $0.breached })
+
+        if side == .defender {
+            // Garrison holds ramparts and intercepts climbers or attackers pouring through breaches/into keep.
+            for i in 0..<engine.units.count {
+                guard engine.units.side[i] == .defender,
+                      engine.units.men[i] > 0,
+                      !engine.units.isRouting[i],
+                      engine.units.stance[i] != .retreat else { continue }
+
+                if engine.units.isOnWall[i] {
+                    engine.units.stance[i] = .volley
+                    if let target = BattleCombat.nearestActiveEnemy(engine: engine, from: i) {
+                        engine.units.targetUnit[i] = target
+                    }
+                    continue
+                }
+
+                // Interior reserve: intercept enemies already inside bailey (>760) or guard keep entrance
+                if let enemyInside = (0..<engine.units.count).first(where: {
+                    engine.units.side[$0] == .attacker && engine.units.men[$0] > 0 && !engine.units.isRouting[$0] && engine.units.posX[$0] > 760.0
+                }) {
+                    engine.units.targetUnit[i] = enemyInside
+                    engine.units.stance[i] = .charge
+                } else {
+                    engine.units.targetX[i] = kz.minX - 24.0
+                    engine.units.targetY[i] = kz.centerY
+                    engine.units.hasMoveOrder[i] = true
+                    engine.units.stance[i] = .hold
+                }
+            }
+            return
+        }
+
+        // Attacker AI in assault mode
+        for i in 0..<engine.units.count {
+            guard engine.units.side[i] == .attacker,
+                  engine.units.men[i] > 0,
+                  !engine.units.isRouting[i],
+                  engine.units.stance[i] != .retreat else { continue }
+
+            let cat = engine.units.category[i]
+            let px = engine.units.posX[i]
+            let alreadyInside = px > 784.0
+
+            if cat == .artillery {
+                if let intact = engine.structures.first(where: { ($0.kind == .gate || $0.kind == .wall) && !$0.breached }), engine.units.ammo[i] > 0 {
+                    engine.units.targetStructure[i] = intact.id
+                    engine.units.targetUnit[i] = -1
+                    engine.units.stance[i] = .volley
+                } else if let target = BattleCombat.nearestActiveEnemy(engine: engine, from: i) {
+                    engine.units.targetStructure[i] = -1
+                    engine.units.targetUnit[i] = target
+                    engine.units.stance[i] = .volley
+                }
+                continue
+            }
+
+            if alreadyInside {
+                // Once past walls, push toward keep or nearest defender blocking the keep
+                if let target = BattleCombat.nearestActiveEnemy(engine: engine, from: i) {
+                    let tDist = sqrt(pow(engine.units.posX[target] - px, 2) + pow(engine.units.posY[target] - engine.units.posY[i], 2))
+                    if tDist < 120.0 {
+                        engine.units.targetUnit[i] = target
+                        engine.units.stance[i] = cat == .ranged && engine.units.ammo[i] > 0 ? .volley : .charge
+                        continue
+                    }
+                }
+                engine.units.targetUnit[i] = -1
+                engine.units.targetStructure[i] = -1
+                engine.units.targetX[i] = kz.centerX
+                engine.units.targetY[i] = kz.centerY
+                engine.units.hasMoveOrder[i] = true
+                engine.units.stance[i] = .advance
+                continue
+            }
+
+            if cat == .cavalry {
+                if let breach = firstBreach {
+                    engine.units.targetUnit[i] = -1
+                    engine.units.targetX[i] = breach.x + 120.0
+                    engine.units.targetY[i] = breach.y
+                    engine.units.hasMoveOrder[i] = true
+                    engine.units.formation[i] = .wedge
+                    engine.units.stance[i] = .charge
+                } else {
+                    engine.units.targetX[i] = 630.0
+                    engine.units.targetY[i] = engine.units.posY[i]
+                    engine.units.hasMoveOrder[i] = true
+                    engine.units.stance[i] = .hold
+                }
+                continue
+            }
+
+            if cat == .ranged && engine.units.ammo[i] > 0 {
+                if let target = BattleCombat.nearestActiveEnemy(engine: engine, from: i) {
+                    engine.units.targetUnit[i] = target
+                    engine.units.stance[i] = .volley
+                }
+                continue
+            }
+
+            // Infantry: if a breach exists, funnel into breach (unless holding intact gate target with ram)
+            if engine.units.siegeEquipment[i] == .ram {
+                if let gate = engine.structures.first(where: { $0.kind == .gate && !$0.breached }) {
+                    engine.units.targetStructure[i] = gate.id
+                    engine.units.stance[i] = .advance
+                    continue
+                } else {
+                    engine.units.siegeEquipment[i] = .none
+                }
+            }
+            if let breach = firstBreach {
+                engine.units.targetStructure[i] = -1
+                engine.units.targetUnit[i] = -1
+                engine.units.targetX[i] = breach.x + 80.0
+                engine.units.targetY[i] = breach.y
+                engine.units.hasMoveOrder[i] = true
+                engine.units.stance[i] = .advance
+            } else if engine.units.siegeEquipment[i] == .ladders,
+                      let intactWall = engine.structures.first(where: { $0.kind == .wall && !$0.breached }) {
+                engine.units.targetStructure[i] = intactWall.id
+                engine.units.stance[i] = .advance
             }
         }
     }

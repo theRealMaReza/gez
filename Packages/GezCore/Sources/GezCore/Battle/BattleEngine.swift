@@ -47,6 +47,11 @@ public struct BattleEngine: Sendable, Equatable {
         Double(tickCount) * Self.dt
     }
 
+    public var assaultFortLevel: Int {
+        if case .assault(let lvl, _) = kind { return max(1, lvl) }
+        return 0
+    }
+
     public init(
         world: World,
         battle: Battle,
@@ -205,6 +210,7 @@ public struct BattleEngine: Sendable, Equatable {
 
         autoDeploySide(.attacker)
         autoDeploySide(.defender)
+        assignInitialAssaultEquipment(existingBreach: existingBreach)
     }
 
     // MARK: - Unit Population
@@ -367,6 +373,11 @@ public struct BattleEngine: Sendable, Equatable {
 
     /// Places a side's regiments in a structured battle line inside its deployment zone.
     public mutating func autoDeploySide(_ side: BattleSide) {
+        if isAssault && side == .defender {
+            autoDeployAssaultDefenders()
+            return
+        }
+
         let zone = battlefield.deploymentZone(for: side)
         let facing = (side == .attacker) ? 0.0 : Double.pi
         let dirSign = (side == .attacker) ? 1.0 : -1.0
@@ -481,6 +492,65 @@ public struct BattleEngine: Sendable, Equatable {
         return true
     }
 
+    private mutating func autoDeployAssaultDefenders() {
+        let zone = battlefield.deploymentZone(for: .defender)
+        var rampart: [Int] = []
+        var reserve: [Int] = []
+        for i in 0..<units.count where units.side[i] == .defender {
+            if units.category[i] == .ranged || rampart.count < 2 {
+                rampart.append(i)
+            } else {
+                reserve.append(i)
+            }
+        }
+        placeRank(rampart, x: 768.0, yMin: zone.minY + 80.0, yMax: zone.maxY - 80.0, zone: zone, facing: Double.pi)
+        for i in rampart {
+            units.isOnWall[i] = true
+        }
+        placeRank(reserve, x: 940.0, yMin: zone.minY + 180.0, yMax: zone.maxY - 180.0, zone: zone, facing: Double.pi)
+        for i in reserve {
+            units.isOnWall[i] = false
+        }
+    }
+
+    private mutating func assignInitialAssaultEquipment(existingBreach: Bool) {
+        var infUnits: [Int] = []
+        var artUnits: [Int] = []
+        for i in 0..<units.count where units.side[i] == .attacker {
+            if units.category[i] == .infantry && units.unitKey[i] != "war_wagons" {
+                infUnits.append(i)
+            } else if units.category[i] == .artillery {
+                artUnits.append(i)
+            }
+        }
+        if !infUnits.isEmpty {
+            // Assign battering ram to first infantry regiment targeting the main gate, others ladders (or breach storm if already breached)
+            let ramTarget = structures.first(where: { $0.kind == .gate && !$0.breached })?.id ?? -1
+            let wallTarget = structures.first(where: { $0.kind == .wall && !$0.breached })?.id ?? -1
+            for (idx, u) in infUnits.enumerated() {
+                if !existingBreach {
+                    if idx == 0 && ramTarget >= 0 {
+                        units.siegeEquipment[u] = .ram
+                        units.targetStructure[u] = ramTarget
+                    } else if wallTarget >= 0 {
+                        units.siegeEquipment[u] = .ladders
+                        units.targetStructure[u] = wallTarget
+                    }
+                } else {
+                    units.siegeEquipment[u] = .none
+                    units.targetStructure[u] = -1
+                }
+            }
+        }
+        if !artUnits.isEmpty && !existingBreach {
+            let targetID = structures.first(where: { ($0.kind == .wall || $0.kind == .gate) && !$0.breached })?.id ?? -1
+            for u in artUnits {
+                units.targetStructure[u] = targetID
+                units.stance[u] = .volley
+            }
+        }
+    }
+
     /// Transitions from Deployment into real-time combat.
     @discardableResult
     public mutating func startBattle() -> Bool {
@@ -521,6 +591,16 @@ public struct BattleEngine: Sendable, Equatable {
 
     public mutating func issueRetreatOrder(unitIndices: [Int]) {
         BattleCombat.issueRetreatOrder(engine: &self, unitIndices: unitIndices)
+    }
+
+    // MARK: - Tactical Orders (Part C: Siege Assaults)
+
+    public mutating func issueSiegeEquipmentOrder(unitIndices: [Int], equipment: SiegeEquipmentKind) {
+        BattleCombat.issueSiegeEquipmentOrder(engine: &self, unitIndices: unitIndices, equipment: equipment)
+    }
+
+    public mutating func issueAttackStructureOrder(unitIndices: [Int], structureID: Int) {
+        BattleCombat.issueAttackStructureOrder(engine: &self, unitIndices: unitIndices, structureID: structureID)
     }
 
     // MARK: - Fixed-Timestep Simulation

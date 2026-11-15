@@ -64,7 +64,7 @@ public enum BattlefieldGenerator {
         let defenderZone: TacticalRect
         if fortLevel > 0 {
             attackerZone = TacticalRect(x: 40.0, y: 60.0, width: 340.0, height: height - 120.0)
-            defenderZone = TacticalRect(x: 780.0, y: 80.0, width: 380.0, height: height - 160.0)
+            defenderZone = TacticalRect(x: 755.0, y: 60.0, width: 405.0, height: height - 120.0)
         } else if isRiverCrossing {
             attackerZone = TacticalRect(x: 50.0, y: 50.0, width: 410.0, height: height - 100.0)
             defenderZone = TacticalRect(x: 740.0, y: 50.0, width: 410.0, height: height - 100.0)
@@ -73,7 +73,10 @@ public enum BattlefieldGenerator {
             defenderZone = TacticalRect(x: 800.0, y: 50.0, width: 350.0, height: height - 100.0)
         }
 
-        // Structures and keepZone are empty for field battles; populated in fort assaults.
+        let fortLayout = fortLevel > 0
+            ? generateFortLayout(fortLevel: fortLevel, existingBreach: existingBreach, height: height)
+            : (structures: [FortStructure](), keepZone: nil as TacticalRect?)
+
         return Battlefield(
             province: province,
             terrain: terrain,
@@ -88,10 +91,10 @@ public enum BattlefieldGenerator {
             hills: hills,
             forests: forests,
             river: river,
-            structures: [],
+            structures: fortLayout.structures,
             attackerDeployZone: attackerZone,
             defenderDeployZone: defenderZone,
-            keepZone: nil
+            keepZone: fortLayout.keepZone
         )
     }
 
@@ -235,5 +238,86 @@ public enum BattlefieldGenerator {
             }
         }
         return grid
+    }
+
+    private static func generateFortLayout(
+        fortLevel: Int,
+        existingBreach: Bool,
+        height: Double
+    ) -> (structures: [FortStructure], keepZone: TacticalRect) {
+        let lvl = max(1, min(6, fortLevel))
+        let wallX = 760.0
+        let cy = height * 0.5
+        let thicknessScale = 1.0 + Double(lvl - 1) * 0.12
+        let wallW = 28.0 * thicknessScale
+        let towerSize = 42.0 + Double(lvl - 1) * 4.0
+        let rampartElev = 14.0 + Double(lvl) * 4.0
+
+        let wallHp = 260.0 + Double(lvl) * 140.0
+        let towerHp = 340.0 + Double(lvl) * 170.0
+        let gateHp = 180.0 + Double(lvl) * 110.0
+        let keepHp = 520.0 + Double(lvl) * 200.0
+
+        var structures: [FortStructure] = [
+            FortStructure(
+                id: 0, kind: .tower,
+                x: wallX, y: 78.0,
+                width: towerSize, height: towerSize,
+                hp: towerHp, maxHp: towerHp, breached: false, elevation: rampartElev + 4.0
+            ),
+            FortStructure(
+                id: 1, kind: .wall,
+                x: wallX, y: 196.0,
+                width: wallW, height: 192.0,
+                hp: wallHp, maxHp: wallHp, breached: false, elevation: rampartElev
+            ),
+            FortStructure(
+                id: 2, kind: .tower,
+                x: wallX, y: 312.0,
+                width: towerSize * 0.92, height: towerSize * 0.92,
+                hp: towerHp, maxHp: towerHp, breached: false, elevation: rampartElev + 4.0
+            ),
+            FortStructure(
+                id: 3, kind: .gate,
+                x: wallX, y: cy,
+                width: wallW + 4.0, height: 132.0,
+                hp: gateHp, maxHp: gateHp, breached: false, elevation: rampartElev * 0.75
+            ),
+            FortStructure(
+                id: 4, kind: .tower,
+                x: wallX, y: 488.0,
+                width: towerSize * 0.92, height: towerSize * 0.92,
+                hp: towerHp, maxHp: towerHp, breached: false, elevation: rampartElev + 4.0
+            ),
+            FortStructure(
+                id: 5, kind: .wall,
+                x: wallX, y: 604.0,
+                width: wallW, height: 192.0,
+                hp: existingBreach ? 0.0 : wallHp, maxHp: wallHp,
+                breached: existingBreach, elevation: rampartElev
+            ),
+            FortStructure(
+                id: 6, kind: .tower,
+                x: wallX, y: 722.0,
+                width: towerSize, height: towerSize,
+                hp: towerHp, maxHp: towerHp, breached: false, elevation: rampartElev + 4.0
+            ),
+            FortStructure(
+                id: 7, kind: .keep,
+                x: 1050.0, y: cy,
+                width: 120.0 + Double(lvl) * 8.0,
+                height: 170.0 + Double(lvl) * 12.0,
+                hp: keepHp, maxHp: keepHp, breached: false, elevation: rampartElev + 8.0
+            )
+        ]
+
+        if lvl >= 4 {
+            // Citadel outer bailey bastion keep zone is slightly deeper and better fortified
+            structures[1].hp = wallHp * 1.15
+            structures[1].maxHp = wallHp * 1.15
+        }
+
+        let keepZone = TacticalRect(x: 965.0, y: cy - 110.0, width: 165.0, height: 220.0)
+        return (structures, keepZone)
     }
 }

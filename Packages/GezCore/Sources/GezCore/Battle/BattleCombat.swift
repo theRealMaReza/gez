@@ -79,6 +79,7 @@ public enum BattleCombat {
             engine.units.targetY[u] = ty
             engine.units.waypoints[u] = []
             engine.units.targetUnit[u] = -1
+            engine.units.targetStructure[u] = -1
             engine.units.hasMoveOrder[u] = true
             if engine.units.stance[u] == .retreat {
                 engine.units.stance[u] = .hold
@@ -99,6 +100,7 @@ public enum BattleCombat {
             engine.units.targetX[u] = clamped[0].x
             engine.units.targetY[u] = clamped[0].y
             engine.units.targetUnit[u] = -1
+            engine.units.targetStructure[u] = -1
             engine.units.hasMoveOrder[u] = true
             if engine.units.stance[u] == .retreat {
                 engine.units.stance[u] = .hold
@@ -142,6 +144,7 @@ public enum BattleCombat {
             engine.units.targetY[u] = py
             engine.units.waypoints[u] = []
             engine.units.targetUnit[u] = -1
+            engine.units.targetStructure[u] = -1
             engine.units.hasMoveOrder[u] = true
             engine.units.facing[u] = targetFacing
             if engine.units.stance[u] == .retreat {
@@ -157,6 +160,7 @@ public enum BattleCombat {
         for u in filterControllable(engine: engine, unitIndices: unitIndices) {
             guard engine.units.side[u] != engine.units.side[targetUnitIndex] else { continue }
             engine.units.targetUnit[u] = targetUnitIndex
+            engine.units.targetStructure[u] = -1
             engine.units.waypoints[u] = []
             engine.units.hasMoveOrder[u] = false
             if engine.units.stance[u] == .hold || engine.units.stance[u] == .retreat {
@@ -194,6 +198,70 @@ public enum BattleCombat {
         issueStanceOrder(engine: &engine, unitIndices: unitIndices, stance: .retreat)
     }
 
+    public static func issueSiegeEquipmentOrder(
+        engine: inout BattleEngine,
+        unitIndices: [Int],
+        equipment: SiegeEquipmentKind
+    ) {
+        guard engine.isAssault else { return }
+        for u in filterControllable(engine: engine, unitIndices: unitIndices) {
+            guard engine.units.side[u] == .attacker,
+                  engine.units.category[u] == .infantry,
+                  engine.units.unitKey[u] != "war_wagons" else { continue }
+            engine.units.siegeEquipment[u] = equipment
+            if equipment == .ram {
+                let gate = engine.structures.first(where: { $0.kind == .gate && !$0.breached })
+                    ?? engine.structures.first(where: { $0.kind == .wall && !$0.breached })
+                if let target = gate {
+                    engine.units.targetStructure[u] = target.id
+                    engine.units.targetUnit[u] = -1
+                    engine.units.hasMoveOrder[u] = false
+                    engine.units.stance[u] = .advance
+                }
+            } else if equipment == .ladders {
+                let wall = engine.structures.first(where: { $0.kind == .wall && !$0.breached })
+                    ?? engine.structures.first(where: { $0.kind == .tower && !$0.breached })
+                if let target = wall {
+                    engine.units.targetStructure[u] = target.id
+                    engine.units.targetUnit[u] = -1
+                    engine.units.hasMoveOrder[u] = false
+                    engine.units.stance[u] = .advance
+                }
+            } else {
+                engine.units.targetStructure[u] = -1
+            }
+        }
+    }
+
+    public static func issueAttackStructureOrder(
+        engine: inout BattleEngine,
+        unitIndices: [Int],
+        structureID: Int
+    ) {
+        guard engine.isAssault,
+              let st = engine.structures.first(where: { $0.id == structureID }),
+              st.kind != .keep,
+              !st.breached else { return }
+
+        for u in filterControllable(engine: engine, unitIndices: unitIndices) {
+            guard engine.units.side[u] == .attacker else { continue }
+            let cat = engine.units.category[u]
+            guard cat == .artillery || (cat == .infantry && engine.units.unitKey[u] != "war_wagons") else { continue }
+            engine.units.targetStructure[u] = structureID
+            engine.units.targetUnit[u] = -1
+            engine.units.waypoints[u] = []
+            engine.units.hasMoveOrder[u] = false
+            if cat == .artillery {
+                engine.units.stance[u] = .volley
+            } else {
+                engine.units.stance[u] = .advance
+                if engine.units.siegeEquipment[u] == .none {
+                    engine.units.siegeEquipment[u] = (st.kind == .gate) ? .ram : .ladders
+                }
+            }
+        }
+    }
+
     private static func filterControllable(engine: BattleEngine, unitIndices: [Int]) -> [Int] {
         unitIndices.filter { u in
             u >= 0 && u < engine.units.count && engine.units.men[u] > 0 && !engine.units.isRouting[u]
@@ -218,6 +286,9 @@ public enum BattleCombat {
 
         // 1. Movement & Stance Kinematics
         stepMovement(engine: &engine)
+        if engine.isAssault {
+            stepSiegeStructures(engine: &engine)
+        }
 
         // 2. Nearest Enemy Engagement & Ranged Fire
         stepRangedCombat(engine: &engine)
@@ -229,6 +300,9 @@ public enum BattleCombat {
         stepMoraleAndRouting(engine: &engine)
 
         // 5. Evaluate End Condition
+        if engine.isAssault {
+            stepKeepCapture(engine: &engine)
+        }
         evaluateEndCondition(engine: &engine)
     }
 
@@ -253,6 +327,68 @@ public enum BattleCombat {
             let stance = engine.units.stance[i]
             let mods = modifiers(for: engine.units.formation[i], isWarWagon: engine.units.unitKey[i] == "war_wagons")
             let fatigueMult = max(0.62, 1.0 - engine.units.fatigue[i] * 0.35)
+
+            // Explicit structure siege target (Part C fort assault)
+            if engine.isAssault && engine.units.targetStructure[i] >= 0 {
+                let sID = engine.units.targetStructure[i]
+                if let st = engine.structures.first(where: { $0.id == sID && $0.kind != .keep && !$0.breached }) {
+                    let isArtillery = engine.units.category[i] == .artillery
+                    let desiredX = isArtillery ? (st.rect.minX - 280.0) : (st.rect.minX - 4.0)
+                    let desiredY = st.y
+                    let dx = desiredX - engine.units.posX[i]
+                    let dy = desiredY - engine.units.posY[i]
+                    let dist = sqrt(dx * dx + dy * dy)
+                    let contactMargin = isArtillery ? 38.0 : (engine.units.siegeEquipment[i] == .ladders ? 10.0 : 18.0)
+
+                    if isArtillery {
+                        let range = weaponRange(unitKey: engine.units.unitKey[i], category: .artillery, heightDiff: 0.0)
+                        let distToStruct = sqrt(pow(st.x - engine.units.posX[i], 2) + pow(st.y - engine.units.posY[i], 2))
+                        if distToStruct <= range * 0.92 {
+                            engine.units.facing[i] = atan2(st.y - engine.units.posY[i], st.x - engine.units.posX[i])
+                            engine.units.velX[i] = 0
+                            engine.units.velY[i] = 0
+                            continue
+                        }
+                    } else if engine.units.siegeEquipment[i] == .ladders {
+                        // Scale up and cross the targeted intact wall/tower rampart
+                        let climbDestX = st.rect.maxX + 18.0
+                        let climbDY = st.y - engine.units.posY[i]
+                        if abs(climbDY) > 22.0 && engine.units.posX[i] < st.rect.minX {
+                            moveUnitToward(engine: &engine, index: i, destX: st.rect.minX - 6.0, destY: st.y, speedScale: mods.speed * fatigueMult, dt: dt)
+                        } else if engine.units.posX[i] <= st.rect.maxX + 14.0 {
+                            let arrived = moveUnitToward(engine: &engine, index: i, destX: climbDestX, destY: st.y, speedScale: mods.speed * fatigueMult, dt: dt)
+                            if arrived {
+                                engine.units.targetStructure[i] = -1
+                            }
+                        } else {
+                            engine.units.targetStructure[i] = -1
+                        }
+                        continue
+                    }
+
+                    if dist > contactMargin {
+                        moveUnitToward(
+                            engine: &engine,
+                            index: i,
+                            destX: desiredX,
+                            destY: desiredY,
+                            speedScale: mods.speed * fatigueMult,
+                            dt: dt
+                        )
+                    } else {
+                        engine.units.facing[i] = atan2(st.y - engine.units.posY[i], st.x - engine.units.posX[i])
+                        engine.units.velX[i] = 0
+                        engine.units.velY[i] = 0
+                    }
+                    continue
+                } else {
+                    // Targeted structure breached or gone — storm inward
+                    engine.units.targetStructure[i] = -1
+                    if engine.units.siegeEquipment[i] == .ram {
+                        engine.units.siegeEquipment[i] = .none
+                    }
+                }
+            }
 
             // Follow target unit if pursuing in Attack/Charge/Advance
             if engine.units.targetUnit[i] >= 0 {
@@ -368,24 +504,108 @@ public enum BattleCombat {
         let step = engine.units.baseSpeed[i] * terrainMult * speedScale * dt
 
         if dist <= max(2.5, step) {
-            engine.units.posX[i] = max(10.0, min(engine.battlefield.width - 10.0, destX))
-            engine.units.posY[i] = max(10.0, min(engine.battlefield.height - 10.0, destY))
+            var arrX = max(10.0, min(engine.battlefield.width - 10.0, destX))
+            let arrY = max(10.0, min(engine.battlefield.height - 10.0, destY))
+            if engine.isAssault && engine.units.side[i] == .attacker && engine.units.posX[i] <= 784.0 && arrX >= 740.0 {
+                if !hasOpenPassage(atY: arrY, in: engine.structures) && !(engine.units.siegeEquipment[i] == .ladders && engine.units.category[i] == .infantry) {
+                    arrX = min(arrX, 736.0)
+                }
+            }
+            if engine.isAssault && engine.units.side[i] == .attacker && arrX > 784.0 {
+                engine.units.isOnWall[i] = false
+            }
+            engine.units.posX[i] = arrX
+            engine.units.posY[i] = arrY
             engine.units.velX[i] = 0
             engine.units.velY[i] = 0
             return true
         }
         let nx = dx / dist
         let ny = dy / dist
-        engine.units.posX[i] = max(10.0, min(engine.battlefield.width - 10.0, engine.units.posX[i] + nx * step))
-        engine.units.posY[i] = max(10.0, min(engine.battlefield.height - 10.0, engine.units.posY[i] + ny * step))
-        engine.units.velX[i] = nx * step / dt
-        engine.units.velY[i] = ny * step / dt
+        var nextX = max(10.0, min(engine.battlefield.width - 10.0, engine.units.posX[i] + nx * step))
+        var nextY = max(10.0, min(engine.battlefield.height - 10.0, engine.units.posY[i] + ny * step))
+        var actualStep = step
+
+        if engine.isAssault && engine.units.side[i] == .attacker {
+            let wallLeft = 740.0
+            let wallRight = 784.0
+            if engine.units.posX[i] > wallRight && nextX >= wallRight {
+                // Already inside the bailey
+                engine.units.isOnWall[i] = false
+            } else if nextX >= wallLeft && engine.units.posX[i] <= wallRight {
+                if hasOpenPassage(atY: nextY, in: engine.structures) {
+                    engine.units.isOnWall[i] = false
+                } else if engine.units.siegeEquipment[i] == .ladders && engine.units.category[i] == .infantry && !engine.units.isRouting[i] {
+                    // Climbing / fighting across rampart at slower scaling speed
+                    engine.units.isOnWall[i] = true
+                    let climbStep = step * 0.40
+                    actualStep = climbStep
+                    nextX = max(10.0, min(engine.battlefield.width - 10.0, engine.units.posX[i] + nx * climbStep))
+                    nextY = max(10.0, min(engine.battlefield.height - 10.0, engine.units.posY[i] + ny * climbStep))
+                    if nextX > wallRight {
+                        engine.units.isOnWall[i] = false
+                    }
+                } else {
+                    // Blocked by intact masonry/gate; funnel along wall if an open breach exists elsewhere and destX > wallLeft
+                    engine.units.isOnWall[i] = false
+                    nextX = min(nextX, wallLeft - 4.0)
+                    if destX > wallLeft && engine.units.siegeEquipment[i] != .ram {
+                        if let breachY = nearestBreachY(fromY: engine.units.posY[i], in: engine.structures) {
+                            let shift = breachY >= engine.units.posY[i] ? 1.0 : -1.0
+                            nextY = max(18.0, min(engine.battlefield.height - 18.0, engine.units.posY[i] + shift * step * 0.90))
+                        }
+                    }
+                }
+            } else {
+                engine.units.isOnWall[i] = false
+            }
+        }
+
+        engine.units.posX[i] = nextX
+        engine.units.posY[i] = nextY
+        engine.units.velX[i] = (nextX == engine.units.posX[i] && ny == 0) ? 0 : nx * actualStep / dt
+        engine.units.velY[i] = ny * actualStep / dt
         engine.units.facing[i] = atan2(ny, nx)
 
         // Marching accumulates fatigue (scaled by formation & stance)
         let stanceMult = engine.units.stance[i] == .charge ? 1.85 : 1.0
         engine.units.fatigue[i] = min(1.0, engine.units.fatigue[i] + 0.018 * mods.marchFatigueMultiplier * stanceMult * dt)
         return false
+    }
+
+    public static func hasOpenPassage(atY y: Double, in structures: [FortStructure]) -> Bool {
+        var foundCurtain = false
+        for st in structures where st.kind != .keep {
+            let r = st.rect
+            if y >= r.minY - 4.0 && y <= r.maxY + 4.0 {
+                foundCurtain = true
+                if st.breached {
+                    return true
+                }
+            }
+        }
+        return !foundCurtain && (y < 52.0 || y > 748.0) ? false : !foundCurtain
+    }
+
+    private static func nearestBreachY(fromY y: Double, in structures: [FortStructure]) -> Double? {
+        var bestY: Double?
+        var bestD = Double.infinity
+        for st in structures where st.kind != .keep && st.breached {
+            let d = abs(st.y - y)
+            if d < bestD {
+                bestD = d
+                bestY = st.y
+            }
+        }
+        return bestY
+    }
+
+    public static func unitElevation(engine: BattleEngine, unit i: Int) -> Double {
+        let base = engine.battlefield.elevation(at: engine.units.posX[i], engine.units.posY[i])
+        if engine.isAssault && engine.units.isOnWall[i] {
+            return base + 14.0 + Double(max(1, engine.assaultFortLevel)) * 4.0
+        }
+        return base
     }
 
     // MARK: - Ranged Combat & Ammunition
@@ -438,10 +658,11 @@ public enum BattleCombat {
             let dx = engine.units.posX[target] - engine.units.posX[i]
             let dy = engine.units.posY[target] - engine.units.posY[i]
             let dist = sqrt(dx * dx + dy * dy)
-            let elevI = engine.battlefield.elevation(at: engine.units.posX[i], engine.units.posY[i])
-            let elevT = engine.battlefield.elevation(at: engine.units.posX[target], engine.units.posY[target])
+            let elevI = unitElevation(engine: engine, unit: i)
+            let elevT = unitElevation(engine: engine, unit: target)
             let range = weaponRange(unitKey: engine.units.unitKey[i], category: engine.units.category[i], heightDiff: elevI - elevT)
-            guard dist > 28.0 && dist <= range else { continue }
+            let minFireDist = (engine.isAssault && engine.units.isOnWall[i]) ? 12.0 : 28.0
+            guard dist > minFireDist && dist <= range else { continue }
 
             // Artillery cannot fire while moving rapidly unless deployed
             if engine.units.category[i] == .artillery && engine.units.hasMoveOrder[i] { continue }
@@ -470,13 +691,21 @@ public enum BattleCombat {
             let fatigueFactor = max(0.65, 1.0 - engine.units.fatigue[i] * 0.30)
             let elevFactor = max(0.75, min(1.30, 1.0 + (elevI - elevT) * 0.012))
             let distFactor = max(0.55, 1.10 - 0.45 * (dist / max(1.0, range)))
-            let coverReduction = engine.battlefield.rangedCoverReduction(at: engine.units.posX[target], engine.units.posY[target])
+            var coverReduction = engine.battlefield.rangedCoverReduction(at: engine.units.posX[target], engine.units.posY[target])
+            if engine.isAssault {
+                if engine.units.side[target] == .defender && engine.units.isOnWall[target] {
+                    coverReduction = min(0.72, coverReduction + 0.45) // Rampart battlements cover
+                } else if engine.units.side[target] == .attacker && engine.units.siegeEquipment[target] == .ram {
+                    coverReduction = min(0.65, coverReduction + 0.30) // Battering ram mantlet cover
+                }
+            }
+            let ladderExposure = (engine.isAssault && engine.units.side[target] == .attacker && engine.units.isOnWall[target]) ? 1.25 : 1.0
             let formIncoming = engine.units.category[i] == .artillery ? defMods.artilleryDamageTaken : defMods.rangedIncoming
             let rngRoll = Double.random(in: 0.85...1.15, using: &engine.random)
 
             let mitigation = 10.0 / (5.0 + engine.units.defence[target] * defMods.defence * targetDisc)
             let rawPower = menRatio * engine.units.attack[i] * fireMult * atkMods.rangedAttack * sideDisc * cmdMult * fatigueFactor * elevFactor * distFactor * rngRoll
-            let casualties = max(1, Int((rawPower * mitigation * formIncoming * (1.0 - coverReduction) * 4.2).rounded()))
+            let casualties = max(1, Int((rawPower * mitigation * formIncoming * (1.0 - coverReduction) * ladderExposure * 4.2).rounded()))
             let actualCas = min(engine.units.men[target], casualties)
 
             engine.units.men[target] -= actualCas
@@ -542,9 +771,9 @@ public enum BattleCombat {
             let chargeFactor = engine.units.stance[i] == .charge ? 1.25 : 1.0
 
             // Terrain/elevation & water penalties matching BattleModel
-            let elevI = engine.battlefield.elevation(at: engine.units.posX[i], engine.units.posY[i])
-            let elevJ = engine.battlefield.elevation(at: engine.units.posX[j], engine.units.posY[j])
-            var terrainFactor = max(0.72, min(1.28, 1.0 + (elevI - elevJ) * 0.012))
+            let elevI = unitElevation(engine: engine, unit: i)
+            let elevJ = unitElevation(engine: engine, unit: j)
+            var terrainFactor = max(0.72, min(1.32, 1.0 + (elevI - elevJ) * 0.012))
             let waterI = engine.battlefield.riverState(at: engine.units.posX[i], engine.units.posY[i])
             if waterI.inWater { terrainFactor *= 0.65 } else if waterI.isFord { terrainFactor *= 0.88 }
             if engine.units.category[i] == .cavalry && engine.battlefield.isForest(at: engine.units.posX[i], engine.units.posY[i]) {
@@ -562,6 +791,9 @@ public enum BattleCombat {
             }
             if engine.units.isRouting[j] {
                 specialDef *= 1.45 // Pursuing routing troops inflicts extra casualties
+            }
+            if engine.isAssault && engine.units.side[j] == .defender && engine.units.isOnWall[j] && engine.units.side[i] == .attacker && engine.units.isOnWall[i] {
+                specialDef *= 0.78 // Defenders fighting attackers scaling ladders hold wall advantage
             }
 
             let rngRoll = Double.random(in: 0.85...1.15, using: &engine.random)
@@ -675,9 +907,140 @@ public enum BattleCombat {
         }
     }
 
+    private static func stepSiegeStructures(engine: inout BattleEngine) {
+        let uCount = engine.units.count
+        for i in 0..<uCount {
+            guard engine.units.side[i] == .attacker,
+                  engine.units.men[i] > 0,
+                  !engine.units.isRouting[i] else { continue }
+
+            // Artillery bombarding intact walls, towers or gates
+            if engine.units.category[i] == .artillery,
+               engine.units.ammo[i] > 0,
+               engine.units.stance[i] != .holdFire,
+               engine.units.stance[i] != .retreat,
+               engine.units.fireCooldownTicks[i] == 0,
+               !engine.units.hasMoveOrder[i],
+               engine.units.inMeleeWith[i] < 0 {
+                var targetStructIdx: Int?
+                if engine.units.targetStructure[i] >= 0,
+                   let idx = engine.structures.firstIndex(where: { $0.id == engine.units.targetStructure[i] && $0.kind != .keep && !$0.breached }) {
+                    targetStructIdx = idx
+                } else {
+                    // Opportunistically bombard nearest intact gate/wall if ordered to attack structure wasn't overridden
+                    targetStructIdx = engine.structures.firstIndex(where: { ($0.kind == .wall || $0.kind == .gate) && !$0.breached })
+                }
+                if let sIdx = targetStructIdx {
+                    let st = engine.structures[sIdx]
+                    let dx = st.x - engine.units.posX[i]
+                    let dy = st.y - engine.units.posY[i]
+                    let dist = sqrt(dx * dx + dy * dy)
+                    let range = weaponRange(unitKey: engine.units.unitKey[i], category: .artillery, heightDiff: 0.0) + 60.0
+                    if dist <= range {
+                        engine.units.ammo[i] = max(0, engine.units.ammo[i] - 1)
+                        engine.units.fireCooldownTicks[i] = 36
+                        engine.units.facing[i] = atan2(dy, dx)
+                        let menRatio = Double(engine.units.men[i]) / Double(max(1, engine.units.maxMen[i]))
+                        let fireMult = BattleModel.fireMultiplier(unitKey: engine.units.unitKey[i], category: .artillery)
+                        let rngRoll = Double.random(in: 0.90...1.15, using: &engine.random)
+                        let dmg = max(25.0, menRatio * engine.units.attack[i] * fireMult * engine.attackerDiscipline * rngRoll * 6.5)
+                        engine.structures[sIdx].hp = max(0.0, engine.structures[sIdx].hp - dmg)
+                        if engine.structures[sIdx].hp <= 0.0 {
+                            engine.structures[sIdx].hp = 0.0
+                            engine.structures[sIdx].breached = true
+                            engine.units.targetStructure[i] = -1
+                        }
+                    }
+                }
+            }
+
+            // Battering ram strikes every 0.5s when adjacent to targeted gate/wall
+            if engine.tickCount % 5 == 0,
+               engine.units.siegeEquipment[i] == .ram,
+               engine.units.inMeleeWith[i] < 0 {
+                let sIdx: Int?
+                if engine.units.targetStructure[i] >= 0,
+                   let idx = engine.structures.firstIndex(where: { $0.id == engine.units.targetStructure[i] && $0.kind != .keep && !$0.breached }) {
+                    sIdx = idx
+                } else {
+                    sIdx = engine.structures.firstIndex(where: { ($0.kind == .gate || $0.kind == .wall) && !$0.breached })
+                }
+                if let idx = sIdx {
+                    let st = engine.structures[idx]
+                    let faceX = st.rect.minX
+                    let nearX = abs(engine.units.posX[i] - faceX) <= 32.0
+                    let nearY = abs(engine.units.posY[i] - st.y) <= (st.height * 0.5 + 26.0)
+                    if nearX && nearY {
+                        let menFactor = max(0.35, Double(engine.units.men[i]) / 160.0)
+                        let rngRoll = Double.random(in: 0.90...1.10, using: &engine.random)
+                        let ramDmg = max(12.0, menFactor * 16.0 * rngRoll)
+                        engine.structures[idx].hp = max(0.0, engine.structures[idx].hp - ramDmg)
+                        if engine.structures[idx].hp <= 0.0 {
+                            engine.structures[idx].hp = 0.0
+                            engine.structures[idx].breached = true
+                            engine.units.siegeEquipment[i] = .none
+                            engine.units.targetStructure[i] = -1
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private static func stepKeepCapture(engine: inout BattleEngine) {
+        guard let kz = engine.battlefield.keepZone else { return }
+        var attKeepMen = 0
+        var defKeepMen = 0
+        let defendMargin = 45.0
+        for i in 0..<engine.units.count {
+            guard engine.units.men[i] > 0, !engine.units.isRouting[i] else { continue }
+            let px = engine.units.posX[i]
+            let py = engine.units.posY[i]
+            if engine.units.side[i] == .attacker {
+                if kz.contains(px, py) {
+                    attKeepMen += engine.units.men[i]
+                }
+            } else {
+                if px >= kz.minX - defendMargin && px <= kz.maxX + defendMargin &&
+                    py >= kz.minY - defendMargin && py <= kz.maxY + defendMargin {
+                    defKeepMen += engine.units.men[i]
+                }
+            }
+        }
+        let dt = BattleEngine.dt
+        if attKeepMen > 0 && (defKeepMen == 0 || attKeepMen >= defKeepMen * 3) {
+            let speedMult = min(2.0, max(1.0, Double(attKeepMen) / 400.0))
+            engine.keepCaptureProgress = min(1.0, engine.keepCaptureProgress + speedMult * dt / 5.0)
+        } else if attKeepMen == 0 && defKeepMen > 0 {
+            engine.keepCaptureProgress = max(0.0, engine.keepCaptureProgress - dt / 8.0)
+        }
+    }
+
     private static func evaluateEndCondition(engine: inout BattleEngine) {
         let attActive = engine.units.activeUnits(on: .attacker)
         let defActive = engine.units.activeUnits(on: .defender)
+
+        if engine.isAssault {
+            if engine.keepCaptureProgress >= 1.0 || (defActive == 0 && attActive > 0) {
+                engine.phase = .ended
+                engine.keepCaptured = true
+                engine.winner = .attacker
+                let loserInit = max(1, engine.units.totalInitialMen(on: .defender))
+                let loserLeft = engine.units.totalMen(on: .defender)
+                engine.wasStackwipe = (Double(loserLeft) / Double(loserInit)) < 0.10
+                return
+            }
+            if attActive == 0 || engine.tickCount >= 2400 {
+                engine.phase = .ended
+                engine.keepCaptured = false
+                engine.winner = .defender
+                let loserInit = max(1, engine.units.totalInitialMen(on: .attacker))
+                let loserLeft = engine.units.totalMen(on: .attacker)
+                engine.wasStackwipe = (Double(loserLeft) / Double(loserInit)) < 0.10
+                return
+            }
+            return
+        }
 
         if attActive == 0 || defActive == 0 || engine.tickCount >= 1800 {
             engine.phase = .ended

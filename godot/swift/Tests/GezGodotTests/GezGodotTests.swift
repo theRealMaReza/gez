@@ -1094,4 +1094,54 @@ struct GezGodotTests {
         let uList = afterOrder["units"] as? [[String: Any]] ?? []
         #expect(uList[0]["stance"] as? String == "retreat")
     }
+
+    @Test("Phase 9 Part C bridge: storm assault prompt, siege equipment, attack structure, structures & keepZone")
+    func phase9PartCSiegeAssaultBridge() {
+        let controller = GezGodotController()
+        #expect(controller.setup(dataDirectoryPath: "", tag: "TUR"))
+        guard let s = controller.session,
+              let tur = s.world.countries.id(forTag: "TUR"),
+              let byz = s.world.countries.id(forTag: "BYZ") ?? s.world.countries.ids.first(where: { $0 != tur }),
+              let prov = s.world.provinces.ids.first(where: { s.world.provinces.fortLevel[$0.index] > 0 && s.world.provinces.owner[$0.index] == byz })
+                ?? s.world.provinces.ids.first(where: { s.world.provinces.fortLevel[$0.index] > 0 }) else {
+            Issue.record("Missing fortified province")
+            return
+        }
+
+        let ownerCountry = s.world.provinces.owner[prov.index]
+        for aid in s.world.military.armies(in: prov) {
+            s.simulation.world.military.armies.remove(aid)
+        }
+        let inf = s.world.military.unit("infantry")!
+        let art = s.world.military.unit("bombard") ?? s.world.military.unit("artillery") ?? inf
+        s.simulation.world.military.armies.append(
+            name: "Assault Force",
+            owner: tur,
+            province: prov,
+            regiments: [
+                Regiment(type: inf.id, origin: .professional, men: 1_000, morale: 3.0),
+                Regiment(type: art.id, origin: .professional, men: 800, morale: 2.8)
+            ]
+        )
+        s.simulation.world.military.sieges.append(
+            Siege(province: prov, besieger: tur, startDate: Scenario1453.startDate, breached: true)
+        )
+        let req = controller.requestStormAssaultChoice(provinceIndex: prov.index)
+        #expect(req["opened"] as? Bool == true)
+        #expect(controller.chooseLeadBattleInPerson())
+
+        let st = controller.battleStateData()
+        #expect(st["isAssault"] as? Bool == true)
+        let structs = st["structures"] as? [[String: Any]] ?? []
+        #expect(structs.count >= 7)
+        let kz = st["keepZone"] as? [String: Any] ?? [:]
+        #expect(!kz.isEmpty)
+
+        #expect(controller.startTacticalBattle())
+        #expect(controller.orderBattleSiegeEquipment(unitIndices: [0], equipmentKey: "ram"))
+        #expect(controller.orderBattleAttackStructure(unitIndices: [1], structureId: 3))
+        let stepped = controller.tickTacticalBattle(deltaSeconds: 1.0)
+        #expect(stepped >= 1)
+        _ = ownerCountry
+    }
 }

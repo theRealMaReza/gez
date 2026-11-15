@@ -47,6 +47,7 @@ var sel_info_lbl: Label
 var status_hint_lbl: Label
 var start_battle_btn: Button
 var tool_buttons: Dictionary = {}      # tool_key -> Button
+var siege_buttons: Dictionary = {}     # equip_key -> Button
 var formation_buttons: Dictionary = {} # form_key -> Button
 var stance_buttons: Dictionary = {}    # stance_key -> Button
 var orders_panel: VBoxContainer
@@ -271,6 +272,24 @@ func _build_ui() -> void:
 	)
 	tools_row.add_child(retreat_btn)
 
+	for eq_pair in [
+		["ladders", "Ladders"],
+		["ram", "Ram"],
+		["none", "Storm"]
+	]:
+		var eq_key: String = str(eq_pair[0])
+		var eq_btn := Button.new()
+		eq_btn.text = str(eq_pair[1])
+		eq_btn.custom_minimum_size = Vector2(72.0, 34.0)
+		eq_btn.visible = false
+		eq_btn.pressed.connect(func() -> void:
+			if not selected_units.is_empty():
+				_call_bridge("orderBattleSiegeEquipment", [_selected_csv(), eq_key], false)
+				refresh_state()
+		)
+		tools_row.add_child(eq_btn)
+		siege_buttons[eq_key] = eq_btn
+
 	var form_row := HBoxContainer.new()
 	form_row.add_theme_constant_override("separation", 5)
 	orders_panel.add_child(form_row)
@@ -424,6 +443,12 @@ func _sync_tool_styles() -> void:
 		stance_buttons[st_k].disabled = (not is_active or selected_units.is_empty())
 	for f_k in formation_buttons.keys():
 		formation_buttons[f_k].disabled = (ph == "ended" or selected_units.is_empty())
+	var is_assault := bool(state.get("isAssault", false))
+	var p_att := str(state.get("playerSide", "attacker")) == "attacker"
+	for eq_k in siege_buttons.keys():
+		var sb: Button = siege_buttons[eq_k]
+		sb.visible = is_assault and p_att
+		sb.disabled = (ph == "ended" or selected_units.is_empty())
 
 func _sync_ui_from_state() -> void:
 	if state.is_empty():
@@ -493,7 +518,11 @@ func _update_selected_info() -> void:
 		ammo_txt = " · Ammo %d/%d" % [int(u.get("ammo", 0)), int(u.get("maxAmmo", 0))]
 	var fatigue_pct := int(round(float(u.get("fatigue", 0.0)) * 100.0))
 	var routing_txt := " · ROUTING!" if bool(u.get("isRouting", false)) else ""
-	sel_info_lbl.text = "%s%s [%s]\n%d/%d men · Morale %.1f · Fatigue %d%% · %s%s%s" % [
+	var equip_txt := ""
+	var eq_key := str(u.get("siegeEquipment", "none"))
+	if bool(state.get("isAssault", false)) and eq_key != "none":
+		equip_txt = " · Gear: %s" % eq_key.capitalize()
+	sel_info_lbl.text = "%s%s [%s]\n%d/%d men · Morale %.1f · Fatigue %d%% · %s%s%s%s" % [
 		str(u.get("name", "Unit")),
 		extra,
 		str(u.get("formation", "line")).capitalize(),
@@ -503,6 +532,7 @@ func _update_selected_info() -> void:
 		fatigue_pct,
 		str(u.get("stance", "hold")).capitalize(),
 		ammo_txt,
+		equip_txt,
 		routing_txt
 	]
 
@@ -631,6 +661,66 @@ func _on_canvas_draw() -> void:
 		canvas.draw_rect(def_r, Color(def_border.r, def_border.g, def_border.b, 0.08), true)
 		canvas.draw_rect(def_r, def_border, false, 2.0)
 
+	# 5b. Fortification structures & Inner Keep Zone (Part C Assaults)
+	var font := ThemeDB.fallback_font
+	var structures: Array = state.get("structures", [])
+	if not structures.is_empty():
+		var kz_dict: Dictionary = state.get("keepZone", {})
+		if not kz_dict.is_empty():
+			var kz_rect := Rect2(
+				_field_to_canvas(Vector2(float(kz_dict.get("x", 965.0)), float(kz_dict.get("y", 290.0)))),
+				Vector2(float(kz_dict.get("w", 165.0)), float(kz_dict.get("h", 220.0))) * canvas_scale
+			)
+			canvas.draw_rect(kz_rect, Color(0.75, 0.62, 0.25, 0.14), true)
+			canvas.draw_rect(kz_rect, Color(0.92, 0.78, 0.30, 0.65), false, 2.0)
+			var k_prog := float(state.get("keepCaptureProgress", 0.0))
+			if k_prog > 0.005:
+				var arc_center := kz_rect.get_center()
+				canvas.draw_arc(arc_center, 34.0 * canvas_scale, -PI * 0.5, -PI * 0.5 + TAU * clampf(k_prog, 0.0, 1.0), 32, Color(0.98, 0.82, 0.22, 0.95), 4.5)
+				if font != null:
+					canvas.draw_string(font, arc_center + Vector2(-24.0, 4.0), "KEEP %d%%" % int(round(k_prog * 100.0)), HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Color(1.0, 0.94, 0.72))
+
+		for s_item in structures:
+			if not (s_item is Dictionary):
+				continue
+			var sx := float(s_item.get("x", 0.0))
+			var sy := float(s_item.get("y", 0.0))
+			var sw := float(s_item.get("w", 28.0))
+			var sh := float(s_item.get("h", 120.0))
+			var s_kind: String = str(s_item.get("kind", "wall"))
+			var s_breached := bool(s_item.get("breached", false))
+			var s_hp := float(s_item.get("hp", 1.0))
+			var s_max := maxf(1.0, float(s_item.get("maxHp", 1.0)))
+			var tl := _field_to_canvas(Vector2(sx - sw * 0.5, sy - sh * 0.5))
+			var r_rect := Rect2(tl, Vector2(sw, sh) * canvas_scale)
+
+			if s_breached:
+				# Rubble / open breach passage
+				canvas.draw_rect(r_rect, Color(0.32, 0.27, 0.22, 0.45), true)
+				canvas.draw_line(r_rect.position, r_rect.position + Vector2(r_rect.size.x, 0.0), Color(0.55, 0.48, 0.38, 0.8), 2.0)
+				canvas.draw_line(r_rect.position + Vector2(0.0, r_rect.size.y), r_rect.end, Color(0.55, 0.48, 0.38, 0.8), 2.0)
+				if font != null:
+					canvas.draw_string(font, r_rect.get_center() + Vector2(-22.0, 4.0), "BREACH", HORIZONTAL_ALIGNMENT_LEFT, -1, 10, Color(0.95, 0.65, 0.30))
+			else:
+				var col := Color(0.54, 0.52, 0.49)
+				if s_kind == "gate":
+					col = Color(0.42, 0.28, 0.16)
+				elif s_kind == "tower":
+					col = Color(0.62, 0.60, 0.56)
+				elif s_kind == "keep":
+					col = Color(0.48, 0.46, 0.44)
+				canvas.draw_rect(r_rect, col, true)
+				canvas.draw_rect(r_rect, Color(0.24, 0.22, 0.20), false, 2.2)
+				if s_kind == "gate" or s_kind == "keep":
+					if font != null:
+						var lbl_txt := "GATE" if s_kind == "gate" else "KEEP"
+						canvas.draw_string(font, r_rect.get_center() + Vector2(-14.0, 4.0), lbl_txt, HORIZONTAL_ALIGNMENT_LEFT, -1, 10, Color(0.95, 0.90, 0.80))
+				if s_hp < s_max and s_kind != "keep":
+					var hp_f := clampf(s_hp / s_max, 0.0, 1.0)
+					var bar_r := Rect2(r_rect.position + Vector2(0.0, -7.0), Vector2(r_rect.size.x, 4.0))
+					canvas.draw_rect(bar_r, Color(0.1, 0.1, 0.1, 0.85), true)
+					canvas.draw_rect(Rect2(bar_r.position, Vector2(bar_r.size.x * hp_f, 4.0)), Color(0.92, 0.62, 0.26), true)
+
 	# 6. Active unit order paths/targets
 	var units: Array = state.get("units", [])
 	for u_item in units:
@@ -654,7 +744,6 @@ func _on_canvas_draw() -> void:
 			canvas.draw_circle(dest, 4.0, Color(0.96, 0.84, 0.32, 0.85))
 
 	# 7. Unit blocks
-	var font := ThemeDB.fallback_font
 	for u_item in units:
 		if not (u_item is Dictionary):
 			continue
@@ -706,8 +795,14 @@ func _on_canvas_draw() -> void:
 
 		if font != null:
 			var glyph := str(u_item.get("glyph", "I"))
+			var eq_str := str(u_item.get("siegeEquipment", "none"))
+			var badge := ""
+			if eq_str == "ladders":
+				badge = " [L]"
+			elif eq_str == "ram":
+				badge = " [R]"
 			canvas.draw_string(font, center + Vector2(-5.0, 4.0), glyph, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color(0.98, 0.96, 0.90))
-			canvas.draw_string(font, center + Vector2(-14.0, maxf(bw, bh) * 0.5 + 12.0), "%d" % men, HORIZONTAL_ALIGNMENT_LEFT, -1, 10, Color(0.94, 0.90, 0.80))
+			canvas.draw_string(font, center + Vector2(-14.0, maxf(bw, bh) * 0.5 + 12.0), "%d%s" % [men, badge], HORIZONTAL_ALIGNMENT_LEFT, -1, 10, Color(0.94, 0.90, 0.80))
 
 	# 8. Drag gestures overlay (box select / sketched path / dragged frontline)
 	if is_box_selecting:
@@ -773,6 +868,24 @@ func _hit_test_unit(canvas_pos: Vector2, own_only: bool = false, enemy_only: boo
 			best_idx = int(u_item.get("index", -1))
 	return best_idx
 
+func _hit_test_structure(canvas_pos: Vector2) -> int:
+	if not bool(state.get("isAssault", false)):
+		return -1
+	var f_pos := _canvas_to_field(canvas_pos)
+	var structures: Array = state.get("structures", [])
+	for s_item in structures:
+		if not (s_item is Dictionary):
+			continue
+		if bool(s_item.get("breached", false)) or str(s_item.get("kind", "")) == "keep":
+			continue
+		var sx := float(s_item.get("x", 0.0))
+		var sy := float(s_item.get("y", 0.0))
+		var sw := float(s_item.get("w", 28.0)) + 20.0
+		var sh := float(s_item.get("h", 100.0)) + 12.0
+		if absf(f_pos.x - sx) <= sw * 0.5 and absf(f_pos.y - sy) <= sh * 0.5:
+			return int(s_item.get("id", -1))
+	return -1
+
 func _on_canvas_gui_input(event: InputEvent) -> void:
 	if state.is_empty():
 		return
@@ -782,8 +895,11 @@ func _on_canvas_gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
 		if ph == "active" and not selected_units.is_empty():
 			var hit_enemy := _hit_test_unit(event.position, false, true)
+			var hit_struct := _hit_test_structure(event.position)
 			if hit_enemy >= 0:
 				_call_bridge("orderBattleAttack", [_selected_csv(), hit_enemy], false)
+			elif hit_struct >= 0:
+				_call_bridge("orderBattleAttackStructure", [_selected_csv(), hit_struct], false)
 			else:
 				var fp := _canvas_to_field(event.position)
 				_call_bridge("orderBattleMove", [_selected_csv(), fp.x, fp.y], false)
@@ -816,8 +932,12 @@ func _on_canvas_gui_input(event: InputEvent) -> void:
 					"attack":
 						if not selected_units.is_empty():
 							var hit_enemy := _hit_test_unit(event.position, false, true)
+							var hit_struct := _hit_test_structure(event.position)
 							if hit_enemy >= 0:
 								_call_bridge("orderBattleAttack", [_selected_csv(), hit_enemy], false)
+								refresh_state()
+							elif hit_struct >= 0:
+								_call_bridge("orderBattleAttackStructure", [_selected_csv(), hit_struct], false)
 								refresh_state()
 					"path":
 						if not selected_units.is_empty():

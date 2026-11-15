@@ -4090,6 +4090,19 @@ public final class GezGodotController {
         session?.orderBattleRetreat(unitIndices: unitIndices) ?? false
     }
 
+    // MARK: - Phase 9 Part C: Siege Assault Orders
+
+    @discardableResult
+    public func orderBattleSiegeEquipment(unitIndices: [Int], equipmentKey: String) -> Bool {
+        guard let eq = SiegeEquipmentKind(rawValue: equipmentKey) else { return false }
+        return session?.orderBattleSiegeEquipment(unitIndices: unitIndices, equipment: eq) ?? false
+    }
+
+    @discardableResult
+    public func orderBattleAttackStructure(unitIndices: [Int], structureId: Int) -> Bool {
+        session?.orderBattleAttackStructure(unitIndices: unitIndices, structureID: structureId) ?? false
+    }
+
     public func battleStateData() -> [String: Any] {
         guard let b = session?.tacticalBattle else {
             return ["active": false]
@@ -5016,6 +5029,16 @@ public final class GezGodotBridge: RefCounted {
     @Callable
     public func orderBattleRetreat(unitIndicesCSV: String) -> Bool {
         controller.orderBattleRetreat(unitIndices: Self.parseIntCSV(unitIndicesCSV))
+    }
+
+    @Callable
+    public func orderBattleSiegeEquipment(unitIndicesCSV: String, equipmentKey: String) -> Bool {
+        controller.orderBattleSiegeEquipment(unitIndices: Self.parseIntCSV(unitIndicesCSV), equipmentKey: equipmentKey)
+    }
+
+    @Callable
+    public func orderBattleAttackStructure(unitIndicesCSV: String, structureId: Int) -> Bool {
+        controller.orderBattleAttackStructure(unitIndices: Self.parseIntCSV(unitIndicesCSV), structureId: structureId)
     }
 
     private static func parsePointCSV(_ csv: String) -> [TacticalPoint] {
