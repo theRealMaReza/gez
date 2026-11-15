@@ -1081,5 +1081,17 @@ struct GezGodotTests {
         #expect(controller.setTacticalBattleSpeed(speedIndex: 2))
         let ticked = controller.tickTacticalBattle(deltaSeconds: 0.5)
         #expect(ticked >= 1)
+
+        // Part B tactical orders via controller
+        #expect(controller.orderBattleFormation(unitIndices: [0], formationKey: "wedge"))
+        #expect(controller.orderBattleStance(unitIndices: [0], stanceKey: "charge"))
+        #expect(controller.orderBattlePath(unitIndices: [0], points: [TacticalPoint(x: 420, y: 310), TacticalPoint(x: 560, y: 350)]))
+        #expect(controller.orderBattleFrontline(unitIndices: [0], startX: 480, startY: 250, endX: 480, endY: 450))
+        #expect(controller.orderBattleMove(unitIndices: [0], x: 520, y: 360))
+        #expect(controller.orderBattleAttack(unitIndices: [0], targetUnitIndex: 1))
+        #expect(controller.orderBattleRetreat(unitIndices: [0]))
+        let afterOrder = controller.battleStateData()
+        let uList = afterOrder["units"] as? [[String: Any]] ?? []
+        #expect(uList[0]["stance"] as? String == "retreat")
     }
 }

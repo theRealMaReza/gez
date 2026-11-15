@@ -493,6 +493,36 @@ public struct BattleEngine: Sendable, Equatable {
         speed = newSpeed
     }
 
+    // MARK: - Tactical Orders (Part B)
+
+    public mutating func issueMoveOrder(unitIndices: [Int], x: Double, y: Double) {
+        BattleCombat.issueMoveOrder(engine: &self, unitIndices: unitIndices, x: x, y: y)
+    }
+
+    public mutating func issuePathOrder(unitIndices: [Int], points: [TacticalPoint]) {
+        BattleCombat.issuePathOrder(engine: &self, unitIndices: unitIndices, points: points)
+    }
+
+    public mutating func issueFrontlineOrder(unitIndices: [Int], start: TacticalPoint, end: TacticalPoint) {
+        BattleCombat.issueFrontlineOrder(engine: &self, unitIndices: unitIndices, start: start, end: end)
+    }
+
+    public mutating func issueAttackOrder(unitIndices: [Int], targetUnitIndex: Int) {
+        BattleCombat.issueAttackOrder(engine: &self, unitIndices: unitIndices, targetUnitIndex: targetUnitIndex)
+    }
+
+    public mutating func issueFormationOrder(unitIndices: [Int], formation: BattleFormation) {
+        BattleCombat.issueFormationOrder(engine: &self, unitIndices: unitIndices, formation: formation)
+    }
+
+    public mutating func issueStanceOrder(unitIndices: [Int], stance: BattleStance) {
+        BattleCombat.issueStanceOrder(engine: &self, unitIndices: unitIndices, stance: stance)
+    }
+
+    public mutating func issueRetreatOrder(unitIndices: [Int]) {
+        BattleCombat.issueRetreatOrder(engine: &self, unitIndices: unitIndices)
+    }
+
     // MARK: - Fixed-Timestep Simulation
 
     /// Advances real-time elapsed seconds into fixed 10 Hz battle ticks.
@@ -516,6 +546,7 @@ public struct BattleEngine: Sendable, Equatable {
     public mutating func stepTicks(_ count: Int) {
         guard count > 0, phase == .active else { return }
         for _ in 0..<count {
+            if phase != .active { break }
             stepOneTick()
         }
     }
@@ -523,35 +554,8 @@ public struct BattleEngine: Sendable, Equatable {
     private mutating func stepOneTick() {
         guard phase == .active else { return }
         tickCount += 1
-
-        // Part A baseline kinematics: advance units with move orders toward targets.
-        // Part B replaces/extends this with full formation physics, ranged/melee combat, morale, flanking, fatigue, and AI.
-        for i in 0..<units.count {
-            guard units.men[i] > 0 else { continue }
-            if units.hasMoveOrder[i] {
-                let dx = units.targetX[i] - units.posX[i]
-                let dy = units.targetY[i] - units.posY[i]
-                let dist = sqrt(dx * dx + dy * dy)
-                let moveStep = units.baseSpeed[i]
-                    * battlefield.movementSpeedMultiplier(at: units.posX[i], units.posY[i], category: units.category[i])
-                    * Self.dt
-                if dist <= max(2.0, moveStep) {
-                    units.posX[i] = max(20.0, min(battlefield.width - 20.0, units.targetX[i]))
-                    units.posY[i] = max(20.0, min(battlefield.height - 20.0, units.targetY[i]))
-                    units.hasMoveOrder[i] = false
-                    units.velX[i] = 0.0
-                    units.velY[i] = 0.0
-                } else {
-                    let nx = dx / dist
-                    let ny = dy / dist
-                    units.posX[i] = max(20.0, min(battlefield.width - 20.0, units.posX[i] + nx * moveStep))
-                    units.posY[i] = max(20.0, min(battlefield.height - 20.0, units.posY[i] + ny * moveStep))
-                    units.velX[i] = nx * moveStep / Self.dt
-                    units.velY[i] = ny * moveStep / Self.dt
-                    units.facing[i] = atan2(ny, nx)
-                }
-            }
-        }
+        BattleAI.update(engine: &self)
+        BattleCombat.stepTick(engine: &self)
     }
 
     public static func == (lhs: BattleEngine, rhs: BattleEngine) -> Bool {

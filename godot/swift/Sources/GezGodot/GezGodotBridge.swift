@@ -4047,6 +4047,49 @@ public final class GezGodotController {
         session?.tickTacticalBattle(deltaSeconds: deltaSeconds) ?? 0
     }
 
+    // MARK: - Phase 9 Part B: Real-time Tactical Orders
+
+    @discardableResult
+    public func orderBattleMove(unitIndices: [Int], x: Double, y: Double) -> Bool {
+        session?.orderBattleMove(unitIndices: unitIndices, x: x, y: y) ?? false
+    }
+
+    @discardableResult
+    public func orderBattlePath(unitIndices: [Int], points: [TacticalPoint]) -> Bool {
+        session?.orderBattlePath(unitIndices: unitIndices, points: points) ?? false
+    }
+
+    @discardableResult
+    public func orderBattleFrontline(unitIndices: [Int], startX: Double, startY: Double, endX: Double, endY: Double) -> Bool {
+        session?.orderBattleFrontline(
+            unitIndices: unitIndices,
+            start: TacticalPoint(x: startX, y: startY),
+            end: TacticalPoint(x: endX, y: endY)
+        ) ?? false
+    }
+
+    @discardableResult
+    public func orderBattleAttack(unitIndices: [Int], targetUnitIndex: Int) -> Bool {
+        session?.orderBattleAttack(unitIndices: unitIndices, targetUnitIndex: targetUnitIndex) ?? false
+    }
+
+    @discardableResult
+    public func orderBattleFormation(unitIndices: [Int], formationKey: String) -> Bool {
+        guard let form = BattleFormation(rawValue: formationKey) else { return false }
+        return session?.orderBattleFormation(unitIndices: unitIndices, formation: form) ?? false
+    }
+
+    @discardableResult
+    public func orderBattleStance(unitIndices: [Int], stanceKey: String) -> Bool {
+        guard let st = BattleStance(rawValue: stanceKey) else { return false }
+        return session?.orderBattleStance(unitIndices: unitIndices, stance: st) ?? false
+    }
+
+    @discardableResult
+    public func orderBattleRetreat(unitIndices: [Int]) -> Bool {
+        session?.orderBattleRetreat(unitIndices: unitIndices) ?? false
+    }
+
     public func battleStateData() -> [String: Any] {
         guard let b = session?.tacticalBattle else {
             return ["active": false]
@@ -4938,6 +4981,55 @@ public final class GezGodotBridge: RefCounted {
     @Callable
     public func tickTacticalBattle(deltaSeconds: Double) -> Int {
         controller.tickTacticalBattle(deltaSeconds: deltaSeconds)
+    }
+
+    @Callable
+    public func orderBattleMove(unitIndicesCSV: String, x: Double, y: Double) -> Bool {
+        controller.orderBattleMove(unitIndices: Self.parseIntCSV(unitIndicesCSV), x: x, y: y)
+    }
+
+    @Callable
+    public func orderBattlePath(unitIndicesCSV: String, pointsCSV: String) -> Bool {
+        controller.orderBattlePath(unitIndices: Self.parseIntCSV(unitIndicesCSV), points: Self.parsePointCSV(pointsCSV))
+    }
+
+    @Callable
+    public func orderBattleFrontline(unitIndicesCSV: String, startX: Double, startY: Double, endX: Double, endY: Double) -> Bool {
+        controller.orderBattleFrontline(unitIndices: Self.parseIntCSV(unitIndicesCSV), startX: startX, startY: startY, endX: endX, endY: endY)
+    }
+
+    @Callable
+    public func orderBattleAttack(unitIndicesCSV: String, targetUnitIndex: Int) -> Bool {
+        controller.orderBattleAttack(unitIndices: Self.parseIntCSV(unitIndicesCSV), targetUnitIndex: targetUnitIndex)
+    }
+
+    @Callable
+    public func orderBattleFormation(unitIndicesCSV: String, formationKey: String) -> Bool {
+        controller.orderBattleFormation(unitIndices: Self.parseIntCSV(unitIndicesCSV), formationKey: formationKey)
+    }
+
+    @Callable
+    public func orderBattleStance(unitIndicesCSV: String, stanceKey: String) -> Bool {
+        controller.orderBattleStance(unitIndices: Self.parseIntCSV(unitIndicesCSV), stanceKey: stanceKey)
+    }
+
+    @Callable
+    public func orderBattleRetreat(unitIndicesCSV: String) -> Bool {
+        controller.orderBattleRetreat(unitIndices: Self.parseIntCSV(unitIndicesCSV))
+    }
+
+    private static func parsePointCSV(_ csv: String) -> [TacticalPoint] {
+        guard !csv.isEmpty else { return [] }
+        var pts: [TacticalPoint] = []
+        for token in csv.split(separator: ";") {
+            let parts = token.split(separator: ",")
+            if parts.count == 2,
+               let x = Double(parts[0].trimmingCharacters(in: .whitespaces)),
+               let y = Double(parts[1].trimmingCharacters(in: .whitespaces)) {
+                pts.append(TacticalPoint(x: x, y: y))
+            }
+        }
+        return pts
     }
 
     private static func parseIntCSV(_ csv: String) -> [Int] {

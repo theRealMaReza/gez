@@ -1107,4 +1107,83 @@ public final class GameSession {
         tacticalBattle = battle
         return ticks
     }
+
+    // MARK: - Tactical Orders (Part B)
+
+    private func playerControlledIndices(from requested: [Int], in battle: BattleEngine) -> [Int] {
+        guard let pSide = battle.playerSide else { return requested }
+        return requested.filter { idx in
+            idx >= 0 && idx < battle.units.count && battle.units.side[idx] == pSide
+        }
+    }
+
+    @discardableResult
+    public func orderBattleMove(unitIndices: [Int], x: Double, y: Double) -> Bool {
+        guard var battle = tacticalBattle, battle.phase == .active else { return false }
+        let owned = playerControlledIndices(from: unitIndices, in: battle)
+        guard !owned.isEmpty else { return false }
+        battle.issueMoveOrder(unitIndices: owned, x: x, y: y)
+        tacticalBattle = battle
+        return true
+    }
+
+    @discardableResult
+    public func orderBattlePath(unitIndices: [Int], points: [TacticalPoint]) -> Bool {
+        guard var battle = tacticalBattle, battle.phase == .active, !points.isEmpty else { return false }
+        let owned = playerControlledIndices(from: unitIndices, in: battle)
+        guard !owned.isEmpty else { return false }
+        battle.issuePathOrder(unitIndices: owned, points: points)
+        tacticalBattle = battle
+        return true
+    }
+
+    @discardableResult
+    public func orderBattleFrontline(unitIndices: [Int], start: TacticalPoint, end: TacticalPoint) -> Bool {
+        guard var battle = tacticalBattle, battle.phase == .active else { return false }
+        let owned = playerControlledIndices(from: unitIndices, in: battle)
+        guard !owned.isEmpty else { return false }
+        battle.issueFrontlineOrder(unitIndices: owned, start: start, end: end)
+        tacticalBattle = battle
+        return true
+    }
+
+    @discardableResult
+    public func orderBattleAttack(unitIndices: [Int], targetUnitIndex: Int) -> Bool {
+        guard var battle = tacticalBattle, battle.phase == .active else { return false }
+        let owned = playerControlledIndices(from: unitIndices, in: battle)
+        guard !owned.isEmpty else { return false }
+        battle.issueAttackOrder(unitIndices: owned, targetUnitIndex: targetUnitIndex)
+        tacticalBattle = battle
+        return true
+    }
+
+    @discardableResult
+    public func orderBattleFormation(unitIndices: [Int], formation: BattleFormation) -> Bool {
+        guard var battle = tacticalBattle, battle.phase != .ended else { return false }
+        let owned = playerControlledIndices(from: unitIndices, in: battle)
+        guard !owned.isEmpty else { return false }
+        battle.issueFormationOrder(unitIndices: owned, formation: formation)
+        tacticalBattle = battle
+        return true
+    }
+
+    @discardableResult
+    public func orderBattleStance(unitIndices: [Int], stance: BattleStance) -> Bool {
+        guard var battle = tacticalBattle, battle.phase == .active else { return false }
+        let owned = playerControlledIndices(from: unitIndices, in: battle)
+        guard !owned.isEmpty else { return false }
+        battle.issueStanceOrder(unitIndices: owned, stance: stance)
+        tacticalBattle = battle
+        return true
+    }
+
+    @discardableResult
+    public func orderBattleRetreat(unitIndices: [Int]) -> Bool {
+        guard var battle = tacticalBattle, battle.phase == .active else { return false }
+        let owned = playerControlledIndices(from: unitIndices, in: battle)
+        guard !owned.isEmpty else { return false }
+        battle.issueRetreatOrder(unitIndices: owned)
+        tacticalBattle = battle
+        return true
+    }
 }
