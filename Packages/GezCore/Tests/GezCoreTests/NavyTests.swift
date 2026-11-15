@@ -654,4 +654,21 @@ struct NavyTransportTests {
             }
         }
     }
+
+    /// The once-a-day dock table gives the same answers as asking
+    /// canDockAtController pair by pair (review speed-up).
+    @Test("Dock permission table matches canDockAtController")
+    func dockFriendsMatchesPairwiseCheck() {
+        let sim = Simulation(world: Scenario1453.makeWorld(), startDate: Scenario1453.startDate, seed: 1453)
+        for _ in 0..<120 { sim.tick() }
+        let w = sim.world
+        let friends = NavySystem.dockFriends(w)
+        for o in 0..<w.countries.count {
+            for c in 0..<w.countries.count {
+                let slow = NavySystem.canDockAtController(w, CountryID(o), controller: CountryID(c))
+                let fast = o == c || friends[o].contains(c)
+                #expect(slow == fast, "dock \(o) at \(c)")
+            }
+        }
+    }
 }

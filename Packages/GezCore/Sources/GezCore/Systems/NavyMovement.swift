@@ -132,7 +132,7 @@ extension NavySystem {
     }
 
     /// True if `country` can peacefully dock in coastal ports controlled by `ctrl`.
-    private static func canDockAtController(_ world: World, _ country: CountryID, controller ctrl: CountryID) -> Bool {
+    static func canDockAtController(_ world: World, _ country: CountryID, controller ctrl: CountryID) -> Bool {
         if ctrl == country { return true }
         if world.diplomacy.hasMilitaryAccess(country: country, through: ctrl) { return true }
         // Allies in the same war can dock in each other's friendly ports.
@@ -140,6 +140,39 @@ extension NavySystem {
             (war.isAttacker(country) && war.isAttacker(ctrl)) ||
             (war.isDefender(country) && war.isDefender(ctrl))
         }
+    }
+
+    /// Who may dock where, built once from one pass over treaties and wars
+    /// (review fix: the daily supply check asked `canDockAtController` for
+    /// every coastal country, each call scanning all treaties, which made
+    /// `runDaily` take ~4 ms a day). Same answers as `canDockAtController`.
+    static func dockFriends(_ world: World) -> [Set<Int>] {
+        let n = world.countries.count
+        var friends = [Set<Int>](repeating: [], count: n)
+        for t in world.diplomacy.treaties {
+            let a = t.first.index, b = t.second.index
+            guard a < n, b < n else { continue }
+            switch t.type {
+            case .alliance:
+                friends[a].insert(b)
+                friends[b].insert(a)
+            case .militaryAccess:
+                // `first` grants access through its land to `second`.
+                friends[b].insert(a)
+            default:
+                break
+            }
+        }
+        for war in world.diplomacy.wars {
+            for side in [war.attackers, war.defenders] {
+                for x in side where x.index < n {
+                    for y in side where y.index < n && y != x {
+                        friends[x.index].insert(y.index)
+                    }
+                }
+            }
+        }
+        return friends
     }
 
     /// True if `country` can peacefully dock at `port`.
@@ -323,19 +356,11 @@ extension NavySystem {
     /// Shortest sea-zone distance (in hops, `Int.max` if unreachable) from `sea`
     /// to any sea zone adjacent to a port friendly to `country`.
     public static func seaSupplyHops(_ world: World, from sea: SeaZoneID, for country: CountryID) -> Int {
-        var dockableCtrl: [Int: Bool] = [country.index: true]
+        let friends = country.index < world.countries.count ? dockFriends(world)[country.index] : []
         var friendlyZones = Set<SeaZoneID>()
         for p in 0..<world.provinces.count where world.hasSeaAccess(ProvinceID(p)) {
             guard let ctrl = world.provinces.controller(of: ProvinceID(p)) else { continue }
-            let ok: Bool
-            if let cached = dockableCtrl[ctrl.index] {
-                ok = cached
-            } else {
-                let computed = canDockAtController(world, country, controller: ctrl)
-                dockableCtrl[ctrl.index] = computed
-                ok = computed
-            }
-            if ok {
+            if ctrl == country || friends.contains(ctrl.index) {
                 for sz in world.provinceSeas[p] {
                     friendlyZones.insert(sz)
                 }
@@ -442,6 +467,7 @@ extension NavySystem {
 
         var zonesByController: [Int: Set<SeaZoneID>]? = nil
         var friendlyZonesCache: [Int: Set<SeaZoneID>] = [:]
+        var dockFriendsToday: [Set<Int>]? = nil
 
         for i in 0..<world.navy.fleets.count where world.navy.fleets.alive[i] {
             let fid = FleetID(i)
@@ -523,11 +549,10 @@ extension NavySystem {
                     friendlyZones = cached
                 } else {
                     var zones = zonesByController?[owner.index] ?? []
-                    if let byCtrl = zonesByController {
-                        for (ctrlIdx, ctrlZones) in byCtrl where ctrlIdx != owner.index {
-                            if canDockAtController(world, owner, controller: CountryID(ctrlIdx)) {
-                                zones.formUnion(ctrlZones)
-                            }
+                    if dockFriendsToday == nil { dockFriendsToday = dockFriends(world) }
+                    if let byCtrl = zonesByController, let friends = dockFriendsToday?[owner.index] {
+                        for ctrlIdx in friends where ctrlIdx != owner.index {
+                            if let ctrlZones = byCtrl[ctrlIdx] { zones.formUnion(ctrlZones) }
                         }
                     }
                     friendlyZonesCache[owner.index] = zones
