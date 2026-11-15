@@ -190,7 +190,9 @@ turned into game files by `tools/mapgen/mapgen.py`.
   once per call instead of scanning every province or army repeatedly.
   The `FingerprintTests` checksum (printed by the by-hand "profile" CI job)
   proved these give exactly the same world as before over two game years;
-  the release tick went from about 5.7 to 3.9 ms per day on CI.
+  the release tick went from about 5.7 to 3.9 ms per day on CI. The
+  three AI changes above (one path search, merging, recruiting into the
+  capital army) change the game and bring it to about 3.1 ms per day.
 
 ### Battles (planned, Phase 9)
 - Triggered when hostile armies end up in the same province.
