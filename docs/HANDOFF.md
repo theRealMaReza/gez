@@ -61,9 +61,10 @@ Everything below is built, tested on CI and visible in the app.
 | App windows (old Apple app) | Top bar: treasury (Budget), Trade, Court, Stability (Government), Armies (manpower, field armies, commanders, levies, recruitment). Province panel tabs: Overview (holder, supply, levy, buildings), Economy, People. Market panel. Map modes Q–I; 2D army counters and marching arrows |
 | Tests | GezCore simulation tests (incl. `StartingWarsTests`, `FingerprintTests`, five long runs), GezGodot bridge tests, App snapshot tests; all green |
 
-Not started (later phases): diplomacy, war and peace, sieges, save/load,
-battles, navies, religion and culture change, plague, rebels, technology,
-events, sound, menus, settings, multiplayer.
+Also built (Phases 7–8): diplomacy, war and peace, auto-resolved battles,
+sieges, save/load and autosave, nation picker, alerts. Not started (later
+phases): the playable battle view, navies, religion and culture change,
+plague, rebels, technology, events, sound, settings, multiplayer.
 
 ## What to do next
 
