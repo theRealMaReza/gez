@@ -183,7 +183,7 @@ Owner's choices:
    war, peace, sieges) as any country. Play-test with the owner and fix
    balance before going on.
 
-### Phase 8.5: Move the screens to Godot
+### Phase 8.5: Move the screens to Godot ✅ (session 7, PR #21)
 Decided by the owner on 14 November 2026, before Phase 9, so the battle
 view, 3D map and art pass are built once, in Godot. Godot 4.7 runs the
 screens on Mac, Windows, Linux (and iPad later); the whole simulation
@@ -218,9 +218,10 @@ version matches it; the owner decides when to retire it.
       stops the 1453 wars from making peace on day 2.
    f. Map icons (towns, capitals, forts, ports) and coats of arms
       across the UI. ✅
-4. **Builds**: Godot headless exports for Mac, Windows and Linux on CI; ✅
-   screenshot job pushes Godot captures to `ci-snapshots`; downloads on
-   the website and itch.io stay separate (later).
+4. **Builds**: Godot exports for Mac, Windows and Linux on CI, each started
+   once to prove it loads the world; ✅ screenshot job pushes Godot
+   captures to `ci-snapshots` (`godot/`); downloads on the website and
+   itch.io stay separate (later).
 5. **Retire `App/`** once the Godot version is at parity (owner decides).
 
 ### Phase 9: Battle view (2D, real-time with pause)
@@ -228,6 +229,10 @@ Owner's choices:
 - **Battlefield & deployment**: "Lead Battle in Person" vs "Auto-Resolve" modal when the player's army fights or storms a breached fort; 2D battlefield generates elevation contours, woods, hills, and river crossings from the province's real terrain and border data, with a pre-battle Deployment Phase in each side's deployment zone (skipped if ambushed during a river crossing).
 - **Tactical controls & formations**: Real-time with pause & speed controls (0.5x/1x/2x), drag-box or tap selection, draw-path / drag-frontline orders (touch, Apple Pencil, mouse & keyboard), formations (Line, Column, Wedge, Square/Wagon-Laager, Skirmish), tactical stances (Hold, Advance, Charge, Volley/Hold Fire, Retreat), plus directional flanking/rear morale penalties, fatigue, and ammunition tracking.
 - **Playable siege assaults & write-back**: Fort assaults render walls, towers, gates, and pre-existing artillery breaches from the map siege; attackers can bombard walls/gates with artillery, send infantry with scaling ladders or battering rams, or storm through breaches to capture the inner keep; exact regiment survivors, morale, breaches, and levy pop losses feed directly back into the campaign `World`.
+Three Gemini pull requests: (1) steps 1–3 basics + the battle rules in
+GezCore (deterministic, fixed time step; Godot only draws) and step 5
+write-back; (2) the rest of step 3 (formations, stances, flanking,
+fatigue, ammunition, touch/Pencil); (3) step 4, siege assaults.
 1. "Fight or auto-resolve" choice when armies meet.
 2. Battlefield from the real location's terrain (elevation, forest,
    river); deployment phase.

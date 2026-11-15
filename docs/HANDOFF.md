@@ -5,7 +5,7 @@ Read this first, then `docs/ROADMAP.md` (the agreed plan), `docs/DESIGN.md`
 judgment calls) and `CLAUDE.md` (rules). This file says where the project
 stands, how to work on it, and what to do next.
 
-Last updated: session 7 (14 November 2026). Phases 0–8.5 are implemented in `godot/` and `Packages/GezCore`: all gameplay screens, map modes, map icons & coats of arms, simulation & Godot UI performance pass (including the 1453 peace-stalemate fix), and CI build/export/screenshot workflows for macOS, Windows, and Linux; next: the owner play-tests and reviews CI exports, then Phase 9 (Battle view in Godot).
+Last updated: session 7 (14 November 2026). Phases 0–8.5 are done: the screens now run in Godot on Mac, Windows and Linux (PR #21, Gemini wrote it, Claude reviewed and fixed it). Next: the owner play-tests the Godot version, then Phase 9 (battle view, in Godot), in three Gemini pull requests.
 
 ## The owner
 
@@ -57,8 +57,9 @@ Everything below is built, tested on CI and visible in the app.
 | Great vassals | Real lords hold 75 provinces (Hunyadi, Rožmberk, Olelko of Kiev, Ottoman march lords, Georgian princes...). They keep 40% of the tax, inherit by family law, can be granted or stripped of land, refuse taxes when unhappy and may plot to poison the ruler. Court chronicle logs it all |
 | Government (Phase 5) | Stability −3…+3; 11 law areas with trade-offs (6 months to change); estates tied to pops (core four plus Janissaries, Mamluks, Rajputs, Tribes, Dhimmi) with power, loyalty and 23 privileges; a 4-tier reform tree per government type that can change the government |
 | Armies & logistics (Phase 6) | 15 unit types (5 core + 10 regional 1453 units), 39 starting standing armies (235 regiments, 225,000 men), three origins (levies from pops, standing professionals from manpower + market goods, mercenaries for gold), daily province-to-province movement (distance, terrain, rivers, roads, unit speed, commander Martial), supply limit & monthly attrition/reinforcement, great vassal open revolts, military AI |
-| App windows | Top bar: treasury (Budget), Trade, Court, Stability (Government), Armies (manpower, field armies, commanders, levies, recruitment). Province panel tabs: Overview (holder, supply, levy, buildings), Economy, People. Market panel. Map modes Q–I; 2D army counters and marching arrows |
-| Tests | 109 simulation tests (GezCore) and 11 snapshot tests (App); all green |
+| Godot screens (Phase 8.5) | `godot/`: every Apple-app window, button, map mode, map icon and coat of arms (court, government, diplomacy, wars & peace, alerts, budget, trade, buildings, armies, game menu, nation picker); GezCore loaded through SwiftGodot (`godot/swift`, `GezGodotBridge`); exports for Mac, Windows and Linux on CI |
+| App windows (old Apple app) | Top bar: treasury (Budget), Trade, Court, Stability (Government), Armies (manpower, field armies, commanders, levies, recruitment). Province panel tabs: Overview (holder, supply, levy, buildings), Economy, People. Market panel. Map modes Q–I; 2D army counters and marching arrows |
+| Tests | GezCore simulation tests (incl. `StartingWarsTests`, `FingerprintTests`, five long runs), GezGodot bridge tests, App snapshot tests; all green |
 
 Not started (later phases): diplomacy, war and peace, sieges, save/load,
 battles, navies, religion and culture change, plague, rebels, technology,
@@ -66,12 +67,40 @@ events, sound, menus, settings, multiplayer.
 
 ## What to do next
 
-1. **Phase 8.5: move the screens to Godot** (ROADMAP) — **implemented across steps 1–4** on `gemini/phase8.5-finish`:
-   - Steps 1–2, 3a–3c, 3d1 (Court & Government windows, laws, estates, reforms, family tree, chronicle, player coat of arms), 3d2 (Diplomacy window, war & peace negotiation, pending AI peace offers popup, clickable alerts row, diplomatic map mode), 3f (town/fort/capital/port map icons layer + country coats of arms across UI), 3e (simulation daily-tick caches + 1453 stalemate clamp + incremental Godot UI/map updates), and step 4 (cross-platform `SwiftGodot` source dependency for Windows/Linux, `export_presets.cfg`, build & resource-staging scripts, CI exports for Mac/Windows/Linux, and `godot-snapshots` CI job).
-   - Running it on the Mac: `git pull`, `./godot/build_mac.sh`, then quit Godot with Cmd+Q and reopen (it loads the Swift extension only at startup; a stale extension shows "Nonexistent function" errors).
-2. The owner should **play-test the Godot version** and verify Windows/Linux CI artifacts on GitHub Actions.
-3. Then **Phase 9: battle view**, built in Godot.
-4. Follow-ups: army table slots are never reused; Windows/Linux Godot exports and `godot-snapshots` Linux render run on GitHub Actions CI runners (macOS build, unit tests, and Godot snapshot rendering verified locally).
+1. **Owner play-test of the Godot version** on the Mac (`git pull`,
+   `cd godot && ./build_mac.sh`, Cmd+Q Godot, reopen, Play). Windows and
+   Linux builds are on every CI run's page under "Artifacts"
+   (`gez-godot-windows`, `gez-godot-linux`, `gez-godot-macos`); unsigned, so
+   Windows asks "More info → Run anyway".
+2. **Phase 9: battle view**, in Godot, split into three Gemini pull
+   requests: (1) battle rules in GezCore + fight/auto-resolve choice +
+   battlefield from terrain + deployment + basic real-time control;
+   (2) formations, stances, flanking, fatigue, ammunition, touch/Pencil;
+   (3) playable siege assaults. All battle rules in GezCore (deterministic,
+   fixed time step); Godot only draws. The prompt for (1) was given to the
+   owner on 14 Nov.
+3. Follow-ups: army table slots are never reused; the Ottomans start over
+   their relation-slot limit (6/5); two temporary branches
+   (`claude/fingerprint-base`, `claude/fingerprint-speedonly`) can be
+   deleted on GitHub (the workspace cannot delete branches); retire `App/`
+   when the owner says so.
+
+### Session 7 review of PR #21 (lessons for the next reviews)
+- Gemini's "green" builds were not proof: the Linux export could not load
+  GezCore (Swift runtime not copied) and the Mac export failed. Each export
+  job now starts the exported game headless and requires the line
+  "Gez: 1453 world loaded".
+- `godot --headless --path godot --quit` does not register the extension;
+  use `--import` before exporting or rendering screenshots.
+- Speed claims: compare with `FingerprintTests` (by-hand profile job:
+  `gh workflow run ci.yml --ref <branch> -f only=profile`, then diff the
+  `FINGERPRINT` lines of two branches). Pure speed-ups must match line for
+  line. Measured: 5.7 → 3.9 ms per game day identical; 3.1 ms with the
+  three AI behaviour changes from PR #15 (documented in DESIGN.md).
+- Watch for precomputed lists that go stale inside a loop that changes
+  them (alliances, soldier counts).
+- Screenshots are taken at the game's default 1440×900; look for things
+  pushed off-screen.
 
 Phase 7 history additions by Claude's review: the Albanian–Ottoman war and
 the Delhi–Jaunpur war were active on 30 May 1453 and are now in
@@ -89,16 +118,22 @@ into `main`; it never pushes to `main`.
 When the owner asks Claude to test Gemini's work:
 1. `gh pr list` and `gh pr view <n>` / `gh pr diff <n>`; check out the
    branch (`git fetch origin <branch> && git checkout <branch>`).
-2. Wait for CI on the pull request (all four jobs) and read failing logs.
+2. Wait for CI on the pull request (all jobs, including the three Godot
+   exports, which take ~40 minutes) and read failing logs.
 3. Check the rules: GezCore pure Swift, `GameRandom` only, struct-of-arrays,
    tests for every new system, regenerated data committed and
    reproducible (rerun the generator, expect no diff), resources listed
    in `Package.swift`, no `Gez.xcodeproj`, docs and HISTORY_NOTES updated.
 4. Read the logic for bugs, and run quick balance checks in Python where
-   numbers changed. Look at the `ci-snapshots` images for UI changes.
-   Snapshots come from `main` pushes; for a pull request, judge the UI
-   from the code or run the snapshot job on the branch with
-   `gh workflow run ci.yml --ref <branch>`.
+   numbers changed. Look at the `ci-snapshots` images for UI changes
+   (Godot ones in its `godot/` folder). Snapshots come from `main` pushes;
+   for a pull request, run `gh workflow run ci.yml --ref <branch>` (REST:
+   `gh api -X POST repos/yv28f5k922-dot/Gez/actions/workflows/ci.yml/dispatches -f ref=<branch> -f 'inputs[only]=all'`):
+   its Godot screenshots go to the `ci-snapshots-preview` branch, and it
+   also runs the long simulations. `gh pr list/view/review` use GraphQL,
+   which is blocked; use `gh api repos/.../pulls/<n>` (REST) instead.
+   Also check that every `_call_bridge("name", [args])` in the GDScript
+   matches an `@Callable` with the same number of arguments.
 5. Report to the owner in plain language: works or not, what is wrong,
    and what to tell Gemini. Leave review comments on the pull request
    (`gh pr review <n> --comment -b "..."` or `--request-changes`).
