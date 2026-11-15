@@ -73,6 +73,8 @@ var alerts_hbox: HBoxContainer
 var date_label: Label
 var selection_label: Label
 var fps_label: Label
+var top_bar_hbox: HBoxContainer
+var top_bar_panel: PanelContainer
 var pause_btn: Button
 var play_as_btn: Button
 var menu_btn: Button
@@ -368,6 +370,9 @@ func _build_top_bar() -> void:
 	# pushing the time controls off the screen.
 	hbox.add_theme_constant_override("separation", 5)
 	top_bar.add_child(hbox)
+	top_bar_hbox = hbox
+	top_bar_panel = top_bar
+	top_bar.resized.connect(_fit_top_bar)
 
 	top_arms_rect = TextureRect.new()
 	top_arms_rect.custom_minimum_size = Vector2(28.0, 24.0)
@@ -1271,7 +1276,23 @@ func _refresh_styles_and_country_labels() -> void:
 		_call_bridge("getCountryLabelMetrics", [], PackedFloat32Array())
 	)
 
+# If the top bar's buttons need more room than the window has, shrink the
+# whole row a little so the date, pause and speed buttons stay on screen
+# (new buttons such as "Fleets" kept pushing them off the right edge).
+func _fit_top_bar() -> void:
+	if top_bar_hbox == null or top_bar_panel == null:
+		return
+	var need := top_bar_hbox.get_combined_minimum_size().x
+	var avail := top_bar_panel.size.x - 32.0
+	var s := 1.0
+	if need > 0.0 and avail > 0.0 and need > avail:
+		s = maxf(0.6, avail / need)
+	if not is_equal_approx(top_bar_hbox.scale.x, s):
+		top_bar_hbox.scale = Vector2(s, s)
+		top_bar_hbox.position.y = (top_bar_panel.size.y - top_bar_hbox.size.y * s) * 0.5
+
 func _refresh_top_bar() -> void:
+	call_deferred("_fit_top_bar")
 	if bridge == null:
 		return
 	var top_var: Variant = _call_bridge("getPlayerTopBarDetails", [], {})
