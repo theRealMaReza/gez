@@ -144,7 +144,8 @@ When the owner asks Claude to test Gemini's work:
 
 ## Website (session 6)
 
-Public coming-soon site at https://yv28f5k922-dot.github.io, from the
+Public site at https://yv28f5k922-dot.github.io (downloads live since
+version 0.1, 14 Nov 2026; see "Releasing a download"), from the
 separate public repo `yv28f5k922-dot/yv28f5k922-dot.github.io` (plain HTML,
 no build; GitHub Pages deploys every push to `main`). Owner's choices:
 free github.io address; Mac download free, iPad "later" (needs Apple's
