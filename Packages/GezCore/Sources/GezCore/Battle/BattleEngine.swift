@@ -9,6 +9,11 @@ public struct BattleEngine: Sendable, Equatable {
     /// multiplied by this; ammunition is divided by it so archers and guns keep
     /// the same share of the fighting. Wall damage is not scaled.
     public static let pace: Double = 0.125
+    /// Safety time limits (then the side with more men left wins): 10 minutes
+    /// for a field battle, 15 for an assault, well above the 2-4 minutes a
+    /// battle normally takes, so fights end on the field, not on the clock.
+    public static let fieldTimeLimitTicks = 10 * 60 * ticksPerSecond
+    public static let assaultTimeLimitTicks = 15 * 60 * ticksPerSecond
 
     public let seed: UInt64
     public let province: ProvinceID

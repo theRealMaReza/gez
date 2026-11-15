@@ -1058,7 +1058,7 @@ public enum BattleCombat {
                 engine.wasStackwipe = (Double(loserLeft) / Double(loserInit)) < 0.10
                 return
             }
-            if attActive == 0 || engine.tickCount >= 2400 {
+            if attActive == 0 || engine.tickCount >= BattleEngine.assaultTimeLimitTicks {
                 engine.phase = .ended
                 engine.keepCaptured = false
                 engine.winner = .defender
@@ -1070,7 +1070,7 @@ public enum BattleCombat {
             return
         }
 
-        if attActive == 0 || defActive == 0 || engine.tickCount >= 1800 {
+        if attActive == 0 || defActive == 0 || engine.tickCount >= BattleEngine.fieldTimeLimitTicks {
             engine.phase = .ended
             if defActive == 0 && attActive > 0 {
                 engine.winner = .attacker
