@@ -263,6 +263,7 @@ public enum MarketSystem {
             }
         }
         var pops = world.pops
+        let standing = CultureStanding(world)
         var provPopTotal = Array(repeating: 0.0, count: P)
         var provCultTaxWeighted = Array(repeating: 0.0, count: P)
         for i in 0..<pops.count {
@@ -270,7 +271,7 @@ public enum MarketSystem {
             let owner = world.provinces.owner[p]
             let cultMult: Double
             if let owner {
-                cultMult = CultureSystem.taxMultiplier(world, country: owner, culture: pops.culture[i])
+                cultMult = standing.tax(world, owner, pops.culture[i])
             } else {
                 cultMult = 1.0
             }
@@ -284,7 +285,7 @@ public enum MarketSystem {
                 if let owner {
                     target += world.taxMood(owner, pops.socialClass[i]) + world.financeMood(owner, pops.socialClass[i])
                         + world.governmentMood(owner, pops.socialClass[i], pops.religion[i])
-                        + CultureSystem.moodPenalty(world, country: owner, culture: pops.culture[i])
+                        + standing.mood(world, owner, pops.culture[i])
                 }
                 target = min(1, max(0, target))
                 pops.satisfaction[i] += MarketModel.satisfactionSpeed * (target - pops.satisfaction[i])

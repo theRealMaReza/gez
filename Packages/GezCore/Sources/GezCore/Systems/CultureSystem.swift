@@ -136,13 +136,17 @@ public enum CultureSystem {
 
     /// Pop-size-weighted manpower efficiency factor (0.50...1.0) in `province` for `country`.
     public static func provinceManpowerFactor(_ world: World, province: ProvinceID, owner: CountryID) -> Double {
+        provinceManpowerFactor(world, province: province, owner: owner, standing: CultureStanding(world, only: owner))
+    }
+
+    public static func provinceManpowerFactor(_ world: World, province: ProvinceID, owner: CountryID, standing: CultureStanding) -> Double {
         var total = 0.0
         var weighted = 0.0
         for i in world.pops.range(for: province) {
             let s = world.pops.size[i]
             guard s > 0 else { continue }
             total += s
-            weighted += s * manpowerMultiplier(world, country: owner, culture: world.pops.culture[i])
+            weighted += s * standing.manpower(world, owner, world.pops.culture[i])
         }
         return total > 0 ? weighted / total : 1.0
     }
@@ -570,6 +574,90 @@ public enum CultureSystem {
         let dirtyProvs = (0..<P).filter { dirtySet[$0] }
         if !dirtyProvs.isEmpty {
             world.refreshProvinceSummaries(for: dirtyProvs)
+        }
+    }
+}
+
+/// Accepted / same family / foreign for each (country, culture), built once
+/// and then read per pop (review speed-up: the per-pop checks compared
+/// culture families as strings and passed the whole World each time, which
+/// tripled the monthly economy's cost). Same answers as `isAccepted` and
+/// `isSameFamily`; anything outside the table falls back to them.
+public struct CultureStanding {
+    private let k: Int
+    private let firstCountry: Int
+    private let countryCount: Int
+    private var cat: [UInt8]   // 0 accepted, 1 same family, 2 foreign
+
+    /// All countries, or only `only` (for code that works one country at a time).
+    public init(_ world: World, only: CountryID? = nil) {
+        let K = world.cultures.count
+        k = K
+        var famID: [String: Int] = [:]
+        var fam = [Int](repeating: -1, count: K)
+        for x in 0..<K {
+            let f = world.cultures.family[x]
+            if let id = famID[f] { fam[x] = id } else { let id = famID.count; famID[f] = id; fam[x] = id }
+        }
+        let range: Range<Int>
+        if let one = only, one.index < world.countries.count {
+            range = one.index..<(one.index + 1)
+        } else if only != nil {
+            range = 0..<0
+        } else {
+            range = 0..<world.countries.count
+        }
+        firstCountry = range.lowerBound
+        countryCount = range.count
+        cat = [UInt8](repeating: 2, count: range.count * K)
+        for c in range {
+            let row = (c - range.lowerBound) * K
+            let primary = world.countries.primaryCulture[c].index
+            if primary < K {
+                let pf = fam[primary]
+                for x in 0..<K where fam[x] == pf { cat[row + x] = 1 }
+                cat[row + primary] = 0
+            }
+            for a in world.countries.acceptedCultures[c] where a.index < K {
+                cat[row + a.index] = 0
+            }
+        }
+    }
+
+    @inline(__always)
+    public func category(_ world: World, _ country: CountryID, _ culture: CultureID) -> UInt8 {
+        let c = country.index - firstCountry
+        if c >= 0 && c < countryCount && culture.index < k {
+            return cat[c * k + culture.index]
+        }
+        if CultureSystem.isAccepted(world, country: country, culture: culture) { return 0 }
+        return CultureSystem.isSameFamily(world, country: country, culture: culture) ? 1 : 2
+    }
+
+    @inline(__always)
+    public func tax(_ world: World, _ country: CountryID, _ culture: CultureID) -> Double {
+        switch category(world, country, culture) {
+        case 0: return CultureModel.taxAccepted
+        case 1: return CultureModel.taxSameFamily
+        default: return CultureModel.taxForeign
+        }
+    }
+
+    @inline(__always)
+    public func manpower(_ world: World, _ country: CountryID, _ culture: CultureID) -> Double {
+        switch category(world, country, culture) {
+        case 0: return CultureModel.manpowerAccepted
+        case 1: return CultureModel.manpowerSameFamily
+        default: return CultureModel.manpowerForeign
+        }
+    }
+
+    @inline(__always)
+    public func mood(_ world: World, _ country: CountryID, _ culture: CultureID) -> Double {
+        switch category(world, country, culture) {
+        case 0: return CultureModel.moodAccepted
+        case 1: return CultureModel.moodSameFamily
+        default: return CultureModel.moodForeign
         }
     }
 }

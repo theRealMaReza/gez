@@ -187,4 +187,22 @@ final class CultureTests: XCTestCase {
         XCTAssertEqual(loaded.world.provinces.famine, sim1.world.provinces.famine)
         XCTAssertEqual(loaded.world.provinces.assimilationProgress, sim1.world.provinces.assimilationProgress)
     }
+
+    /// The culture lookup table equals the per-pop checks (review speed-up).
+    func testCultureStandingMatchesDirectChecks() {
+        let sim = Simulation(world: Scenario1453.makeWorld(), startDate: Scenario1453.startDate, seed: 1453)
+        for _ in 0..<62 { sim.tick() }
+        let w = sim.world
+        let table = CultureStanding(w)
+        for c in 0..<w.countries.count {
+            let one = CultureStanding(w, only: CountryID(c))
+            for x in 0..<w.cultures.count {
+                let cid = CountryID(c), cul = CultureID(x)
+                let expected: UInt8 = CultureSystem.isAccepted(w, country: cid, culture: cul) ? 0
+                    : (CultureSystem.isSameFamily(w, country: cid, culture: cul) ? 1 : 2)
+                XCTAssertEqual(table.category(w, cid, cul), expected)
+                XCTAssertEqual(one.category(w, cid, cul), expected)
+            }
+        }
+    }
 }

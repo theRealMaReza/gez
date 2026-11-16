@@ -99,12 +99,13 @@ public enum ArmySystem {
         var popSum = 0.0
         var barracksMen = 0.0
         let T = world.economy.buildings.typeCount
+        let standing = CultureStanding(world, only: country)
         for pid in owned {
             // Provinces held by a tax-refusing vassal do not contribute to crown manpower.
             if let h = world.provinces.holder[pid.index], world.people.refusing.contains(h) {
                 continue
             }
-            popSum += world.provinces.population[pid.index] * CultureSystem.provinceManpowerFactor(world, province: pid, owner: country)
+            popSum += world.provinces.population[pid.index] * CultureSystem.provinceManpowerFactor(world, province: pid, owner: country, standing: standing)
             for t in 0..<T {
                 if case .manpower(let x) = world.economy.buildingTypes[t].effect {
                     let lvl = world.economy.buildings.level(pid, BuildingTypeID(t))
