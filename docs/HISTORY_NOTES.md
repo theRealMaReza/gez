@@ -453,3 +453,17 @@ Claude's review (session 7): the Venetian captain-general sent toward
 Constantinople in spring 1453 is usually named as **Giacomo** Loredan, not
 Alvise Loredan (Alvise held the post in other years). The data keeps
 `loredan_alvise` until the owner decides: swap to Giacomo Loredan?
+
+## Religion, Holy Sites & Historical Movements (Phase 11)
+
+- **Holy sites list** (`data/faith/holy_sites.txt`):
+  - Multi-confessional sharing of **Constantinople** (`Konstantiniyye` shared among Orthodox, Armenian, Syriac?) and **Jerusalem** (shared across Christian sects, Muslim sects, and Judaism?).
+  - **Mount Athos** mapped to `Thessaloniki` province and **Lalish** to `Sinjar` province because the map topology has no separate peninsular or temple-valley province for them?
+  - Regional holy sites for smaller faiths (**Kandy** for Theravada, **Kathmandu** for Tibetan Buddhism alongside Bodh Gaya, **Mount Abu** and **Mount Girnar** for Jainism, **Kairouan** for Sunni Maghreb, **Antioch** for Alawites, **Safed** for Druze and Jewish mysticism, **Yerevan**/Etchmiadzin for Armenian) — weights/tiers are equal rather than graded?
+- **Bohemia & the Hussite Compacts (1453+)**:
+  - The Basel Compacts (`hussiteCompactsActive`) block Catholic–Hussite conversion throughout Bohemia/Compacts domains until the Utraquist/Taborite question is resolved (Pope Pius II revoked them historically in 1462 under George of Poděbrady, while the Peace of Kutná Hora in 1485 restored toleration — exact AI weights between `utraquistCompacts`, `taboriteRevival`, and `catholicSubmission` are probabilistic approximations?).
+- **Safaviyya & Qizilbash movement**:
+  - Shaykh Junayd and Shaykh Haydar began militarising the Ardabil Safaviyya order in the 1450s–1480s before Ismail I's capture of Tabriz (1501). Converting Ardabil's non-Ottoman/non-Mamluk owner to `twelver` represents an internal Qizilbash coup rather than spawning a brand-new `SAF` tag mid-game (since `CountryTable` count stays fixed for save/diplomacy arrays — revisit if dynamic country creation is added later?).
+- **Reformation Centres (~1517, never before 1500)**:
+  - Eligible centre provinces favor historical German, Swiss, Nordic, British, Czech, Dutch, and French urban centers (`Wittenberg`, `Geneva`, `Zurich`, etc.) weighted by development and excluded from Rome (`PAP`); non-European / Orthodox realms do not spark Protestant/Reformed centres directly unless via trade-route minorities?.
+  - `Reformation` window (`1512–1529`, forced guarantee by `1529`) models structural reform pressures stochastically via `GameRandom` rather than fixed script dates; Calvinist/Reformed emergence is weighted to follow ~1519+ (`Zwingli`/`Calvin` windows approximated?).

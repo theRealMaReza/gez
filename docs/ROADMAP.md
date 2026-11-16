@@ -247,15 +247,14 @@ Owner's choices:
 - [x] 3. **Auto-resolved naval battles, blockades & straits** (`NavyBattleSystem.swift`): cannon & boarding phases, inland-sea galley bonus, ship captures, war score, coastal siege & market sea-trade blockade effects, strait blocking.
 - [x] 4. **Naval transport & Godot fleet UI** (`NavyTransportSystem.swift`, `FleetPanel.gd`, `MapFleetsLayer.gd`, `Main.gd`, `WarsPanel.gd`): 1 Cog per 1,000 men embarkation, amphibious landing penalty (`-2`), AI overseas transport, fleet map counters, fleet/docks/war breakdown UI and snapshots.
 
-### Phase 11: Religion and culture in motion
+### Phase 11: Religion and culture in motion ✅
 Owner's choices:
 - **Religion**: Pop-level missionary conversion over time (scaled by Clergy loyalty, temples, and Religious Tolerance laws; blocked by Dhimmi/Millet or Hussite Compacts privileges); Holy Sites (Rome, Constantinople, Jerusalem, Mecca, Medina, Najaf, Karbala, Varanasi, Bodh Gaya, Axum, etc.) granting prestige & clergy loyalty; dynamic historical movements (Hussite Utraquist/Taborite question in 1453 Bohemia, Sufi orders & Safaviyya Qizilbash rise in Ardabil/Persia, and the Protestant & Reformed Reformation from ~1517 with Centres of Reformation).
 - **Culture**: Primary Culture plus Accepted Culture slots (scaled by government rank & laws; non-accepted cultures suffer tax, manpower, and satisfaction penalties); gradual pop assimilation when same-religion, well-satisfied, and adjacent to same-culture provinces; dynamic pop migration along neighbor provinces and trade routes driven by war devastation, religious persecution, famine, and plague.
-1. **Religion**: conversion of pops over time, missionaries, holy sites,
-   tolerance, religious unrest, heresies; the Reformation (1517), the
-   Safaviyya's rise, the Hussite question; Sufi orders gaining influence.
-2. **Culture**: assimilation, accepted cultures, migration after war,
-   famine and plague.
+- [x] 1. **Conversion, missionaries, unrest & holy sites** (`FaithSystem.swift`, `data/faith/holy_sites.txt`, `tools/faith/faithgen.py` -> `faith1453.json`): pop conversion driven by owner faith, Clergy loyalty, temples, and Faith law; blocked/slowed by Dhimmi privileges and Hussite Compacts; per-province `religiousUnrest`; 43 holy sites granting prestige, Clergy loyalty, and stability discount.
+- [x] 2. **Historical movements** (`MovementSystem.swift`): Bohemia Hussite Utraquist/Taborite question (`BOH`), Sufi order growth & Ardabil Safaviyya -> Qizilbash -> Safavid rise, Protestant & Reformed Centres of Reformation (never before 1500, spreading across neighbors and trade routes).
+- [x] 3. **Culture, assimilation & migration** (`CultureSystem.swift`): government-rank + law accepted-culture slots, tax/manpower/contentment penalties on unaccepted cultures (`MarketSystem` & `ArmySystem` wired), slow conditional assimilation, and devastation/persecution/famine-driven migration conserving total world population.
+- [x] 4. **Godot screens & snapshots** (`ReligionPanel.gd`, `MapFaithLayer.gd`, `Main.gd`, `capture_snapshots.gd`): Religion & Culture window, Province People tab conversion/assimilation/unrest/missionary controls, Religion & Culture map mode overlays, and `godot_religion_window.png` / `godot_map_religion_1520.png` snapshots.
 
 ### Phase 12: Plague, famine and rebellion
 Owner's choices:

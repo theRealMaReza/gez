@@ -5,7 +5,7 @@ Read this first, then `docs/ROADMAP.md` (the agreed plan), `docs/DESIGN.md`
 judgment calls) and `CLAUDE.md` (rules). This file says where the project
 stands, how to work on it, and what to do next.
 
-Last updated: session 8 (15 November 2026). Phases 0–10 are done: Phase 10 adds pure-Swift navies (`Packages/GezCore/Sources/GezCore/Navy/`, `Systems/Navy*.swift`), historical 1453 fleets (`data/navy/`, `navy1453.json`), auto-resolved naval battles, blockades, strait blocking, amphibious transport, and Godot fleet/shipyard/naval-battle screens. Next: Phase 11 (religion and culture in motion).
+Last updated: session 9 (15 November 2026). Phases 0–11 are done: Phase 11 adds religion and culture in motion (`Systems/FaithSystem.swift`, `Systems/MovementSystem.swift`, `Systems/CultureSystem.swift`), holy sites (`data/faith/`, `faith1453.json`), Hussite/Safaviyya/Reformation historical movements, accepted cultures, slow assimilation, pop-conserving migration, and the Godot Religion & Culture screen/overlays (`ReligionPanel.gd`, `MapFaithLayer.gd`). Next: Phase 12 (rebels and civil wars).
 
 ## The owner
 
@@ -60,22 +60,19 @@ Everything below is built, tested on CI and visible in the app.
 | Godot screens (Phase 8.5) | `godot/`: every Apple-app window, button, map mode, map icon and coat of arms (court, government, diplomacy, wars & peace, alerts, budget, trade, buildings, armies, game menu, nation picker); GezCore loaded through SwiftGodot (`godot/swift`, `GezGodotBridge`); exports for Mac, Windows and Linux on CI |
 | Battle view (Phase 9) | `Packages/GezCore/Sources/GezCore/Battle/` + `godot/scripts/BattleView.gd`: choice modal (Lead Battle in Person / Auto-Resolve), reproducible terrain/hills/forest/river+ford battlefields, deployment + ambush skip, real-time 10 Hz fixed-step combat (Pause/0.5x/1x/2x), click/box/move/path/frontline/attack/retreat orders (touch/Pencil friendly), 6 formations, 5 stances, flanking/morale/routing/fatigue/ammo, tactical AI, playable fort siege assaults (walls/towers/gate/keep/breaches/ladders/ram), and deterministic write-back (survivors, levy pops, commanders, war score, fort capture) with result panel |
 | Navies (Phase 10) | `Packages/GezCore/Sources/GezCore/Navy/`, `Systems/Navy*.swift`, `data/navy/` (`navy1453.json`), `godot/scripts/FleetPanel.gd` & `MapFleetsLayer.gd`: 4 core + 4 regional ship types, Docks shipbuilding with market goods, coastal pop sailors, 28 starting 1453 fleets (230 ships), daily sea movement/attrition/port repair, fleet AI, multi-day auto-resolved naval battles (cannon + boarding, inland galley bonus, capture, war score), blockades (siege & trade cuts), strait blocking, 1-Cog-per-1,000 amphibious transport (`-2` landing penalty) with AI usage, Godot counters/panels/alerts |
+| Religion & culture (Phase 11) | `Packages/GezCore/Sources/GezCore/Faith/`, `Systems/{FaithSystem,MovementSystem,CultureSystem}.swift`, `data/faith/` (`faith1453.json`), `godot/scripts/{ReligionPanel,MapFaithLayer}.gd`: monthly conversion (Clergy loyalty, temples, Faith laws, Dhimmi/Compacts blocks), missionaries, `religiousUnrest`, 43 holy sites (prestige, Clergy loyalty, stab discount), Hussites (`BOH`), Safaviyya/Qizilbash, Protestant/Reformed Reformation (~1517+, trade-route Centres), accepted cultures (government rank + law slots, tax/manpower/mood multipliers), conditional assimilation, and pop-conserving migration across neighbors/trade routes; Godot Religion & Culture window + People tab + map overlays + 1520 snapshot |
 | App windows (old Apple app) | Top bar: treasury (Budget), Trade, Court, Stability (Government), Armies (manpower, field armies, commanders, levies, recruitment). Province panel tabs: Overview (holder, supply, levy, buildings), Economy, People. Market panel. Map modes Q–I; 2D army counters and marching arrows |
-| Tests | GezCore simulation tests (incl. `StartingWarsTests`, `FingerprintTests`, `BattleEngineTests`, five long runs), GezGodot bridge tests (incl. Phase 9 Part A–D bridge tests), App snapshot tests; all green |
+| Tests | GezCore simulation tests (incl. `StartingWarsTests`, `FingerprintTests`, `BattleEngineTests`, `FaithTests`, `CultureTests`, five long runs), GezGodot bridge tests (incl. Phase 9 & Phase 11 bridge tests), App snapshot tests; note `FingerprintTests` updates whenever economy/manpower/pop rules change |
 
 Also built (Phases 7–8): diplomacy, war and peace, auto-resolved battles,
 sieges, save/load and autosave, nation picker, alerts. Not started (later
-phases): religion and culture change,
-plague, rebels, technology, events, sound, settings, multiplayer.
+phases): plague & rebels (Phase 12 — consumes Phase 11 `religiousUnrest`, `devastation`, `famine`), technology, events, sound, settings, multiplayer.
 
 ## What to do next
 
-1. **Owner play-test of Phase 10 (navies) & Godot** on the Mac (`git pull`,
-   `./godot/build_mac.sh`, Cmd+Q Godot, reopen, Play). Windows and
-   Linux builds are on every CI run's page under "Artifacts"
-   (`gez-godot-windows`, `gez-godot-linux`, `gez-godot-macos`); unsigned, so
-   Windows asks "More info → Run anyway".
-2. **Phase 11: Religion and culture in motion**: missionary pop conversion, holy sites, Hussite question, Safaviyya & Reformation, accepted cultures, assimilation, and migration.
+1. **Owner play-test of Phase 11 (religion & culture) & Godot** on the Mac (`git pull`,
+   `./godot/build_mac.sh`, Cmd+Q Godot, reopen, Play). Note `App/` continues to build cleanly with no new SwiftUI screens added.
+2. **Phase 12: Plague, famine and rebellion**: cause-driven rebels (consuming `religiousUnrest`), plague spreading along trade routes/armies (driving migration), and earthquakes.
 3. Follow-ups: the campaign still uses platform maths (`MarketModel.km`
    distances, `hypot` in the AI), which can differ between Mac, Windows and
    Linux; move it to `Core/DetMath.swift` before multiplayer (Phase 19),

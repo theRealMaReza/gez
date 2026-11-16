@@ -263,14 +263,29 @@ public enum MarketSystem {
             }
         }
         var pops = world.pops
+        let standing = CultureStanding(world)
+        var provPopTotal = Array(repeating: 0.0, count: P)
+        var provCultTaxWeighted = Array(repeating: 0.0, count: P)
         for i in 0..<pops.count {
+            let p = pops.province[i].index
+            let owner = world.provinces.owner[p]
+            let cultMult: Double
+            if let owner {
+                cultMult = standing.tax(world, owner, pops.culture[i])
+            } else {
+                cultMult = 1.0
+            }
+            let sz = pops.size[i]
+            provPopTotal[p] += sz
+            provCultTaxWeighted[p] += sz * cultMult
+
             let needsMet = groupSatisfaction[popGroup[i]]
             if needsMet >= 0 {
-                let p = pops.province[i].index
                 var target = needsMet + bonus.mood[p]
-                if let owner = world.provinces.owner[p] {
+                if let owner {
                     target += world.taxMood(owner, pops.socialClass[i]) + world.financeMood(owner, pops.socialClass[i])
                         + world.governmentMood(owner, pops.socialClass[i], pops.religion[i])
+                        + standing.mood(world, owner, pops.culture[i])
                 }
                 target = min(1, max(0, target))
                 pops.satisfaction[i] += MarketModel.satisfactionSpeed * (target - pops.satisfaction[i])
@@ -328,7 +343,8 @@ public enum MarketSystem {
                 continue
             }
             let o = owner.index
-            let factor = max(0, 1 + bonus.tax[p] + rulerBonus[o]) * (world.countries.bankruptMonthsLeft[o] > 0 ? Finance.bankruptcyIncome : 1)
+            let cultTaxFactor = provPopTotal[p] > 0 ? (provCultTaxWeighted[p] / provPopTotal[p]) : 1.0
+            let factor = max(0, 1 + bonus.tax[p] + rulerBonus[o]) * cultTaxFactor * (world.countries.bankruptMonthsLeft[o] > 0 ? Finance.bankruptcyIncome : 1)
             for tc in TaxClass.allCases {
                 let baseValue = tc == .burghers ? craftValue[p] : landValue[p] * tc.shareOfLand
                 let tax = baseValue * tc.normalRate * world.countries.taxLevel[o][tc.rawValue] * factor * (1 + classBonus[o][tc.rawValue])

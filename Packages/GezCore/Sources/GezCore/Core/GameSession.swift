@@ -1381,4 +1381,53 @@ public final class GameSession {
         revision &+= 1
         return res
     }
+
+    // MARK: - Phase 11: Faith & Culture
+
+    @discardableResult
+    public func sendMissionary(to province: ProvinceID) -> MissionaryRefusal? {
+        guard let player = playerCountry else { return .notOwned }
+        let err = FaithSystem.sendMissionary(&simulation.world, by: player, to: province, date: date)
+        if err == nil { revision &+= 1 }
+        return err
+    }
+
+    @discardableResult
+    public func recallMissionary(from province: ProvinceID) -> Bool {
+        guard let player = playerCountry else { return false }
+        let ok = FaithSystem.recallMissionary(&simulation.world, by: player, from: province)
+        if ok { revision &+= 1 }
+        return ok
+    }
+
+    @discardableResult
+    public func resolveHussiteQuestion(_ choice: HussiteOutcome) -> Bool {
+        let ok = MovementSystem.resolveHussiteQuestion(&simulation.world, choice: choice, by: playerCountry, date: date)
+        if ok { revision &+= 1 }
+        return ok
+    }
+
+    @discardableResult
+    public func adoptReformationReligion(_ religion: Religion) -> Bool {
+        guard let player = playerCountry else { return false }
+        let ok = MovementSystem.adoptReformationReligion(&simulation.world, country: player, religion: religion, date: date)
+        if ok { revision &+= 1 }
+        return ok
+    }
+
+    @discardableResult
+    public func acceptCulture(_ culture: CultureID) -> AcceptCultureError? {
+        guard let player = playerCountry else { return .notPresentInCountry }
+        let err = CultureSystem.acceptCulture(&simulation.world, country: player, culture: culture, date: date)
+        if err == nil { revision &+= 1 }
+        return err
+    }
+
+    @discardableResult
+    public func revokeCulture(_ culture: CultureID) -> Bool {
+        guard let player = playerCountry else { return false }
+        let ok = CultureSystem.revokeCulture(&simulation.world, country: player, culture: culture, date: date)
+        if ok { revision &+= 1 }
+        return ok
+    }
 }

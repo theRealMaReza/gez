@@ -26,3 +26,4 @@ privilege | tribes | tribal_autonomy | Tribal autonomy | 15 | 0.10 | tax=-0.05 |
 privilege | tribes | subsidies | Subsidies to the sheikhs | 15 | 0.05 | | -2
 privilege | dhimmi | own_courts | Communal courts | 15 | 0.05 | mood_other_faith=0.04 |
 privilege | dhimmi | lower_jizya | Lower jizya | 15 | 0.05 | tax=-0.04 mood_other_faith=0.05 |
+privilege | dhimmi | millet | Millet system | 15 | 0.10 | mood_other_faith=0.06 |

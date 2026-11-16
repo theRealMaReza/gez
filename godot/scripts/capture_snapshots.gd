@@ -77,6 +77,7 @@ func _run_captures() -> void:
 		["_toggle_trade_window", "godot_trade.png"],
 		["_toggle_court_window", "godot_court.png"],
 		["_toggle_government_window", "godot_government.png"],
+		["_toggle_religion_window", "godot_religion_window.png"],
 		["_toggle_diplomacy_window", "godot_diplomacy.png"],
 		["_toggle_wars_window", "godot_wars.png"],
 		["_toggle_armies_window", "godot_armies.png"],
@@ -308,6 +309,25 @@ func _run_captures() -> void:
 	root_node.call("_toggle_wars_window")
 	root_node.call("_after_fleet_action")
 	await _save_shot("godot_naval_battle.png")
+
+	# Phase 11 1520 Religion & Culture snapshot (simulate headless to 1520):
+	bridge.call("startNewGame", "TUR")
+	root_node.call("_after_world_replaced")
+	root_node.call("_close_top_left_windows", "")
+	bridge.call("advanceSimulationDays", 24400)
+	var top_info: Dictionary = bridge.call("getPlayerTopBarDetails")
+	var yr: int = int(top_info.get("year", 1453))
+	while yr < 1520:
+		bridge.call("advanceSimulationDays", 30)
+		top_info = bridge.call("getPlayerTopBarDetails")
+		yr = int(top_info.get("year", 1453))
+	root_node.call("_after_world_replaced")
+	if mode_btns.has("religion"):
+		(mode_btns["religion"] as Button).emit_signal("pressed")
+	else:
+		root_node.call("_select_map_mode", "religion")
+	root_node.call("_show_whole_map")
+	await _save_shot("godot_map_religion_1520.png")
 
 	print("All Godot snapshots captured to: " + out_dir)
 	quit(0)

@@ -46,6 +46,18 @@ public struct ProvinceTable: Sendable {
     public var occupationTarget: [CountryID?] = []
     /// Days accumulated toward unfortified occupation or liberation.
     public var occupationProgressDays: [Int] = []
+    /// Religious unrest in provinces whose majority faith differs from the owner's (0 to 100; Phase 12 rebels use this).
+    public var religiousUnrest: [Double] = []
+    /// Share of the province's population matching the owner's state religion (0 to 1), or conversion wave tracker.
+    public var conversionProgress: [Double] = []
+    /// Cultural assimilation progress toward the dominant/owner culture (0 to 1).
+    public var assimilationProgress: [Double] = []
+    /// War/siege devastation (0 to 1), decaying slowly over peace and driving migration.
+    public var devastation: [Double] = []
+    /// Shortfall-driven famine intensity (0 to 1), driving migration.
+    public var famine: [Double] = []
+    /// Net population moved in (+) or out (−) during the most recent monthly migration tick.
+    public var lastNetMigration: [Double] = []
 
     public init() {}
 
@@ -94,6 +106,12 @@ public struct ProvinceTable: Sendable {
         self.occupiedBy.append(nil)
         self.occupationTarget.append(nil)
         self.occupationProgressDays.append(0)
+        self.religiousUnrest.append(0)
+        self.conversionProgress.append(0)
+        self.assimilationProgress.append(0)
+        self.devastation.append(0)
+        self.famine.append(0)
+        self.lastNetMigration.append(0)
         return id
     }
 
@@ -225,6 +243,12 @@ public struct CountryTable: Sendable {
     public var lastTolls: [Double] = []
     /// Tax kept (or withheld) by vassals last month.
     public var lastVassalTax: [Double] = []
+    /// State prestige (from held holy sites, etc.; -100 to 100).
+    public var prestige: [Double] = []
+    /// Primary culture of the country.
+    public var primaryCulture: [CultureID] = []
+    /// Additional accepted cultures beyond the primary culture.
+    public var acceptedCultures: [Set<CultureID>] = []
 
     private var indexByTag: [String: CountryID] = [:]
 
@@ -282,6 +306,9 @@ public struct CountryTable: Sendable {
         self.lastTrade.append(0)
         self.lastTolls.append(0)
         self.lastVassalTax.append(0)
+        self.prestige.append(0)
+        self.primaryCulture.append(CultureID(0))
+        self.acceptedCultures.append([])
         indexByTag[tag] = id
         return id
     }
@@ -322,6 +349,8 @@ public struct World: Sendable {
     public var navy = Navy()
     /// Diplomatic relations, treaties, opinions, and wars (Phase 7).
     public var diplomacy = Diplomacy()
+    /// Holy sites, missionaries, and religious movements (Phase 11).
+    public var faith = FaithState()
 
     public init(map: MapInfo = MapInfo(width: 1, height: 1, pixelsPerDegree: 1, longitudeMin: 0, latitudeMax: 0)) {
         self.map = map
