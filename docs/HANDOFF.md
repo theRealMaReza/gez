@@ -374,3 +374,22 @@ Kabarda = Kabardian noble banner; Oirats = Dzungar banner; Jats =
 Bharatpur; Sami = 1986 Sami flag; Alania/Vainakh = later-era flags; Kirat
 = modern Kirat flag; Albania = Kastrioti arms; Komi, Mordvins, Berbers,
 Guanches, Somali, Najd = plain banner.
+
+## Session 9 review of PR #24 (religion and culture)
+
+- Speed: `CultureStanding` (end of `CultureSystem.swift`) builds
+  accepted / same family / foreign for every (country, culture) once; the
+  monthly economy and max manpower read it instead of comparing culture
+  family strings per pop. Profile went 11.7 → 5.6 ms/day (Phase 10: 4.2).
+- Pop groups grew without limit (14k → 42k in a year) because conversion,
+  assimilation and migration made a new group for any amount of people.
+  `PopDust.minNewGroup = 25` (smaller amounts wait or join a matching
+  group) and `PopTable.foldDust` (monthly, at the end of
+  `CultureSystem.runMonthly`) folds groups under 1 person into the largest
+  same-class group. 18k groups after a year. Watch this number (the
+  profile prints `pop groups=`) whenever a system creates pop groups.
+- `testPopulationGrowsOverAYear` / `testPopsGrowWithTime` assumed the world
+  always grows in year one; one extra AI war broke that. Growth is now
+  tested on its own; the full year must stay within 0.5%.
+- Temporary branches the owner can delete: `claude/diag-a`,
+  `claude/diag-b`, `claude/fingerprint-base`, `claude/fingerprint-speedonly`.
