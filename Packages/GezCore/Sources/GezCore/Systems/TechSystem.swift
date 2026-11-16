@@ -225,6 +225,7 @@ public enum TechSystem {
     /// Monthly technology tick: computes research speed, advances tracks, levels up when full,
     /// and updates AI research focus.
     public static func runMonthly(_ world: inout World, date: GameDate, random: inout GameRandom) {
+        InstitutionSystem.runMonthly(&world, date: date, random: &random)
         let C = world.countries.count
         let P = world.provinces.count
         guard C > 0, world.tech.countryCount == C, !world.techRules.tracks.isEmpty else { return }
