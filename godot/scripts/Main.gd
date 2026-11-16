@@ -621,7 +621,7 @@ func _build_map_mode_bar() -> void:
 	add_child(mode_panel)
 
 	var hbox := HBoxContainer.new()
-	hbox.add_theme_constant_override("separation", 4)
+	hbox.add_theme_constant_override("separation", 2)
 	mode_panel.add_child(hbox)
 
 	var modes_spec := [
@@ -644,11 +644,11 @@ func _build_map_mode_bar() -> void:
 		var title: String = m["title"]
 		var sc: String = m["shortcut"]
 		var btn := Button.new()
-		# Eleven modes: the shortcut letter lives in the tooltip so the bar
-		# stays clear of the alerts row on a 1440-wide window.
+		# Compact buttons keep the 12-mode bar clear of the alerts row on a 1440-wide window.
 		btn.text = title
 		btn.tooltip_text = "%s Map Mode (Key %s)" % [title, sc]
-		btn.custom_minimum_size = Vector2(0.0, 28.0)
+		btn.add_theme_font_size_override("font_size", 12)
+		btn.custom_minimum_size = Vector2(0.0, 26.0)
 		var mode_key := k
 		btn.pressed.connect(func() -> void: _select_map_mode(mode_key))
 		hbox.add_child(btn)
@@ -3110,7 +3110,7 @@ func _build_alerts_bar() -> void:
 	alerts_scroll = ScrollContainer.new()
 	alerts_scroll.name = "AlertsBar"
 	alerts_scroll.position = Vector2(12.0, 52.0)
-	alerts_scroll.custom_minimum_size = Vector2(820.0, 34.0)
+	alerts_scroll.custom_minimum_size = Vector2(580.0, 34.0)
 	alerts_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	alerts_scroll.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	alerts_scroll.visible = false

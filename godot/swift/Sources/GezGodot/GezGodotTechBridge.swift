@@ -70,8 +70,8 @@ extension GezGodotController {
             if b.sharedBooksContrib > 0.001 {
                 sourceParts.append(String(format: "Books +%.2f", b.sharedBooksContrib * b.focusShare))
             }
-            if abs(b.govLearningMod - 1.0) > 0.001 {
-                sourceParts.append(String(format: "Laws ×%.2f", b.govLearningMod))
+            if abs(b.govLearningMod) > 0.001 {
+                sourceParts.append(String(format: "Laws %+.0f%%", b.govLearningMod * 100))
             }
             sourceParts.append(String(format: "Focus %.0f%%", b.focusShare * 100))
             if b.institutionSpeedBonus > 0.001 {
@@ -164,7 +164,7 @@ extension GezGodotController {
                 case .region(let reg): originName = reg
                 case .province(let p): originName = w.provinces.name[p.index]
                 case .dynamic(let rule):
-                    originName = rule == "richest_coastal_market" ? "Richest Port Market" : "Top Workshop Province"
+                    originName = rule == "richest_port_market" ? "Richest Port Market" : "Top Workshop Province"
                 }
             }
 
