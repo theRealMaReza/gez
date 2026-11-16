@@ -1024,6 +1024,45 @@ public final class GameSession {
             ))
         }
 
+        // 12. Phase 13: recent technology advance and institutions (ready to embrace or newly spawned).
+        if let recentTech = w.tech.notes.last(where: {
+            $0.kind == .levelUp && $0.country == player && date.ordinal - $0.date.ordinal <= 90
+        }), let tr = recentTech.track, let lvl = recentTech.level {
+            out.append(GameAlertInfo(
+                id: "tech-\(tr.key)-\(lvl)",
+                kind: .techLevel,
+                label: "\(tr.shortName) Tech \(lvl)"
+            ))
+        }
+
+        var alertedInstitution = false
+        for inst in w.techRules.institutions where inst.index < w.tech.institutionCount && w.tech.institutionSpawned[inst.index] {
+            if !w.tech.hasEmbraced(player, institution: inst.index) {
+                let refusal = InstitutionSystem.embraceRefusal(w, for: player, institution: inst.index, checkMoney: false)
+                if refusal == nil {
+                    out.append(GameAlertInfo(
+                        id: "inst-embrace-\(inst.index)",
+                        kind: .institution,
+                        label: "Embrace: \(inst.name)",
+                        province: w.tech.institutionOrigin[inst.index]
+                    ))
+                    alertedInstitution = true
+                    break
+                }
+            }
+        }
+        if !alertedInstitution, let recentSpawn = w.tech.notes.last(where: {
+            $0.kind == .institutionSpawned && date.ordinal - $0.date.ordinal <= 90
+        }), let instIdx = recentSpawn.institutionIndex, instIdx < w.techRules.institutions.count {
+            let inst = w.techRules.institutions[instIdx]
+            out.append(GameAlertInfo(
+                id: "inst-spawn-\(instIdx)",
+                kind: .institution,
+                label: "Institution: \(inst.name)",
+                province: recentSpawn.province
+            ))
+        }
+
         return out
     }
 

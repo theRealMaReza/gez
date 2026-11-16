@@ -78,11 +78,11 @@ struct GezGodotTests {
         #expect(controller.setup(dataDirectoryPath: "", tag: "TUR"))
 
         let modes = controller.mapModesList()
-        #expect(modes.count == 11)
+        #expect(modes.count == 12)
         let keys = modes.compactMap { $0["key"] as? String }
         let shortcuts = modes.compactMap { $0["shortcut"] as? String }
-        #expect(keys == ["political", "diplomatic", "states", "terrain", "religion", "culture", "development", "goods", "markets", "plague", "unrest"])
-        #expect(shortcuts == ["Q", "O", "W", "E", "R", "T", "Y", "U", "I", "P", "L"])
+        #expect(keys == ["political", "diplomatic", "states", "terrain", "religion", "culture", "development", "goods", "markets", "plague", "unrest", "institutions"])
+        #expect(shortcuts == ["Q", "O", "W", "E", "R", "T", "Y", "U", "I", "P", "L", "K"])
 
         let politicalStyles = controller.styleBytes()
         #expect(controller.mapModeKey == "political")
@@ -1466,5 +1466,71 @@ struct GezGodotTests {
         // 5. Time still runs with all of it switched on.
         #expect(controller.advanceSimulationDays(40))
         #expect((controller.playerTopBarDetails()["rebelsButtonText"] as? String) != nil)
+    }
+
+    @Test("Phase 13 Technology window, focus switch, province institutions, embrace, alerts, and map mode")
+    func technologyWindowInstitutionsAndMapMode() {
+        let controller = GezGodotController()
+        #expect(controller.setup(dataDirectoryPath: "", tag: "TUR"))
+        #expect(controller.topBarTechText.hasPrefix("Tech "))
+        #expect((controller.playerTopBarDetails()["techButtonText"] as? String) == controller.topBarTechText)
+
+        let details = controller.technologyWindowDetails()
+        #expect((details["hasPlayer"] as? Bool) == true)
+        #expect((details["focusKey"] as? String) == "balanced")
+        let tracks = details["tracks"] as? [[String: Any]] ?? []
+        #expect(tracks.count == 3)
+        for tr in tracks {
+            #expect((tr["level"] as? Int ?? 0) >= 3)
+            #expect((tr["totalMonthlyGain"] as? Double ?? 0) > 0)
+            #expect(!((tr["sourcesText"] as? String) ?? "").isEmpty)
+            #expect(!((tr["nextSummary"] as? String) ?? "").isEmpty)
+        }
+
+        let institutions = details["institutions"] as? [[String: Any]] ?? []
+        #expect(institutions.count == 4)
+        #expect((institutions[0]["spawned"] as? Bool) == true)  // Renaissance active in 1453
+        #expect((institutions[1]["spawned"] as? Bool) == false) // Printing Press waits until 1462
+
+        #expect((controller.setTechFocus(key: "military")["ok"] as? Bool) == true)
+        #expect((controller.technologyWindowDetails()["focusKey"] as? String) == "military")
+        #expect((controller.setTechFocus(key: "invalid_focus")["ok"] as? Bool) == false)
+
+        guard let s = controller.session,
+              let venCap = s.world.provinces.ids.first(where: { s.world.provinces.name[$0.index] == "Venice" }) else {
+            #expect(Bool(false), "Expected Venice province")
+            return
+        }
+        let provTech = controller.provinceTechDetails(provinceIndex: venCap.index)
+        #expect((provTech["hasProvince"] as? Bool) == true)
+        let provInsts = provTech["institutions"] as? [[String: Any]] ?? []
+        #expect(provInsts.count == 4)
+        #expect((provInsts[0]["presence"] as? Double ?? 0) == 1.0)
+
+        // Spread Renaissance across enough Ottoman provinces and test embracing + alerts.
+        let tur = s.playerCountry!
+        s.simulation.world.countries.treasury[tur.index] = 2000
+        for p in 0..<s.world.provinces.count where s.world.provinces.owner[p] == tur {
+            s.simulation.world.tech.setProvincePresence(ProvinceID(p), institution: 0, 1.0)
+        }
+        #expect(controller.activeAlerts().contains { ($0["kind"] as? String) == "institution" })
+        #expect((controller.embraceInstitution(index: 0)["ok"] as? Bool) == true)
+        #expect((controller.technologyWindowDetails()["institutions"] as? [[String: Any]])?[0]["embraced"] as? Bool == true)
+
+        // Emit a level-up note and check tech alert + Institutions map mode + overlay.
+        s.simulation.world.tech.addNote(TechNote(
+            date: s.date,
+            country: tur,
+            kind: .levelUp,
+            track: .military,
+            level: 5,
+            text: "Military Tech 5 reached"
+        ))
+        #expect(controller.activeAlerts().contains { ($0["kind"] as? String) == "techLevel" })
+        #expect(controller.setMapMode(key: "institutions"))
+        #expect(controller.shaderModeIndex == 10)
+        #expect(controller.styleBytes().count > 8)
+        let overlayOrigins = controller.techOverlayData()["origins"] as? [[String: Any]] ?? []
+        #expect(!overlayOrigins.isEmpty)
     }
 }

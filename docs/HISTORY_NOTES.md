@@ -109,6 +109,9 @@ Oirats and Moghulistan. No province is unclaimed any more.
 | 29 | North Caucasus | **Split into tribal states**: Circassia, Kabarda, Alania, Vainakh |
 | 30 | Armenia | **Armenian Christian majority (about 70%)** |
 | + | Ladislaus the Posthumous | **Personal union**: Austria and Bohemia under the King of Hungary |
+| Phase 13 | 1453 starting tech spread | **Wider 2–4 spread**: core Italian, Western European, Ottoman and major Islamic centres start at 3–4 (specific overrides up to 4 on strengths); settled realms at 3; steppe/tribal periphery at 2 |
+| Phase 13 | Printing Press origin year | **1462 in Mainz**: starts in Mainz in 1462 after the Sack of Mainz dispersed Gutenberg's printers across Europe, rather than 1450 when Gutenberg kept movable type secret |
+| Phase 13 | Renaissance in 1453 | **Active across `Italy`**: all Italian regions start with Renaissance present and embraced by Italian states in 1453 (before spreading north over the Alps) |
 
 Subject countries at the start are listed in `data/map/subjects.txt`
 (personal unions, vassals, tributaries), including well-known ones the

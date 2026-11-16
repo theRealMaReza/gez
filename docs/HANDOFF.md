@@ -5,7 +5,7 @@ Read this first, then `docs/ROADMAP.md` (the agreed plan), `docs/DESIGN.md`
 judgment calls) and `CLAUDE.md` (rules). This file says where the project
 stands, how to work on it, and what to do next.
 
-Last updated: session 10 (16 November 2026). Phases 0–12 are done. Phase 12 (plague, famine, earthquakes, unrest and rebels) was **written by Claude** and merged as pull request #26 (draft #25 closed) (`Calamity/`, `Unrest/`, `Systems/{PlagueSystem,FamineSystem,QuakeSystem,UnrestSystem,RebelSystem}.swift`, `data/calamity/`, `tools/calamity/`, `godot/scripts/{RebelsPanel,MapCalamityLayer}.gd`, `GezGodotCalamityBridge.swift`). Next: Phase 13 (technology).
+Last updated: Phase 13 (16 November 2026). Phases 0–13 are done. Phase 13 (technology tracks 1–20, monthly research, EU4-style unit/ship/fort/building unlocks, institutions and Godot screens) implemented on branch `gemini/phase13-technology` (`Technology/`, `Systems/{TechSystem,InstitutionSystem}.swift`, `data/technology/`, `tools/technology/techgen.py`, `godot/scripts/{TechnologyPanel,MapTechLayer}.gd`, `GezGodotTechBridge.swift`). Next: Phase 14 (events and missions).
 
 ## The owner
 
@@ -62,21 +62,22 @@ Everything below is built, tested on CI and visible in the app.
 | Navies (Phase 10) | `Packages/GezCore/Sources/GezCore/Navy/`, `Systems/Navy*.swift`, `data/navy/` (`navy1453.json`), `godot/scripts/FleetPanel.gd` & `MapFleetsLayer.gd`: 4 core + 4 regional ship types, Docks shipbuilding with market goods, coastal pop sailors, 28 starting 1453 fleets (230 ships), daily sea movement/attrition/port repair, fleet AI, multi-day auto-resolved naval battles (cannon + boarding, inland galley bonus, capture, war score), blockades (siege & trade cuts), strait blocking, 1-Cog-per-1,000 amphibious transport (`-2` landing penalty) with AI usage, Godot counters/panels/alerts |
 | Religion & culture (Phase 11) | `Packages/GezCore/Sources/GezCore/Faith/`, `Systems/{FaithSystem,MovementSystem,CultureSystem}.swift`, `data/faith/` (`faith1453.json`), `godot/scripts/{ReligionPanel,MapFaithLayer}.gd`: monthly conversion (Clergy loyalty, temples, Faith laws, Dhimmi/Compacts blocks), missionaries, `religiousUnrest`, 43 holy sites (prestige, Clergy loyalty, stab discount), Hussites (`BOH`), Safaviyya/Qizilbash, Protestant/Reformed Reformation (~1517+, trade-route Centres), accepted cultures (government rank + law slots, tax/manpower/mood multipliers), conditional assimilation, and pop-conserving migration across neighbors/trade routes; Godot Religion & Culture window + People tab + map overlays + 1520 snapshot |
 | Plague, famine & rebels (Phase 12) | `Packages/GezCore/Sources/GezCore/{Calamity,Unrest}/`, `Systems/{PlagueSystem,FamineSystem,QuakeSystem,UnrestSystem,RebelSystem}.swift`, `data/calamity/fault_zones.txt` (`calamity1453.json`), `godot/scripts/{RebelsPanel,MapCalamityLayer}.gd`: plague, camp fever and smallpox (outbreaks in crowded towns, ports, sieges and camps; spread by road, trade route, sea and armies; deaths by class; fading immunity; Port Quarantine and Cordon), yearly harvests and famine, 27 fault zones + 4 known earthquakes, unrest 0–100 per province from eleven causes, five rebel factions per country that raise real armies from their pops and enforce demands, concessions / troops / lower taxes for player and AI; Godot Rebels window, Plague (P) and Unrest (L) map modes, province People tab section, alerts |
+| Technology (Phase 13) | `Packages/GezCore/Sources/GezCore/Technology/`, `Systems/{TechSystem,InstitutionSystem}.swift`, `data/technology/` (`technology1453.json` via `techgen.py`), `godot/scripts/{TechnologyPanel,MapTechLayer}.gd`, `GezGodotTechBridge.swift`: 3 EU4-style tech tracks (Administrative, Diplomatic, Military, levels 1–20 starting 2–4 in 1453), monthly research from ruler + council + Learning + Colleges + Paper/Books routed by Research Focus, −5%/level Neighbour Bonus, ahead-of-time penalty, EU4-style unit/ship/fort/building/trade-range/admin-eff unlocks keeping 1453 starters intact, and 4 historical institutions (Renaissance 1453, Printing Press Mainz 1462, Global Trade 1550, Manufactories 1600) with dedicated RNG stream `world.tech.rngState`; Godot Technology window, Institutions (K) map mode, province panel institutions, alerts |
 | App windows (old Apple app) | Top bar: treasury (Budget), Trade, Court, Stability (Government), Armies (manpower, field armies, commanders, levies, recruitment). Province panel tabs: Overview (holder, supply, levy, buildings), Economy, People. Market panel. Map modes Q–I; 2D army counters and marching arrows |
-| Tests | GezCore simulation tests (incl. `StartingWarsTests`, `FingerprintTests`, `BattleEngineTests`, `FaithTests`, `CultureTests`, `PlagueTests`, `FamineTests`, `UnrestTests`, five long runs), GezGodot bridge tests (incl. Phase 9 & Phase 11 bridge tests), App snapshot tests; note `FingerprintTests` updates whenever economy/manpower/pop rules change |
+| Tests | GezCore simulation tests (incl. `StartingWarsTests`, `FingerprintTests`, `BattleEngineTests`, `FaithTests`, `CultureTests`, `PlagueTests`, `FamineTests`, `UnrestTests`, `TechnologyTests`, five long runs), GezGodot bridge tests (incl. Phase 9, Phase 11, Phase 12 & Phase 13 bridge tests), App snapshot tests; note `FingerprintTests` updates whenever economy/manpower/pop rules change |
 
 Also built (Phases 7–8): diplomacy, war and peace, auto-resolved battles,
 sieges, save/load and autosave, nation picker, alerts. Not started (later
-phases): technology (Phase 13), events, sound, settings, multiplayer.
+phases): events and missions (Phase 14), AI setting, sound, 3D, chronicle, multiplayer.
 
 ## What to do next
 
-1. **Owner play-test of Phase 12** on the Mac (`git pull`,
-   `./godot/build_mac.sh`, Cmd+Q Godot, reopen, Play): press P and L for
-   the Plague and Unrest maps, open a province's People tab, raise taxes
-   and watch the Rebels window. Things to judge: is plague too rare or too
-   deadly, do rebels rise too often, are the answers clear.
-2. **Phase 13: Technology** (ROADMAP).
+1. **Owner play-test of Phase 13** on the Mac (`git pull`,
+   `./godot/build_mac.sh`, Cmd+Q Godot, reopen, Play): click the `Tech`
+   button to inspect tracks, monthly gain sources, Research Focus, and
+   Institutions; press `K` for the Institutions map mode and check a
+   province's People tab.
+2. **Phase 14: Events and missions** (ROADMAP).
 3. Follow-ups: the campaign still uses platform maths (`MarketModel.km`
    distances, `hypot` in the AI), which can differ between Mac, Windows and
    Linux; move it to `Core/DetMath.swift` before multiplayer (Phase 19),

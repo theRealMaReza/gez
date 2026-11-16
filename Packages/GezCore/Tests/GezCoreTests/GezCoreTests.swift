@@ -622,14 +622,17 @@ final class BuildingTests: XCTestCase {
     func testFortBuildingRaisesFortLevel() {
         var world = Scenario1453.makeWorld()
         let tur = world.countries.id(forTag: "TUR")!
-        let edirne = province(world, "Edirne")
+        let maxFort = world.techEffects(tur, track: .military).maxFort
+        // Pick an owned province below the current tech fort cap (e.g. Ankara).
+        let target = world.provinces.ids.first {
+            world.provinces.owner[$0.index] == tur && world.provinces.fortLevel[$0.index] < maxFort
+        }!
         let fort = type(world, "fort")
         world.countries.treasury[tur.index] = 10_000
-        let before = world.provinces.fortLevel[edirne.index]
-        guard before < BuildingType.maxLevel else { return }
-        XCTAssertNil(BuildingSystem.start(&world, tur, edirne, fort))
+        let before = world.provinces.fortLevel[target.index]
+        XCTAssertNil(BuildingSystem.start(&world, tur, target, fort))
         for _ in 0..<60 { BuildingSystem.runMonthly(&world) }
-        XCTAssertEqual(world.provinces.fortLevel[edirne.index], before + 1)
+        XCTAssertEqual(world.provinces.fortLevel[target.index], before + 1)
     }
 
     func testMoreWorkshopLevelsMakeMoreGoods() {
