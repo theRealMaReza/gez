@@ -641,7 +641,10 @@ public enum ArmySystem {
         }
         let roadMult = max(0.55, 1.0 - ArmyModel.roadSpeedBonusPerLevel * roadLevel)
 
-        let rawDays = (distKm / ArmyModel.baseMarchKmPerDay) * terrainMult * riverMult * roadMult / speedMult
+        // Guards on the roads of a cordoned province slow every march.
+        let cordonMult = (world.calamity.isCordoned(a.index) || world.calamity.isCordoned(b.index))
+            ? PlagueModel.cordonMarchFactor : 1.0
+        let rawDays = (distKm / ArmyModel.baseMarchKmPerDay) * terrainMult * riverMult * roadMult * cordonMult / speedMult
         return max(1.0, (rawDays * 10.0).rounded() / 10.0)
     }
 

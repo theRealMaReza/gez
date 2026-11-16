@@ -57,6 +57,7 @@ final class ProfileTests: XCTestCase {
                 time("ArmySystem.runAI") { ArmySystem.runAI(&world, month: date.month, date: date) }
                 time("NavySystem.runAI") { NavySystem.runAI(&world) }
                 time("PopulationSystem.runMonthly") { PopulationSystem.runMonthly(&world) }
+                time("PlagueSystem.runMonthly") { PlagueSystem.runMonthly(&world, date: date, random: &random) }
                 time("FaithSystem.runMonthly") { FaithSystem.runMonthly(&world, date: date, random: &random) }
                 time("MovementSystem.runMonthly") { MovementSystem.runMonthly(&world, date: date, random: &random) }
                 time("CultureSystem.runMonthly") { CultureSystem.runMonthly(&world, date: date, random: &random) }
