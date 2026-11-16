@@ -251,7 +251,11 @@ public enum TradeSystem {
             let blockadeMult = (sea && seaMultipliers != nil)
                 ? min(seaMultipliers![link.0.index], seaMultipliers![link.1.index])
                 : 1.0
+            // A quarantined market port lets only half the usual shipping in.
+            let quarantined = sea && (world.calamity.isQuarantined(eco.markets.centre[link.0.index].index)
+                || world.calamity.isQuarantined(eco.markets.centre[link.1.index].index))
             return (sea ? TradeModel.seaLinkCapacity : TradeModel.landLinkCapacity) * (1 + bonus) * blockadeMult
+                * (quarantined ? PlagueModel.quarantineSeaTradeFactor : 1)
         }
     }
 

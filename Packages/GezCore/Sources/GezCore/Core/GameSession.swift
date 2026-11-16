@@ -1430,4 +1430,24 @@ public final class GameSession {
         if ok { revision &+= 1 }
         return ok
     }
+
+    // MARK: - Phase 12: Plague
+
+    /// Orders (or lifts) a port quarantine in one of the player's provinces.
+    @discardableResult
+    public func setQuarantine(in province: ProvinceID, on: Bool) -> PlagueRefusal? {
+        guard let player = playerCountry else { return .notOwner }
+        let refusal = PlagueSystem.setQuarantine(&simulation.world, player, province, on: on)
+        if refusal == nil { revision &+= 1 }
+        return refusal
+    }
+
+    /// Orders (or lifts) a cordon around one of the player's provinces.
+    @discardableResult
+    public func setCordon(in province: ProvinceID, on: Bool) -> PlagueRefusal? {
+        guard let player = playerCountry else { return .notOwner }
+        let refusal = PlagueSystem.setCordon(&simulation.world, player, province, on: on)
+        if refusal == nil { revision &+= 1 }
+        return refusal
+    }
 }

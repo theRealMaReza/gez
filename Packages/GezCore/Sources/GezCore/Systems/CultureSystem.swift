@@ -411,6 +411,8 @@ public enum CultureSystem {
             score -= world.provinces.devastation[p] * 12.0
             score -= world.provinces.famine[p] * 14.0
             score -= world.provinces.religiousUnrest[p] * 0.25
+            // People shun a town where the sick are dying (Phase 12).
+            score -= world.calamity.totalInfection(p) * 100.0
             if world.provinces.occupiedBy[p] != nil { score -= 10.0 }
             if let owner = world.provinces.owner[p] {
                 let f = countryFaithCode[owner.index]
@@ -463,7 +465,12 @@ public enum CultureSystem {
                 faithPush = 0.0
             }
 
-            let maxPotentialPush = devPush + famPush + faithPush
+            // Flight from plague; a cordon keeps people in (and out).
+            let sick = world.calamity.totalInfection(p)
+            let plaguePush = sick > 0.005 ? sick * 0.5 : 0.0
+            if world.calamity.isCordoned(p) { continue }
+
+            let maxPotentialPush = devPush + famPush + faithPush + plaguePush
             guard maxPotentialPush > 0.0005,
                   world.provinces.population[p] > CultureModel.minRemainingPopAfterMigration else {
                 continue
@@ -480,6 +487,7 @@ public enum CultureSystem {
                    world.provinces.devastation[q] < 0.35,
                    world.provinces.famine[q] < 0.25,
                    world.provinces.occupiedBy[q] == nil,
+                   !world.calamity.isCordoned(q),
                    attractiveness[q] > myAttr + 0.1 {
                     seenDest.insert(q)
                     candidates.append((q, max(0.5, attractiveness[q] - myAttr)))
@@ -489,7 +497,8 @@ public enum CultureSystem {
                 let m = eco.provinceMarket[p].index
                 if let partners = sortedMarketPartners[m] {
                     for pm in partners where pm < M {
-                        for q in topInMarket[pm] where q != p && !seenDest.contains(q) && attractiveness[q] > myAttr + 0.5 {
+                        for q in topInMarket[pm] where q != p && !seenDest.contains(q) && attractiveness[q] > myAttr + 0.5
+                            && !world.calamity.isCordoned(q) {
                             seenDest.insert(q)
                             candidates.append((q, max(0.5, (attractiveness[q] - myAttr) * 0.6)))
                         }
@@ -513,7 +522,7 @@ public enum CultureSystem {
                 let isPersecuted = ownerRel != nil && world.pops.religion[i] != ownerRel!
                 let rowRate = min(
                     CultureModel.maxMonthlyMigrationRate,
-                    devPush + famPush + (isPersecuted ? faithPush : 0.0)
+                    devPush + famPush + plaguePush + (isPersecuted ? faithPush : 0.0)
                 )
                 guard rowRate > 0.0005 else { continue }
 

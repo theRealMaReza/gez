@@ -351,6 +351,8 @@ public struct World: Sendable {
     public var diplomacy = Diplomacy()
     /// Holy sites, missionaries, and religious movements (Phase 11).
     public var faith = FaithState()
+    /// Plague, famine and earthquakes (Phase 12).
+    public var calamity = CalamityState()
 
     public init(map: MapInfo = MapInfo(width: 1, height: 1, pixelsPerDegree: 1, longitudeMin: 0, latitudeMax: 0)) {
         self.map = map

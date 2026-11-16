@@ -448,15 +448,16 @@ final class SimulationTests: XCTestCase {
         XCTAssertGreaterThan(sim.world.countries.lastMonthlyIncome[tur], 0)
     }
 
-    /// A full year: people only leave the world by dying in war, so the total
-    /// (counting soldiers away with the levies) stays within half a percent of
-    /// the start. Growth itself is checked in PopTests.testPopsGrowWithTime.
+    /// A full year: people leave the world by dying in war, of disease or of
+    /// hunger, so the total (counting soldiers away with the levies) stays
+    /// within two percent of the start. Growth itself is checked in PopTests.testPopsGrowWithTime.
     func testPopulationGrowsOverAYear() {
         let sim = Simulation(world: Scenario1453.makeWorld(), startDate: Scenario1453.startDate)
         let before = peopleIncludingServingLevies(sim.world, provinceTotals: true)
         sim.advance(days: 365)
         let after = peopleIncludingServingLevies(sim.world, provinceTotals: true)
-        XCTAssertGreaterThan(after, before * 0.995)
+        // Phase 12: plague and famine now also kill, so the floor is lower.
+        XCTAssertGreaterThan(after, before * 0.98)
         XCTAssertLessThan(after, before * (1 + 2 * PopulationSystem.yearlyGrowthRate))
     }
 

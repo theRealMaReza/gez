@@ -345,6 +345,7 @@ public enum MarketSystem {
             let o = owner.index
             let cultTaxFactor = provPopTotal[p] > 0 ? (provCultTaxWeighted[p] / provPopTotal[p]) : 1.0
             let factor = max(0, 1 + bonus.tax[p] + rulerBonus[o]) * cultTaxFactor * (world.countries.bankruptMonthsLeft[o] > 0 ? Finance.bankruptcyIncome : 1)
+                * world.calamity.taxFactor(p)
             for tc in TaxClass.allCases {
                 let baseValue = tc == .burghers ? craftValue[p] : landValue[p] * tc.shareOfLand
                 let tax = baseValue * tc.normalRate * world.countries.taxLevel[o][tc.rawValue] * factor * (1 + classBonus[o][tc.rawValue])
