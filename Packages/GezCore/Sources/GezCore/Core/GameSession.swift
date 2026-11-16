@@ -1528,4 +1528,15 @@ public final class GameSession {
         if refusal == nil { revision &+= 1 }
         return refusal
     }
+
+    // MARK: - Phase 13: Technology
+
+    /// Sets the player's national research focus (Administrative, Diplomatic, Military, or Balanced).
+    @discardableResult
+    public func setTechFocus(_ focus: TechFocus) -> Bool {
+        guard let player = playerCountry else { return false }
+        simulation.world.tech.setFocus(of: player, to: focus)
+        revision &+= 1
+        return true
+    }
 }

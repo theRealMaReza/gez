@@ -1,0 +1,63 @@
+# Starting technology levels on 30 May 1453 (owner's choice: 2-4 spread).
+# Western, Italian, Ottoman, and major Islamic centres start at 4 in their
+# strengths; most settled realms at 3; steppe hordes and remote tribes at 2.
+#
+# Precedence: country override > tribal/steppe government cap > region default.
+#
+# Formats:
+#   region  | <Region Name> | <adm> | <dip> | <mil>
+#   gov_cap | <government>  | <adm> | <dip> | <mil>
+#   country | <TAG>         | <adm> | <dip> | <mil>
+
+## Government caps (applied before explicit country overrides)
+gov_cap | tribal      | 2 | 2 | 2
+gov_cap | steppeHorde | 2 | 2 | 3
+
+## Regional starting levels (all 36 regions)
+region | Italy                   | 4 | 4 | 4
+region | Low Countries           | 4 | 4 | 3
+region | France                  | 4 | 3 | 4
+region | Germany                 | 4 | 3 | 4
+region | Iberia                  | 3 | 4 | 4
+region | Anatolia                | 4 | 4 | 4
+region | Egypt                   | 4 | 4 | 3
+region | Levant                  | 4 | 3 | 3
+region | Persia                  | 4 | 3 | 4
+region | Hindustan               | 4 | 3 | 3
+region | Gujarat                 | 3 | 4 | 3
+region | Bengal                  | 4 | 3 | 3
+region | Deccan                  | 3 | 3 | 3
+region | South India             | 4 | 3 | 3
+region | British Isles           | 3 | 3 | 3
+region | Alps                    | 3 | 3 | 3
+region | Scandinavia             | 3 | 3 | 3
+region | Baltic                  | 3 | 3 | 3
+region | Poland and Lithuania    | 3 | 3 | 3
+region | Carpathians and Danube  | 3 | 3 | 3
+region | Balkans                 | 3 | 3 | 3
+region | Russia                  | 3 | 3 | 3
+region | Caucasus                | 3 | 3 | 3
+region | Maghreb                 | 3 | 3 | 3
+region | Arabia                  | 3 | 3 | 3
+region | Mesopotamia             | 3 | 3 | 3
+region | Khorasan and Afghanistan| 3 | 3 | 3
+region | Transoxiana             | 3 | 3 | 3
+region | Northwest India         | 3 | 3 | 3
+region | Rajputana               | 3 | 3 | 3
+region | Central India           | 3 | 3 | 3
+region | Pontic Steppe           | 2 | 2 | 3
+region | Volga Steppe            | 2 | 2 | 2
+region | Kazakh Steppe           | 2 | 2 | 2
+region | Nubia                   | 2 | 2 | 2
+region | Horn of Africa          | 2 | 2 | 2
+
+## Country overrides (capital in a neighbouring region or distinct 1453 focus)
+country | TUR | 4 | 4 | 4
+country | BOH | 4 | 3 | 4
+country | ENG | 3 | 4 | 3
+country | POR | 3 | 4 | 4
+country | HUN | 3 | 3 | 4
+country | TIM | 4 | 3 | 3
+country | QAR | 3 | 3 | 4
+country | ETH | 3 | 2 | 3
+country | VIJ | 4 | 3 | 3

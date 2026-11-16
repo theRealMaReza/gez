@@ -357,6 +357,10 @@ public struct World: Sendable {
     public var calamityRules = CalamityRules()
     /// Unrest per province and rebel factions (Phase 12).
     public var unrest = UnrestState()
+    /// Technology levels, research progress and institutions (Phase 13).
+    public var tech = TechState()
+    /// Technology tracks, starting levels and institution rules (fixed data, not saved).
+    public var techRules = TechRules()
 
     public init(map: MapInfo = MapInfo(width: 1, height: 1, pixelsPerDegree: 1, longitudeMin: 0, latitudeMax: 0)) {
         self.map = map

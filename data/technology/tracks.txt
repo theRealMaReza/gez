@@ -1,0 +1,100 @@
+# Technology tracks and levels 1-20 (Phase 13, owner's choice: EU4-style).
+#
+# Parameters:
+#   param | <key> | <value>
+#
+# Level rows:
+#   level | <track> | <level 1-20> | <target_year> | <base_cost> | <effects> | <summary>
+#
+# Tracks: administrative, diplomatic, military
+# Effects (comma-separated key=value pairs, cumulative values at that level):
+#   tax_eff=0.02          tax efficiency bonus (+2%)
+#   prod_eff=0.02         production / workshop efficiency bonus (+2%)
+#   trade_eff=0.02        trade profit bonus (+2%)
+#   trade_range=5         maximum market steps for new trade routes
+#   admin_eff=0.05        administrative efficiency (cuts war score cost & AE)
+#   max_building=4        maximum non-fort building level buildable (3, 4, or 5)
+#   max_fort=2            maximum fort level buildable (1..5)
+#   tactics=0.60          military tactics (reduces casualties taken)
+#   land_morale=0.25      extra max morale for armies
+#   relations=1           extra diplomatic relation slots
+#   accepted_cultures=1   extra accepted culture slots
+#   reform_progress=0.10  monthly government reform progress bonus
+
+param | base_cost | 600
+param | neighbour_bonus_per_level | 0.05
+param | neighbour_bonus_cap | 0.25
+param | ahead_of_time_per_year | 0.10
+param | ahead_of_time_cap | 2.00
+param | institution_penalty_per_year | 0.01
+param | institution_penalty_cap | 0.50
+param | embraced_research_bonus | 0.05
+param | embrace_min_dev_share | 0.10
+param | embrace_ducats_per_dev | 2.0
+param | embrace_min_cost | 20.0
+
+## Administrative Track
+level | administrative | 1  | 1400 | 600 | max_building=3 | Early Guilds & Charters (Building Lv 3)
+level | administrative | 2  | 1430 | 600 | max_building=3 | Bailiffs & Manor Rolls
+level | administrative | 3  | 1450 | 600 | max_building=3 | Chancery Accounts
+level | administrative | 4  | 1453 | 600 | max_building=3, tax_eff=0.02, prod_eff=0.02 | Renaissance Accountancy (+2% Tax & Prod)
+level | administrative | 5  | 1466 | 600 | max_building=3, tax_eff=0.04, prod_eff=0.04 | Double-Entry Ledgers (+4% Tax & Prod)
+level | administrative | 6  | 1479 | 600 | max_building=4, tax_eff=0.06, prod_eff=0.06 | Grand Workshops (Unlocks Building Lv 4)
+level | administrative | 7  | 1492 | 600 | max_building=4, tax_eff=0.08, prod_eff=0.08, reform_progress=0.10 | Royal Audits (+8% Tax/Prod, +0.10 Reform)
+level | administrative | 8  | 1505 | 600 | max_building=4, tax_eff=0.10, prod_eff=0.10, reform_progress=0.10, accepted_cultures=1 | Provincial Charters (+1 Accepted Culture)
+level | administrative | 9  | 1518 | 600 | max_building=4, tax_eff=0.12, prod_eff=0.12, reform_progress=0.10, accepted_cultures=1 | Printed Statutes (+12% Tax & Prod)
+level | administrative | 10 | 1531 | 600 | max_building=4, tax_eff=0.14, prod_eff=0.14, reform_progress=0.10, accepted_cultures=1, admin_eff=0.05 | High Courts (+5% Admin Efficiency)
+level | administrative | 11 | 1544 | 600 | max_building=4, tax_eff=0.16, prod_eff=0.16, reform_progress=0.10, accepted_cultures=1, admin_eff=0.05 | Customs Surveys (+16% Tax & Prod)
+level | administrative | 12 | 1557 | 600 | max_building=5, tax_eff=0.18, prod_eff=0.18, reform_progress=0.10, accepted_cultures=1, admin_eff=0.05 | Great Manufactories (Unlocks Building Lv 5)
+level | administrative | 13 | 1570 | 600 | max_building=5, tax_eff=0.20, prod_eff=0.20, reform_progress=0.10, accepted_cultures=1, admin_eff=0.05 | Excise Duties (+20% Tax & Prod)
+level | administrative | 14 | 1583 | 600 | max_building=5, tax_eff=0.22, prod_eff=0.22, reform_progress=0.10, accepted_cultures=1, admin_eff=0.10 | Centralised Ministries (+10% Admin Eff.)
+level | administrative | 15 | 1596 | 600 | max_building=5, tax_eff=0.24, prod_eff=0.24, reform_progress=0.10, accepted_cultures=2, admin_eff=0.10 | Estates General (+2 Accepted Cultures)
+level | administrative | 16 | 1609 | 600 | max_building=5, tax_eff=0.26, prod_eff=0.26, reform_progress=0.20, accepted_cultures=2, admin_eff=0.10 | Mercantilist Boards (+0.20 Reform)
+level | administrative | 17 | 1622 | 600 | max_building=5, tax_eff=0.28, prod_eff=0.28, reform_progress=0.20, accepted_cultures=2, admin_eff=0.10 | Land Cadastres (+28% Tax & Prod)
+level | administrative | 18 | 1635 | 600 | max_building=5, tax_eff=0.30, prod_eff=0.30, reform_progress=0.20, accepted_cultures=2, admin_eff=0.15 | Cabinet Government (+15% Admin Eff.)
+level | administrative | 19 | 1648 | 600 | max_building=5, tax_eff=0.32, prod_eff=0.32, reform_progress=0.20, accepted_cultures=2, admin_eff=0.15 | Sovereign Treasuries (+32% Tax & Prod)
+level | administrative | 20 | 1661 | 600 | max_building=5, tax_eff=0.35, prod_eff=0.35, reform_progress=0.20, accepted_cultures=2, admin_eff=0.20 | Enlightened State (+20% Admin Eff., +35% Tax/Prod)
+
+## Diplomatic Track
+level | diplomatic | 1  | 1400 | 600 | trade_range=3 | Coastal Portolans (Cogs, Galleys, Range 3)
+level | diplomatic | 2  | 1430 | 600 | trade_range=3 | Lateen Rigging (Range 3)
+level | diplomatic | 3  | 1450 | 600 | trade_range=4, trade_eff=0.02 | Caravels & Consulates (Range 4, +2% Trade)
+level | diplomatic | 4  | 1453 | 600 | trade_range=5, trade_eff=0.04 | Ocean Carracks (Carracks, Range 5, +4% Trade)
+level | diplomatic | 5  | 1466 | 600 | trade_range=6, trade_eff=0.06 | Compass & Astrolabe (Range 6, +6% Trade)
+level | diplomatic | 6  | 1479 | 600 | trade_range=7, trade_eff=0.08 | Merchantmen (Merchantman Transport, Range 7)
+level | diplomatic | 7  | 1492 | 600 | trade_range=8, trade_eff=0.10, relations=1 | Resident Embassies (+1 Diplomatic Slot, Range 8)
+level | diplomatic | 8  | 1505 | 600 | trade_range=9, trade_eff=0.12, relations=1 | War Galleons (Galleons & War Galleys, Range 9)
+level | diplomatic | 9  | 1518 | 600 | trade_range=10, trade_eff=0.14, relations=1 | Mercator Charts (Range 10, +14% Trade)
+level | diplomatic | 10 | 1531 | 600 | trade_range=12, trade_eff=0.16, relations=1 | Fast Barques (Barques, Range 12, +16% Trade)
+level | diplomatic | 11 | 1544 | 600 | trade_range=14, trade_eff=0.18, relations=1 | Chartered Companies (Range 14, +18% Trade)
+level | diplomatic | 12 | 1557 | 600 | trade_range=16, trade_eff=0.20, relations=1 | Frigates & Galleasses (Frigates, Galleasses, Range 16)
+level | diplomatic | 13 | 1570 | 600 | trade_range=18, trade_eff=0.22, relations=1 | Joint-Stock Shipping (Range 18, +22% Trade)
+level | diplomatic | 14 | 1583 | 600 | trade_range=20, trade_eff=0.24, relations=2 | Permanent Envoys (+2 Diplomatic Slots, Range 20)
+level | diplomatic | 15 | 1596 | 600 | trade_range=24, trade_eff=0.26, relations=2 | Dutch Flutes (Fluyt Transports, Range 24)
+level | diplomatic | 16 | 1609 | 600 | trade_range=28, trade_eff=0.28, relations=2 | Ships of the Line (Two-Deckers, Range 28)
+level | diplomatic | 17 | 1622 | 600 | trade_range=32, trade_eff=0.30, relations=2 | Maritime Insurance (Range 32, +30% Trade)
+level | diplomatic | 18 | 1635 | 600 | trade_range=36, trade_eff=0.32, relations=2 | Law of Nations (Range 36, +32% Trade)
+level | diplomatic | 19 | 1648 | 600 | trade_range=40, trade_eff=0.34, relations=2 | Naval Dockyards (Range 40, +34% Trade)
+level | diplomatic | 20 | 1661 | 600 | trade_range=50, trade_eff=0.38, relations=2 | Global Sea Lanes (Range 50, +38% Trade)
+
+## Military Track
+level | military | 1  | 1400 | 600 | max_fort=1, tactics=0.50 | Feudal Levies & Castles (Fort Lv 1, Tactics 0.50)
+level | military | 2  | 1430 | 600 | max_fort=1, tactics=0.50 | Crossbows & Men-at-Arms (Tactics 0.50)
+level | military | 3  | 1450 | 600 | max_fort=1, tactics=0.55 | Early Handguns (Handgunners, Tactics 0.55)
+level | military | 4  | 1453 | 600 | max_fort=2, tactics=0.60, land_morale=0.25 | Siege Bombards (Bombards, Fort Lv 2, +0.25 Morale)
+level | military | 5  | 1466 | 600 | max_fort=2, tactics=0.65, land_morale=0.25 | Halberd Companies (Halberdiers, Tactics 0.65)
+level | military | 6  | 1479 | 600 | max_fort=2, tactics=0.75, land_morale=0.50 | Pike Squares (Pikemen, +0.50 Morale)
+level | military | 7  | 1492 | 600 | max_fort=2, tactics=0.85, land_morale=0.50 | Bronze Culverins (Culverins, Tactics 0.85)
+level | military | 8  | 1505 | 600 | max_fort=3, tactics=0.95, land_morale=0.50 | Trace Italienne Bastions (Unlocks Fort Lv 3)
+level | military | 9  | 1518 | 600 | max_fort=3, tactics=1.05, land_morale=0.75 | Matchlock & Pike (Musketeers, +0.75 Morale)
+level | military | 10 | 1531 | 600 | max_fort=3, tactics=1.15, land_morale=0.75 | Pistol Cavalry (Cuirassiers, Tactics 1.15)
+level | military | 11 | 1544 | 600 | max_fort=3, tactics=1.25, land_morale=1.00 | Spanish Tercio Drill (+1.00 Morale)
+level | military | 12 | 1557 | 600 | max_fort=4, tactics=1.35, land_morale=1.00 | Star Forts & Field Guns (Fort Lv 4, Field Cannons)
+level | military | 13 | 1570 | 600 | max_fort=4, tactics=1.45, land_morale=1.00 | Mounted Musketeers (Dragoons, Tactics 1.45)
+level | military | 14 | 1583 | 600 | max_fort=4, tactics=1.55, land_morale=1.25 | Counter-March Volleys (+1.25 Morale)
+level | military | 15 | 1596 | 600 | max_fort=4, tactics=1.65, land_morale=1.25 | Maurician Linear Drill (Reformed Pike & Musket)
+level | military | 16 | 1609 | 600 | max_fort=5, tactics=1.75, land_morale=1.50 | Vauban Fortresses & Flintlocks (Fort Lv 5, Line Infantry)
+level | military | 17 | 1622 | 600 | max_fort=5, tactics=1.85, land_morale=1.50 | Heavy Siege Mortars (Royal Mortars, Tactics 1.85)
+level | military | 18 | 1635 | 600 | max_fort=5, tactics=1.95, land_morale=1.50 | Carabineer Shock Cavalry (Carabineers, Tactics 1.95)
+level | military | 19 | 1648 | 600 | max_fort=5, tactics=2.05, land_morale=1.75 | Standing Regimental Armies (+1.75 Morale)
+level | military | 20 | 1661 | 600 | max_fort=5, tactics=2.20, land_morale=2.00 | Ring Bayonet & Linear Tactics (Tactics 2.20, +2.00 Morale)

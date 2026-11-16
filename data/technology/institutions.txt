@@ -1,0 +1,15 @@
+# Historical institutions (Phase 13, owner's choice).
+#
+# Format:
+#   institution | <key> | <Name> | <spawn_year> | <origin_rule> | <spread_neighbour> | <spread_trade> | <spread_burgher> | <summary>
+#
+# origin_rule:
+#   region:<Region>             already active across that region at 1453 start (and embraced there)
+#   province:<Province Name>    spawns in that province on 1 Jan of <spawn_year>
+#   dynamic:richest_port_market spawns in the highest-value coastal market centre
+#   dynamic:top_workshops       spawns in the most industrialised developed province
+
+institution | renaissance     | Renaissance     | 1453 | region:Italy               | 0.040 | 0.035 | 0.025 | Italian humanism, banking, and classical learning (active in Italy in 1453)
+institution | printing_press  | Printing Press  | 1462 | province:Mainz             | 0.045 | 0.040 | 0.035 | Movable-type presses spreading across Europe after the 1462 Sack of Mainz
+institution | global_trade    | Global Trade    | 1550 | dynamic:richest_port_market| 0.030 | 0.055 | 0.030 | Oceanic commerce and joint-stock trade houses centred on leading port markets
+institution | manufactories   | Manufactories   | 1600 | dynamic:top_workshops      | 0.035 | 0.040 | 0.045 | Large-scale workshops and proto-industrial production in urban centres

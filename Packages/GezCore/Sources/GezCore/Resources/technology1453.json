@@ -1,0 +1,1003 @@
+{
+ "institutions": [
+  {
+   "key": "renaissance",
+   "name": "Renaissance",
+   "origin": {
+    "kind": "region",
+    "value": "Italy"
+   },
+   "spawnYear": 1453,
+   "spreadBurgher": 0.025,
+   "spreadNeighbour": 0.04,
+   "spreadTrade": 0.035,
+   "summary": "Italian humanism, banking, and classical learning (active in Italy in 1453)"
+  },
+  {
+   "key": "printing_press",
+   "name": "Printing Press",
+   "origin": {
+    "kind": "province",
+    "provinceIndex": 260,
+    "value": "Mainz"
+   },
+   "spawnYear": 1462,
+   "spreadBurgher": 0.035,
+   "spreadNeighbour": 0.045,
+   "spreadTrade": 0.04,
+   "summary": "Movable-type presses spreading across Europe after the 1462 Sack of Mainz"
+  },
+  {
+   "key": "global_trade",
+   "name": "Global Trade",
+   "origin": {
+    "kind": "dynamic",
+    "value": "richest_port_market"
+   },
+   "spawnYear": 1550,
+   "spreadBurgher": 0.03,
+   "spreadNeighbour": 0.03,
+   "spreadTrade": 0.055,
+   "summary": "Oceanic commerce and joint-stock trade houses centred on leading port markets"
+  },
+  {
+   "key": "manufactories",
+   "name": "Manufactories",
+   "origin": {
+    "kind": "dynamic",
+    "value": "top_workshops"
+   },
+   "spawnYear": 1600,
+   "spreadBurgher": 0.045,
+   "spreadNeighbour": 0.035,
+   "spreadTrade": 0.04,
+   "summary": "Large-scale workshops and proto-industrial production in urban centres"
+  }
+ ],
+ "params": {
+  "ahead_of_time_cap": 2.0,
+  "ahead_of_time_per_year": 0.1,
+  "base_cost": 600.0,
+  "embrace_ducats_per_dev": 2.0,
+  "embrace_min_cost": 20.0,
+  "embrace_min_dev_share": 0.1,
+  "embraced_research_bonus": 0.05,
+  "institution_penalty_cap": 0.5,
+  "institution_penalty_per_year": 0.01,
+  "neighbour_bonus_cap": 0.25,
+  "neighbour_bonus_per_level": 0.05
+ },
+ "provinceCount": 1373,
+ "startingLevels": {
+  "countries": {
+   "BOH": [
+    4,
+    3,
+    4
+   ],
+   "ENG": [
+    3,
+    4,
+    3
+   ],
+   "ETH": [
+    3,
+    2,
+    3
+   ],
+   "HUN": [
+    3,
+    3,
+    4
+   ],
+   "POR": [
+    3,
+    4,
+    4
+   ],
+   "QAR": [
+    3,
+    3,
+    4
+   ],
+   "TIM": [
+    4,
+    3,
+    3
+   ],
+   "TUR": [
+    4,
+    4,
+    4
+   ],
+   "VIJ": [
+    4,
+    3,
+    3
+   ]
+  },
+  "govCaps": {
+   "steppeHorde": [
+    2,
+    2,
+    3
+   ],
+   "tribal": [
+    2,
+    2,
+    2
+   ]
+  },
+  "regions": {
+   "Alps": [
+    3,
+    3,
+    3
+   ],
+   "Anatolia": [
+    4,
+    4,
+    4
+   ],
+   "Arabia": [
+    3,
+    3,
+    3
+   ],
+   "Balkans": [
+    3,
+    3,
+    3
+   ],
+   "Baltic": [
+    3,
+    3,
+    3
+   ],
+   "Bengal": [
+    4,
+    3,
+    3
+   ],
+   "British Isles": [
+    3,
+    3,
+    3
+   ],
+   "Carpathians and Danube": [
+    3,
+    3,
+    3
+   ],
+   "Caucasus": [
+    3,
+    3,
+    3
+   ],
+   "Central India": [
+    3,
+    3,
+    3
+   ],
+   "Deccan": [
+    3,
+    3,
+    3
+   ],
+   "Egypt": [
+    4,
+    4,
+    3
+   ],
+   "France": [
+    4,
+    3,
+    4
+   ],
+   "Germany": [
+    4,
+    3,
+    4
+   ],
+   "Gujarat": [
+    3,
+    4,
+    3
+   ],
+   "Hindustan": [
+    4,
+    3,
+    3
+   ],
+   "Horn of Africa": [
+    2,
+    2,
+    2
+   ],
+   "Iberia": [
+    3,
+    4,
+    4
+   ],
+   "Italy": [
+    4,
+    4,
+    4
+   ],
+   "Kazakh Steppe": [
+    2,
+    2,
+    2
+   ],
+   "Khorasan and Afghanistan": [
+    3,
+    3,
+    3
+   ],
+   "Levant": [
+    4,
+    3,
+    3
+   ],
+   "Low Countries": [
+    4,
+    4,
+    3
+   ],
+   "Maghreb": [
+    3,
+    3,
+    3
+   ],
+   "Mesopotamia": [
+    3,
+    3,
+    3
+   ],
+   "Northwest India": [
+    3,
+    3,
+    3
+   ],
+   "Nubia": [
+    2,
+    2,
+    2
+   ],
+   "Persia": [
+    4,
+    3,
+    4
+   ],
+   "Poland and Lithuania": [
+    3,
+    3,
+    3
+   ],
+   "Pontic Steppe": [
+    2,
+    2,
+    3
+   ],
+   "Rajputana": [
+    3,
+    3,
+    3
+   ],
+   "Russia": [
+    3,
+    3,
+    3
+   ],
+   "Scandinavia": [
+    3,
+    3,
+    3
+   ],
+   "South India": [
+    4,
+    3,
+    3
+   ],
+   "Transoxiana": [
+    3,
+    3,
+    3
+   ],
+   "Volga Steppe": [
+    2,
+    2,
+    2
+   ]
+  }
+ },
+ "tracks": {
+  "administrative": [
+   {
+    "baseCost": 600.0,
+    "effects": {
+     "max_building": 3.0
+    },
+    "level": 1,
+    "summary": "Early Guilds & Charters (Building Lv 3)",
+    "targetYear": 1400
+   },
+   {
+    "baseCost": 600.0,
+    "effects": {
+     "max_building": 3.0
+    },
+    "level": 2,
+    "summary": "Bailiffs & Manor Rolls",
+    "targetYear": 1430
+   },
+   {
+    "baseCost": 600.0,
+    "effects": {
+     "max_building": 3.0
+    },
+    "level": 3,
+    "summary": "Chancery Accounts",
+    "targetYear": 1450
+   },
+   {
+    "baseCost": 600.0,
+    "effects": {
+     "max_building": 3.0,
+     "prod_eff": 0.02,
+     "tax_eff": 0.02
+    },
+    "level": 4,
+    "summary": "Renaissance Accountancy (+2% Tax & Prod)",
+    "targetYear": 1453
+   },
+   {
+    "baseCost": 600.0,
+    "effects": {
+     "max_building": 3.0,
+     "prod_eff": 0.04,
+     "tax_eff": 0.04
+    },
+    "level": 5,
+    "summary": "Double-Entry Ledgers (+4% Tax & Prod)",
+    "targetYear": 1466
+   },
+   {
+    "baseCost": 600.0,
+    "effects": {
+     "max_building": 4.0,
+     "prod_eff": 0.06,
+     "tax_eff": 0.06
+    },
+    "level": 6,
+    "summary": "Grand Workshops (Unlocks Building Lv 4)",
+    "targetYear": 1479
+   },
+   {
+    "baseCost": 600.0,
+    "effects": {
+     "max_building": 4.0,
+     "prod_eff": 0.08,
+     "reform_progress": 0.1,
+     "tax_eff": 0.08
+    },
+    "level": 7,
+    "summary": "Royal Audits (+8% Tax/Prod, +0.10 Reform)",
+    "targetYear": 1492
+   },
+   {
+    "baseCost": 600.0,
+    "effects": {
+     "accepted_cultures": 1.0,
+     "max_building": 4.0,
+     "prod_eff": 0.1,
+     "reform_progress": 0.1,
+     "tax_eff": 0.1
+    },
+    "level": 8,
+    "summary": "Provincial Charters (+1 Accepted Culture)",
+    "targetYear": 1505
+   },
+   {
+    "baseCost": 600.0,
+    "effects": {
+     "accepted_cultures": 1.0,
+     "max_building": 4.0,
+     "prod_eff": 0.12,
+     "reform_progress": 0.1,
+     "tax_eff": 0.12
+    },
+    "level": 9,
+    "summary": "Printed Statutes (+12% Tax & Prod)",
+    "targetYear": 1518
+   },
+   {
+    "baseCost": 600.0,
+    "effects": {
+     "accepted_cultures": 1.0,
+     "admin_eff": 0.05,
+     "max_building": 4.0,
+     "prod_eff": 0.14,
+     "reform_progress": 0.1,
+     "tax_eff": 0.14
+    },
+    "level": 10,
+    "summary": "High Courts (+5% Admin Efficiency)",
+    "targetYear": 1531
+   },
+   {
+    "baseCost": 600.0,
+    "effects": {
+     "accepted_cultures": 1.0,
+     "admin_eff": 0.05,
+     "max_building": 4.0,
+     "prod_eff": 0.16,
+     "reform_progress": 0.1,
+     "tax_eff": 0.16
+    },
+    "level": 11,
+    "summary": "Customs Surveys (+16% Tax & Prod)",
+    "targetYear": 1544
+   },
+   {
+    "baseCost": 600.0,
+    "effects": {
+     "accepted_cultures": 1.0,
+     "admin_eff": 0.05,
+     "max_building": 5.0,
+     "prod_eff": 0.18,
+     "reform_progress": 0.1,
+     "tax_eff": 0.18
+    },
+    "level": 12,
+    "summary": "Great Manufactories (Unlocks Building Lv 5)",
+    "targetYear": 1557
+   },
+   {
+    "baseCost": 600.0,
+    "effects": {
+     "accepted_cultures": 1.0,
+     "admin_eff": 0.05,
+     "max_building": 5.0,
+     "prod_eff": 0.2,
+     "reform_progress": 0.1,
+     "tax_eff": 0.2
+    },
+    "level": 13,
+    "summary": "Excise Duties (+20% Tax & Prod)",
+    "targetYear": 1570
+   },
+   {
+    "baseCost": 600.0,
+    "effects": {
+     "accepted_cultures": 1.0,
+     "admin_eff": 0.1,
+     "max_building": 5.0,
+     "prod_eff": 0.22,
+     "reform_progress": 0.1,
+     "tax_eff": 0.22
+    },
+    "level": 14,
+    "summary": "Centralised Ministries (+10% Admin Eff.)",
+    "targetYear": 1583
+   },
+   {
+    "baseCost": 600.0,
+    "effects": {
+     "accepted_cultures": 2.0,
+     "admin_eff": 0.1,
+     "max_building": 5.0,
+     "prod_eff": 0.24,
+     "reform_progress": 0.1,
+     "tax_eff": 0.24
+    },
+    "level": 15,
+    "summary": "Estates General (+2 Accepted Cultures)",
+    "targetYear": 1596
+   },
+   {
+    "baseCost": 600.0,
+    "effects": {
+     "accepted_cultures": 2.0,
+     "admin_eff": 0.1,
+     "max_building": 5.0,
+     "prod_eff": 0.26,
+     "reform_progress": 0.2,
+     "tax_eff": 0.26
+    },
+    "level": 16,
+    "summary": "Mercantilist Boards (+0.20 Reform)",
+    "targetYear": 1609
+   },
+   {
+    "baseCost": 600.0,
+    "effects": {
+     "accepted_cultures": 2.0,
+     "admin_eff": 0.1,
+     "max_building": 5.0,
+     "prod_eff": 0.28,
+     "reform_progress": 0.2,
+     "tax_eff": 0.28
+    },
+    "level": 17,
+    "summary": "Land Cadastres (+28% Tax & Prod)",
+    "targetYear": 1622
+   },
+   {
+    "baseCost": 600.0,
+    "effects": {
+     "accepted_cultures": 2.0,
+     "admin_eff": 0.15,
+     "max_building": 5.0,
+     "prod_eff": 0.3,
+     "reform_progress": 0.2,
+     "tax_eff": 0.3
+    },
+    "level": 18,
+    "summary": "Cabinet Government (+15% Admin Eff.)",
+    "targetYear": 1635
+   },
+   {
+    "baseCost": 600.0,
+    "effects": {
+     "accepted_cultures": 2.0,
+     "admin_eff": 0.15,
+     "max_building": 5.0,
+     "prod_eff": 0.32,
+     "reform_progress": 0.2,
+     "tax_eff": 0.32
+    },
+    "level": 19,
+    "summary": "Sovereign Treasuries (+32% Tax & Prod)",
+    "targetYear": 1648
+   },
+   {
+    "baseCost": 600.0,
+    "effects": {
+     "accepted_cultures": 2.0,
+     "admin_eff": 0.2,
+     "max_building": 5.0,
+     "prod_eff": 0.35,
+     "reform_progress": 0.2,
+     "tax_eff": 0.35
+    },
+    "level": 20,
+    "summary": "Enlightened State (+20% Admin Eff., +35% Tax/Prod)",
+    "targetYear": 1661
+   }
+  ],
+  "diplomatic": [
+   {
+    "baseCost": 600.0,
+    "effects": {
+     "trade_range": 3.0
+    },
+    "level": 1,
+    "summary": "Coastal Portolans (Cogs, Galleys, Range 3)",
+    "targetYear": 1400
+   },
+   {
+    "baseCost": 600.0,
+    "effects": {
+     "trade_range": 3.0
+    },
+    "level": 2,
+    "summary": "Lateen Rigging (Range 3)",
+    "targetYear": 1430
+   },
+   {
+    "baseCost": 600.0,
+    "effects": {
+     "trade_eff": 0.02,
+     "trade_range": 4.0
+    },
+    "level": 3,
+    "summary": "Caravels & Consulates (Range 4, +2% Trade)",
+    "targetYear": 1450
+   },
+   {
+    "baseCost": 600.0,
+    "effects": {
+     "trade_eff": 0.04,
+     "trade_range": 5.0
+    },
+    "level": 4,
+    "summary": "Ocean Carracks (Carracks, Range 5, +4% Trade)",
+    "targetYear": 1453
+   },
+   {
+    "baseCost": 600.0,
+    "effects": {
+     "trade_eff": 0.06,
+     "trade_range": 6.0
+    },
+    "level": 5,
+    "summary": "Compass & Astrolabe (Range 6, +6% Trade)",
+    "targetYear": 1466
+   },
+   {
+    "baseCost": 600.0,
+    "effects": {
+     "trade_eff": 0.08,
+     "trade_range": 7.0
+    },
+    "level": 6,
+    "summary": "Merchantmen (Merchantman Transport, Range 7)",
+    "targetYear": 1479
+   },
+   {
+    "baseCost": 600.0,
+    "effects": {
+     "relations": 1.0,
+     "trade_eff": 0.1,
+     "trade_range": 8.0
+    },
+    "level": 7,
+    "summary": "Resident Embassies (+1 Diplomatic Slot, Range 8)",
+    "targetYear": 1492
+   },
+   {
+    "baseCost": 600.0,
+    "effects": {
+     "relations": 1.0,
+     "trade_eff": 0.12,
+     "trade_range": 9.0
+    },
+    "level": 8,
+    "summary": "War Galleons (Galleons & War Galleys, Range 9)",
+    "targetYear": 1505
+   },
+   {
+    "baseCost": 600.0,
+    "effects": {
+     "relations": 1.0,
+     "trade_eff": 0.14,
+     "trade_range": 10.0
+    },
+    "level": 9,
+    "summary": "Mercator Charts (Range 10, +14% Trade)",
+    "targetYear": 1518
+   },
+   {
+    "baseCost": 600.0,
+    "effects": {
+     "relations": 1.0,
+     "trade_eff": 0.16,
+     "trade_range": 12.0
+    },
+    "level": 10,
+    "summary": "Fast Barques (Barques, Range 12, +16% Trade)",
+    "targetYear": 1531
+   },
+   {
+    "baseCost": 600.0,
+    "effects": {
+     "relations": 1.0,
+     "trade_eff": 0.18,
+     "trade_range": 14.0
+    },
+    "level": 11,
+    "summary": "Chartered Companies (Range 14, +18% Trade)",
+    "targetYear": 1544
+   },
+   {
+    "baseCost": 600.0,
+    "effects": {
+     "relations": 1.0,
+     "trade_eff": 0.2,
+     "trade_range": 16.0
+    },
+    "level": 12,
+    "summary": "Frigates & Galleasses (Frigates, Galleasses, Range 16)",
+    "targetYear": 1557
+   },
+   {
+    "baseCost": 600.0,
+    "effects": {
+     "relations": 1.0,
+     "trade_eff": 0.22,
+     "trade_range": 18.0
+    },
+    "level": 13,
+    "summary": "Joint-Stock Shipping (Range 18, +22% Trade)",
+    "targetYear": 1570
+   },
+   {
+    "baseCost": 600.0,
+    "effects": {
+     "relations": 2.0,
+     "trade_eff": 0.24,
+     "trade_range": 20.0
+    },
+    "level": 14,
+    "summary": "Permanent Envoys (+2 Diplomatic Slots, Range 20)",
+    "targetYear": 1583
+   },
+   {
+    "baseCost": 600.0,
+    "effects": {
+     "relations": 2.0,
+     "trade_eff": 0.26,
+     "trade_range": 24.0
+    },
+    "level": 15,
+    "summary": "Dutch Flutes (Fluyt Transports, Range 24)",
+    "targetYear": 1596
+   },
+   {
+    "baseCost": 600.0,
+    "effects": {
+     "relations": 2.0,
+     "trade_eff": 0.28,
+     "trade_range": 28.0
+    },
+    "level": 16,
+    "summary": "Ships of the Line (Two-Deckers, Range 28)",
+    "targetYear": 1609
+   },
+   {
+    "baseCost": 600.0,
+    "effects": {
+     "relations": 2.0,
+     "trade_eff": 0.3,
+     "trade_range": 32.0
+    },
+    "level": 17,
+    "summary": "Maritime Insurance (Range 32, +30% Trade)",
+    "targetYear": 1622
+   },
+   {
+    "baseCost": 600.0,
+    "effects": {
+     "relations": 2.0,
+     "trade_eff": 0.32,
+     "trade_range": 36.0
+    },
+    "level": 18,
+    "summary": "Law of Nations (Range 36, +32% Trade)",
+    "targetYear": 1635
+   },
+   {
+    "baseCost": 600.0,
+    "effects": {
+     "relations": 2.0,
+     "trade_eff": 0.34,
+     "trade_range": 40.0
+    },
+    "level": 19,
+    "summary": "Naval Dockyards (Range 40, +34% Trade)",
+    "targetYear": 1648
+   },
+   {
+    "baseCost": 600.0,
+    "effects": {
+     "relations": 2.0,
+     "trade_eff": 0.38,
+     "trade_range": 50.0
+    },
+    "level": 20,
+    "summary": "Global Sea Lanes (Range 50, +38% Trade)",
+    "targetYear": 1661
+   }
+  ],
+  "military": [
+   {
+    "baseCost": 600.0,
+    "effects": {
+     "max_fort": 1.0,
+     "tactics": 0.5
+    },
+    "level": 1,
+    "summary": "Feudal Levies & Castles (Fort Lv 1, Tactics 0.50)",
+    "targetYear": 1400
+   },
+   {
+    "baseCost": 600.0,
+    "effects": {
+     "max_fort": 1.0,
+     "tactics": 0.5
+    },
+    "level": 2,
+    "summary": "Crossbows & Men-at-Arms (Tactics 0.50)",
+    "targetYear": 1430
+   },
+   {
+    "baseCost": 600.0,
+    "effects": {
+     "max_fort": 1.0,
+     "tactics": 0.55
+    },
+    "level": 3,
+    "summary": "Early Handguns (Handgunners, Tactics 0.55)",
+    "targetYear": 1450
+   },
+   {
+    "baseCost": 600.0,
+    "effects": {
+     "land_morale": 0.25,
+     "max_fort": 2.0,
+     "tactics": 0.6
+    },
+    "level": 4,
+    "summary": "Siege Bombards (Bombards, Fort Lv 2, +0.25 Morale)",
+    "targetYear": 1453
+   },
+   {
+    "baseCost": 600.0,
+    "effects": {
+     "land_morale": 0.25,
+     "max_fort": 2.0,
+     "tactics": 0.65
+    },
+    "level": 5,
+    "summary": "Halberd Companies (Halberdiers, Tactics 0.65)",
+    "targetYear": 1466
+   },
+   {
+    "baseCost": 600.0,
+    "effects": {
+     "land_morale": 0.5,
+     "max_fort": 2.0,
+     "tactics": 0.75
+    },
+    "level": 6,
+    "summary": "Pike Squares (Pikemen, +0.50 Morale)",
+    "targetYear": 1479
+   },
+   {
+    "baseCost": 600.0,
+    "effects": {
+     "land_morale": 0.5,
+     "max_fort": 2.0,
+     "tactics": 0.85
+    },
+    "level": 7,
+    "summary": "Bronze Culverins (Culverins, Tactics 0.85)",
+    "targetYear": 1492
+   },
+   {
+    "baseCost": 600.0,
+    "effects": {
+     "land_morale": 0.5,
+     "max_fort": 3.0,
+     "tactics": 0.95
+    },
+    "level": 8,
+    "summary": "Trace Italienne Bastions (Unlocks Fort Lv 3)",
+    "targetYear": 1505
+   },
+   {
+    "baseCost": 600.0,
+    "effects": {
+     "land_morale": 0.75,
+     "max_fort": 3.0,
+     "tactics": 1.05
+    },
+    "level": 9,
+    "summary": "Matchlock & Pike (Musketeers, +0.75 Morale)",
+    "targetYear": 1518
+   },
+   {
+    "baseCost": 600.0,
+    "effects": {
+     "land_morale": 0.75,
+     "max_fort": 3.0,
+     "tactics": 1.15
+    },
+    "level": 10,
+    "summary": "Pistol Cavalry (Cuirassiers, Tactics 1.15)",
+    "targetYear": 1531
+   },
+   {
+    "baseCost": 600.0,
+    "effects": {
+     "land_morale": 1.0,
+     "max_fort": 3.0,
+     "tactics": 1.25
+    },
+    "level": 11,
+    "summary": "Spanish Tercio Drill (+1.00 Morale)",
+    "targetYear": 1544
+   },
+   {
+    "baseCost": 600.0,
+    "effects": {
+     "land_morale": 1.0,
+     "max_fort": 4.0,
+     "tactics": 1.35
+    },
+    "level": 12,
+    "summary": "Star Forts & Field Guns (Fort Lv 4, Field Cannons)",
+    "targetYear": 1557
+   },
+   {
+    "baseCost": 600.0,
+    "effects": {
+     "land_morale": 1.0,
+     "max_fort": 4.0,
+     "tactics": 1.45
+    },
+    "level": 13,
+    "summary": "Mounted Musketeers (Dragoons, Tactics 1.45)",
+    "targetYear": 1570
+   },
+   {
+    "baseCost": 600.0,
+    "effects": {
+     "land_morale": 1.25,
+     "max_fort": 4.0,
+     "tactics": 1.55
+    },
+    "level": 14,
+    "summary": "Counter-March Volleys (+1.25 Morale)",
+    "targetYear": 1583
+   },
+   {
+    "baseCost": 600.0,
+    "effects": {
+     "land_morale": 1.25,
+     "max_fort": 4.0,
+     "tactics": 1.65
+    },
+    "level": 15,
+    "summary": "Maurician Linear Drill (Reformed Pike & Musket)",
+    "targetYear": 1596
+   },
+   {
+    "baseCost": 600.0,
+    "effects": {
+     "land_morale": 1.5,
+     "max_fort": 5.0,
+     "tactics": 1.75
+    },
+    "level": 16,
+    "summary": "Vauban Fortresses & Flintlocks (Fort Lv 5, Line Infantry)",
+    "targetYear": 1609
+   },
+   {
+    "baseCost": 600.0,
+    "effects": {
+     "land_morale": 1.5,
+     "max_fort": 5.0,
+     "tactics": 1.85
+    },
+    "level": 17,
+    "summary": "Heavy Siege Mortars (Royal Mortars, Tactics 1.85)",
+    "targetYear": 1622
+   },
+   {
+    "baseCost": 600.0,
+    "effects": {
+     "land_morale": 1.5,
+     "max_fort": 5.0,
+     "tactics": 1.95
+    },
+    "level": 18,
+    "summary": "Carabineer Shock Cavalry (Carabineers, Tactics 1.95)",
+    "targetYear": 1635
+   },
+   {
+    "baseCost": 600.0,
+    "effects": {
+     "land_morale": 1.75,
+     "max_fort": 5.0,
+     "tactics": 2.05
+    },
+    "level": 19,
+    "summary": "Standing Regimental Armies (+1.75 Morale)",
+    "targetYear": 1648
+   },
+   {
+    "baseCost": 600.0,
+    "effects": {
+     "land_morale": 2.0,
+     "max_fort": 5.0,
+     "tactics": 2.2
+    },
+    "level": 20,
+    "summary": "Ring Bayonet & Linear Tactics (Tactics 2.20, +2.00 Morale)",
+    "targetYear": 1661
+   }
+  ]
+ }
+}

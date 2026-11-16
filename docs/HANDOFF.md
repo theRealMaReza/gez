@@ -317,6 +317,7 @@ of them are reproducible (same input, byte-identical output).
 | `data/military/` | `python3 tools/military/milgen.py` | `military1453.json` |
 | `data/diplomacy/` | `python3 tools/diplomacy/dipgen.py` | `diplomacy1453.json` |
 | `data/calamity/fault_zones.txt` | `python3 tools/calamity/calamitygen.py` (fault zones store province indices: rerun after any map change) | `calamity1453.json` |
+| `data/technology/` | `python3 tools/technology/techgen.py` (stores Mainz index and regions: rerun after any map change) | `technology1453.json` |
 | `data/heraldry/choices.txt` | push it; the Heraldry workflow downloads and converts | `App/Resources/Heraldry/arms_<TAG>.png`, `data/heraldry/credits.json` |
 | app icon (portolan chart, drawn from the province map) | `python3 tools/icon/make_icon.py` | `App/Resources/Assets.xcassets/AppIcon.appiconset/`, `docs/icon_preview.png` |
 
