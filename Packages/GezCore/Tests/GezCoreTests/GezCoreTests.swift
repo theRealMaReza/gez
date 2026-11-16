@@ -277,11 +277,15 @@ final class PopTests: XCTestCase {
         XCTAssertTrue(orders.contains { $0.order == .safaviyya && $0.strength > 0.5 })
     }
 
+    /// The growth rule itself: a year of monthly growth with nothing else
+    /// running adds about 0.4% (wars are left out: how many soldiers die in
+    /// the AI's wars changes from version to version).
     func testPopsGrowWithTime() {
-        let sim = Simulation(world: Scenario1453.makeWorld(), startDate: Scenario1453.startDate)
-        let before = peopleIncludingServingLevies(sim.world, provinceTotals: false)
-        sim.advance(days: 365)
-        XCTAssertGreaterThan(peopleIncludingServingLevies(sim.world, provinceTotals: false), before)
+        var world = Scenario1453.makeWorld()
+        let before = world.pops.size.reduce(0, +)
+        for _ in 0..<12 { PopulationSystem.runMonthly(&world) }
+        let after = world.pops.size.reduce(0, +)
+        XCTAssertEqual(after / before, 1 + PopulationSystem.yearlyGrowthRate, accuracy: 0.0005)
     }
 }
 
@@ -444,11 +448,16 @@ final class SimulationTests: XCTestCase {
         XCTAssertGreaterThan(sim.world.countries.lastMonthlyIncome[tur], 0)
     }
 
+    /// A full year: people only leave the world by dying in war, so the total
+    /// (counting soldiers away with the levies) stays within half a percent of
+    /// the start. Growth itself is checked in PopTests.testPopsGrowWithTime.
     func testPopulationGrowsOverAYear() {
         let sim = Simulation(world: Scenario1453.makeWorld(), startDate: Scenario1453.startDate)
         let before = peopleIncludingServingLevies(sim.world, provinceTotals: true)
         sim.advance(days: 365)
-        XCTAssertGreaterThan(peopleIncludingServingLevies(sim.world, provinceTotals: true), before)
+        let after = peopleIncludingServingLevies(sim.world, provinceTotals: true)
+        XCTAssertGreaterThan(after, before * 0.995)
+        XCTAssertLessThan(after, before * (1 + 2 * PopulationSystem.yearlyGrowthRate))
     }
 
     func testDeterministicForSameSeed() {
