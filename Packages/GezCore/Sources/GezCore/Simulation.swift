@@ -95,6 +95,8 @@ public final class Simulation {
             NavySystem.runAI(&world)
             PopulationSystem.runMonthly(&world)
             PlagueSystem.runMonthly(&world, date: date, random: &random)
+            FamineSystem.runMonthly(&world, date: date, random: &random)
+            QuakeSystem.runMonthly(&world, date: date, random: &random)
             FaithSystem.runMonthly(&world, date: date, random: &random)
             MovementSystem.runMonthly(&world, date: date, random: &random)
             CultureSystem.runMonthly(&world, date: date, random: &random)

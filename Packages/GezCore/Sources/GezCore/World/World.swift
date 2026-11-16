@@ -353,6 +353,8 @@ public struct World: Sendable {
     public var faith = FaithState()
     /// Plague, famine and earthquakes (Phase 12).
     public var calamity = CalamityState()
+    /// Fault zones and known earthquakes (fixed data, not saved).
+    public var calamityRules = CalamityRules()
 
     public init(map: MapInfo = MapInfo(width: 1, height: 1, pixelsPerDegree: 1, longitudeMin: 0, latitudeMax: 0)) {
         self.map = map

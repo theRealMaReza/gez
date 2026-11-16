@@ -204,15 +204,15 @@ public enum CultureSystem {
         let C = world.countries.count
         guard P > 0, C > 0 else { return }
 
-        updateDevastationAndFamine(&world, provinceCount: P)
+        updateDevastation(&world, provinceCount: P)
         runAssimilation(&world, provinceCount: P, countryCount: C)
         runMigration(&world, provinceCount: P, countryCount: C, random: &random)
         world.pops.foldDust(provinceCount: P)
     }
 
-    // MARK: - Devastation & Famine
+    // MARK: - Devastation (famine moved to `FamineSystem` in Phase 12)
 
-    private static func updateDevastationAndFamine(_ world: inout World, provinceCount P: Int) {
+    private static func updateDevastation(_ world: inout World, provinceCount P: Int) {
         var underSiege = Array(repeating: false, count: P)
         for s in world.military.sieges where s.province.index < P {
             underSiege[s.province.index] = true
@@ -220,22 +220,6 @@ public enum CultureSystem {
         var inBattle = Array(repeating: false, count: P)
         for b in world.military.battles where b.province.index < P {
             inBattle[b.province.index] = true
-        }
-
-        // Per-market food fulfillment ratio (average `met` across food goods).
-        let eco = world.economy
-        let M = eco.markets.count
-        let G = eco.goods.count
-        let foodIndices = (0..<G).filter { eco.goods.category[$0] == .food }
-        var marketFoodMet = Array(repeating: 1.0, count: M)
-        if !foodIndices.isEmpty {
-            for m in 0..<M {
-                var sum = 0.0
-                for g in foodIndices {
-                    sum += eco.markets.met[m * G + g]
-                }
-                marketFoodMet[m] = sum / Double(foodIndices.count)
-            }
         }
 
         for p in 0..<P {
@@ -247,15 +231,6 @@ public enum CultureSystem {
                 world.provinces.devastation[p] = max(0.0, world.provinces.devastation[p] - CultureModel.peaceDevastationDecay)
             }
 
-            if p < eco.provinceMarket.count {
-                let m = eco.provinceMarket[p].index
-                if m < M && marketFoodMet[m] < 0.85 {
-                    let severity = min(1.0, (0.85 - marketFoodMet[m]) * 2.5)
-                    world.provinces.famine[p] = max(world.provinces.famine[p], severity)
-                } else {
-                    world.provinces.famine[p] = max(0.0, world.provinces.famine[p] - 0.15)
-                }
-            }
         }
     }
 

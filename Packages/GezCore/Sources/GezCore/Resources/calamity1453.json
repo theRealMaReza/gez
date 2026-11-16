@@ -1,0 +1,535 @@
+{
+ "provinceCount": 1373,
+ "faultZones": [
+  {
+   "name": "North Anatolian Fault",
+   "yearlyChance": 0.04,
+   "strength": 0.9,
+   "provinces": [
+    678,
+    680,
+    681,
+    682,
+    712,
+    713,
+    714,
+    715,
+    716,
+    718,
+    722,
+    723,
+    724,
+    725,
+    726,
+    727,
+    728,
+    729,
+    730,
+    732,
+    733,
+    734,
+    735,
+    736,
+    737,
+    738,
+    739,
+    740,
+    741
+   ]
+  },
+  {
+   "name": "Erzincan and Erzurum",
+   "yearlyChance": 0.025,
+   "strength": 0.9,
+   "provinces": [
+    748,
+    749,
+    750,
+    751,
+    752,
+    755,
+    758,
+    759,
+    760
+   ]
+  },
+  {
+   "name": "Aegean Sea",
+   "yearlyChance": 0.04,
+   "strength": 0.8,
+   "provinces": [
+    682,
+    684,
+    685,
+    688,
+    689,
+    690,
+    691,
+    692,
+    693,
+    694,
+    695,
+    696,
+    697,
+    701,
+    702,
+    703,
+    704,
+    705,
+    706,
+    707,
+    708,
+    716,
+    717,
+    718,
+    719,
+    720,
+    721,
+    723
+   ]
+  },
+  {
+   "name": "Cyprus and Cilicia",
+   "yearlyChance": 0.015,
+   "strength": 0.7,
+   "provinces": [
+    709,
+    710,
+    711,
+    736,
+    742,
+    743,
+    744,
+    791,
+    799
+   ]
+  },
+  {
+   "name": "Southern Apennines and Calabria",
+   "yearlyChance": 0.03,
+   "strength": 0.9,
+   "provinces": [
+    413,
+    414,
+    416,
+    417,
+    418,
+    419,
+    420,
+    421,
+    422,
+    423,
+    427,
+    428
+   ]
+  },
+  {
+   "name": "Central Apennines",
+   "yearlyChance": 0.02,
+   "strength": 0.8,
+   "provinces": [
+    403,
+    407,
+    408,
+    409,
+    410,
+    411,
+    412,
+    415
+   ]
+  },
+  {
+   "name": "Sicily",
+   "yearlyChance": 0.015,
+   "strength": 0.9,
+   "provinces": [
+    423,
+    424,
+    426,
+    427,
+    428
+   ]
+  },
+  {
+   "name": "Friuli and the Eastern Alps",
+   "yearlyChance": 0.01,
+   "strength": 0.7,
+   "provinces": [
+    342,
+    343,
+    344,
+    346,
+    347,
+    387,
+    391,
+    394,
+    395
+   ]
+  },
+  {
+   "name": "Dalmatian Coast",
+   "yearlyChance": 0.01,
+   "strength": 0.8,
+   "provinces": [
+    642,
+    643,
+    644,
+    646,
+    649,
+    650,
+    651,
+    652,
+    658,
+    659
+   ]
+  },
+  {
+   "name": "Dead Sea Rift",
+   "yearlyChance": 0.02,
+   "strength": 0.8,
+   "provinces": [
+    709,
+    710,
+    790,
+    791,
+    793,
+    794,
+    797,
+    798,
+    799,
+    800,
+    801,
+    802,
+    803,
+    804,
+    805
+   ]
+  },
+  {
+   "name": "Tabriz",
+   "yearlyChance": 0.03,
+   "strength": 1.0,
+   "provinces": [
+    780,
+    868,
+    869,
+    870,
+    871
+   ]
+  },
+  {
+   "name": "Caucasus",
+   "yearlyChance": 0.02,
+   "strength": 0.8,
+   "provinces": [
+    770,
+    773,
+    774,
+    775,
+    776,
+    777,
+    778,
+    782
+   ]
+  },
+  {
+   "name": "Alborz",
+   "yearlyChance": 0.02,
+   "strength": 0.8,
+   "provinces": [
+    874,
+    875,
+    876,
+    877,
+    879,
+    880,
+    883,
+    885
+   ]
+  },
+  {
+   "name": "Zagros",
+   "yearlyChance": 0.03,
+   "strength": 0.7,
+   "provinces": [
+    866,
+    867,
+    883,
+    884,
+    886,
+    887,
+    888,
+    889,
+    890,
+    891,
+    892,
+    893,
+    894
+   ]
+  },
+  {
+   "name": "Khorasan",
+   "yearlyChance": 0.02,
+   "strength": 0.8,
+   "provinces": [
+    906,
+    907,
+    908,
+    911
+   ]
+  },
+  {
+   "name": "Hindu Kush",
+   "yearlyChance": 0.025,
+   "strength": 0.8,
+   "provinces": [
+    917,
+    919,
+    921,
+    922,
+    1077,
+    1079,
+    1080,
+    1081
+   ]
+  },
+  {
+   "name": "Tian Shan and Fergana",
+   "yearlyChance": 0.015,
+   "strength": 0.8,
+   "provinces": [
+    1046,
+    1047,
+    1049,
+    1058
+   ]
+  },
+  {
+   "name": "Lisbon and the Gulf of Cadiz",
+   "yearlyChance": 0.01,
+   "strength": 1.0,
+   "provinces": [
+    0,
+    1,
+    8,
+    9,
+    10,
+    39,
+    40,
+    41,
+    42
+   ]
+  },
+  {
+   "name": "Betic Mountains and Alboran",
+   "yearlyChance": 0.01,
+   "strength": 0.7,
+   "provinces": [
+    12,
+    43,
+    44,
+    49,
+    50,
+    51,
+    52,
+    53,
+    54,
+    928
+   ]
+  },
+  {
+   "name": "Tell Atlas",
+   "yearlyChance": 0.01,
+   "strength": 0.7,
+   "provinces": [
+    941,
+    942,
+    943,
+    944,
+    945,
+    947
+   ]
+  },
+  {
+   "name": "Catalonia and the Pyrenees",
+   "yearlyChance": 0.005,
+   "strength": 0.6,
+   "provinces": [
+    61,
+    62,
+    66,
+    118,
+    120,
+    121
+   ]
+  },
+  {
+   "name": "Upper Rhine",
+   "yearlyChance": 0.004,
+   "strength": 0.7,
+   "provinces": [
+    144,
+    145,
+    146,
+    309,
+    314,
+    315,
+    352,
+    353,
+    354,
+    355,
+    356,
+    364
+   ]
+  },
+  {
+   "name": "Vrancea",
+   "yearlyChance": 0.01,
+   "strength": 0.7,
+   "provinces": [
+    619,
+    620,
+    631,
+    632,
+    634,
+    636,
+    637,
+    638,
+    679
+   ]
+  },
+  {
+   "name": "Kashmir and the Punjab Hills",
+   "yearlyChance": 0.02,
+   "strength": 0.9,
+   "provinces": [
+    1067,
+    1073,
+    1074,
+    1080,
+    1082,
+    1099,
+    1100,
+    1101,
+    1102,
+    1103,
+    1104,
+    1105,
+    1106,
+    1107,
+    1108,
+    1157,
+    1158
+   ]
+  },
+  {
+   "name": "Central Himalaya",
+   "yearlyChance": 0.02,
+   "strength": 0.9,
+   "provinces": [
+    1122,
+    1123,
+    1124,
+    1125,
+    1126,
+    1127,
+    1128,
+    1129,
+    1130,
+    1131,
+    1132,
+    1133,
+    1134,
+    1135,
+    1136,
+    1137,
+    1138,
+    1139,
+    1140,
+    1141,
+    1142,
+    1143,
+    1144,
+    1145,
+    1146,
+    1151,
+    1154,
+    1160,
+    1161,
+    1162,
+    1163,
+    1164,
+    1165,
+    1166,
+    1167
+   ]
+  },
+  {
+   "name": "Assam and the Eastern Himalaya",
+   "yearlyChance": 0.015,
+   "strength": 1.0,
+   "provinces": [
+    1250,
+    1251,
+    1261,
+    1262,
+    1265,
+    1266,
+    1267,
+    1268,
+    1269,
+    1270,
+    1271,
+    1273,
+    1274,
+    1275,
+    1278
+   ]
+  },
+  {
+   "name": "Kutch",
+   "yearlyChance": 0.008,
+   "strength": 0.9,
+   "provinces": [
+    1216,
+    1218,
+    1222,
+    1223
+   ]
+  }
+ ],
+ "historicalQuakes": [
+  {
+   "name": "The Great Earthquake of Naples",
+   "year": 1456,
+   "month": 12,
+   "day": 5,
+   "province": 413,
+   "strength": 0.9
+  },
+  {
+   "name": "The Rhodes Earthquake",
+   "year": 1481,
+   "month": 5,
+   "day": 3,
+   "province": 705,
+   "strength": 0.7
+  },
+  {
+   "name": "The Lesser Judgment Day",
+   "year": 1509,
+   "month": 9,
+   "day": 10,
+   "province": 680,
+   "strength": 0.8
+  },
+  {
+   "name": "The Lisbon Earthquake of 1531",
+   "year": 1531,
+   "month": 1,
+   "day": 26,
+   "province": 0,
+   "strength": 0.8
+  }
+ ]
+}
