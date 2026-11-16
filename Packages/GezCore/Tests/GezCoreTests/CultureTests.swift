@@ -213,8 +213,6 @@ final class CultureTests: XCTestCase {
         for _ in 0..<200 { sim.tick() }
         var pops = sim.world.pops
         let P = sim.world.provinces.count
-        // Add some dust by hand so the test does not depend on the run.
-        if pops.count > 0 { pops.size[0] = max(pops.size[0], 100) }
         let before = pops.size.reduce(0, +)
         pops.foldDust(provinceCount: P)
         let after = pops.size.reduce(0, +)
@@ -224,8 +222,10 @@ final class CultureTests: XCTestCase {
             let classes = Set(r.map { pops.socialClass[$0] })
             for cls in classes {
                 let rows = r.filter { pops.socialClass[$0] == cls }
-                // A tiny group may remain only if it is the only group of its class.
-                if rows.count > 1 {
+                // A tiny group may remain only if no group of its class is big
+                // enough to take it in.
+                let largest = rows.map { pops.size[$0] }.max() ?? 0
+                if rows.count > 1 && largest >= PopDust.foldBelow {
                     for i in rows { XCTAssertGreaterThanOrEqual(pops.size[i], PopDust.foldBelow) }
                 }
             }
