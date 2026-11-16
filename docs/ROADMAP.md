@@ -256,7 +256,7 @@ Owner's choices:
 - [x] 3. **Culture, assimilation & migration** (`CultureSystem.swift`): government-rank + law accepted-culture slots, tax/manpower/contentment penalties on unaccepted cultures (`MarketSystem` & `ArmySystem` wired), slow conditional assimilation, and devastation/persecution/famine-driven migration conserving total world population.
 - [x] 4. **Godot screens & snapshots** (`ReligionPanel.gd`, `MapFaithLayer.gd`, `Main.gd`, `capture_snapshots.gd`): Religion & Culture window, Province People tab conversion/assimilation/unrest/missionary controls, Religion & Culture map mode overlays, and `godot_religion_window.png` / `godot_map_religion_1520.png` snapshots.
 
-### Phase 12: Plague, famine and rebellion ✅ (session 10, PR #25, written by Claude)
+### Phase 12: Plague, famine and rebellion ✅ (session 10, PR #26, written by Claude)
 Owner's choices:
 - **Plague, famine & earthquakes**: Plagues (bubonic plague, typhus/camp fever, smallpox) ignite in crowded hubs or besieged camps and spread along active Trade Routes, Ports, and marching Armies, killing pops by class with local immunity recovery and Port Quarantine / Cordon responses; Famine triggers when staple food supply falls below pop need (from bad harvest rolls, war devastation, siege looting, or peasant levies kept raised during harvest); occasional Earthquakes strike historical fault zones (Anatolia, Aegean, Italy, Persia, Lisbon, Himalayas), damaging buildings and forts.
 - **Rebellions**: Cause-driven rebel factions tied to real pops & estates (Peasant Rebels, Religious Zealots, Cultural Separatists, Noble/Estate Rebels, Dynasty Pretenders); at 100% progress they raise a real army on the map from those pops and enforce their political demands if victorious.

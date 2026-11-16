@@ -423,12 +423,12 @@ saved), so plague rolls do not reshuffle every other system's luck.
   (9 / 6 / 7 months, slow start, peak in the middle) and strikes a share of
   the people: base 30% / 20% / 35% × crowding (0.35 at development 1 to
   1.25 at 10) × the share not immune × dice (0.6–1.4), at most 60%. Of the
-  struck, 35% / 15% / 12% die, times class: nobles 0.5, clergy 0.85,
+  struck, 35% / 12% / 8% die, times class: nobles 0.5, clergy 0.85,
   burghers 0.9, peasants 1.0, slaves 1.25. Soldiers standing there die 1.5×
   as fast (never the last man), garrisons too.
-  - **Where it starts**: plague 0.04% and smallpox 0.03% a month × dev/7 in
-    crowded provinces (development 7+, or 5+ on the sea); camp fever 6% a
-    month in a besieged province, 4% where 15,000+ soldiers camp, 0.4% in
+  - **Where it starts**: plague 0.04% and smallpox 0.02% a month × dev/7 in
+    crowded provinces (development 7+, or 5+ on the sea); camp fever 4% a
+    month in a besieged province, 2% where 15,000+ soldiers camp, 0.4% in
     a famine above 40%.
   - **How it spreads** (each month, chance = min(cap, k × share struck)):
     to each neighbour (k 3, cap 12%, × 0.5–1.2 by the neighbour's
@@ -464,7 +464,7 @@ saved), so plague rolls do not reshuffle every other system's luck.
   is used to (a slow average, so desert markets that always import are not
   permanently starving); when supply falls below 90% of that, famine sets
   in (3 points per point of shortfall, worse where the local harvest
-  failed, fading 15 points a month afterwards). Famine kills up to 0.3% of
+  failed, fading 15 points a month afterwards). Famine kills up to 0.2% of
   peasants a month (nobles 0.2×, clergy 0.4×, burghers 0.8×, slaves 1.3×),
   lowers contentment, raises unrest, breeds camp fever and feeds the
   existing migration.
@@ -497,9 +497,9 @@ saved), so plague rolls do not reshuffle every other system's luck.
 
   | Faction | Grievance | Threshold / rate | Who rises | Demand if they win |
   |---|---|---|---|---|
-  | Peasant Rebels | taxes + famine + war damage + unmet needs + war weariness + plague | 12 / 0.15 | 3% of peasants | peasant tax capped at 50% for 5 years |
-  | Religious Zealots | religious unrest of their faith's provinces | 30 / 0.08 | 4% of that faith | 40%+ of the realm: their faith becomes the state's; else no missionaries, less unrest, tolerant law |
-  | Cultural Separatists | foreign rule + half the other grievances | 16 / 0.15 | 4% of that culture | their provinces go to a landless country with a core there, or of their culture, or a neighbour of their culture; else (or if over half the realm) their culture is accepted |
+  | Peasant Rebels | taxes + famine + war damage + unmet needs + war weariness + plague | 10 / 0.20 | 3% of peasants | peasant tax capped at 50% for 5 years |
+  | Religious Zealots | religious unrest of their faith's provinces | 26 / 0.08 | 4% of that faith | 40%+ of the realm: their faith becomes the state's; else no missionaries, less unrest, tolerant law |
+  | Cultural Separatists | foreign rule + half the other grievances | 14 / 0.20 | 4% of that culture | their provinces go to a landless country with a core there, or of their culture, or a neighbour of their culture; else (or if over half the realm) their culture is accepted |
   | Estate Rebels | points below 30 loyalty × (0.5 + 2 × power) | 0 / 0.10 | 25% of nobles + 1.5% of peasants | the strongest privilege they lack (or 3 months' income) |
   | Pretender | −stability × 8, child ruler +10, no heir +4, his skill | 12 / 0.12 | 2% of peasants and nobles | the throne (a real adult man of the ruler's house; never invented) |
 

@@ -5,7 +5,7 @@ Read this first, then `docs/ROADMAP.md` (the agreed plan), `docs/DESIGN.md`
 judgment calls) and `CLAUDE.md` (rules). This file says where the project
 stands, how to work on it, and what to do next.
 
-Last updated: session 10 (16 November 2026). Phases 0–12 are done. Phase 12 (plague, famine, earthquakes, unrest and rebels) was **written by Claude** in pull request #25 (`Calamity/`, `Unrest/`, `Systems/{PlagueSystem,FamineSystem,QuakeSystem,UnrestSystem,RebelSystem}.swift`, `data/calamity/`, `tools/calamity/`, `godot/scripts/{RebelsPanel,MapCalamityLayer}.gd`, `GezGodotCalamityBridge.swift`). Next: Phase 13 (technology).
+Last updated: session 10 (16 November 2026). Phases 0–12 are done. Phase 12 (plague, famine, earthquakes, unrest and rebels) was **written by Claude** and merged as pull request #26 (draft #25 closed) (`Calamity/`, `Unrest/`, `Systems/{PlagueSystem,FamineSystem,QuakeSystem,UnrestSystem,RebelSystem}.swift`, `data/calamity/`, `tools/calamity/`, `godot/scripts/{RebelsPanel,MapCalamityLayer}.gd`, `GezGodotCalamityBridge.swift`). Next: Phase 13 (technology).
 
 ## The owner
 
@@ -87,7 +87,7 @@ phases): technology (Phase 13), events, sound, settings, multiplayer.
    deleted on GitHub (the workspace cannot delete branches); retire `App/`
    when the owner says so.
 
-### Session 10: Phase 12 written by Claude (PR #25)
+### Session 10: Phase 12 written by Claude (PR #26)
 - The owner had Claude write this phase instead of reviewing Gemini.
   One commit per part (A plague, B famine and earthquakes, C unrest and
   rebels, D screens and docs).
@@ -115,6 +115,20 @@ phases): technology (Phase 13), events, sound, settings, multiplayer.
   Religion window did nothing); fixed to `_focus_and_select_province`.
 - `testPopulationGrowsOverAYear` now allows 2% loss in the first year
   (people also die of plague and hunger).
+- **Ten-year run (seed 1453, first version)**: the world falls from 202 M
+  to 195 M people; disease kills about 4.5 M and famine 2.7 M in ten
+  years, earthquakes 46 k; only 2 rebel risings worldwide (1 won, 1
+  crushed), 1 faction bought off. Judged too deadly and rebels too rare,
+  so the first tune (owner: "do what you think is right") cut camp fever
+  (siege 6→4%, camp 4→2% a month, lethality 15→12%), smallpox
+  (lethality 12→8%, outbreaks 0.03→0.02%) and famine deaths (0.3→0.2% a
+  month), and made Peasant Rebels (threshold 12→10, rate 0.15→0.20),
+  Separatists (16→14, 0.15→0.20) and Zealots (30→26) rise sooner. Read
+  the yearly `CALAMITY` lines of the next long run to see the effect.
+- **Draft pull requests**: the REST API cannot mark a draft "ready" (that
+  needs GraphQL, which is blocked here) and refuses to merge a draft. Open
+  pull requests as normal ones from the start. If one is a draft, close it
+  and open the same branch again as a normal pull request.
 - Not done / ideas: rebels marching and besieging, plague arriving with
   fleets and refugees, hospitals or granaries as buildings, an event
   pop-up when a rising starts (Phase 14), AI changing tax for other

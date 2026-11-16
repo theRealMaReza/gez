@@ -76,9 +76,9 @@ public enum UnrestModel {
     /// A faction's progress moves by `(pressure − threshold) × rate` a month.
     public static func threshold(_ k: RebelKind) -> Double {
         switch k {
-        case .peasants: return 12
-        case .zealots: return 30
-        case .separatists: return 16
+        case .peasants: return 10
+        case .zealots: return 26
+        case .separatists: return 14
         case .nobles: return 0
         case .pretender: return 12
         }
@@ -86,9 +86,9 @@ public enum UnrestModel {
 
     public static func rate(_ k: RebelKind) -> Double {
         switch k {
-        case .peasants: return 0.15
+        case .peasants: return 0.20
         case .zealots: return 0.08
-        case .separatists: return 0.15
+        case .separatists: return 0.20
         case .nobles: return 0.10
         case .pretender: return 0.12
         }
