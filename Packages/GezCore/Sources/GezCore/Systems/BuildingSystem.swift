@@ -18,7 +18,7 @@ public enum BuildingSystem {
         return Double(paid) * type.cost * upkeepShare(type.category)
     }
 
-    public enum Refusal: Equatable, Sendable {
+    public enum Refusal: Equatable, Hashable, Sendable {
         case notOwner, maxLevel, noSlots, alreadyBuilding, needsCoast, wrongGood, wrongTerrain, wrongReligion, cannotAfford
         case techLocked(track: TechTrack, required: Int)
 

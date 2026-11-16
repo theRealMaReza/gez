@@ -15,6 +15,8 @@ public enum MapModeKind: Int, CaseIterable, Sendable, Codable {
     case plague
     /// Unrest per province and rebel-held land (Phase 12).
     case unrest
+    /// Institution origins, spread progress and embraced realms (Phase 13).
+    case institutions
 
     public var key: String {
         switch self {
@@ -29,6 +31,7 @@ public enum MapModeKind: Int, CaseIterable, Sendable, Codable {
         case .markets: return "markets"
         case .plague: return "plague"
         case .unrest: return "unrest"
+        case .institutions: return "institutions"
         }
     }
 
@@ -45,6 +48,7 @@ public enum MapModeKind: Int, CaseIterable, Sendable, Codable {
         case .markets: return "Markets"
         case .plague: return "Plague"
         case .unrest: return "Unrest"
+        case .institutions: return "Institutions"
         }
     }
 }
@@ -174,6 +178,8 @@ public struct GameAlertInfo: Identifiable, Sendable, Equatable {
         case famine
         case earthquake
         case rebels
+        case techLevel
+        case institution
     }
 
     public let id: String
@@ -273,6 +279,33 @@ public enum MapStyling {
             }
             let k = (t - 0.4) / 0.6
             return pack(UInt8(226 - 36 * k), UInt8(202 - 142 * k), UInt8(98 - 48 * k))
+        case .institutions:
+            let instCount = min(world.tech.institutionCount, world.tech.institutionSpawned.count)
+            guard instCount > 0 else { return unowned }
+            // Show spread of spawned institutions: emerald when embraced, bright green when
+            // present in province, amber-to-green ramp as it spreads, cream where untouched.
+            var latestSpawned = -1
+            for idx in 0..<instCount where world.tech.institutionSpawned[idx] {
+                latestSpawned = idx
+            }
+            guard latestSpawned >= 0 else { return unowned }
+            if let owner = p.owner[i] {
+                var allEmbraced = true
+                for idx in 0..<instCount where world.tech.institutionSpawned[idx] {
+                    if !world.tech.hasEmbraced(owner, institution: idx) {
+                        allEmbraced = false
+                        break
+                    }
+                }
+                if allEmbraced { return pack(58, 168, 96) }
+            }
+            let pres = world.tech.provincePresence(ProvinceID(i), institution: latestSpawned)
+            if pres >= 1.0 - 1e-6 { return pack(92, 198, 122) }
+            if pres > 0.01 {
+                let k = min(1.0, pres)
+                return pack(UInt8(228 - 84 * k), UInt8(204 + 2 * k), UInt8(126 + 8 * k))
+            }
+            return p.owner[i] != nil ? pack(216, 206, 186) : unowned
         case .political:
             guard let owner = p.owner[i] else { return unowned }
             return pack(world.countries.color[owner.index])

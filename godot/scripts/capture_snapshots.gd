@@ -345,5 +345,18 @@ func _run_captures() -> void:
 	root_node.call("_show_whole_map")
 	await _save_shot("godot_map_religion_1520.png")
 
+	# Phase 13: Technology window and Institutions map after simulating past Printing Press (1462).
+	bridge.call("startNewGame", "VEN")
+	root_node.call("_after_world_replaced")
+	root_node.call("_close_top_left_windows", "")
+	bridge.call("advanceSimulationDays", 4400) # ~1465: Renaissance spreading + Printing Press at Mainz
+	root_node.call("_after_world_replaced")
+	root_node.call("_select_map_mode", "institutions")
+	root_node.call("_show_whole_map")
+	await _save_shot("godot_map_institutions.png")
+	root_node.call("_toggle_tech_window")
+	await _save_shot("godot_technology_window.png")
+	root_node.call("_close_top_left_windows", "")
+
 	print("All Godot snapshots captured to: " + out_dir)
 	quit(0)

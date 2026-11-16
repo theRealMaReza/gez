@@ -8,6 +8,7 @@ const FleetsLayerScript := preload("res://scripts/MapFleetsLayer.gd")
 const RoutesLayerScript := preload("res://scripts/MapRoutesLayer.gd")
 const FaithLayerScript := preload("res://scripts/MapFaithLayer.gd")
 const CalamityLayerScript := preload("res://scripts/MapCalamityLayer.gd")
+const TechLayerScript := preload("res://scripts/MapTechLayer.gd")
 const ArmyPanelScript := preload("res://scripts/ArmyPanel.gd")
 const FleetPanelScript := preload("res://scripts/FleetPanel.gd")
 const BudgetPanelScript := preload("res://scripts/BudgetPanel.gd")
@@ -16,6 +17,7 @@ const CourtPanelScript := preload("res://scripts/CourtPanel.gd")
 const GovernmentPanelScript := preload("res://scripts/GovernmentPanel.gd")
 const ReligionPanelScript := preload("res://scripts/ReligionPanel.gd")
 const RebelsPanelScript := preload("res://scripts/RebelsPanel.gd")
+const TechnologyPanelScript := preload("res://scripts/TechnologyPanel.gd")
 const DiplomacyPanelScript := preload("res://scripts/DiplomacyPanel.gd")
 const WarsPanelScript := preload("res://scripts/WarsPanel.gd")
 const BattleViewScript := preload("res://scripts/BattleView.gd")
@@ -52,6 +54,7 @@ var fleets_layer: Control
 var routes_layer: Control
 var faith_layer: Control
 var calamity_layer: Control
+var tech_layer: Control
 var army_ui: Control
 var fleet_ui: Control
 var budget_ui: Control
@@ -60,6 +63,7 @@ var court_ui: Control
 var gov_ui: Control
 var religion_ui: Control
 var rebels_ui: Control
+var tech_ui: Control
 var diplomacy_ui: Control
 var wars_ui: Control
 
@@ -73,8 +77,10 @@ var court_btn: Button
 var stability_btn: Button
 var religion_btn: Button
 var rebels_btn: Button
+var tech_btn: Button
 var _last_rebels_btn_str: String = ""
 var _last_rel_btn_str: String = ""
+var _last_tech_btn_str: String = ""
 var inflation_label: Label
 var diplomacy_btn: Button
 var wars_btn: Button
@@ -272,6 +278,15 @@ func _build_scene_ui() -> void:
 	calamity_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(calamity_layer)
 
+	# 2f. Institutions map overlay (visible only in institutions map mode)
+	tech_layer = Control.new()
+	tech_layer.name = "TechLayer"
+	tech_layer.set_script(TechLayerScript)
+	tech_layer.visible = false
+	tech_layer.set_anchors_preset(Control.PRESET_FULL_RECT)
+	tech_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(tech_layer)
+
 	# 3. Top bar panel & alerts row
 	_build_top_bar()
 	_build_alerts_bar()
@@ -352,6 +367,14 @@ func _build_scene_ui() -> void:
 	rebels_ui.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(rebels_ui)
 	rebels_ui.call("setup", self)
+
+	tech_ui = Control.new()
+	tech_ui.name = "TechnologyUI"
+	tech_ui.set_script(TechnologyPanelScript)
+	tech_ui.set_anchors_preset(Control.PRESET_FULL_RECT)
+	tech_ui.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(tech_ui)
+	tech_ui.call("setup", self)
 
 	# 6e. Diplomacy & Wars/Peace windows
 	diplomacy_ui = PanelContainer.new()
@@ -489,6 +512,13 @@ func _build_top_bar() -> void:
 	rebels_btn.pressed.connect(_toggle_rebels_window)
 	hbox.add_child(rebels_btn)
 
+	tech_btn = Button.new()
+	tech_btn.text = "Tech"
+	tech_btn.custom_minimum_size = Vector2(76.0, 30.0)
+	tech_btn.tooltip_text = "Technology tracks, research speed & historical institutions"
+	tech_btn.pressed.connect(_toggle_tech_window)
+	hbox.add_child(tech_btn)
+
 	hbox.add_child(_make_separator())
 
 	diplomacy_btn = Button.new()
@@ -605,7 +635,8 @@ func _build_map_mode_bar() -> void:
 		{"key": "goods", "title": "Goods", "shortcut": "U"},
 		{"key": "markets", "title": "Markets", "shortcut": "I"},
 		{"key": "plague", "title": "Plague", "shortcut": "P"},
-		{"key": "unrest", "title": "Unrest", "shortcut": "L"}
+		{"key": "unrest", "title": "Unrest", "shortcut": "L"},
+		{"key": "institutions", "title": "Institutions", "shortcut": "K"}
 	]
 	map_mode_buttons.clear()
 	for m in modes_spec:
@@ -1316,9 +1347,11 @@ func _process(delta: float) -> void:
 				religion_ui.call("refresh_if_open")
 			if rebels_ui != null:
 				rebels_ui.call("refresh_if_open")
+			if tech_ui != null:
+				tech_ui.call("refresh_if_open")
 			if diplomacy_ui != null:
 				diplomacy_ui.call("refresh_if_open")
-			if current_map_mode == "religion" or current_map_mode == "culture" or current_map_mode == "plague" or current_map_mode == "unrest":
+			if current_map_mode == "religion" or current_map_mode == "culture" or current_map_mode == "plague" or current_map_mode == "unrest" or current_map_mode == "institutions":
 				_refresh_styles_and_country_labels()
 				_refresh_faith_overlay()
 		if (mask & 4) != 0:
@@ -1417,6 +1450,11 @@ func _refresh_top_bar() -> void:
 			_last_rebels_btn_str = rb_str
 			rebels_btn.text = rb_str
 			rebels_btn.modulate = Color(1.0, 0.50, 0.44) if rb_str.ends_with("!") else (Color(1.0, 0.82, 0.48) if rb_str != "Rebels" else Color(1.0, 1.0, 1.0))
+	if tech_btn != null:
+		var t_str: String = str(top.get("techButtonText", "Tech"))
+		if t_str != _last_tech_btn_str:
+			_last_tech_btn_str = t_str
+			tech_btn.text = t_str
 	if wars_btn != null:
 		var wars_cnt: int = int(top.get("activeWarsCount", 0))
 		var pending_cnt: int = int(top.get("pendingPeaceOffersCount", 0))
@@ -2256,6 +2294,7 @@ func _build_province_people_tab(d: Dictionary) -> void:
 			))
 
 		_append_province_calamity_section(p_idx)
+		_append_province_tech_section(p_idx)
 
 		if is_mine and p_idx >= 0:
 			var has_miss := bool(d.get("hasMissionary", false))
@@ -2382,6 +2421,29 @@ func _after_calamity_action() -> void:
 	_refresh_top_bar()
 	_refresh_styles_and_country_labels()
 	_refresh_faith_overlay()
+
+func _append_province_tech_section(p_idx: int) -> void:
+	if p_idx < 0:
+		return
+	var t_v: Variant = _call_bridge("getProvinceTechDetails", [p_idx], {})
+	var t: Dictionary = t_v if t_v is Dictionary else {}
+	if not bool(t.get("hasProvince", false)):
+		return
+	var insts: Array = t.get("institutions", [])
+	if insts.is_empty():
+		return
+	prov_content_box.add_child(HSeparator.new())
+	prov_content_box.add_child(_make_label("Institutions", Color(0.95, 0.88, 0.65), 13))
+	for i_v in insts:
+		if not (i_v is Dictionary):
+			continue
+		var inst: Dictionary = i_v
+		var pct_txt: String = str(inst.get("percentText", ""))
+		if bool(inst.get("isOrigin", false)):
+			pct_txt += " (Origin)"
+		elif bool(inst.get("ownerEmbraced", false)):
+			pct_txt += " (Embraced)"
+		_add_kv_row(prov_content_box, str(inst.get("name", "")), pct_txt)
 
 func _append_province_docks_section(d: Dictionary) -> void:
 	var has_docks: bool = bool(d.get("hasDocks", false))
@@ -2652,6 +2714,8 @@ func _sync_camera_uniforms() -> void:
 		faith_layer.call("update_camera", zoom, offset)
 	if calamity_layer != null:
 		calamity_layer.call("update_camera", zoom, offset)
+	if tech_layer != null:
+		tech_layer.call("update_camera", zoom, offset)
 
 func _on_viewport_resized() -> void:
 	if zoom <= 0.0:
@@ -2739,6 +2803,9 @@ func _unhandled_input(event: InputEvent) -> void:
 				get_viewport().set_input_as_handled()
 			KEY_L:
 				_select_map_mode("unrest")
+				get_viewport().set_input_as_handled()
+			KEY_K:
+				_select_map_mode("institutions")
 				get_viewport().set_input_as_handled()
 		return
 
@@ -2895,6 +2962,8 @@ func _close_top_left_windows(except_key: String = "") -> void:
 		religion_ui.call("close_window")
 	if except_key != "rebels" and rebels_ui != null:
 		rebels_ui.call("close_window")
+	if except_key != "tech" and tech_ui != null:
+		tech_ui.call("close_window")
 	if except_key != "diplomacy" and diplomacy_ui != null:
 		diplomacy_ui.call("close_window")
 	if except_key != "wars" and wars_ui != null:
@@ -2962,17 +3031,38 @@ func _open_rebels_window() -> void:
 	_close_top_left_windows("rebels")
 	rebels_ui.call("open_window")
 
-# Markers for the Plague and Unrest map modes (called with the faith overlay).
-func _refresh_calamity_overlay() -> void:
-	if calamity_layer == null or bridge == null:
+func _toggle_tech_window() -> void:
+	if tech_ui == null:
 		return
-	if current_map_mode == "plague" or current_map_mode == "unrest":
-		var data_v: Variant = _call_bridge("getCalamityOverlayData", [], {})
-		var data: Dictionary = data_v if data_v is Dictionary else {}
-		calamity_layer.call("set_overlay_data", current_map_mode, data)
-		calamity_layer.call("update_camera", zoom, offset)
-	else:
-		calamity_layer.call("set_overlay_data", current_map_mode, {})
+	var opening: bool = not bool(tech_ui.call("is_open"))
+	if opening:
+		_close_top_left_windows("tech")
+	tech_ui.call("toggle_window")
+
+func _open_tech_window() -> void:
+	if tech_ui == null:
+		return
+	_close_top_left_windows("tech")
+	tech_ui.call("open_window")
+
+# Markers for the Plague, Unrest and Institutions map modes (called with the faith overlay).
+func _refresh_calamity_overlay() -> void:
+	if calamity_layer != null and bridge != null:
+		if current_map_mode == "plague" or current_map_mode == "unrest":
+			var data_v: Variant = _call_bridge("getCalamityOverlayData", [], {})
+			var data: Dictionary = data_v if data_v is Dictionary else {}
+			calamity_layer.call("set_overlay_data", current_map_mode, data)
+			calamity_layer.call("update_camera", zoom, offset)
+		else:
+			calamity_layer.call("set_overlay_data", current_map_mode, {})
+	if tech_layer != null and bridge != null:
+		if current_map_mode == "institutions":
+			var td_v: Variant = _call_bridge("getTechOverlayData", [], {})
+			var td: Dictionary = td_v if td_v is Dictionary else {}
+			tech_layer.call("set_overlay_data", current_map_mode, td)
+			tech_layer.call("update_camera", zoom, offset)
+		else:
+			tech_layer.call("set_overlay_data", current_map_mode, {})
 
 func _refresh_faith_overlay() -> void:
 	_refresh_calamity_overlay()
@@ -3055,6 +3145,8 @@ func _refresh_alerts_bar() -> void:
 				btn.modulate = Color(1.0, 0.45, 0.42) if str(a.get("label", "")).begins_with("Rising") else Color(1.0, 0.72, 0.38)
 			"navalBattle":
 				btn.modulate = Color(0.55, 0.85, 1.0)
+			"techLevel", "institution":
+				btn.modulate = Color(0.60, 0.90, 0.62)
 			"breach", "disloyalEstate":
 				btn.modulate = Color(1.0, 0.72, 0.38)
 			_:
@@ -3079,6 +3171,12 @@ func _on_alert_pressed(alert: Dictionary) -> void:
 			if p_idx >= 0:
 				_focus_and_select_province(p_idx)
 			_open_rebels_window()
+		"techLevel":
+			_open_tech_window()
+		"institution":
+			if p_idx >= 0:
+				_focus_and_select_province(p_idx)
+			_open_tech_window()
 		"navalBattle":
 			var sz_idx: int = int(alert.get("seaZoneIndex", -1))
 			if sz_idx >= 0 and zoom > 0.0:
@@ -3188,6 +3286,8 @@ func _after_economy_action() -> void:
 		court_ui.call("refresh_if_open")
 	if gov_ui != null:
 		gov_ui.call("refresh_if_open")
+	if tech_ui != null:
+		tech_ui.call("refresh_if_open")
 	if province_panel.visible:
 		_refresh_province_panel()
 	if market_panel.visible:
@@ -3199,6 +3299,8 @@ func _after_court_or_gov_action() -> void:
 		court_ui.call("refresh_if_open")
 	if gov_ui != null:
 		gov_ui.call("refresh_if_open")
+	if tech_ui != null:
+		tech_ui.call("refresh_if_open")
 	if province_panel.visible:
 		_refresh_province_panel()
 

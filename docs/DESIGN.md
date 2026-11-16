@@ -525,6 +525,67 @@ saved), so plague rolls do not reshuffle every other system's luck.
   with every cause and rebel progress; alerts for plague, famine,
   earthquakes and rebels.
 
+### Technology and institutions (Phase 13, owner's choices)
+Three EU4-style technology tracks (**Administrative**, **Diplomatic**,
+**Military**, levels **1–20**, starting in 1453 at levels **2–4**) plus four
+historical institutions, all defined in plain-text tables in
+`data/technology/` (`techgen.py` -> `technology1453.json`):
+- **Starting levels in 1453**:
+  - Wide spread **2–4** by region: Western/Italian/German/Anatolian-Balkan/Islamic
+    core regions start at **3–4** (with specific 1453 leaders such as Venice,
+    Florence, Genoa, Rome, Milan, Naples, Ottomans, Mamluks, Castile, Portugal,
+    France, Burgundy, Austria, Timurids, Delhi, Gujarat, Bengal, etc. having
+    country overrides up to 4 on their strengths); steppe nomads, Siberia, and
+    remote tribal periphery start at **2**; government caps apply (`tribal` capped
+    at level 2 except tribal hordes at level 3 MIL).
+- **Monthly research & Focus**:
+  - Per-track base **+0.50/mo**, matching ruler skill (**+0.25** per point:
+    Stewardship/ADM, Diplomacy/DIP, Martial/MIL), matching council seat skill
+    (**+0.20** per point: Steward/ADM, Chancellor/DIP, Marshal/MIL).
+  - Shared learning pool: court Learning (`0.50 * CharacterSystem.learningPerYear`),
+    unoccupied Colleges/Universities (`0.30 * level` sum), and capital market
+    fulfillment of `paper` (`+0.60 * met`) and `books` (`+0.90 * met`), scaled
+    by government education/learning laws and routed by **Focus**:
+    - `balanced`: `1/3` to each track
+    - `administrative` / `diplomatic` / `military`: `50%` to focus track,
+      `25%` to each other track (AI chooses balanced or focuses behind/critical track,
+      prioritising MIL during war).
+  - Each embraced institution gives **+5% research speed** across all tracks.
+- **Tech cost modifiers & advancement**:
+  - Base cost per level: **600 points** (stepped per era).
+  - **Neighbour bonus**: **−5%** cost per level a land/strait neighbour is ahead,
+    capped at **−25%**.
+  - **Ahead-of-time penalty**: **+10%** per year ahead of `target_year`, capped
+    at **+200%**.
+  - **Unembraced institution penalty**: **+1%** per year since each unembraced
+    spawned institution appeared, capped at **+50%** per institution.
+  - When `progress >= effectiveCost`, level advances automatically (excess carries over).
+- **Track unlocks (1–20, EU4-style)**:
+  - **Military**: progressive EU4 unit unlocks (26 unit types total across
+    `data/military/units.txt`, keeping all 1453 starting regiments intact and
+    gating only *new* recruitment), **Military Tactics** (`0.50` -> `2.20`),
+    **Land Morale** bonuses (up to `+2.00`), and **Fort levels 2–5** (Lv 2 at
+    MIL 4, Lv 3 at MIL 8, Lv 4 at MIL 12, Lv 5 at MIL 16; existing 1453 forts
+    stay even if tech is lower).
+  - **Diplomatic**: progressive EU4 ship unlocks (16 ship types total across
+    `data/navy/ships.txt`, gating only *new* shipyard builds while keeping
+    1453 ships), **Trade Range** expansion in market steps (`3` -> `50`),
+    **Trade Efficiency** (up to `+38%`), and bonus **Diplomatic Relation** slots (up to `+2`).
+  - **Administrative**: **Building Levels 4 and 5** unlocked at ADM 6 and ADM 12
+    (never tearing down existing 1453 buildings), **Tax** and **Production Efficiency**
+    (up to `+35%`), **Accepted Culture** slots (up to `+2`), **Reform Progress**
+    (up to `+0.20`), and **Administrative Efficiency** from ADM 10+ (up to `+20%`,
+    scaling peace-deal warscore cost downward).
+- **Historical institutions (`data/technology/institutions.txt`)**:
+  - **Renaissance** (1453): active across `Italy` at game start (Italian capitals start embraced).
+  - **Printing Press** (1462): spawns on 1 Jan 1462 in `Mainz` (delayed from c. 1450 secrecy until the Sack of Mainz scattered printers).
+  - **Global Trade** (1550): spawns dynamically in the highest-value coastal port market centre.
+  - **Manufactories** (1600): spawns dynamically in the highest-industrialised workshop province.
+  - Spread monthly via a dedicated `GameRandom` stream (`world.tech.rngState`): land/strait neighbours (halved across active war borders), active trade-route market centres, and literate `burghers`+`clergy` pop share × `books` supply × College/Bookmaker/Paper Mill buildings.
+  - Countries with `>= 10%` of development reached (threshold `50%+` presence) can **Embrace** for **2 ducats per unreached dev** (min 20 ducats); AI embraces once >=35% of dev is reached and treasury covers 1.5x cost.
+- **Screens (`godot/scripts/TechnologyPanel.gd`, `MapTechLayer.gd`, `GezGodotTechBridge.swift`)**:
+  top-bar `Tech` button (`Tech X/Y/Z`) and Technology window (tracks, progress, gain sources, cost modifiers, next unlocks, Focus buttons, Institutions with Embrace controls), Institutions (`K`) map mode with origin markers, province People tab institution breakdown, tech & institution alerts, and headless snapshots after multi-year simulation (`godot_map_institutions.png`, `godot_technology_window.png`).
+
 ## Architecture
 
 | Layer | Tech | Notes |

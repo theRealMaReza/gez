@@ -73,6 +73,7 @@ public final class GezGodotController {
         case .markets: return 7
         case .plague: return 8
         case .unrest: return 9
+        case .institutions: return 10
         }
     }
 
@@ -89,6 +90,7 @@ public final class GezGodotController {
         case .markets: return "I"
         case .plague: return "P"
         case .unrest: return "L"
+        case .institutions: return "K"
         }
     }
 
@@ -178,6 +180,7 @@ public final class GezGodotController {
             "stabilityText": topBarStabilityText,
             "religionButtonText": religionBtnText,
             "rebelsButtonText": topBarRebelsText,
+            "techButtonText": topBarTechText,
             "activeWarsCount": status?.activeWars ?? 0,
             "pendingPeaceOffersCount": status?.pendingPeaceOffers ?? 0,
             "year": session?.date.year ?? 1453,
@@ -5684,6 +5687,33 @@ public final class GezGodotBridge: RefCounted {
     @Callable
     public func getCalamityOverlayData() -> VariantDictionary {
         Self.toVariantDictionary(controller.calamityOverlayData())
+    }
+
+    // MARK: - Phase 13: Technology & Institutions Callables
+
+    @Callable
+    public func getTechnologyWindowDetails() -> VariantDictionary {
+        Self.toVariantDictionary(controller.technologyWindowDetails())
+    }
+
+    @Callable
+    public func setTechFocus(focusKey: String) -> VariantDictionary {
+        Self.toVariantDictionary(controller.setTechFocus(key: focusKey))
+    }
+
+    @Callable
+    public func embraceInstitution(institutionIndex: Int) -> VariantDictionary {
+        Self.toVariantDictionary(controller.embraceInstitution(index: institutionIndex))
+    }
+
+    @Callable
+    public func getProvinceTechDetails(provinceIndex: Int) -> VariantDictionary {
+        Self.toVariantDictionary(controller.provinceTechDetails(provinceIndex: provinceIndex))
+    }
+
+    @Callable
+    public func getTechOverlayData() -> VariantDictionary {
+        Self.toVariantDictionary(controller.techOverlayData())
     }
 
     // MARK: - Step 3d2: Diplomacy, Wars, Peace & Alerts Callables
