@@ -71,6 +71,8 @@ public final class GezGodotController {
         case .development: return 5
         case .goods: return 6
         case .markets: return 7
+        case .plague: return 8
+        case .unrest: return 9
         }
     }
 
@@ -85,6 +87,8 @@ public final class GezGodotController {
         case .development: return "Y"
         case .goods: return "U"
         case .markets: return "I"
+        case .plague: return "P"
+        case .unrest: return "L"
         }
     }
 
@@ -173,6 +177,7 @@ public final class GezGodotController {
             "stability": playerStability,
             "stabilityText": topBarStabilityText,
             "religionButtonText": religionBtnText,
+            "rebelsButtonText": topBarRebelsText,
             "activeWarsCount": status?.activeWars ?? 0,
             "pendingPeaceOffersCount": status?.pendingPeaceOffers ?? 0,
             "year": session?.date.year ?? 1453,
@@ -5637,6 +5642,48 @@ public final class GezGodotBridge: RefCounted {
     @Callable
     public func getFaithOverlayData() -> VariantDictionary {
         Self.toVariantDictionary(controller.faithOverlayData())
+    }
+
+    // MARK: - Phase 12: Plague, Famine, Unrest & Rebels Callables
+
+    @Callable
+    public func getProvinceCalamityDetails(provinceIndex: Int) -> VariantDictionary {
+        Self.toVariantDictionary(controller.provinceCalamityDetails(provinceIndex: provinceIndex))
+    }
+
+    @Callable
+    public func setProvinceQuarantine(provinceIndex: Int, on: Bool) -> VariantDictionary {
+        Self.toVariantDictionary(controller.setQuarantine(provinceIndex: provinceIndex, on: on))
+    }
+
+    @Callable
+    public func setProvinceCordon(provinceIndex: Int, on: Bool) -> VariantDictionary {
+        Self.toVariantDictionary(controller.setCordon(provinceIndex: provinceIndex, on: on))
+    }
+
+    @Callable
+    public func getRebelsWindowDetails() -> VariantDictionary {
+        Self.toVariantDictionary(controller.rebelsWindowDetails())
+    }
+
+    @Callable
+    public func concedeToRebels(factionId: Int) -> VariantDictionary {
+        Self.toVariantDictionary(controller.concedeToRebels(factionId: factionId))
+    }
+
+    @Callable
+    public func sendTroopsAgainstRebels(factionId: Int) -> VariantDictionary {
+        Self.toVariantDictionary(controller.sendTroopsAgainstRebels(factionId: factionId))
+    }
+
+    @Callable
+    public func lowerPeasantTaxes() -> VariantDictionary {
+        Self.toVariantDictionary(controller.lowerPeasantTaxes())
+    }
+
+    @Callable
+    public func getCalamityOverlayData() -> VariantDictionary {
+        Self.toVariantDictionary(controller.calamityOverlayData())
     }
 
     // MARK: - Step 3d2: Diplomacy, Wars, Peace & Alerts Callables

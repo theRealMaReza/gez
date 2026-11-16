@@ -11,6 +11,10 @@ public enum MapModeKind: Int, CaseIterable, Sendable, Codable {
     case development
     case goods
     case markets
+    /// Outbreaks, immunity and famine (Phase 12).
+    case plague
+    /// Unrest per province and rebel-held land (Phase 12).
+    case unrest
 
     public var key: String {
         switch self {
@@ -23,6 +27,8 @@ public enum MapModeKind: Int, CaseIterable, Sendable, Codable {
         case .development: return "development"
         case .goods: return "goods"
         case .markets: return "markets"
+        case .plague: return "plague"
+        case .unrest: return "unrest"
         }
     }
 
@@ -37,6 +43,8 @@ public enum MapModeKind: Int, CaseIterable, Sendable, Codable {
         case .development: return "Development"
         case .goods: return "Goods"
         case .markets: return "Markets"
+        case .plague: return "Plague"
+        case .unrest: return "Unrest"
         }
     }
 }
@@ -162,6 +170,10 @@ public struct GameAlertInfo: Identifiable, Sendable, Equatable {
         case highInflation
         case navalBattle
         case blockadedPort
+        case plague
+        case famine
+        case earthquake
+        case rebels
     }
 
     public let id: String
@@ -218,15 +230,49 @@ public enum MapStyling {
         var out = [UInt32](repeating: unowned, count: p.count + 2)
         out[0] = water
         out[1] = wasteland
+        var rebelHeld = Set<Int>()
+        if mode == .unrest {
+            for f in world.unrest.factions where f.risen {
+                for a in f.armies where a >= 0 && a < world.military.armies.count && world.military.armies.alive[a] {
+                    rebelHeld.insert(world.military.armies.province[a].index)
+                }
+            }
+        }
         for i in 0..<p.count {
-            out[i + 2] = provinceColor(i, mode: mode, world: world, player: player)
+            out[i + 2] = provinceColor(i, mode: mode, world: world, player: player, rebelHeld: rebelHeld)
         }
         return out
     }
 
-    private static func provinceColor(_ i: Int, mode: MapModeKind, world: World, player: CountryID?) -> UInt32 {
+    private static func provinceColor(
+        _ i: Int, mode: MapModeKind, world: World, player: CountryID?, rebelHeld: Set<Int> = []
+    ) -> UInt32 {
         let p = world.provinces
         switch mode {
+        case .plague:
+            // Struck now: orange to dark red. Famine: ochre. Otherwise pale,
+            // turning blue-grey the more of the people are immune.
+            let sick = world.calamity.totalInfection(i)
+            if sick > 0 {
+                let t = min(1, sick / 0.06)
+                return pack(UInt8(236 - 96 * t), UInt8(150 - 112 * t), UInt8(72 - 40 * t))
+            }
+            if p.famine[i] >= FamineModel.alertAbove { return pack(202, 168, 84) }
+            var immune = 0.0
+            for d in Disease.allCases { immune = max(immune, world.calamity.immunity(i, d)) }
+            let t = min(1, immune / PlagueModel.immunityAfter)
+            return pack(UInt8(228 - 76 * t), UInt8(220 - 44 * t), UInt8(198 - 2 * t))
+        case .unrest:
+            guard p.owner[i] != nil else { return unowned }
+            if rebelHeld.contains(i) { return pack(112, 58, 132) }
+            // Calm green, through yellow, to red at 60 and above.
+            let t = min(1, world.unrest.unrest(i) / 60)
+            if t < 0.4 {
+                let k = t / 0.4
+                return pack(UInt8(126 + 100 * k), UInt8(172 + 30 * k), UInt8(112 - 14 * k))
+            }
+            let k = (t - 0.4) / 0.6
+            return pack(UInt8(226 - 36 * k), UInt8(202 - 142 * k), UInt8(98 - 48 * k))
         case .political:
             guard let owner = p.owner[i] else { return unowned }
             return pack(world.countries.color[owner.index])

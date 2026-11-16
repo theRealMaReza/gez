@@ -496,11 +496,7 @@ func refresh(force: bool = false) -> void:
 func _focus_province(province_idx: int) -> void:
 	if province_idx < 0 or main_view == null:
 		return
-	main_view.call("_select_province_by_index", province_idx)
-	var fp_v: Variant = _call_bridge("getProvinceFocusPoint", [province_idx], {})
-	if fp_v is Dictionary and bool((fp_v as Dictionary).get("hasCenter", false)):
-		var fp := fp_v as Dictionary
-		main_view.call("_focus_map_on_point", Vector2(float(fp.get("x", 2000.0)), float(fp.get("y", 900.0))))
+	main_view.call("_focus_and_select_province", province_idx)
 
 func _after_faith_action() -> void:
 	refresh(true)

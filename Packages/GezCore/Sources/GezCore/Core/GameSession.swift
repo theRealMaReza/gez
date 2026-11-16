@@ -975,6 +975,55 @@ public final class GameSession {
             ))
         }
 
+        // 11. Phase 12: plague, famine, earthquakes and rebels in the player's land.
+        let cal = w.calamity
+        var struck: [(Int, Double, Disease)] = []
+        var hungry: [(Int, Double)] = []
+        for p in 0..<w.provinces.count where w.provinces.owner[p] == player {
+            for d in Disease.allCases where cal.hasOutbreak(p, d) {
+                struck.append((p, cal.infection(p, d) * w.provinces.population[p], d))
+            }
+            if w.provinces.famine[p] >= FamineModel.alertAbove { hungry.append((p, w.provinces.famine[p])) }
+        }
+        if let worst = struck.max(by: { $0.1 != $1.1 ? $0.1 < $1.1 : $0.0 > $1.0 }) {
+            let provinces = Set(struck.map { $0.0 }).count
+            out.append(GameAlertInfo(
+                id: "plague",
+                kind: .plague,
+                label: provinces == 1
+                    ? "\(worst.2.displayName): \(w.provinces.name[worst.0])"
+                    : "\(worst.2.displayName) in \(provinces) Provinces",
+                province: ProvinceID(worst.0)
+            ))
+        }
+        if let worst = hungry.max(by: { $0.1 != $1.1 ? $0.1 < $1.1 : $0.0 > $1.0 }) {
+            out.append(GameAlertInfo(
+                id: "famine",
+                kind: .famine,
+                label: hungry.count == 1 ? "Famine: \(w.provinces.name[worst.0])" : "Famine in \(hungry.count) Provinces",
+                province: ProvinceID(worst.0)
+            ))
+        }
+        if let quake = cal.quakes.last(where: {
+            date.ordinal - $0.date.ordinal <= 90 && w.provinces.owner[$0.epicentre.index] == player
+        }) {
+            out.append(GameAlertInfo(
+                id: "earthquake-\(quake.epicentre.index)-\(quake.date.ordinal)",
+                kind: .earthquake,
+                label: "Earthquake: \(w.provinces.name[quake.epicentre.index])",
+                province: quake.epicentre
+            ))
+        }
+        for f in w.unrest.factions(of: player) where f.risen || f.progress >= 50 {
+            let name = RebelSystem.name(w, f)
+            out.append(GameAlertInfo(
+                id: "rebels-\(f.id)",
+                kind: .rebels,
+                label: f.risen ? "Rising: \(name)" : "\(name) \(Int(f.progress))%",
+                province: RebelSystem.target(w, f)
+            ))
+        }
+
         return out
     }
 

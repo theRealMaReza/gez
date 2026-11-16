@@ -411,6 +411,120 @@ Pure-Swift faith and culture systems in `Packages/GezCore/Sources/GezCore/Faith/
   - **Slow assimilation**: up to `0.0025/month` (capped `0.05`) when state and province religions match, pop satisfaction is `≥ 0.55`, and adjacent provinces or the province itself holds the target culture.
 - **Devastation, famine & pop-conserving migration (`CultureSystem.swift`)**: War (`siegeDevastationGain = 0.08`, `battleDevastationGain = 0.05`, peacetime decay `0.025/mo`), heavy religious persecution, and staple-food shortfall push pops to relocate to neighbouring provinces and along active trade-route markets (`maxMonthlyMigrationRate = 0.12/mo`), conserving total world population bit-for-bit.
 
+### Plague, famine and rebellion (Phase 12, owner's choices)
+Written by Claude (session 10). State lives in `world.calamity`
+(`Calamity/Calamity.swift`) and `world.unrest` (`Unrest/Unrest.swift`), both
+saved; all three systems draw their dice from the calamities' own
+`GameRandom` stream (split off the game's stream on the first month and
+saved), so plague rolls do not reshuffle every other system's luck.
+
+- **Diseases (`Systems/PlagueSystem.swift`, monthly)**: Plague, Camp fever
+  (typhus) and Smallpox. An outbreak in a province runs a fixed course
+  (9 / 6 / 7 months, slow start, peak in the middle) and strikes a share of
+  the people: base 30% / 20% / 35% × crowding (0.35 at development 1 to
+  1.25 at 10) × the share not immune × dice (0.6–1.4), at most 60%. Of the
+  struck, 35% / 15% / 12% die, times class: nobles 0.5, clergy 0.85,
+  burghers 0.9, peasants 1.0, slaves 1.25. Soldiers standing there die 1.5×
+  as fast (never the last man), garrisons too.
+  - **Where it starts**: plague 0.04% and smallpox 0.03% a month × dev/7 in
+    crowded provinces (development 7+, or 5+ on the sea); camp fever 6% a
+    month in a besieged province, 4% where 15,000+ soldiers camp, 0.4% in
+    a famine above 40%.
+  - **How it spreads** (each month, chance = min(cap, k × share struck)):
+    to each neighbour (k 3, cap 12%, × 0.5–1.2 by the neighbour's
+    development; camp fever half), along running trade routes from market
+    town to market town (k 4, cap 20%), from port to port on the same sea
+    (k 3, cap 12%, +25% per Port level), and with armies (an army that
+    stood in a struck province carries it for 3 months: 50% a month to
+    infect where it stands).
+  - **Immunity**: after an outbreak the province counts as 75% immune; this
+    fades 0.3% / 1% / 0.15% a month. A province can only be struck while at
+    least 45% are not immune, so plague returns about every 9 years at the
+    soonest and smallpox once a generation.
+  - **Port Quarantine** (coastal provinces; 0.4 + 0.08 × development ducats
+    a month): only 20% of sea-borne spread gets in or out; −15% tax there
+    and the market's sea links carry half. **Cordon** (0.6 + 0.06 × dev a
+    month): only 25% of land spread, nobody migrates in or out; −10% tax
+    and marches through take 50% longer. The AI quarantines good ports
+    (dev 6+) while plague is on their sea and cordons up to three struck
+    provinces, when it has 40+ ducats and a monthly surplus.
+  - Plague or smallpox in a capital can kill courtiers and rulers (chance
+    0.12 × share struck a month, double from age 50).
+  - People flee struck provinces (existing migration) unless cordoned.
+  - Balance prototype: `tools/calamity/plague_prototype.py` (about 0.1% of
+    the world dies of plague and smallpox in an average year, in local and
+    regional waves; in the full game camp fever, armies and trade routes
+    add to it. Read the `CALAMITY` line in the CI log after any change).
+- **Harvests and famine (`Systems/FamineSystem.swift`, monthly)**: on
+  1 August every region rolls its harvest (three dice: 1.0 on average,
+  mostly ±0.10, limits 0.6–1.2) plus a small roll per state. A province's
+  staple output is harvest × (1 − 8% for each harvest month, July to
+  September, its levies stayed raised) × (1 − 50% × devastation) × 0.7 if
+  besieged or occupied. Each market remembers the staple supply ÷ demand it
+  is used to (a slow average, so desert markets that always import are not
+  permanently starving); when supply falls below 90% of that, famine sets
+  in (3 points per point of shortfall, worse where the local harvest
+  failed, fading 15 points a month afterwards). Famine kills up to 0.3% of
+  peasants a month (nobles 0.2×, clergy 0.4×, burghers 0.8×, slaves 1.3×),
+  lowers contentment, raises unrest, breeds camp fever and feeds the
+  existing migration.
+- **Earthquakes (`Systems/QuakeSystem.swift`)**: 27 fault zones and 4 known
+  earthquakes in `data/calamity/fault_zones.txt` →
+  `tools/calamity/calamitygen.py` → `calamity1453.json` (provinces are
+  stored by index: rerun after a map change). Each zone has a yearly chance
+  (0.4%–4%; about one damaging quake somewhere every two years) and a
+  strength. At the epicentre each building level falls with chance 45% ×
+  strength, forts lose levels the same way (the last wall of a besieged
+  fort stands), 3% × strength of the people die and devastation rises 25
+  points × strength; neighbours feel half.
+- **Unrest (`Systems/UnrestSystem.swift`)**: one number 0–100 per province
+  that moves 30% of the way each month toward the sum of its causes:
+  taxes (30 points per level above normal, weighted peasants 60% /
+  burghers 20% / nobles 10% / clergy 10%; −12 per level below), religion
+  (40% of Phase 11's religious unrest), foreign rule (14 for a foreign
+  unaccepted culture, 6 for a kindred one, by share of people), disloyal
+  estates (power × points below 30 loyalty × 1.2, at most 20), war damage
+  (15 × devastation), famine (25 × famine), plague (up to 15), war
+  weariness (0.25 per month at war, at most 12), stability and succession
+  (4 per point below 0, −2 per point above; +5 child or no ruler, +2 no
+  heir), unmet needs (30 per point of contentment below 60%); calmed by
+  soldiers and forts (1.5 per 1,000 loyal soldiers + 1 per fort level, at
+  most 12) and by recent settlements (fading 0.5 a month).
+- **Rebel factions (`Systems/RebelSystem.swift`)**: one of each kind per
+  country. Progress moves by (grievance − threshold) × rate a month (at
+  most +2.5 / −3), slower when under 10% of the realm backs them, 0.3× in
+  the quiet years after a rising, and less with soldiers among them.
+
+  | Faction | Grievance | Threshold / rate | Who rises | Demand if they win |
+  |---|---|---|---|---|
+  | Peasant Rebels | taxes + famine + war damage + unmet needs + war weariness + plague | 12 / 0.15 | 3% of peasants | peasant tax capped at 50% for 5 years |
+  | Religious Zealots | religious unrest of their faith's provinces | 30 / 0.08 | 4% of that faith | 40%+ of the realm: their faith becomes the state's; else no missionaries, less unrest, tolerant law |
+  | Cultural Separatists | foreign rule + half the other grievances | 16 / 0.15 | 4% of that culture | their provinces go to a landless country with a core there, or of their culture, or a neighbour of their culture; else (or if over half the realm) their culture is accepted |
+  | Estate Rebels | points below 30 loyalty × (0.5 + 2 × power) | 0 / 0.10 | 25% of nobles + 1.5% of peasants | the strongest privilege they lack (or 3 months' income) |
+  | Pretender | −stability × 8, child ruler +10, no heir +4, his skill | 12 / 0.12 | 2% of peasants and nobles | the throne (a real adult man of the ruler's house; never invented) |
+
+  At 100% they raise a real army (1,500–30,000 men, taken from those pops
+  in their four angriest provinces like levies; survivors go home
+  afterwards). Each month a crown army on their province fights them
+  (same strength formula as vassal revolts). Unbeaten for 12 months, or 6
+  after routing a royal army, they enforce their demand (−1 stability).
+  One rising at a time per country; afterwards 5 quiet years.
+  - **Answers**: *Concede* (a milder version: 75% tax cap for 3 years,
+    toleration, acceptance, the privilege, or buying off the pretender for
+    6 months' income; −3 prestige, 3 quiet years), *Send troops* (the
+    strongest free army marches there) and *Lower taxes* (−25% on
+    peasants).
+  - **AI**: at 70% it sets a raised peasant tax back to normal; at 85% it
+    sends troops if its army is twice what would rise, otherwise concedes;
+    against a risen faction the army AI marches and raises levies, and it
+    concedes after 3 months if it has under 60% of their numbers.
+- **Screens (`godot/scripts/RebelsPanel.gd`, `MapCalamityLayer.gd`,
+  `GezGodotCalamityBridge.swift`)**: Rebels button and window; Plague (P)
+  and Unrest (L) map modes with markers; province People tab shows
+  sickness, immunity, harvest, famine, Quarantine/Cordon buttons, unrest
+  with every cause and rebel progress; alerts for plague, famine,
+  earthquakes and rebels.
+
 ## Architecture
 
 | Layer | Tech | Notes |
