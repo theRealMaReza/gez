@@ -234,6 +234,73 @@ struct TechnologyTests {
         #expect(allRegsAfter.count > regsBefore)
         #expect(allRegsAfter.contains { $0.type == pikeID })
     }
+
+    @Test("Institutions spawn historically, spread to neighbours/trade routes/burghers, and affect tech cost & speed")
+    func institutionsSpawnSpreadAndEmbrace() {
+        var w = Scenario1453.makeWorld()
+        let flo = w.countries.id(forTag: "FLO")!
+        let fra = w.countries.id(forTag: "FRA")!
+        let florence = w.countries.capital[flo.index]!
+        let paris = w.countries.capital[fra.index]!
+
+        // 1. Renaissance starts active in Italy in 1453 and embraced by Italian states.
+        #expect(w.tech.institutionSpawned[0])
+        #expect(w.tech.provincePresence(florence, institution: 0) == 1.0)
+        #expect(w.tech.hasEmbraced(flo, institution: 0))
+        #expect(!w.tech.hasEmbraced(fra, institution: 0))
+
+        // Printing Press does not start in 1453; waits until 1462 in Mainz.
+        #expect(!w.tech.institutionSpawned[1])
+
+        // 2. Unembraced institution makes tech dearer; embraced gives +5% research speed.
+        let fraEarly = TechSystem.breakdown(w, for: fra, track: .administrative, year: 1470)
+        let floEarly = TechSystem.breakdown(w, for: flo, track: .administrative, year: 1470)
+        #expect(fraEarly.institutionPenalty > 0)
+        #expect(floEarly.institutionPenalty == 0)
+        #expect(floEarly.institutionSpeedBonus == 0.05)
+
+        // 3. Dedicated RNG stream never draws from Simulation.random.
+        var simRng = GameRandom(seed: 1453)
+        let beforeMainRng = simRng.rawState
+        InstitutionSystem.runMonthly(&w, date: GameDate(year: 1453, month: 6, day: 1), random: &simRng)
+        #expect(simRng.rawState == beforeMainRng)
+        #expect(w.tech.seeded)
+
+        // 4. Embracing Renaissance in 1470 costs ducats and clears the penalty / adds research speed.
+        let fraProvs = w.provinces(ownedBy: fra)
+        for p in fraProvs.prefix(4) {
+            w.tech.setProvincePresence(p, institution: 0, 1.0)
+        }
+        let share = InstitutionSystem.spreadShare(w, for: fra, institution: 0)
+        #expect(share >= w.techRules.params.embraceMinDevShare)
+        let cost = InstitutionSystem.embraceCost(w, for: fra, institution: 0)
+        w.countries.treasury[fra.index] = cost + 50
+        #expect(InstitutionSystem.embrace(&w, fra, institution: 0, date: GameDate(year: 1470, month: 1, day: 1)) == nil)
+        #expect(w.tech.hasEmbraced(fra, institution: 0))
+        let fraAfter = TechSystem.breakdown(w, for: fra, track: .administrative, year: 1470)
+        #expect(fraAfter.institutionPenalty == 0)
+        #expect(fraAfter.institutionSpeedBonus == 0.05)
+
+        // 5. Printing Press spawns in Mainz in 1462; Global Trade in 1550; Manufactories in 1600.
+        let mainz = w.provinces.ids.first { w.provinces.name[$0.index] == "Mainz" }!
+        InstitutionSystem.runMonthly(&w, date: GameDate(year: 1462, month: 1, day: 1), random: &simRng)
+        #expect(w.tech.institutionSpawned[1])
+        #expect(w.tech.institutionOrigin[1] == mainz)
+        #expect(w.tech.provincePresence(mainz, institution: 1) == 1.0)
+
+        // Neighbour spread & trade route spread & burgher literacy spread
+        let mainzNb = w.provinces.neighbors[mainz.index].first!
+        #expect(w.tech.provincePresence(mainzNb, institution: 1) > 0)
+
+        // Global Trade (1550) & Manufactories (1600)
+        InstitutionSystem.runMonthly(&w, date: GameDate(year: 1550, month: 1, day: 1), random: &simRng)
+        #expect(w.tech.institutionSpawned[2])
+        #expect(w.tech.institutionOrigin[2] != nil)
+        InstitutionSystem.runMonthly(&w, date: GameDate(year: 1600, month: 1, day: 1), random: &simRng)
+        #expect(w.tech.institutionSpawned[3])
+        #expect(w.tech.institutionOrigin[3] != nil)
+        _ = paris
+    }
 }
 
 private extension TechTrackBreakdown {

@@ -1539,4 +1539,13 @@ public final class GameSession {
         revision &+= 1
         return true
     }
+
+    /// Embraces a spawned institution for the player's country.
+    @discardableResult
+    public func embraceInstitution(_ index: Int) -> EmbraceRefusal? {
+        guard let player = playerCountry else { return .unknownInstitution }
+        let refusal = InstitutionSystem.embrace(&simulation.world, player, institution: index, date: date)
+        if refusal == nil { revision &+= 1 }
+        return refusal
+    }
 }
