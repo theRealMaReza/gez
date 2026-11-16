@@ -150,7 +150,7 @@ public enum InstitutionSystem {
             if let pr = pressID { f += 0.30 * Double(eco.buildings.level(pid, pr)) }
             if let pm = paperMillID { f += 0.15 * Double(eco.buildings.level(pid, pm)) }
             let devBoost = Double(max(1, world.provinces.development[p])) / 6.0
-            literacyFactor[p] = min(3.0, f * (0.6 + 0.4 * devBoost))
+            literacyFactor[p] = min(2.0, 0.5 * f * (0.6 + 0.4 * devBoost))
         }
 
         // 3. Precompute market books supply & active trade route links between market centres.
@@ -171,7 +171,7 @@ public enum InstitutionSystem {
             let mFrom = r.from.index
             let mTo = r.to.index
             guard mFrom >= 0, mFrom < M, mTo >= 0, mTo < M, mFrom != mTo else { continue }
-            let w = min(2.0, max(0.35, r.volume / 30.0))
+            let w = min(1.2, max(0.25, r.volume / 45.0))
             tradePartners[mFrom].append((mTo, w))
             tradePartners[mTo].append((mFrom, w))
         }
@@ -187,15 +187,15 @@ public enum InstitutionSystem {
                 cur[p] = world.tech.presence[p * I + idx]
             }
 
-            // Market centre max presence from trade partners.
+            // Market centre max presence from trade partners (hubs must be well-established before transmitting).
             var tradeBoostByMarket = [Double](repeating: 0, count: M)
             for m in 0..<M {
                 let centreProv = eco.markets.centre[m].index
                 guard centreProv >= 0, centreProv < P else { continue }
                 let centrePres = cur[centreProv]
-                guard centrePres >= 0.40 else { continue }
+                guard centrePres >= 0.75 else { continue }
                 for (partner, weight) in tradePartners[m] {
-                    let boost = inst.spreadTrade * centrePres * weight
+                    let boost = inst.spreadTrade * 0.65 * centrePres * weight
                     if boost > tradeBoostByMarket[partner] {
                         tradeBoostByMarket[partner] = boost
                     }
@@ -223,7 +223,7 @@ public enum InstitutionSystem {
                         hostileBorder = false
                     }
                 }
-                if maxNb >= 0.50 {
+                if maxNb >= 0.65 {
                     let borderMult = hostileBorder ? 0.5 : 1.0
                     gain += inst.spreadNeighbour * maxNb * borderMult
                 }
@@ -235,15 +235,15 @@ public enum InstitutionSystem {
                         gain += tradeBoostByMarket[mIdx]
                     } else {
                         let centrePres = cur[eco.markets.centre[mIdx].index]
-                        if centrePres >= 0.75 {
-                            gain += inst.spreadTrade * 0.35 * centrePres
+                        if centrePres >= 0.85 {
+                            gain += inst.spreadTrade * 0.25 * centrePres
                         }
                     }
                 }
 
-                // 4c. Literate burghers + books + local institutions (once province or neighbour has a spark)
+                // 4c. Literate burghers + books + local institutions (once a real foothold exists)
                 let ownerEmbraced = owner.map { world.tech.hasEmbraced($0, institution: idx) } ?? false
-                if old > 0 || maxNb >= 0.25 || ownerEmbraced || gain > 0 {
+                if old >= 0.15 || maxNb >= 0.50 || ownerEmbraced {
                     let booksMult = (mIdx >= 0 && mIdx < M) ? (0.7 + 0.6 * booksByMarket[mIdx]) : 0.7
                     let embracedMult = ownerEmbraced ? 1.5 : 1.0
                     let dice = 0.85 + 0.30 * rng.unit()
@@ -256,12 +256,13 @@ public enum InstitutionSystem {
             }
         }
 
-        // 5. AI embraces affordable institutions when ready.
+        // 5. AI embraces affordable institutions once meaningful share (>= 35% dev) is reached.
         for c in world.countries.ids where !world.humanCountries.contains(c) {
             let reserve = max(25.0, world.countries.lastMonthlyIncome[c.index] * 3.0)
             for inst in world.techRules.institutions {
                 let idx = inst.index
                 guard world.tech.institutionSpawned[idx], !world.tech.hasEmbraced(c, institution: idx) else { continue }
+                guard spreadShare(world, for: c, institution: idx) >= 0.35 else { continue }
                 if embraceRefusal(world, for: c, institution: idx, checkMoney: false) == nil {
                     let cost = embraceCost(world, for: c, institution: idx)
                     if world.countries.treasury[c.index] - cost >= reserve {
