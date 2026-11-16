@@ -103,6 +103,7 @@ public final class Simulation {
             CharacterSystem.runMonthly(&world, date: date, random: &random)
             VassalSystem.runMonthly(&world, date: date, random: &random)
             GovernmentSystem.runMonthly(&world, date: date, random: &random)
+            UnrestSystem.runMonthly(&world, date: date, random: &random)
             DiplomacySystem.runMonthly(&world, date: date)
             DiplomacyAISystem.runMonthly(&world, date: date, random: &random)
         }

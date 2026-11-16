@@ -1244,7 +1244,9 @@ public enum ArmySystem {
         // 4. Great vassal open revolts & clashes.
         checkVassalRevolts(&world, date: date, random: &random)
         var rebelProvs = Set<ProvinceID>()
-        for i in 0..<world.military.armies.count where world.military.armies.alive[i] && world.military.armies.isRebel[i] {
+        // Armies of rebel factions fight in `RebelSystem` (Phase 12), not here.
+        for i in 0..<world.military.armies.count where world.military.armies.alive[i] && world.military.armies.isRebel[i]
+            && !world.unrest.isFactionArmy(i) {
             rebelProvs.insert(world.military.armies.province[i])
         }
         for p in rebelProvs.sorted(by: { $0.index < $1.index }) {
@@ -1370,7 +1372,9 @@ public enum ArmySystem {
         let here = world.military.armies(in: province)
         guard here.count >= 2 else { return }
 
-        let rebels = here.filter { world.military.armies.isRebel[Int($0.rawValue)] }
+        let rebels = here.filter {
+            world.military.armies.isRebel[Int($0.rawValue)] && !world.unrest.isFactionArmy(Int($0.rawValue))
+        }
         let loyals = here.filter { !world.military.armies.isRebel[Int($0.rawValue)] }
         guard let rebelId = rebels.first else { return }
         let rIdx = Int(rebelId.rawValue)
@@ -1423,7 +1427,7 @@ public enum ArmySystem {
         }
     }
 
-    private static func applyCasualtyRatio(_ world: inout World, army: ArmyID, ratio: Double) {
+    static func applyCasualtyRatio(_ world: inout World, army: ArmyID, ratio: Double) {
         let i = Int(army.rawValue)
         guard i >= 0 && i < world.military.armies.count && world.military.armies.alive[i] else { return }
         var surviving: [Regiment] = []

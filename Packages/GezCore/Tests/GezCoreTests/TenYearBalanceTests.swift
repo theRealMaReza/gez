@@ -28,6 +28,7 @@ struct TenYearBalanceTests {
             }
             if dayIndex % 365 == 364 {
                 let elapsed = Date().timeIntervalSince(t0)
+                print(CalamityReport.line(sim.world, label: "year \(dayIndex / 365 + 1)"))
                 print(String(format: "[year %d] elapsed=%.2fs wars=%d aliveArmies=%d",
                              dayIndex / 365 + 1, elapsed,
                              sim.world.diplomacy.wars.count,

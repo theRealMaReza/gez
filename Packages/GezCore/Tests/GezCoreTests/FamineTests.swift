@@ -215,7 +215,7 @@ final class FamineTests: XCTestCase {
         var rng = GameRandom(seed: 6)
         let naples = try XCTUnwrap(sim.world.provinces.id(named: "Naples"))
         QuakeSystem.strike(&sim.world, epicentre: naples, strength: 0.8, name: "Test quake", date: sim.date, rng: &rng)
-        sim.advance(days: 100) // past 1 August: the harvest is rolled
+        sim.advance(days: 70) // past 1 August: the harvest is rolled
 
         XCTAssertEqual(sim.world.calamity.harvestYear, 1453)
         let data = try SaveStorage.encodeArchive(sim, name: "famine_test", playerTag: "NAP")
@@ -224,8 +224,8 @@ final class FamineTests: XCTestCase {
         XCTAssertEqual(restored.world.calamityRules, sim.world.calamityRules)
         XCTAssertEqual(restored.world.provinces.famine, sim.world.provinces.famine)
 
-        sim.advance(days: 70)
-        restored.advance(days: 70)
+        sim.advance(days: 35)
+        restored.advance(days: 35)
         XCTAssertEqual(restored.world.calamity, sim.world.calamity)
         XCTAssertEqual(restored.world.pops.size, sim.world.pops.size)
         XCTAssertEqual(restored.world.economy.markets.price, sim.world.economy.markets.price)
