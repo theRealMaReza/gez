@@ -40,6 +40,8 @@ public struct ShipType: Sendable {
     public var goods: [(GoodID, Double)]
     /// Unlock rules using the same clause syntax as `UnitType`.
     public var requires: [UnitUnlock]
+    /// Minimum Diplomatic tech level required to build new ships (1...20).
+    public var minDipTech: Int
 
     public init(
         id: ShipTypeID,
@@ -55,7 +57,8 @@ public struct ShipType: Sendable {
         upkeep: Double,
         capacity: Int,
         goods: [(GoodID, Double)],
-        requires: [UnitUnlock]
+        requires: [UnitUnlock],
+        minDipTech: Int = 1
     ) {
         self.id = id
         self.key = key
@@ -71,6 +74,7 @@ public struct ShipType: Sendable {
         self.capacity = capacity
         self.goods = goods
         self.requires = requires
+        self.minDipTech = minDipTech
     }
 }
 

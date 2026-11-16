@@ -124,7 +124,21 @@ public enum NavySystem {
     // MARK: - Ship Unlocks, Costs & Construction
 
     public static func canBuildShip(_ world: World, _ country: CountryID, _ shipType: ShipTypeID) -> Bool {
-        UnitUnlock.matches(world.navy.shipType(shipType).requires, in: world, for: country)
+        let s = world.navy.shipType(shipType)
+        guard world.tech.level(country, .diplomatic) >= s.minDipTech else { return false }
+        return UnitUnlock.matches(s.requires, in: world, for: country)
+    }
+
+    /// Explains why `shipType` is locked for `country`, or `nil` if unlocked.
+    public static func shipLockReason(_ world: World, _ country: CountryID, _ shipType: ShipTypeID) -> String? {
+        let s = world.navy.shipType(shipType)
+        if world.tech.level(country, .diplomatic) < s.minDipTech {
+            return "Requires Diplomatic Tech \(s.minDipTech)"
+        }
+        if !UnitUnlock.matches(s.requires, in: world, for: country) {
+            return NavyRefusal.shipLocked.reason
+        }
+        return nil
     }
 
     public static func availableShipTypes(_ world: World, for country: CountryID) -> [ShipType] {

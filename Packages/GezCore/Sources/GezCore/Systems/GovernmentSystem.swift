@@ -208,7 +208,8 @@ public enum GovernmentSystem {
     public static func monthlyReformProgress(_ world: World, _ c: CountryID) -> Double {
         max(0, GovernmentModel.baseReformProgress
             + Double(world.government.stability[c.index]) * GovernmentModel.stabilityReform
-            + world.government.modifier(c, .reformProgress))
+            + world.government.modifier(c, .reformProgress)
+            + world.techEffects(c, track: .administrative).reformProgress)
     }
 
     /// The next reform tier this country can take, if any.

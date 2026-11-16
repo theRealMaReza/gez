@@ -15,7 +15,8 @@
       "goods": {
         "weapons": 1.0
       },
-      "requires": []
+      "requires": [],
+      "minMilTech": 1
     },
     {
       "key": "cavalry",
@@ -33,7 +34,8 @@
         "weapons": 1.0,
         "horses": 1.0
       },
-      "requires": []
+      "requires": [],
+      "minMilTech": 1
     },
     {
       "key": "archers",
@@ -51,7 +53,8 @@
         "weapons": 0.8,
         "wood": 0.5
       },
-      "requires": []
+      "requires": [],
+      "minMilTech": 1
     },
     {
       "key": "handgunners",
@@ -69,7 +72,8 @@
         "weapons": 1.0,
         "gunpowder": 0.8
       },
-      "requires": []
+      "requires": [],
+      "minMilTech": 3
     },
     {
       "key": "artillery",
@@ -87,7 +91,8 @@
         "cannons": 1.0,
         "gunpowder": 1.2
       },
-      "requires": []
+      "requires": [],
+      "minMilTech": 4
     },
     {
       "key": "janissaries",
@@ -112,7 +117,8 @@
             "janissaries"
           ]
         }
-      ]
+      ],
+      "minMilTech": 4
     },
     {
       "key": "mamluk_cavalry",
@@ -137,7 +143,8 @@
             "mamluks"
           ]
         }
-      ]
+      ],
+      "minMilTech": 3
     },
     {
       "key": "rajput_cavalry",
@@ -162,7 +169,8 @@
             "rajputs"
           ]
         }
-      ]
+      ],
+      "minMilTech": 3
     },
     {
       "key": "war_elephants",
@@ -194,7 +202,8 @@
             "South India"
           ]
         }
-      ]
+      ],
+      "minMilTech": 3
     },
     {
       "key": "horse_archers",
@@ -225,7 +234,8 @@
             "tribes"
           ]
         }
-      ]
+      ],
+      "minMilTech": 1
     },
     {
       "key": "camel_riders",
@@ -267,7 +277,8 @@
             "afar"
           ]
         }
-      ]
+      ],
+      "minMilTech": 1
     },
     {
       "key": "gendarmes",
@@ -308,7 +319,8 @@
             "lorrainer"
           ]
         }
-      ]
+      ],
+      "minMilTech": 4
     },
     {
       "key": "longbowmen",
@@ -340,7 +352,8 @@
             "welsh"
           ]
         }
-      ]
+      ],
+      "minMilTech": 3
     },
     {
       "key": "swiss_pikemen",
@@ -371,7 +384,8 @@
             "swiss"
           ]
         }
-      ]
+      ],
+      "minMilTech": 3
     },
     {
       "key": "war_wagons",
@@ -404,7 +418,218 @@
             "czech"
           ]
         }
-      ]
+      ],
+      "minMilTech": 4
+    },
+    {
+      "key": "halberdiers",
+      "name": "Halberdiers",
+      "category": "infantry",
+      "men": 1000,
+      "speed": 1.0,
+      "attack": 6.0,
+      "defence": 6.0,
+      "morale": 3.4,
+      "siege": 0.0,
+      "cost": 15.0,
+      "upkeep": 0.3,
+      "goods": {
+        "weapons": 1.0
+      },
+      "requires": [],
+      "minMilTech": 5
+    },
+    {
+      "key": "pikemen",
+      "name": "Tercio Pikemen",
+      "category": "infantry",
+      "men": 1000,
+      "speed": 1.0,
+      "attack": 7.0,
+      "defence": 8.0,
+      "morale": 3.8,
+      "siege": 0.0,
+      "cost": 18.0,
+      "upkeep": 0.36,
+      "goods": {
+        "weapons": 1.2
+      },
+      "requires": [],
+      "minMilTech": 6
+    },
+    {
+      "key": "culverins",
+      "name": "Culverins",
+      "category": "artillery",
+      "men": 500,
+      "speed": 0.75,
+      "attack": 12.0,
+      "defence": 3.0,
+      "morale": 3.0,
+      "siege": 3.0,
+      "cost": 55.0,
+      "upkeep": 1.1,
+      "goods": {
+        "cannons": 1.2,
+        "gunpowder": 1.4
+      },
+      "requires": [],
+      "minMilTech": 7
+    },
+    {
+      "key": "musketeers",
+      "name": "Matchlock Musketeers",
+      "category": "ranged",
+      "men": 1000,
+      "speed": 1.0,
+      "attack": 10.0,
+      "defence": 6.0,
+      "morale": 3.8,
+      "siege": 0.0,
+      "cost": 22.0,
+      "upkeep": 0.44,
+      "goods": {
+        "weapons": 1.0,
+        "gunpowder": 1.0
+      },
+      "requires": [],
+      "minMilTech": 9
+    },
+    {
+      "key": "cuirassiers",
+      "name": "Cuirassiers",
+      "category": "cavalry",
+      "men": 1000,
+      "speed": 1.35,
+      "attack": 11.0,
+      "defence": 9.0,
+      "morale": 4.2,
+      "siege": 0.0,
+      "cost": 32.0,
+      "upkeep": 0.65,
+      "goods": {
+        "weapons": 1.4,
+        "horses": 1.2,
+        "gunpowder": 0.4
+      },
+      "requires": [],
+      "minMilTech": 10
+    },
+    {
+      "key": "field_cannons",
+      "name": "Field Cannons",
+      "category": "artillery",
+      "men": 500,
+      "speed": 0.85,
+      "attack": 15.0,
+      "defence": 4.0,
+      "morale": 3.4,
+      "siege": 3.0,
+      "cost": 65.0,
+      "upkeep": 1.3,
+      "goods": {
+        "cannons": 1.4,
+        "gunpowder": 1.6
+      },
+      "requires": [],
+      "minMilTech": 12
+    },
+    {
+      "key": "dragoons",
+      "name": "Dragoons",
+      "category": "cavalry",
+      "men": 1000,
+      "speed": 1.45,
+      "attack": 12.0,
+      "defence": 8.0,
+      "morale": 4.2,
+      "siege": 0.0,
+      "cost": 30.0,
+      "upkeep": 0.6,
+      "goods": {
+        "weapons": 1.2,
+        "horses": 1.0,
+        "gunpowder": 0.8
+      },
+      "requires": [],
+      "minMilTech": 13
+    },
+    {
+      "key": "maurician_infantry",
+      "name": "Maurician Infantry",
+      "category": "infantry",
+      "men": 1000,
+      "speed": 1.0,
+      "attack": 11.0,
+      "defence": 10.0,
+      "morale": 4.5,
+      "siege": 0.0,
+      "cost": 24.0,
+      "upkeep": 0.48,
+      "goods": {
+        "weapons": 1.2,
+        "gunpowder": 0.8
+      },
+      "requires": [],
+      "minMilTech": 15
+    },
+    {
+      "key": "line_infantry",
+      "name": "Line Infantry",
+      "category": "infantry",
+      "men": 1000,
+      "speed": 1.05,
+      "attack": 14.0,
+      "defence": 12.0,
+      "morale": 5.0,
+      "siege": 0.0,
+      "cost": 26.0,
+      "upkeep": 0.52,
+      "goods": {
+        "weapons": 1.2,
+        "gunpowder": 1.2
+      },
+      "requires": [],
+      "minMilTech": 16
+    },
+    {
+      "key": "royal_mortars",
+      "name": "Royal Siege Mortars",
+      "category": "artillery",
+      "men": 500,
+      "speed": 0.8,
+      "attack": 18.0,
+      "defence": 4.0,
+      "morale": 3.8,
+      "siege": 4.0,
+      "cost": 75.0,
+      "upkeep": 1.5,
+      "goods": {
+        "cannons": 1.6,
+        "gunpowder": 1.8
+      },
+      "requires": [],
+      "minMilTech": 17
+    },
+    {
+      "key": "carabineers",
+      "name": "Carabineers",
+      "category": "cavalry",
+      "men": 1000,
+      "speed": 1.4,
+      "attack": 15.0,
+      "defence": 11.0,
+      "morale": 4.8,
+      "siege": 0.0,
+      "cost": 36.0,
+      "upkeep": 0.72,
+      "goods": {
+        "weapons": 1.4,
+        "horses": 1.2,
+        "gunpowder": 0.8
+      },
+      "requires": [],
+      "minMilTech": 18
     }
   ],
   "armies": [

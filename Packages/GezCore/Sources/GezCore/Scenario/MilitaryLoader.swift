@@ -65,7 +65,8 @@ enum MilitaryLoader {
                 cost: u.cost,
                 upkeep: u.upkeep,
                 goods: goods,
-                requires: requires
+                requires: requires,
+                minMilTech: u.minMilTech ?? 1
             )
             mil.unitTypes.append(unit)
             mil.unitByKey[u.key] = id
@@ -157,6 +158,7 @@ struct MilitaryFile: Decodable {
         let upkeep: Double
         let goods: [String: Double]
         let requires: [Requirement]
+        let minMilTech: Int?
     }
 
     struct RegimentEntry: Decodable {

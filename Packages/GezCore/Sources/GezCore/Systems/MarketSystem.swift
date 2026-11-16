@@ -119,6 +119,7 @@ public enum MarketSystem {
         // Workshops: buildings give burgher jobs; if there are fewer burghers
         // than jobs, every workshop in the province runs short-handed.
         let T = eco.buildings.typeCount
+        let countryProdEff = world.countries.ids.map { world.techEffects($0, track: .administrative).prodEff }
         var workshopOutput = Array(repeating: 0.0, count: P * T)
         for p in 0..<P {
             var jobs = 0.0
@@ -130,12 +131,13 @@ public enum MarketSystem {
             guard jobs > 0 else { continue }
             let fill = min(1, burghers[p] * Economy.workshopShare / jobs)
             let m = eco.provinceMarket[p].index
+            let prodBonus = world.provinces.owner[p].map { countryProdEff[$0.index] } ?? 0
             for t in 0..<T {
                 guard case .workshop(let r) = eco.buildingTypes[t].effect else { continue }
                 let level = eco.buildings.level[p * T + t]
                 guard level > 0 else { continue }
                 let recipe = eco.recipes[r]
-                let potential = Double(level) * Economy.jobsPerLevel * fill * recipe.perThousand * (1 + bonus.crafts[p]) / 12
+                let potential = Double(level) * Economy.jobsPerLevel * fill * recipe.perThousand * (1 + bonus.crafts[p] + prodBonus) / 12
                 var f = 1.0
                 for (n, input) in recipe.inputs.enumerated() {
                     let a = avail[m * G + input.0.index]
@@ -330,7 +332,9 @@ public enum MarketSystem {
                 craftValue[p] += value
             }
         }
-        let rulerBonus = world.countries.ids.map { CharacterSystem.taxBonus(world, $0) + GovernmentSystem.taxModifier(world, $0) }
+        let rulerBonus = world.countries.ids.map {
+            CharacterSystem.taxBonus(world, $0) + GovernmentSystem.taxModifier(world, $0) + world.techEffects($0, track: .administrative).taxEff
+        }
         let classBonus = world.countries.ids.map { c in TaxClass.allCases.map { max(-1, GovernmentSystem.classTaxModifier(world, c, $0)) } }
         let learningBonus = world.countries.ids.map { max(-0.9, world.government.modifier($0, .learning)) }
         for c in world.countries.ids {
@@ -375,7 +379,10 @@ public enum MarketSystem {
         let (rawTradeProfit, tolls) = TradeSystem.settle(&world, delivered: delivered, sold: sold)
         var tradeProfit = rawTradeProfit
         for c in 0..<world.countries.count {
-            if tradeProfit[c] > 0 { tradeProfit[c] *= max(0, 1 + world.government.modifier(CountryID(c), .trade)) }
+            if tradeProfit[c] > 0 {
+                let cid = CountryID(c)
+                tradeProfit[c] *= max(0, 1 + world.government.modifier(cid, .trade) + world.techEffects(cid, track: .diplomatic).tradeEff)
+            }
             income[c] += tradeProfit[c] + tolls[c]
         }
         world.countries.lastTrade = tradeProfit

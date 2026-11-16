@@ -1181,7 +1181,7 @@ final class GovernmentTests: XCTestCase {
 final class MilitaryDataTests: XCTestCase {
     func testUnitTypesAndSpecialRegionalUnitsLoad() {
         let w = Scenario1453.makeWorld()
-        XCTAssertEqual(w.military.unitTypes.count, 15)
+        XCTAssertEqual(w.military.unitTypes.count, 26)
 
         let coreKeys = ["infantry", "cavalry", "archers", "handgunners", "artillery"]
         for key in coreKeys {

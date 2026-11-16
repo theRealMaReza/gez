@@ -357,13 +357,18 @@ public struct BattleEngine: Sendable, Equatable {
         let volleys: Int
         switch category {
         case .ranged:
-            if unitKey == "handgunners" { volleys = 12 } else if unitKey == "longbowmen" { volleys = 18 } else { volleys = 16 }
+            if unitKey == "handgunners" { volleys = 12 }
+            else if unitKey == "musketeers" { volleys = 16 }
+            else if unitKey == "longbowmen" { volleys = 18 }
+            else { volleys = 16 }
         case .artillery:
             volleys = 12
         case .cavalry:
-            volleys = unitKey == "horse_archers" ? 16 : 0
+            volleys = (unitKey == "horse_archers" || unitKey == "dragoons") ? 16 : 0
         case .infantry:
-            volleys = unitKey == "war_wagons" ? 14 : 0
+            if unitKey == "war_wagons" { volleys = 14 }
+            else if unitKey == "maurician_infantry" || unitKey == "line_infantry" { volleys = 14 }
+            else { volleys = 0 }
         }
         return Int((Double(volleys) / pace).rounded())
     }

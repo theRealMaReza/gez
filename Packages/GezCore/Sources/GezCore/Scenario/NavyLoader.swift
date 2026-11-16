@@ -58,7 +58,8 @@ enum NavyLoader {
                 upkeep: s.upkeep,
                 capacity: s.capacity,
                 goods: goods,
-                requires: requires
+                requires: requires,
+                minDipTech: s.minDipTech ?? 1
             )
             navy.shipTypes.append(stype)
             navy.shipByKey[s.key] = id
@@ -155,6 +156,7 @@ private struct NavyFile: Decodable {
         let capacity: Int
         let goods: [String: Double]
         let requires: [Requirement]
+        let minDipTech: Int?
     }
 
     struct ShipStack: Decodable {

@@ -154,6 +154,11 @@ extension World {
         return cap
     }
 
+    /// Maximum market-to-market steps allowed for new trade routes (Diplomatic tech).
+    public func tradeRangeSteps(_ c: CountryID) -> Int {
+        max(3, techEffects(c, track: .diplomatic).tradeRange)
+    }
+
     public func tradeCapacityUsed(_ c: CountryID) -> Double {
         economy.routes.filter { $0.owner == c }.reduce(0) {
             $0 + TradeModel.capacityUse(volume: $1.volume, basePrice: economy.goods.basePrice[$1.good.index],
@@ -186,24 +191,27 @@ public enum TradeSystem {
     public static let volumes: [Double] = [10, 25, 50, 100]
 
     public enum Refusal: Equatable, Sendable {
-        case sameMarket, noPath, noCapacity
+        case sameMarket, noPath, noCapacity, outOfRange
 
         public var reason: String {
             switch self {
             case .sameMarket: return "Pick two different markets"
             case .noPath: return "No open way between these markets"
             case .noCapacity: return "Not enough trade capacity"
+            case .outOfRange: return "Outside diplomatic trade range"
             }
         }
     }
 
     @discardableResult
     public static func create(_ world: inout World, owner: CountryID, good: GoodID, from: MarketID, to: MarketID,
-                              volume: Double, ignoreCapacity: Bool = false) -> Refusal? {
+                              volume: Double, ignoreCapacity: Bool = false, ignoreRange: Bool = false) -> Refusal? {
         if from == to { return .sameMarket }
         guard let path = world.tradePath(for: owner, from: from, to: to) else { return .noPath }
-        let use = TradeModel.capacityUse(volume: volume, basePrice: world.economy.goods.basePrice[good.index], steps: path.count - 1)
+        let steps = max(1, path.count - 1)
+        let use = TradeModel.capacityUse(volume: volume, basePrice: world.economy.goods.basePrice[good.index], steps: steps)
         if !ignoreCapacity && world.tradeCapacityUsed(owner) + use > world.tradeCapacity(owner) { return .noCapacity }
+        if !ignoreRange && steps > world.tradeRangeSteps(owner) { return .outOfRange }
         var route = TradeRoute(owner: owner, good: good, from: from, to: to, volume: volume)
         route.path = path
         world.economy.routes.append(route)
@@ -342,16 +350,17 @@ public enum TradeSystem {
             let free = world.tradeCapacity(c) - world.tradeCapacityUsed(c)
             guard free > 10, world.canTrade(c, in: home),
                   world.economy.routes.filter({ $0.owner == c }).count < TradeModel.maxAIRoutes else { continue }
+            let maxSteps = min(world.tradeRangeSteps(c), 10)
             let tree = world.tradeTree(for: c, from: home)
             func path(from src: MarketID) -> [MarketID]? {
                 guard tree[src.index] >= 0, world.canTrade(c, in: src) else { return nil }
                 var p = [src.index]
-                while p.last! != home.index && p.count <= 6 { p.append(tree[p.last!]) }
+                while p.last! != home.index && p.count <= maxSteps + 1 { p.append(tree[p.last!]) }
                 return p.last! == home.index ? p.map(MarketID.init) : nil
             }
             var paths: [Int: [MarketID]] = [:]
             for m in eco.markets.ids where m != home {
-                if let p = path(from: m), p.count <= 5 { paths[m.index] = p }
+                if let p = path(from: m), p.count - 1 <= maxSteps { paths[m.index] = p }
             }
             var best: (profit: Double, good: GoodID, from: MarketID, volume: Double)?
             for g in eco.goods.ids {

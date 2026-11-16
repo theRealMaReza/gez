@@ -124,12 +124,12 @@ def load_units(
     index: dict[str, int] = {}
     for lineno, parts in rows("units.txt"):
         ctx = f"units.txt:{lineno}"
-        if len(parts) != 13:
-            raise SystemExit(f"{ctx}: expected 13 columns, got {len(parts)}")
+        if len(parts) != 14:
+            raise SystemExit(f"{ctx}: expected 14 columns, got {len(parts)}")
         (
             key, name, category, men_s, speed_s,
             atk_s, def_s, morale_s, siege_s,
-            cost_s, upkeep_s, goods_s, req_s,
+            cost_s, upkeep_s, goods_s, req_s, min_tech_s,
         ) = parts
         if key in index:
             raise SystemExit(f"{ctx}: duplicate unit key '{key}'")
@@ -143,7 +143,8 @@ def load_units(
         siege = float(siege_s)
         cost = float(cost_s)
         upkeep = float(upkeep_s)
-        if men <= 0 or speed <= 0 or morale <= 0 or cost <= 0 or upkeep < 0:
+        min_tech = int(min_tech_s)
+        if men <= 0 or speed <= 0 or morale <= 0 or cost <= 0 or upkeep < 0 or not (1 <= min_tech <= 20):
             raise SystemExit(f"{ctx}: invalid numeric stats on '{key}'")
         goods = parse_goods(goods_s, known_goods, ctx)
         requires = parse_requires(
@@ -164,6 +165,7 @@ def load_units(
             "upkeep": upkeep,
             "goods": goods,
             "requires": requires,
+            "minMilTech": min_tech,
         })
     return units, index
 

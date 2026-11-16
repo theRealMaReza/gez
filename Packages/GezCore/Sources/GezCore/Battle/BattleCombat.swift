@@ -645,11 +645,17 @@ public enum BattleCombat {
         case .ranged:
             if unitKey == "longbowmen" { base = 250.0 }
             else if unitKey == "handgunners" { base = 170.0 }
+            else if unitKey == "musketeers" { base = 195.0 }
             else { base = 215.0 }
         case .cavalry:
-            base = (unitKey == "horse_archers") ? 190.0 : 0.0
+            if unitKey == "horse_archers" { base = 190.0 }
+            else if unitKey == "dragoons" { base = 170.0 }
+            else { base = 0.0 }
         case .infantry:
-            base = (unitKey == "war_wagons") ? 165.0 : 0.0
+            if unitKey == "war_wagons" { base = 165.0 }
+            else if unitKey == "maurician_infantry" { base = 175.0 }
+            else if unitKey == "line_infantry" { base = 195.0 }
+            else { base = 0.0 }
         }
         guard base > 0 else { return 0.0 }
         // Elevation extends effective range slightly

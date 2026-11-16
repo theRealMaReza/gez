@@ -115,6 +115,125 @@ struct TechnologyTests {
         #expect(simA.world.tech.progress == simB.world.tech.progress)
         #expect(simA.world.tech.focus == simB.world.tech.focus)
     }
+
+    @Test("1453 starting armies, fleets, forts and buildings stay even above current tech")
+    func starting1453MapEntitiesUntouched() {
+        let w = Scenario1453.makeWorld()
+        // MOS starts at Mil 3 with a standing Bombard (which requires Mil 4 to recruit anew).
+        let mos = w.countries.id(forTag: "MOS")!
+        let artID = w.military.unitByKey["artillery"]!
+        #expect(w.tech.level(mos, .military) == 3)
+        #expect(!ArmySystem.canRecruit(w, mos, artID))
+
+        // Venice keeps its Shipyard 4 in Venice even though Adm is 4 (new level-4 builds require Adm 6).
+        let ven = w.countries.id(forTag: "VEN")!
+        let venProv = w.countries.capital[ven.index]!
+        let shipyardID = w.economy.buildingType(key: "shipyard")!
+        #expect(w.economy.buildings.level(venProv, shipyardID) == 4)
+        #expect(w.tech.level(ven, .administrative) == 4)
+        #expect(BuildingSystem.refusal(w, ven, venProv, shipyardID, checkMoney: false) == .techLocked(track: .administrative, required: 12))
+
+        // Naples or Paris keeps starting level-4+ forts/workshops.
+        let paris = w.provinces.ids.first { w.provinces.name[$0.index] == "Paris" } ?? w.countries.capital[w.countries.id(forTag: "FRA")!.index]!
+        #expect(w.provinces.fortLevel[paris.index] >= 3)
+    }
+
+    @Test("Military, Diplomatic and Administrative unlocks gate recruitment, ships, buildings, forts and trade range")
+    func unlocksGateActionsAndAI() {
+        var w = Scenario1453.makeWorld()
+        let tur = w.countries.id(forTag: "TUR")!
+        let cap = w.countries.capital[tur.index]!
+        w.countries.treasury[tur.index] = 10_000
+        w.military.manpower[tur.index] = 50_000
+        w.navy.sailors[tur.index] = 10_000
+
+        // 1. Military unit gating
+        let muskID = w.military.unitByKey["musketeers"]!
+        let halberdID = w.military.unitByKey["halberdiers"]!
+        #expect(ArmySystem.recruitRefusal(w, tur, in: cap, unit: muskID) == .unitLocked)
+        #expect(ArmySystem.unitLockReason(w, tur, muskID) == "Requires Military Tech 9")
+        w.tech.setLevel(tur, .military, 5)
+        #expect(ArmySystem.canRecruit(w, tur, halberdID))
+        #expect(!ArmySystem.canRecruit(w, tur, muskID))
+        w.tech.setLevel(tur, .military, 9)
+        #expect(ArmySystem.canRecruit(w, tur, muskID))
+
+        // 2. Ship gating
+        let galleonID = w.navy.shipByKey["galleon"]!
+        #expect(NavySystem.buildShipRefusal(w, tur, in: cap, type: galleonID) == .shipLocked)
+        #expect(NavySystem.shipLockReason(w, tur, galleonID) == "Requires Diplomatic Tech 8")
+        w.tech.setLevel(tur, .diplomatic, 8)
+        #expect(NavySystem.canBuildShip(w, tur, galleonID))
+
+        // 3. Building level 4-5 & Fort level 2-5 gating
+        let farmID = w.economy.buildingType(key: "farm_estate")!
+        w.provinces.development[cap.index] = 15 // ensure free slots
+        w.economy.buildings.setLevel(cap, farmID, 3)
+        #expect(BuildingSystem.refusal(w, tur, cap, farmID) == .techLocked(track: .administrative, required: 6))
+        w.tech.setLevel(tur, .administrative, 6)
+        #expect(BuildingSystem.refusal(w, tur, cap, farmID) == nil)
+        w.economy.buildings.setLevel(cap, farmID, 4)
+        #expect(BuildingSystem.refusal(w, tur, cap, farmID) == .techLocked(track: .administrative, required: 12))
+
+        let fortID = w.economy.buildingType(key: "fort")!
+        let edirne = w.provinces.ids.first { w.provinces.name[$0.index] == "Edirne" }!
+        w.provinces.development[edirne.index] = 15
+        w.economy.buildings.setLevel(edirne, fortID, 2)
+        w.tech.setLevel(tur, .military, 7)
+        #expect(BuildingSystem.refusal(w, tur, edirne, fortID) == .techLocked(track: .military, required: 8))
+        w.tech.setLevel(tur, .military, 8)
+        #expect(BuildingSystem.refusal(w, tur, edirne, fortID) == nil)
+
+        // 4. Trade range gating
+        let gen = w.countries.id(forTag: "GEN")!
+        w.tech.setLevel(gen, .diplomatic, 1) // range = 3 steps
+        let londonMkt = w.economy.markets.ids.first { w.economy.markets.name[$0.index] == "London" }!
+        let cairoMkt = w.economy.markets.ids.first { w.economy.markets.name[$0.index] == "Cairo" }!
+        let grain = w.economy.goods.id(forKey: "grain")!
+        let pathLen = (w.tradePath(for: gen, from: londonMkt, to: cairoMkt)?.count ?? 1) - 1
+        if pathLen > 3 {
+            #expect(TradeSystem.create(&w, owner: gen, good: grain, from: londonMkt, to: cairoMkt, volume: 10) == .outOfRange)
+            w.tech.setLevel(gen, .diplomatic, 15) // range = 24 steps
+            #expect(TradeSystem.create(&w, owner: gen, good: grain, from: londonMkt, to: cairoMkt, volume: 10) == nil)
+        }
+
+        // 5. Administrative efficiency & accepted cultures
+        let baseSlots = CultureSystem.acceptedCultureSlots(w, tur)
+        w.tech.setLevel(tur, .administrative, 15)
+        #expect(CultureSystem.acceptedCultureSlots(w, tur) == baseSlots + 2)
+        #expect(w.techEffects(tur, track: .administrative).adminEff >= 0.10)
+
+        // 6. AI takes tech into account when recruiting and building
+        let mos = w.countries.id(forTag: "MOS")!
+        let mCap = w.countries.capital[mos.index]!
+        w.countries.treasury[mos.index] = 10_000
+        w.countries.lastMonthlyIncome[mos.index] = 20
+        w.countries.lastMonthlyExpenses[mos.index] = 5
+        w.military.manpower[mos.index] = 50_000
+        w.military.maxManpower[mos.index] = 50_000
+        w.provinces.development[mCap.index] = 15
+
+        // At Adm 4, fill level 3 on all owned Moscow provinces' buildings; AI must not queue level 4.
+        for t in 0..<w.economy.buildings.typeCount {
+            if w.economy.buildings.level(mCap, BuildingTypeID(t)) > 0 {
+                w.economy.buildings.setLevel(mCap, BuildingTypeID(t), 3)
+            }
+        }
+        w.economy.buildings.setLevel(mCap, farmID, 3)
+        let beforeConstructions = w.economy.buildings.constructions.count
+        BuildingSystem.runAI(&w, month: mos.index % 12)
+        let queuedLv4Early = w.economy.buildings.constructions.dropFirst(beforeConstructions).contains { $0.level >= 4 }
+        #expect(!queuedLv4Early)
+
+        w.tech.setLevel(mos, .military, 6)
+        let pikeID = w.military.unitByKey["pikemen"]!
+        let regsBefore = w.military.armies(of: mos).reduce(0) { $0 + w.military.armies.regiments[Int($1.rawValue)].count }
+        ArmySystem.runAI(&w, month: mos.index % 12, date: Scenario1453.startDate)
+        ArmySystem.runAI(&w, month: mos.index % 12, date: Scenario1453.startDate)
+        let allRegsAfter = w.military.armies(of: mos).flatMap { w.military.armies.regiments[Int($0.rawValue)] }
+        #expect(allRegsAfter.count > regsBefore)
+        #expect(allRegsAfter.contains { $0.type == pikeID })
+    }
 }
 
 private extension TechTrackBreakdown {
