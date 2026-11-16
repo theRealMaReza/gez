@@ -30,7 +30,7 @@ final class ProfileTests: XCTestCase {
         for day in 1...days {
             if day % 100 == 0 {
                 let now = DispatchTime.now().uptimeNanoseconds
-                print("PROFILE days \(day - 99)-\(day): \(Double(now - blockStart) / 1e9 / 100 * 1000) ms/day, army slots=\(world.military.armies.count) battles=\(world.military.battles.count) recent=\(world.military.recentBattles.count) sieges=\(world.military.sieges.count) wars=\(world.diplomacy.wars.count) treaties=\(world.diplomacy.treaties.count)")
+                print("PROFILE days \(day - 99)-\(day): \(Double(now - blockStart) / 1e9 / 100 * 1000) ms/day, pop groups=\(world.pops.count), army slots=\(world.military.armies.count) battles=\(world.military.battles.count) recent=\(world.military.recentBattles.count) sieges=\(world.military.sieges.count) wars=\(world.diplomacy.wars.count) treaties=\(world.diplomacy.treaties.count)")
                 blockStart = now
             }
             date.advanceOneDay()
