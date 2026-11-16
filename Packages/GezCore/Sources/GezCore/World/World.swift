@@ -355,6 +355,8 @@ public struct World: Sendable {
     public var calamity = CalamityState()
     /// Fault zones and known earthquakes (fixed data, not saved).
     public var calamityRules = CalamityRules()
+    /// Unrest per province and rebel factions (Phase 12).
+    public var unrest = UnrestState()
 
     public init(map: MapInfo = MapInfo(width: 1, height: 1, pixelsPerDegree: 1, longitudeMin: 0, latitudeMax: 0)) {
         self.map = map

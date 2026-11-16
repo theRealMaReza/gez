@@ -52,7 +52,7 @@ public enum PlagueModel {
     public static func rule(_ d: Disease) -> DiseaseRule {
         switch d {
         case .plague:
-            return DiseaseRule(months: 9, attack: 0.30, lethality: 0.35, immunityFade: 0.0030, originChance: 0.0005)
+            return DiseaseRule(months: 9, attack: 0.30, lethality: 0.35, immunityFade: 0.0030, originChance: 0.0004)
         case .typhus:
             return DiseaseRule(months: 6, attack: 0.20, lethality: 0.15, immunityFade: 0.0100, originChance: 0)
         case .smallpox:
@@ -92,7 +92,7 @@ public enum PlagueModel {
     /// Camp fever starts in sieges, overcrowded camps and famines.
     public static let typhusSiegeChance = 0.06
     public static let typhusCampChance = 0.04
-    public static let typhusFamineChance = 0.01
+    public static let typhusFamineChance = 0.004
     public static let typhusCampSoldiers = 15_000
     public static let typhusFamineAbove = 0.4
 
@@ -160,7 +160,7 @@ public enum FamineModel {
     /// How fast "what the market is used to" follows the real supply.
     public static let normSpeed = 0.02
     /// Share of peasants dying per month in the worst famine.
-    public static let monthlyDeaths = 0.006
+    public static let monthlyDeaths = 0.003
     public static let moodHit = 0.04
     /// A famine this bad is worth an alert.
     public static let alertAbove = 0.35

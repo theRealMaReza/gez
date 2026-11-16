@@ -17,7 +17,7 @@ RES = os.path.join(ROOT, 'Packages/GezCore/Sources/GezCore/Resources')
 # share of the struck who die, immunity fading per month, monthly chance
 # of a fresh outbreak in a crowded province
 DISEASES = [
-    ('plague',   9, 0.30, 0.35, 0.0030, 0.00050),
+    ('plague',   9, 0.30, 0.35, 0.0030, 0.00040),
     ('typhus',   6, 0.20, 0.15, 0.0100, 0.0),
     ('smallpox', 7, 0.35, 0.12, 0.0015, 0.00030),
 ]

@@ -1450,4 +1450,33 @@ public final class GameSession {
         if refusal == nil { revision &+= 1 }
         return refusal
     }
+
+    // MARK: - Phase 12: Rebels
+
+    /// Give a rebel faction a milder form of what it wants; it disbands.
+    @discardableResult
+    public func concedeToRebels(faction id: Int) -> RebelRefusal? {
+        guard let player = playerCountry else { return .noSuchFaction }
+        let refusal = RebelSystem.concede(&simulation.world, player, faction: id, date: date)
+        if refusal == nil { revision &+= 1 }
+        return refusal
+    }
+
+    /// March the strongest free army against a rebel faction.
+    @discardableResult
+    public func sendTroopsAgainstRebels(faction id: Int) -> RebelRefusal? {
+        guard let player = playerCountry else { return .noSuchFaction }
+        let refusal = RebelSystem.sendTroops(&simulation.world, player, faction: id)
+        if refusal == nil { revision &+= 1 }
+        return refusal
+    }
+
+    /// Cut the tax on peasants by a quarter of the normal rate.
+    @discardableResult
+    public func lowerPeasantTaxes() -> RebelRefusal? {
+        guard let player = playerCountry else { return .noSuchFaction }
+        let refusal = RebelSystem.lowerTaxes(&simulation.world, player)
+        if refusal == nil { revision &+= 1 }
+        return refusal
+    }
 }

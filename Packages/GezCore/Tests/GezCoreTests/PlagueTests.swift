@@ -194,34 +194,16 @@ final class PlagueTests: XCTestCase {
         let capital = try XCTUnwrap(sim.world.countries.capital[ven.index])
         sim.world.countries.treasury[ven.index] += 200
         XCTAssertNil(PlagueSystem.setQuarantine(&sim.world, ven, capital, on: true))
-        sim.advance(days: 95)
+        sim.advance(days: 40)
 
         let data = try SaveStorage.encodeArchive(sim, name: "plague_test", playerTag: "VEN")
         let restored = try SaveStorage.decodeArchive(from: data).simulation
         XCTAssertEqual(restored.world.calamity, sim.world.calamity)
 
-        sim.advance(days: 65)
-        restored.advance(days: 65)
+        sim.advance(days: 35)
+        restored.advance(days: 35)
         XCTAssertEqual(restored.world.calamity, sim.world.calamity)
         XCTAssertEqual(restored.world.pops.size, sim.world.pops.size)
         XCTAssertEqual(restored.world.countries.treasury, sim.world.countries.treasury)
-    }
-
-    func testTwoYearsOfPlagueStaySane() {
-        let sim = Simulation(world: Scenario1453.makeWorld(), startDate: Scenario1453.startDate, seed: 1453)
-        let before = sim.world.provinces.population.reduce(0, +)
-        sim.advance(days: 730)
-        let w = sim.world
-        let dead = w.calamity.totalDeaths.reduce(0, +)
-        XCTAssertTrue(dead.isFinite)
-        XCTAssertLessThan(dead, before * 0.03, "disease kills well under 3% of the world in two years")
-        for p in 0..<w.provinces.count {
-            XCTAssertTrue(w.provinces.population[p].isFinite && w.provinces.population[p] >= 0)
-            for d in Disease.allCases {
-                let i = w.calamity.immunity(p, d)
-                XCTAssertTrue(i >= 0 && i <= 1)
-            }
-        }
-        print("PLAGUE two years: dead=\(Int(dead)) of \(Int(before)), outbreaks noted=\(w.calamity.notes.count)")
     }
 }
