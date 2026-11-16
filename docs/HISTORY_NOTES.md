@@ -467,3 +467,36 @@ Alvise Loredan (Alvise held the post in other years). The data keeps
 - **Reformation Centres (~1517, never before 1500)**:
   - Eligible centre provinces favor historical German, Swiss, Nordic, British, Czech, Dutch, and French urban centers (`Wittenberg`, `Geneva`, `Zurich`, etc.) weighted by development and excluded from Rome (`PAP`); non-European / Orthodox realms do not spark Protestant/Reformed centres directly unless via trade-route minorities?.
   - `Reformation` window (`1512–1529`, forced guarantee by `1529`) models structural reform pressures stochastically via `GameRandom` rather than fixed script dates; Calvinist/Reformed emergence is weighted to follow ~1519+ (`Zwingli`/`Calvin` windows approximated?).
+
+## Plague, Famine, Earthquakes & Rebels (Phase 12)
+
+- **Diseases**: the numbers are game rules fitted to rough history, not
+  records. Later plague waves (after the Black Death) usually killed 10–20%
+  of a struck city and came back every decade or two; the game gives about
+  13% in a great city and 3–6% in the countryside. Camp fever (typhus) is
+  first clearly described at the siege of Granada (1489); the game lets it
+  appear in sieges from 1453 as "camp fever" in the older, looser sense?
+  Smallpox as a once-a-generation killer of the young is modelled only by
+  slowly fading immunity (no ages in the pops)?
+- **Harvest**: every province is judged on 1 August, although India's and
+  the Horn of Africa's main harvests follow the monsoon (autumn)?
+- **Fault zones** (`data/calamity/fault_zones.txt`): circles drawn by hand
+  around well-known earthquake country; chances and strengths are guesses
+  from how often history records great earthquakes there (Anatolia, the
+  Aegean and southern Italy most often; Lisbon, the Rhine and Catalonia
+  rarely but badly)?
+- **Known earthquakes** (they strike on their date whatever happens, since
+  no ruler causes them): 5 December 1456 Naples (the great earthquake of
+  the Kingdom of Naples, tens of thousands dead); 3 May 1481 Rhodes;
+  10 September 1509 Constantinople ("the Lesser Judgment Day"); 26 January
+  1531 Lisbon. The owner may want them left to chance instead? Others
+  could be added (Erzincan 1458?, Kabul/Agra 1505, Kashmir 1555).
+- **Separatists never create a new country**: their provinces go to a
+  country that has lost its land, or to a neighbour of their culture; if
+  there is none, their culture is accepted instead (the country list is
+  fixed, as with the Safavids in Phase 11). Revisit if new countries can be
+  created later?
+- **Pretenders** are always real, living men of the ruler's own house (a
+  brother, uncle or cousin in the character data); a realm whose dynasty
+  has no such man gets no pretender?
+

@@ -7,6 +7,7 @@ const ArmiesLayerScript := preload("res://scripts/MapArmiesLayer.gd")
 const FleetsLayerScript := preload("res://scripts/MapFleetsLayer.gd")
 const RoutesLayerScript := preload("res://scripts/MapRoutesLayer.gd")
 const FaithLayerScript := preload("res://scripts/MapFaithLayer.gd")
+const CalamityLayerScript := preload("res://scripts/MapCalamityLayer.gd")
 const ArmyPanelScript := preload("res://scripts/ArmyPanel.gd")
 const FleetPanelScript := preload("res://scripts/FleetPanel.gd")
 const BudgetPanelScript := preload("res://scripts/BudgetPanel.gd")
@@ -14,6 +15,7 @@ const TradePanelScript := preload("res://scripts/TradePanel.gd")
 const CourtPanelScript := preload("res://scripts/CourtPanel.gd")
 const GovernmentPanelScript := preload("res://scripts/GovernmentPanel.gd")
 const ReligionPanelScript := preload("res://scripts/ReligionPanel.gd")
+const RebelsPanelScript := preload("res://scripts/RebelsPanel.gd")
 const DiplomacyPanelScript := preload("res://scripts/DiplomacyPanel.gd")
 const WarsPanelScript := preload("res://scripts/WarsPanel.gd")
 const BattleViewScript := preload("res://scripts/BattleView.gd")
@@ -49,6 +51,7 @@ var armies_layer: Control
 var fleets_layer: Control
 var routes_layer: Control
 var faith_layer: Control
+var calamity_layer: Control
 var army_ui: Control
 var fleet_ui: Control
 var budget_ui: Control
@@ -56,6 +59,7 @@ var trade_ui: Control
 var court_ui: Control
 var gov_ui: Control
 var religion_ui: Control
+var rebels_ui: Control
 var diplomacy_ui: Control
 var wars_ui: Control
 
@@ -68,6 +72,8 @@ var trade_btn: Button
 var court_btn: Button
 var stability_btn: Button
 var religion_btn: Button
+var rebels_btn: Button
+var _last_rebels_btn_str: String = ""
 var _last_rel_btn_str: String = ""
 var inflation_label: Label
 var diplomacy_btn: Button
@@ -257,6 +263,15 @@ func _build_scene_ui() -> void:
 	faith_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(faith_layer)
 
+	# 2e. Plague & Unrest map overlay (visible only in those two map modes)
+	calamity_layer = Control.new()
+	calamity_layer.name = "CalamityLayer"
+	calamity_layer.set_script(CalamityLayerScript)
+	calamity_layer.visible = false
+	calamity_layer.set_anchors_preset(Control.PRESET_FULL_RECT)
+	calamity_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(calamity_layer)
+
 	# 3. Top bar panel & alerts row
 	_build_top_bar()
 	_build_alerts_bar()
@@ -329,6 +344,14 @@ func _build_scene_ui() -> void:
 	religion_ui.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(religion_ui)
 	religion_ui.call("setup", self)
+
+	rebels_ui = Control.new()
+	rebels_ui.name = "RebelsUI"
+	rebels_ui.set_script(RebelsPanelScript)
+	rebels_ui.set_anchors_preset(Control.PRESET_FULL_RECT)
+	rebels_ui.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(rebels_ui)
+	rebels_ui.call("setup", self)
 
 	# 6e. Diplomacy & Wars/Peace windows
 	diplomacy_ui = PanelContainer.new()
@@ -459,6 +482,13 @@ func _build_top_bar() -> void:
 	religion_btn.pressed.connect(_toggle_religion_window)
 	hbox.add_child(religion_btn)
 
+	rebels_btn = Button.new()
+	rebels_btn.text = "Rebels"
+	rebels_btn.custom_minimum_size = Vector2(72.0, 30.0)
+	rebels_btn.tooltip_text = "Unrest, rebel factions, their demands and your answers"
+	rebels_btn.pressed.connect(_toggle_rebels_window)
+	hbox.add_child(rebels_btn)
+
 	hbox.add_child(_make_separator())
 
 	diplomacy_btn = Button.new()
@@ -573,7 +603,9 @@ func _build_map_mode_bar() -> void:
 		{"key": "culture", "title": "Culture", "shortcut": "T"},
 		{"key": "development", "title": "Development", "shortcut": "Y"},
 		{"key": "goods", "title": "Goods", "shortcut": "U"},
-		{"key": "markets", "title": "Markets", "shortcut": "I"}
+		{"key": "markets", "title": "Markets", "shortcut": "I"},
+		{"key": "plague", "title": "Plague", "shortcut": "P"},
+		{"key": "unrest", "title": "Unrest", "shortcut": "L"}
 	]
 	map_mode_buttons.clear()
 	for m in modes_spec:
@@ -581,7 +613,9 @@ func _build_map_mode_bar() -> void:
 		var title: String = m["title"]
 		var sc: String = m["shortcut"]
 		var btn := Button.new()
-		btn.text = "%s (%s)" % [title, sc]
+		# Eleven modes: the shortcut letter lives in the tooltip so the bar
+		# stays clear of the alerts row on a 1440-wide window.
+		btn.text = title
 		btn.tooltip_text = "%s Map Mode (Key %s)" % [title, sc]
 		btn.custom_minimum_size = Vector2(0.0, 28.0)
 		var mode_key := k
@@ -1280,9 +1314,11 @@ func _process(delta: float) -> void:
 				gov_ui.call("refresh_if_open")
 			if religion_ui != null:
 				religion_ui.call("refresh_if_open")
+			if rebels_ui != null:
+				rebels_ui.call("refresh_if_open")
 			if diplomacy_ui != null:
 				diplomacy_ui.call("refresh_if_open")
-			if current_map_mode == "religion" or current_map_mode == "culture":
+			if current_map_mode == "religion" or current_map_mode == "culture" or current_map_mode == "plague" or current_map_mode == "unrest":
 				_refresh_styles_and_country_labels()
 				_refresh_faith_overlay()
 		if (mask & 4) != 0:
@@ -1375,6 +1411,12 @@ func _refresh_top_bar() -> void:
 		if r_str != _last_rel_btn_str:
 			_last_rel_btn_str = r_str
 			religion_btn.text = r_str
+	if rebels_btn != null:
+		var rb_str: String = str(top.get("rebelsButtonText", "Rebels"))
+		if rb_str != _last_rebels_btn_str:
+			_last_rebels_btn_str = rb_str
+			rebels_btn.text = rb_str
+			rebels_btn.modulate = Color(1.0, 0.50, 0.44) if rb_str.ends_with("!") else (Color(1.0, 0.82, 0.48) if rb_str != "Rebels" else Color(1.0, 1.0, 1.0))
 	if wars_btn != null:
 		var wars_cnt: int = int(top.get("activeWarsCount", 0))
 		var pending_cnt: int = int(top.get("pendingPeaceOffersCount", 0))
@@ -2213,6 +2255,8 @@ func _build_province_people_tab(d: Dictionary) -> void:
 				12
 			))
 
+		_append_province_calamity_section(p_idx)
+
 		if is_mine and p_idx >= 0:
 			var has_miss := bool(d.get("hasMissionary", false))
 			if has_miss:
@@ -2241,6 +2285,103 @@ func _build_province_people_tab(d: Dictionary) -> void:
 						religion_ui.call("refresh_if_open")
 				)
 				prov_content_box.add_child(send_btn)
+
+# Phase 12: plague, immunity, famine, unrest with its causes and rebel progress.
+func _append_province_calamity_section(p_idx: int) -> void:
+	if p_idx < 0:
+		return
+	var c_v: Variant = _call_bridge("getProvinceCalamityDetails", [p_idx], {})
+	var c: Dictionary = c_v if c_v is Dictionary else {}
+	if not bool(c.get("hasProvince", false)):
+		return
+	var mine: bool = bool(c.get("isPlayerOwned", false))
+	prov_content_box.add_child(HSeparator.new())
+	prov_content_box.add_child(_make_label("Health & Harvest", Color(0.84, 0.78, 0.66), 12))
+
+	var outbreaks: Array = c.get("outbreaks", [])
+	for o_v in outbreaks:
+		if o_v is Dictionary:
+			var o_lbl := _make_label(str((o_v as Dictionary).get("text", "")), Color(0.98, 0.50, 0.44), 12)
+			o_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			prov_content_box.add_child(o_lbl)
+	var plague_dead: String = str(c.get("plagueDeathsText", ""))
+	if not plague_dead.is_empty():
+		_add_kv_row(prov_content_box, "Died of sickness (month)", plague_dead)
+	if outbreaks.is_empty():
+		_add_kv_row(prov_content_box, "Sickness", "None")
+	var immunities: Array = c.get("immunities", [])
+	if not immunities.is_empty():
+		var parts: PackedStringArray = PackedStringArray()
+		for i_v in immunities:
+			if i_v is Dictionary:
+				parts.append("%s %s" % [str((i_v as Dictionary).get("name", "")), str((i_v as Dictionary).get("text", ""))])
+		_add_kv_row(prov_content_box, "Immune", ", ".join(parts))
+
+	var famine: float = float(c.get("famine", 0.0))
+	_add_kv_row(prov_content_box, "Harvest / Crop", "%s · %s" % [str(c.get("harvestText", "100%")), str(c.get("cropText", "100%"))])
+	if famine >= 0.05:
+		var fam_txt: String = "Famine %s" % str(c.get("famineText", "0%"))
+		var starved: String = str(c.get("famineDeathsText", ""))
+		if not starved.is_empty():
+			fam_txt += " · %s starved this month" % starved
+		prov_content_box.add_child(_make_label(fam_txt, Color(0.96, 0.72, 0.36), 12))
+	var quake_txt: String = str(c.get("lastQuakeText", ""))
+	if not quake_txt.is_empty():
+		var q_lbl := _make_label("Last earthquake: %s" % quake_txt, Color(0.80, 0.70, 0.56), 11)
+		q_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		prov_content_box.add_child(q_lbl)
+
+	if mine:
+		var measures := HBoxContainer.new()
+		measures.add_theme_constant_override("separation", 6)
+		prov_content_box.add_child(measures)
+		if bool(c.get("isPort", false)):
+			var q_on: bool = bool(c.get("isQuarantined", false))
+			var q_btn := Button.new()
+			q_btn.text = "Lift Quarantine" if q_on else "Port Quarantine (%s/mo)" % str(c.get("quarantineCostText", "1"))
+			q_btn.disabled = not bool(c.get("canQuarantine", false))
+			q_btn.tooltip_text = "Ships wait offshore: far less plague arrives or leaves by sea, but the province pays 15% less tax and its market's sea trade is halved. %s" % str(c.get("quarantineRefusal", ""))
+			q_btn.pressed.connect(func() -> void:
+				_call_bridge("setProvinceQuarantine", [p_idx, not q_on], {})
+				_after_calamity_action()
+			)
+			measures.add_child(q_btn)
+		var c_on: bool = bool(c.get("isCordoned", false))
+		var c_btn := Button.new()
+		c_btn.text = "Lift Cordon" if c_on else "Cordon (%s/mo)" % str(c.get("cordonCostText", "1"))
+		c_btn.disabled = not bool(c.get("canCordon", false))
+		c_btn.tooltip_text = "Guards close the roads: far less plague crosses by land and nobody flees, but the province pays 10% less tax and armies march half as slow again. %s" % str(c.get("cordonRefusal", ""))
+		c_btn.pressed.connect(func() -> void:
+			_call_bridge("setProvinceCordon", [p_idx, not c_on], {})
+			_after_calamity_action()
+		)
+		measures.add_child(c_btn)
+
+	prov_content_box.add_child(HSeparator.new())
+	var unrest: float = float(c.get("unrest", 0.0))
+	var u_col: Color = Color(0.96, 0.42, 0.38) if unrest >= 40.0 else (Color(0.96, 0.78, 0.40) if unrest >= 20.0 else Color(0.84, 0.78, 0.66))
+	prov_content_box.add_child(_make_label("Unrest %s / 100" % str(c.get("unrestText", "0")), u_col, 12))
+	var causes: Array = c.get("unrestCauses", [])
+	for u_v in causes:
+		if u_v is Dictionary:
+			_add_kv_row(prov_content_box, "  " + str((u_v as Dictionary).get("name", "")), str((u_v as Dictionary).get("text", "")))
+	var rebels: Array = c.get("rebels", [])
+	for r_v in rebels:
+		if r_v is Dictionary:
+			var r_btn := Button.new()
+			r_btn.text = str((r_v as Dictionary).get("text", "Rebels"))
+			r_btn.flat = true
+			r_btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
+			r_btn.add_theme_color_override("font_color", Color(0.98, 0.62, 0.50))
+			r_btn.tooltip_text = "Open the Unrest & Rebels window"
+			r_btn.pressed.connect(_open_rebels_window)
+			prov_content_box.add_child(r_btn)
+
+func _after_calamity_action() -> void:
+	_refresh_province_panel()
+	_refresh_top_bar()
+	_refresh_styles_and_country_labels()
+	_refresh_faith_overlay()
 
 func _append_province_docks_section(d: Dictionary) -> void:
 	var has_docks: bool = bool(d.get("hasDocks", false))
@@ -2509,6 +2650,8 @@ func _sync_camera_uniforms() -> void:
 		routes_layer.call("update_camera", zoom, offset)
 	if faith_layer != null:
 		faith_layer.call("update_camera", zoom, offset)
+	if calamity_layer != null:
+		calamity_layer.call("update_camera", zoom, offset)
 
 func _on_viewport_resized() -> void:
 	if zoom <= 0.0:
@@ -2590,6 +2733,12 @@ func _unhandled_input(event: InputEvent) -> void:
 				get_viewport().set_input_as_handled()
 			KEY_I:
 				_select_map_mode("markets")
+				get_viewport().set_input_as_handled()
+			KEY_P:
+				_select_map_mode("plague")
+				get_viewport().set_input_as_handled()
+			KEY_L:
+				_select_map_mode("unrest")
 				get_viewport().set_input_as_handled()
 		return
 
@@ -2744,6 +2893,8 @@ func _close_top_left_windows(except_key: String = "") -> void:
 		gov_ui.call("close_window")
 	if except_key != "religion" and religion_ui != null:
 		religion_ui.call("close_window")
+	if except_key != "rebels" and rebels_ui != null:
+		rebels_ui.call("close_window")
 	if except_key != "diplomacy" and diplomacy_ui != null:
 		diplomacy_ui.call("close_window")
 	if except_key != "wars" and wars_ui != null:
@@ -2797,7 +2948,34 @@ func _toggle_religion_window() -> void:
 		_close_top_left_windows("religion")
 	religion_ui.call("toggle_window")
 
+func _toggle_rebels_window() -> void:
+	if rebels_ui == null:
+		return
+	var opening: bool = not bool(rebels_ui.call("is_open"))
+	if opening:
+		_close_top_left_windows("rebels")
+	rebels_ui.call("toggle_window")
+
+func _open_rebels_window() -> void:
+	if rebels_ui == null:
+		return
+	_close_top_left_windows("rebels")
+	rebels_ui.call("open_window")
+
+# Markers for the Plague and Unrest map modes (called with the faith overlay).
+func _refresh_calamity_overlay() -> void:
+	if calamity_layer == null or bridge == null:
+		return
+	if current_map_mode == "plague" or current_map_mode == "unrest":
+		var data_v: Variant = _call_bridge("getCalamityOverlayData", [], {})
+		var data: Dictionary = data_v if data_v is Dictionary else {}
+		calamity_layer.call("set_overlay_data", current_map_mode, data)
+		calamity_layer.call("update_camera", zoom, offset)
+	else:
+		calamity_layer.call("set_overlay_data", current_map_mode, {})
+
 func _refresh_faith_overlay() -> void:
+	_refresh_calamity_overlay()
 	if faith_layer == null or bridge == null:
 		return
 	if current_map_mode == "religion" or current_map_mode == "culture":
@@ -2871,8 +3049,10 @@ func _refresh_alerts_bar() -> void:
 		match kind:
 			"peaceOffer":
 				btn.modulate = Color(1.0, 0.65, 0.35)
-			"underSiege", "coalition", "bankrupt", "blockadedPort":
+			"underSiege", "coalition", "bankrupt", "blockadedPort", "plague", "famine", "earthquake":
 				btn.modulate = Color(1.0, 0.45, 0.42)
+			"rebels":
+				btn.modulate = Color(1.0, 0.45, 0.42) if str(a.get("label", "")).begins_with("Rising") else Color(1.0, 0.72, 0.38)
 			"navalBattle":
 				btn.modulate = Color(0.55, 0.85, 1.0)
 			"breach", "disloyalEstate":
@@ -2892,9 +3072,13 @@ func _on_alert_pressed(alert: Dictionary) -> void:
 	match kind:
 		"peaceOffer":
 			_open_wars_and_peace(war_id)
-		"breach", "underSiege", "blockadedPort":
+		"breach", "underSiege", "blockadedPort", "plague", "famine", "earthquake":
 			if p_idx >= 0:
 				_focus_and_select_province(p_idx)
+		"rebels":
+			if p_idx >= 0:
+				_focus_and_select_province(p_idx)
+			_open_rebels_window()
 		"navalBattle":
 			var sz_idx: int = int(alert.get("seaZoneIndex", -1))
 			if sz_idx >= 0 and zoom > 0.0:

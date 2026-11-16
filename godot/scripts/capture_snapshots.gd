@@ -310,6 +310,22 @@ func _run_captures() -> void:
 	root_node.call("_after_fleet_action")
 	await _save_shot("godot_naval_battle.png")
 
+	# Phase 12: the Plague map and the Rebels window after five years. The
+	# Ottoman peasants are taxed double from day one so a faction is brewing.
+	bridge.call("startNewGame", "TUR")
+	root_node.call("_after_world_replaced")
+	root_node.call("_close_top_left_windows", "")
+	bridge.call("setTaxLevel", 0, 2.0)
+	bridge.call("advanceSimulationDays", 1825)
+	root_node.call("_after_world_replaced")
+	root_node.call("_select_map_mode", "plague")
+	root_node.call("_show_whole_map")
+	await _save_shot("godot_map_plague.png")
+	root_node.call("_select_map_mode", "unrest")
+	root_node.call("_toggle_rebels_window")
+	await _save_shot("godot_rebels_window.png")
+	root_node.call("_close_top_left_windows", "")
+
 	# Phase 11 1520 Religion & Culture snapshot (simulate headless to 1520):
 	bridge.call("startNewGame", "TUR")
 	root_node.call("_after_world_replaced")

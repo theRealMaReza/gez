@@ -78,11 +78,11 @@ struct GezGodotTests {
         #expect(controller.setup(dataDirectoryPath: "", tag: "TUR"))
 
         let modes = controller.mapModesList()
-        #expect(modes.count == 9)
+        #expect(modes.count == 11)
         let keys = modes.compactMap { $0["key"] as? String }
         let shortcuts = modes.compactMap { $0["shortcut"] as? String }
-        #expect(keys == ["political", "diplomatic", "states", "terrain", "religion", "culture", "development", "goods", "markets"])
-        #expect(shortcuts == ["Q", "O", "W", "E", "R", "T", "Y", "U", "I"])
+        #expect(keys == ["political", "diplomatic", "states", "terrain", "religion", "culture", "development", "goods", "markets", "plague", "unrest"])
+        #expect(shortcuts == ["Q", "O", "W", "E", "R", "T", "Y", "U", "I", "P", "L"])
 
         let politicalStyles = controller.styleBytes()
         #expect(controller.mapModeKey == "political")
@@ -107,6 +107,8 @@ struct GezGodotTests {
             ("culture", 4),
             ("development", 5),
             ("goods", 6),
+            ("plague", 8),
+            ("unrest", 9),
             ("markets", 7)
         ] {
             #expect(controller.setMapMode(key: modeKey))
@@ -1381,5 +1383,88 @@ struct GezGodotTests {
         #expect(!mamHeld.isEmpty)
         #expect(controller.advanceSimulationDays(30))
         #expect((controller.playerTopBarDetails()["dateText"] as? String) != "30 May 1453")
+    }
+
+    @Test("Phase 12 bridge: plague and famine in the province panel, quarantine, cordon, rebels window, answers & overlay")
+    func phase12CalamityAndRebelsBridge() throws {
+        let controller = GezGodotController()
+        #expect(controller.setup(dataDirectoryPath: "", tag: "VEN"))
+        let s = try #require(controller.session)
+        let ven = try #require(s.playerCountry)
+        let venice = try #require(s.world.provinces.id(named: "Venice"))
+
+        // 1. Province panel: an outbreak, a famine and unrest causes show up.
+        #expect((controller.provinceCalamityDetails(provinceIndex: -1)["hasProvince"] as? Bool) == false)
+        let quiet = controller.provinceCalamityDetails(provinceIndex: venice.index)
+        #expect((quiet["hasProvince"] as? Bool) == true)
+        #expect((quiet["isPlayerOwned"] as? Bool) == true)
+        #expect((quiet["isPort"] as? Bool) == true)
+        #expect((quiet["outbreaks"] as? [[String: Any]] ?? []).isEmpty)
+
+        #expect(PlagueSystem.startOutbreak(&s.simulation.world, in: venice, disease: .plague, date: s.date, severity: 1))
+        s.simulation.world.provinces.famine[venice.index] = 0.6
+        let struck = controller.provinceCalamityDetails(provinceIndex: venice.index)
+        #expect((struck["outbreaks"] as? [[String: Any]] ?? []).count == 1)
+        #expect((struck["famineText"] as? String) == "60%")
+        #expect(!(struck["unrestCauses"] as? [[String: Any]] ?? []).isEmpty)
+
+        // 2. Quarantine and cordon from the panel; a foreign province is refused.
+        s.simulation.world.countries.treasury[ven.index] = 500
+        #expect((controller.setQuarantine(provinceIndex: venice.index, on: true)["ok"] as? Bool) == true)
+        #expect((controller.setCordon(provinceIndex: venice.index, on: true)["ok"] as? Bool) == true)
+        let guarded = controller.provinceCalamityDetails(provinceIndex: venice.index)
+        #expect((guarded["isQuarantined"] as? Bool) == true)
+        #expect((guarded["isCordoned"] as? Bool) == true)
+        let paris = try #require(s.world.provinces.id(named: "Paris"))
+        #expect((controller.setQuarantine(provinceIndex: paris.index, on: true)["ok"] as? Bool) == false)
+        #expect((controller.setCordon(provinceIndex: 99_999, on: true)["ok"] as? Bool) == false)
+        #expect((controller.setQuarantine(provinceIndex: venice.index, on: false)["ok"] as? Bool) == true)
+        #expect((controller.provinceCalamityDetails(provinceIndex: venice.index)["isQuarantined"] as? Bool) == false)
+
+        // 3. Alerts and the Plague map mode.
+        let kinds = controller.activeAlerts().compactMap { $0["kind"] as? String }
+        #expect(kinds.contains("plague"))
+        #expect(kinds.contains("famine"))
+        #expect(controller.setMapMode(key: "plague"))
+        let overlay = controller.calamityOverlayData()
+        #expect((overlay["outbreaks"] as? [[String: Any]] ?? []).contains { ($0["provinceIndex"] as? Int) == venice.index })
+        #expect((overlay["measures"] as? [[String: Any]] ?? []).contains { ($0["provinceIndex"] as? Int) == venice.index })
+        #expect(!(overlay["famines"] as? [[String: Any]] ?? []).isEmpty)
+        #expect(controller.styleBytes().count > 8)
+
+        // 4. Rebels window: a brewing faction with its demand and the three answers.
+        s.simulation.world.unrest.resize(provinces: s.world.provinces.count, countries: s.world.countries.count)
+        var faction = RebelFaction(id: 700, country: ven, kind: .peasants)
+        faction.progress = 64
+        faction.provinces = [venice]
+        s.simulation.world.unrest.factions.append(faction)
+        let window = controller.rebelsWindowDetails()
+        #expect((window["hasPlayer"] as? Bool) == true)
+        let rows = window["factions"] as? [[String: Any]] ?? []
+        #expect(rows.count == 1)
+        #expect((rows.first?["factionId"] as? Int) == 700)
+        #expect((rows.first?["progressText"] as? String) == "64%")
+        let demandText: String = (rows.first?["demand"] as? String) ?? ""
+        let concessionText: String = (rows.first?["concession"] as? String) ?? ""
+        #expect(demandText.count > 5)
+        #expect(concessionText.count > 5)
+        #expect(controller.topBarRebelsText == "Rebels 1")
+        #expect(controller.activeAlerts().contains { ($0["kind"] as? String) == "rebels" })
+        #expect(controller.setMapMode(key: "unrest"))
+        #expect((controller.calamityOverlayData()["rebels"] as? [[String: Any]] ?? []).count == 1)
+
+        let taxBefore = s.world.countries.taxLevel[ven.index][TaxClass.peasants.rawValue]
+        #expect((controller.lowerPeasantTaxes()["ok"] as? Bool) == true)
+        #expect(s.world.countries.taxLevel[ven.index][TaxClass.peasants.rawValue] < taxBefore)
+        #expect((controller.sendTroopsAgainstRebels(factionId: 12_345)["ok"] as? Bool) == false)
+        #expect(controller.sendTroopsAgainstRebels(factionId: 700)["reason"] != nil)
+        #expect((controller.concedeToRebels(factionId: 700)["ok"] as? Bool) == true)
+        #expect((controller.rebelsWindowDetails()["factions"] as? [[String: Any]] ?? []).isEmpty)
+        #expect((controller.concedeToRebels(factionId: 700)["ok"] as? Bool) == false)
+        #expect(controller.topBarRebelsText == "Rebels")
+
+        // 5. Time still runs with all of it switched on.
+        #expect(controller.advanceSimulationDays(40))
+        #expect((controller.playerTopBarDetails()["rebelsButtonText"] as? String) != nil)
     }
 }

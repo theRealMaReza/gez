@@ -5,7 +5,7 @@ Read this first, then `docs/ROADMAP.md` (the agreed plan), `docs/DESIGN.md`
 judgment calls) and `CLAUDE.md` (rules). This file says where the project
 stands, how to work on it, and what to do next.
 
-Last updated: session 9 (15 November 2026). Phases 0–11 are done: Phase 11 adds religion and culture in motion (`Systems/FaithSystem.swift`, `Systems/MovementSystem.swift`, `Systems/CultureSystem.swift`), holy sites (`data/faith/`, `faith1453.json`), Hussite/Safaviyya/Reformation historical movements, accepted cultures, slow assimilation, pop-conserving migration, and the Godot Religion & Culture screen/overlays (`ReligionPanel.gd`, `MapFaithLayer.gd`). Next: Phase 12 (rebels and civil wars).
+Last updated: session 10 (16 November 2026). Phases 0–12 are done. Phase 12 (plague, famine, earthquakes, unrest and rebels) was **written by Claude** in pull request #25 (`Calamity/`, `Unrest/`, `Systems/{PlagueSystem,FamineSystem,QuakeSystem,UnrestSystem,RebelSystem}.swift`, `data/calamity/`, `tools/calamity/`, `godot/scripts/{RebelsPanel,MapCalamityLayer}.gd`, `GezGodotCalamityBridge.swift`). Next: Phase 13 (technology).
 
 ## The owner
 
@@ -61,18 +61,22 @@ Everything below is built, tested on CI and visible in the app.
 | Battle view (Phase 9) | `Packages/GezCore/Sources/GezCore/Battle/` + `godot/scripts/BattleView.gd`: choice modal (Lead Battle in Person / Auto-Resolve), reproducible terrain/hills/forest/river+ford battlefields, deployment + ambush skip, real-time 10 Hz fixed-step combat (Pause/0.5x/1x/2x), click/box/move/path/frontline/attack/retreat orders (touch/Pencil friendly), 6 formations, 5 stances, flanking/morale/routing/fatigue/ammo, tactical AI, playable fort siege assaults (walls/towers/gate/keep/breaches/ladders/ram), and deterministic write-back (survivors, levy pops, commanders, war score, fort capture) with result panel |
 | Navies (Phase 10) | `Packages/GezCore/Sources/GezCore/Navy/`, `Systems/Navy*.swift`, `data/navy/` (`navy1453.json`), `godot/scripts/FleetPanel.gd` & `MapFleetsLayer.gd`: 4 core + 4 regional ship types, Docks shipbuilding with market goods, coastal pop sailors, 28 starting 1453 fleets (230 ships), daily sea movement/attrition/port repair, fleet AI, multi-day auto-resolved naval battles (cannon + boarding, inland galley bonus, capture, war score), blockades (siege & trade cuts), strait blocking, 1-Cog-per-1,000 amphibious transport (`-2` landing penalty) with AI usage, Godot counters/panels/alerts |
 | Religion & culture (Phase 11) | `Packages/GezCore/Sources/GezCore/Faith/`, `Systems/{FaithSystem,MovementSystem,CultureSystem}.swift`, `data/faith/` (`faith1453.json`), `godot/scripts/{ReligionPanel,MapFaithLayer}.gd`: monthly conversion (Clergy loyalty, temples, Faith laws, Dhimmi/Compacts blocks), missionaries, `religiousUnrest`, 43 holy sites (prestige, Clergy loyalty, stab discount), Hussites (`BOH`), Safaviyya/Qizilbash, Protestant/Reformed Reformation (~1517+, trade-route Centres), accepted cultures (government rank + law slots, tax/manpower/mood multipliers), conditional assimilation, and pop-conserving migration across neighbors/trade routes; Godot Religion & Culture window + People tab + map overlays + 1520 snapshot |
+| Plague, famine & rebels (Phase 12) | `Packages/GezCore/Sources/GezCore/{Calamity,Unrest}/`, `Systems/{PlagueSystem,FamineSystem,QuakeSystem,UnrestSystem,RebelSystem}.swift`, `data/calamity/fault_zones.txt` (`calamity1453.json`), `godot/scripts/{RebelsPanel,MapCalamityLayer}.gd`: plague, camp fever and smallpox (outbreaks in crowded towns, ports, sieges and camps; spread by road, trade route, sea and armies; deaths by class; fading immunity; Port Quarantine and Cordon), yearly harvests and famine, 27 fault zones + 4 known earthquakes, unrest 0–100 per province from eleven causes, five rebel factions per country that raise real armies from their pops and enforce demands, concessions / troops / lower taxes for player and AI; Godot Rebels window, Plague (P) and Unrest (L) map modes, province People tab section, alerts |
 | App windows (old Apple app) | Top bar: treasury (Budget), Trade, Court, Stability (Government), Armies (manpower, field armies, commanders, levies, recruitment). Province panel tabs: Overview (holder, supply, levy, buildings), Economy, People. Market panel. Map modes Q–I; 2D army counters and marching arrows |
-| Tests | GezCore simulation tests (incl. `StartingWarsTests`, `FingerprintTests`, `BattleEngineTests`, `FaithTests`, `CultureTests`, five long runs), GezGodot bridge tests (incl. Phase 9 & Phase 11 bridge tests), App snapshot tests; note `FingerprintTests` updates whenever economy/manpower/pop rules change |
+| Tests | GezCore simulation tests (incl. `StartingWarsTests`, `FingerprintTests`, `BattleEngineTests`, `FaithTests`, `CultureTests`, `PlagueTests`, `FamineTests`, `UnrestTests`, five long runs), GezGodot bridge tests (incl. Phase 9 & Phase 11 bridge tests), App snapshot tests; note `FingerprintTests` updates whenever economy/manpower/pop rules change |
 
 Also built (Phases 7–8): diplomacy, war and peace, auto-resolved battles,
 sieges, save/load and autosave, nation picker, alerts. Not started (later
-phases): plague & rebels (Phase 12 — consumes Phase 11 `religiousUnrest`, `devastation`, `famine`), technology, events, sound, settings, multiplayer.
+phases): technology (Phase 13), events, sound, settings, multiplayer.
 
 ## What to do next
 
-1. **Owner play-test of Phase 11 (religion & culture) & Godot** on the Mac (`git pull`,
-   `./godot/build_mac.sh`, Cmd+Q Godot, reopen, Play). Note `App/` continues to build cleanly with no new SwiftUI screens added.
-2. **Phase 12: Plague, famine and rebellion**: cause-driven rebels (consuming `religiousUnrest`), plague spreading along trade routes/armies (driving migration), and earthquakes.
+1. **Owner play-test of Phase 12** on the Mac (`git pull`,
+   `./godot/build_mac.sh`, Cmd+Q Godot, reopen, Play): press P and L for
+   the Plague and Unrest maps, open a province's People tab, raise taxes
+   and watch the Rebels window. Things to judge: is plague too rare or too
+   deadly, do rebels rise too often, are the answers clear.
+2. **Phase 13: Technology** (ROADMAP).
 3. Follow-ups: the campaign still uses platform maths (`MarketModel.km`
    distances, `hypot` in the AI), which can differ between Mac, Windows and
    Linux; move it to `Core/DetMath.swift` before multiplayer (Phase 19),
@@ -82,6 +86,39 @@ phases): plague & rebels (Phase 12 — consumes Phase 11 `religiousUnrest`, `dev
    (`claude/fingerprint-base`, `claude/fingerprint-speedonly`) can be
    deleted on GitHub (the workspace cannot delete branches); retire `App/`
    when the owner says so.
+
+### Session 10: Phase 12 written by Claude (PR #25)
+- The owner had Claude write this phase instead of reviewing Gemini.
+  One commit per part (A plague, B famine and earthquakes, C unrest and
+  rebels, D screens and docs).
+- **Own dice**: plague, famine, earthquakes and rebels use
+  `world.calamity.rngState` (a `GameRandom` split off the game's stream on
+  the first monthly tick, saved). Use `world.beginCalamityRandom(random)` /
+  `endCalamityRandom(rng)` for any new calamity; never draw from the main
+  `random` there, or every existing system's luck shifts.
+- **Tuning**: `tools/calamity/plague_prototype.py` is a Python copy of the
+  spread rules (keep constants in step with `PlagueModel`). The test
+  `testTwoYearsOfCalamitiesStaySane` and the ten-year run (every year)
+  print a `CALAMITY ...` line into the CI log (`CalamityReport.line`):
+  read it after any rule change (deaths, unrest, how many factions and
+  risings).
+- **Famine is relative**: each market remembers its usual staple supply
+  (`calamity.stapleNorm`); Hormuz, Aksum, Aden, Mogadishu and Tunis always
+  run 20–35% short of staples in the economy model and would otherwise
+  starve forever.
+- **Rebel armies** are ordinary `isRebel` armies owned by the country;
+  `world.unrest.isFactionArmy(index)` tells them from vassal revolts
+  (`ArmySystem.resolveRebelClash` skips them; `RebelSystem.fight` handles
+  them). They stand still for now (no marching on the capital).
+- **Found on the way**: `ReligionPanel.gd` called a `_focus_map_on_point`
+  that does not exist in `Main.gd` (clicking a province name in the
+  Religion window did nothing); fixed to `_focus_and_select_province`.
+- `testPopulationGrowsOverAYear` now allows 2% loss in the first year
+  (people also die of plague and hunger).
+- Not done / ideas: rebels marching and besieging, plague arriving with
+  fleets and refugees, hospitals or granaries as buildings, an event
+  pop-up when a rising starts (Phase 14), AI changing tax for other
+  classes.
 
 ### How Claude reviews Gemini's pull requests (owner's choice, 15 Nov 2026)
 The owner found full reviews too slow (each CI round with the three game
@@ -265,11 +302,12 @@ of them are reproducible (same input, byte-identical output).
 | `data/government/` | `python3 tools/government/govgen.py` | `government1453.json` |
 | `data/military/` | `python3 tools/military/milgen.py` | `military1453.json` |
 | `data/diplomacy/` | `python3 tools/diplomacy/dipgen.py` | `diplomacy1453.json` |
+| `data/calamity/fault_zones.txt` | `python3 tools/calamity/calamitygen.py` (fault zones store province indices: rerun after any map change) | `calamity1453.json` |
 | `data/heraldry/choices.txt` | push it; the Heraldry workflow downloads and converts | `App/Resources/Heraldry/arms_<TAG>.png`, `data/heraldry/credits.json` |
 | app icon (portolan chart, drawn from the province map) | `python3 tools/icon/make_icon.py` | `App/Resources/Assets.xcassets/AppIcon.appiconset/`, `docs/icon_preview.png` |
 
 Run order after a map change: mapgen → bake_terrain → econgen → chargen →
-govgen (later ones read `scenario1453.json`). A new JSON resource must also
+govgen → calamitygen (later ones read `scenario1453.json`). A new JSON resource must also
 be listed in `Packages/GezCore/Package.swift`.
 
 People file format (`data/characters/people_*.txt`): `role | id | Name |
@@ -314,7 +352,8 @@ Packages/GezCore/Sources/GezCore/
   Systems/           MarketSystem (+ EconomySystem/PopulationSystem),
                      BuildingSystem, CharacterSystem, VassalSystem,
                      GovernmentSystem, ArmySystem, BattleSystem, DiplomacySystem, DiplomacyAISystem
-  Scenario/          Scenario1453 + Economy/Character/Government/Military/Diplomacy loaders
+  Calamity/, Unrest/  plague, famine, earthquake and rebel state (Phase 12)
+  Scenario/          Scenario1453 + Economy/Character/Government/Military/Diplomacy/Calamity loaders
   Resources/         generated JSON and ID maps
 App/Shared/
   GameModel.swift    bridge between simulation and UI; game loop; player actions

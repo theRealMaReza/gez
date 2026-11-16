@@ -256,14 +256,14 @@ Owner's choices:
 - [x] 3. **Culture, assimilation & migration** (`CultureSystem.swift`): government-rank + law accepted-culture slots, tax/manpower/contentment penalties on unaccepted cultures (`MarketSystem` & `ArmySystem` wired), slow conditional assimilation, and devastation/persecution/famine-driven migration conserving total world population.
 - [x] 4. **Godot screens & snapshots** (`ReligionPanel.gd`, `MapFaithLayer.gd`, `Main.gd`, `capture_snapshots.gd`): Religion & Culture window, Province People tab conversion/assimilation/unrest/missionary controls, Religion & Culture map mode overlays, and `godot_religion_window.png` / `godot_map_religion_1520.png` snapshots.
 
-### Phase 12: Plague, famine and rebellion
+### Phase 12: Plague, famine and rebellion ✅ (session 10, PR #25, written by Claude)
 Owner's choices:
 - **Plague, famine & earthquakes**: Plagues (bubonic plague, typhus/camp fever, smallpox) ignite in crowded hubs or besieged camps and spread along active Trade Routes, Ports, and marching Armies, killing pops by class with local immunity recovery and Port Quarantine / Cordon responses; Famine triggers when staple food supply falls below pop need (from bad harvest rolls, war devastation, siege looting, or peasant levies kept raised during harvest); occasional Earthquakes strike historical fault zones (Anatolia, Aegean, Italy, Persia, Lisbon, Himalayas), damaging buildings and forts.
 - **Rebellions**: Cause-driven rebel factions tied to real pops & estates (Peasant Rebels, Religious Zealots, Cultural Separatists, Noble/Estate Rebels, Dynasty Pretenders); at 100% progress they raise a real army on the map from those pops and enforce their political demands if victorious.
-1. **Plague** spreading along trade routes and with armies; **famine**
-   after bad harvests and war; occasional earthquakes.
-2. **Unrest and rebels** from real causes (taxes, religion, culture,
-   estates, succession, pretenders).
+- [x] A. **Plague** (`Calamity/Calamity.swift`, `Systems/PlagueSystem.swift`): plague, camp fever and smallpox; outbreaks in crowded towns, ports, sieges and camps; spread by road, trade route, sea and marching armies; deaths by class; fading immunity; Port Quarantine and Cordon for player and AI.
+- [x] B. **Famine and earthquakes** (`Systems/FamineSystem.swift`, `Systems/QuakeSystem.swift`, `data/calamity/fault_zones.txt` → `tools/calamity/calamitygen.py` → `calamity1453.json`): yearly harvest rolls, devastation, looting and levies at harvest, famine deaths; 27 fault zones and 4 known earthquakes damaging buildings and forts.
+- [x] C. **Unrest and rebels** (`Unrest/Unrest.swift`, `Systems/UnrestSystem.swift`, `Systems/RebelSystem.swift`): unrest per province from real causes; Peasant Rebels, Religious Zealots, Cultural Separatists, Estate Rebels and Pretenders with progress, real armies from their pops, enforced demands, and concessions / troops / lower taxes for player and AI.
+- [x] D. **Godot screens** (`RebelsPanel.gd`, `MapCalamityLayer.gd`, `GezGodotCalamityBridge.swift`): alerts, province panel section, Rebels window, Plague and Unrest map modes, `godot_rebels_window.png` and `godot_map_plague.png` snapshots.
 
 ### Phase 13: Technology
 Owner's choices: 3 EU4-style tech tracks (Administrative, Diplomatic, Military, levels 1–20 starting at level 3–4 in 1453); monthly research from Ruler skills + Council advisors + Paper/Books supply in the capital market + University/Library buildings; unlocks advanced units, higher fort & building tiers, trade range, and administrative efficiency; -5% per level Neighbor Bonus plus historical Institutions (Renaissance, Printing Press, Global Trade, Manufactories) spreading along trade routes and literate burgher pops.
