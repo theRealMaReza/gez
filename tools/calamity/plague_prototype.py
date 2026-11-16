@@ -18,8 +18,8 @@ RES = os.path.join(ROOT, 'Packages/GezCore/Sources/GezCore/Resources')
 # of a fresh outbreak in a crowded province
 DISEASES = [
     ('plague',   9, 0.30, 0.35, 0.0030, 0.00040),
-    ('typhus',   6, 0.20, 0.15, 0.0100, 0.0),
-    ('smallpox', 7, 0.35, 0.12, 0.0015, 0.00030),
+    ('typhus',   6, 0.20, 0.12, 0.0100, 0.0),
+    ('smallpox', 7, 0.35, 0.08, 0.0015, 0.00020),
 ]
 MIN_SUSCEPTIBLE = 0.45
 # After an outbreak the province counts as this immune (survivors plus the
