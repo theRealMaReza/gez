@@ -263,6 +263,7 @@ public struct SaveSnapshot: Sendable, Codable {
     public var faith: FaithState?
     public var calamity: CalamityState?
     public var unrest: UnrestState?
+    public var tech: TechState?
 
     public init(capturing simulation: Simulation) {
         let w = simulation.world
@@ -413,6 +414,7 @@ public struct SaveSnapshot: Sendable, Codable {
         self.faith = w.faith
         self.calamity = w.calamity
         self.unrest = w.unrest
+        self.tech = w.tech
     }
 
     /// Rebuilds an identical `Simulation` using a freshly created static base `World`.
@@ -583,6 +585,14 @@ public struct SaveSnapshot: Sendable, Codable {
         if let unrest {
             w.unrest = unrest
             w.unrest.resize(provinces: w.provinces.count, countries: w.countries.count)
+        }
+        if let tech {
+            w.tech = tech
+            w.tech.resize(
+                countries: w.countries.count,
+                provinces: w.provinces.count,
+                institutions: w.techRules.institutions.count
+            )
         }
 
         return Simulation(
