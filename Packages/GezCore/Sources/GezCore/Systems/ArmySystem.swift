@@ -128,9 +128,23 @@ public enum ArmySystem {
 
     // MARK: - Unit Unlocks & Recruitment Costs
 
-    /// True if `country` satisfies the unlock rules for `unitId`.
+    /// True if `country` satisfies the regional/estate unlock rules and Military tech level for `unitId`.
     public static func canRecruit(_ world: World, _ country: CountryID, _ unitId: UnitTypeID) -> Bool {
-        UnitUnlock.matches(world.military.unit(unitId).requires, in: world, for: country)
+        let u = world.military.unit(unitId)
+        guard world.tech.level(country, .military) >= u.minMilTech else { return false }
+        return UnitUnlock.matches(u.requires, in: world, for: country)
+    }
+
+    /// Explains why `unitId` is locked for `country`, or `nil` if unlocked.
+    public static func unitLockReason(_ world: World, _ country: CountryID, _ unitId: UnitTypeID) -> String? {
+        let u = world.military.unit(unitId)
+        if world.tech.level(country, .military) < u.minMilTech {
+            return "Requires Military Tech \(u.minMilTech)"
+        }
+        if !UnitUnlock.matches(u.requires, in: world, for: country) {
+            return ArmyRefusal.unitLocked.reason
+        }
+        return nil
     }
 
     /// All unit types unlocked for `country`.
@@ -207,7 +221,8 @@ public enum ArmySystem {
             }
         }
 
-        let reg = Regiment(type: unitId, origin: .professional, men: u.maxMen, morale: u.morale)
+        let moraleBonus = world.techEffects(country, track: .military).landMorale
+        let reg = Regiment(type: unitId, origin: .professional, men: u.maxMen, morale: u.morale + moraleBonus)
         let armyId = attachRegiment(&world, country: country, province: province, regiment: reg, preferredArmy: targetArmy)
         return .success(armyId)
     }
@@ -234,7 +249,8 @@ public enum ArmySystem {
             return .failure(.cannotAfford)
         }
         world.countries.treasury[country.index] -= cost
-        let reg = Regiment(type: unitId, origin: .mercenary, men: u.maxMen, morale: u.morale)
+        let moraleBonus = world.techEffects(country, track: .military).landMorale
+        let reg = Regiment(type: unitId, origin: .mercenary, men: u.maxMen, morale: u.morale + moraleBonus)
         let armyId = attachRegiment(&world, country: country, province: province, regiment: reg, preferredArmy: targetArmy)
         return .success(armyId)
     }
@@ -1200,7 +1216,8 @@ public enum ArmySystem {
                     for rIdx in world.military.armies.regiments[i].indices {
                         var reg = world.military.armies.regiments[i][rIdx]
                         let u = world.military.unit(reg.type)
-                        reg.morale = min(u.morale, reg.morale + 0.5)
+                        let maxMorale = u.morale + world.techEffects(owner, track: .military).landMorale
+                        reg.morale = min(maxMorale, reg.morale + 0.5)
                         if isFriendly && reg.men < u.maxMen {
                             let needed = u.maxMen - reg.men
                             let step = max(10, u.maxMen / 10)
@@ -1606,8 +1623,21 @@ public enum ArmySystem {
                   let cap = world.countries.capital[c.index],
                   world.provinces.owner[cap.index] == c else { continue }
 
-            let unlocked = availableUnits(world, for: c).filter { $0.category != .artillery }
-            guard let chosen = unlocked.max(by: { ($0.attack + $0.defence) < ($1.attack + $1.defence) }) else { continue }
+            let unlocked = availableUnits(world, for: c)
+            var totalRegs = 0
+            var artRegs = 0
+            for aid in crownArmies {
+                for r in world.military.armies.regiments[Int(aid.rawValue)] {
+                    totalRegs += 1
+                    if world.military.unit(r.type).category == .artillery { artRegs += 1 }
+                }
+            }
+            let wantArtillery = totalRegs >= 4 && Double(artRegs) / Double(max(1, totalRegs)) < 0.12
+                && world.countries.treasury[c.index] > reserve + 80.0
+            let pool = unlocked.filter { wantArtillery ? $0.category == .artillery : $0.category != .artillery }
+            let affordable = (pool.isEmpty ? unlocked.filter { $0.category != .artillery } : pool)
+                .filter { recruitRefusal(world, c, in: cap, unit: $0.id) == nil }
+            guard let chosen = affordable.max(by: { ($0.attack + $0.defence) < ($1.attack + $1.defence) }) else { continue }
             if soldiersDirty { recountSoldiers() }
             if soldiersInProv[cap.index] + chosen.maxMen <= supplyLimit(world, in: cap) {
                 let existingCapArmy = crownArmies.first {

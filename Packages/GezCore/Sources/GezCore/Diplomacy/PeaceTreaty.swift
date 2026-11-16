@@ -98,14 +98,16 @@ extension Diplomacy {
             if !isOccupied {
                 cost *= 1.50
             }
+            cost *= max(0.5, 1.0 - world.techEffects(recipient, track: .administrative).adminEff)
             return min(100, max(3, Int(cost.rounded())))
 
-        case .returnCore(let pid, _):
+        case .returnCore(let pid, let recipient):
             let dev = max(1, world.provinces.development[pid.index])
             var cost = Double(min(40, max(3, Int((Double(dev) * 2.2).rounded()))))
             if war.casusBelli == .reconquest {
                 cost *= 0.75
             }
+            cost *= max(0.5, 1.0 - world.techEffects(recipient, track: .administrative).adminEff)
             return min(100, max(3, Int(cost.rounded())))
 
         case .ducatIndemnity(let amount):
@@ -121,6 +123,9 @@ extension Diplomacy {
             if war.casusBelli == .subjugation {
                 cost *= 0.5
             }
+            if let winner = war.isAttacker(loser) ? war.defenders.first : war.attackers.first {
+                cost *= max(0.5, 1.0 - world.techEffects(winner, track: .administrative).adminEff)
+            }
             return max(15, Int(cost.rounded()))
 
         case .makeTributary:
@@ -128,6 +133,9 @@ extension Diplomacy {
             var cost = Double(dev) * 1.2
             if war.casusBelli == .tribute {
                 cost *= 0.65
+            }
+            if let winner = war.isAttacker(loser) ? war.defenders.first : war.attackers.first {
+                cost *= max(0.5, 1.0 - world.techEffects(winner, track: .administrative).adminEff)
             }
             return min(85, max(12, Int(cost.rounded())))
 
@@ -188,7 +196,8 @@ extension Diplomacy {
                 break
             }
         }
-        return totalAE
+        let aeAdminMult = max(0.5, 1.0 - world.techEffects(offer.winner, track: .administrative).adminEff)
+        return totalAE * aeAdminMult
     }
 
     /// Evaluates whether the losing country accepts a proposed peace offer.

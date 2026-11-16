@@ -94,7 +94,8 @@ public enum CultureSystem {
         guard country.index < world.countries.count else { return 1 }
         let base = governmentRank(world, country).baseAcceptedSlots
         let lawBonus = Int(world.government.modifier(country, .acceptedCultures).rounded())
-        return max(0, base + lawBonus)
+        let techBonus = world.techEffects(country, track: .administrative).acceptedCultures
+        return max(0, base + lawBonus + techBonus)
     }
 
     @inline(__always)

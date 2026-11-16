@@ -121,7 +121,7 @@ enum EconomyLoader {
                 throw Scenario1453.LoadError.unknownValue("route owner \(r.owner)")
             }
             TradeSystem.create(&world, owner: owner, good: GoodID(r.good), from: MarketID(r.from), to: MarketID(r.to),
-                               volume: r.volume, ignoreCapacity: true)
+                               volume: r.volume, ignoreCapacity: true, ignoreRange: true)
         }
     }
 }

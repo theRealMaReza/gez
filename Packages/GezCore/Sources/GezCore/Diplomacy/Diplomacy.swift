@@ -260,6 +260,7 @@ public struct Diplomacy: Sendable, Codable {
             let chanSkill = world.people.characters.skills[chancellorID.index][Skill.diplomacy.rawValue]
             slots += chanSkill / 10
         }
+        slots += world.techEffects(country, track: .diplomatic).relations
         return slots
     }
 

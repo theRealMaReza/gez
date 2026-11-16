@@ -292,7 +292,9 @@ public enum BattleSystem {
         }
 
         let avgDefence = activeRegs > 0 ? defSum / Double(activeRegs) : 5.0
-        let quality = max(0.5, 1.0 + world.government.modifier(primaryCountry, .armyQuality) + ArmySystem.marshalBonus(world, primaryCountry) * 0.5)
+        let tactics = max(0.50, world.techEffects(primaryCountry, track: .military).tactics)
+        let tacticsMult = tactics / 0.50
+        let quality = max(0.5, 1.0 + world.government.modifier(primaryCountry, .armyQuality) + ArmySystem.marshalBonus(world, primaryCountry) * 0.5) * tacticsMult
         return SideCombatStats(
             attack: attack,
             avgDefence: avgDefence,

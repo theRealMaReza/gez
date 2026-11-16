@@ -112,6 +112,8 @@ public struct UnitType: Sendable {
     /// Empty means every country can recruit this unit; non-empty means any
     /// matching rule unlocks it.
     public var requires: [UnitUnlock]
+    /// Minimum Military tech level required to recruit new regiments (1...20).
+    public var minMilTech: Int
 
     public init(
         id: UnitTypeID,
@@ -127,7 +129,8 @@ public struct UnitType: Sendable {
         cost: Double,
         upkeep: Double,
         goods: [(GoodID, Double)],
-        requires: [UnitUnlock]
+        requires: [UnitUnlock],
+        minMilTech: Int = 1
     ) {
         self.id = id
         self.key = key
@@ -143,6 +146,7 @@ public struct UnitType: Sendable {
         self.upkeep = upkeep
         self.goods = goods
         self.requires = requires
+        self.minMilTech = minMilTech
     }
 }
 

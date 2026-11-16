@@ -20,6 +20,7 @@ public enum BuildingSystem {
 
     public enum Refusal: Equatable, Sendable {
         case notOwner, maxLevel, noSlots, alreadyBuilding, needsCoast, wrongGood, wrongTerrain, wrongReligion, cannotAfford
+        case techLocked(track: TechTrack, required: Int)
 
         public var reason: String {
             switch self {
@@ -32,6 +33,7 @@ public enum BuildingSystem {
             case .wrongTerrain: return "Wrong terrain"
             case .wrongReligion: return "Wrong religion"
             case .cannotAfford: return "Not enough ducats"
+            case .techLocked(let track, let req): return "Requires \(track.displayName) Tech \(req)"
             }
         }
     }
@@ -72,6 +74,22 @@ public enum BuildingSystem {
         if world.provinces.owner[p.index] != country { return .notOwner }
         if eco.buildings.construction(p, t) != nil { return .alreadyBuilding }
         if eco.buildings.level(p, t) >= BuildingType.maxLevel { return .maxLevel }
+        let next = nextLevel(world, p, t)
+        if type.effect == .fort {
+            let maxFort = world.techEffects(country, track: .military).maxFort
+            if next > maxFort {
+                let req = world.techRules.tracks[safe: TechTrack.military.rawValue]?
+                    .first(where: { $0.effects.maxFort >= next })?.level ?? (next * 4 - 4)
+                return .techLocked(track: .military, required: req)
+            }
+        } else {
+            let maxBldg = world.techEffects(country, track: .administrative).maxBuilding
+            if next > maxBldg {
+                let req = world.techRules.tracks[safe: TechTrack.administrative.rawValue]?
+                    .first(where: { $0.effects.maxBuilding >= next })?.level ?? (next == 4 ? 6 : 12)
+                return .techLocked(track: .administrative, required: req)
+            }
+        }
         if type.requiresCoast && !world.provinces.isCoastal[p.index] { return .needsCoast }
         if !type.requiresGoods.isEmpty && !type.requiresGoods.contains(world.tradeGood(of: p)) { return .wrongGood }
         if !type.requiresTerrain.isEmpty && !type.requiresTerrain.contains(world.provinces.terrain[p.index]) { return .wrongTerrain }
@@ -206,9 +224,17 @@ public enum BuildingSystem {
                 * x * MarketModel.taxCraft
         case .tax(let x):
             gain = prov.baseTax[p.index] * x
-        case .mood, .learning, .fort, .manpower, .ships, .routes:
+        case .learning:
+            gain = type.cost / 10
+        case .mood, .fort, .manpower, .ships, .routes:
             gain = type.cost / 25
         }
         return gain - upkeep
+    }
+}
+
+private extension Array {
+    subscript(safe index: Int) -> Element? {
+        indices.contains(index) ? self[index] : nil
     }
 }

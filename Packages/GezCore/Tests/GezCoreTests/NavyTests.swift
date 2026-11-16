@@ -9,7 +9,7 @@ struct NavyTests {
     func test1453FleetLoading() throws {
         let w = try Scenario1453.loadBundled()
 
-        #expect(w.navy.shipTypes.count == 8)
+        #expect(w.navy.shipTypes.count == 16)
         for key in ["cog", "galley", "carrack", "light_ship", "venetian_great_galley", "ottoman_galley", "dhow", "ghurab"] {
             #expect(w.navy.shipByKey[key] != nil, "Missing ship type \(key)")
         }

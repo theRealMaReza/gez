@@ -236,13 +236,16 @@ def main() -> None:
     ship_keys: set[str] = set()
     for lineno, parts in rows("ships.txt"):
         ctx = f"ships.txt:{lineno}"
-        if len(parts) != 13:
-            raise SystemExit(f"{ctx}: expected 13 columns, got {len(parts)}")
-        key, name, sclass, speed_s, hull_s, cannons_s, crew_s, months_s, cost_s, upkeep_s, cap_s, goods_s, req_s = parts
+        if len(parts) != 14:
+            raise SystemExit(f"{ctx}: expected 14 columns, got {len(parts)}")
+        key, name, sclass, speed_s, hull_s, cannons_s, crew_s, months_s, cost_s, upkeep_s, cap_s, goods_s, req_s, min_tech_s = parts
         if sclass not in SHIP_CLASSES:
             raise SystemExit(f"{ctx}: unknown class '{sclass}'")
         if key in ship_keys:
             raise SystemExit(f"{ctx}: duplicate ship key '{key}'")
+        min_tech = int(min_tech_s)
+        if not (1 <= min_tech <= 20):
+            raise SystemExit(f"{ctx}: min_dip_tech {min_tech} must be 1..20")
         ship_keys.add(key)
         ships.append({
             "key": key,
@@ -258,6 +261,7 @@ def main() -> None:
             "capacity": int(cap_s),
             "goods": parse_goods(goods_s, known_goods, ctx),
             "requires": parse_requires(req_s, known_estates, known_cultures, known_regions, known_tags, ctx),
+            "minDipTech": min_tech,
         })
 
     fleets: list[dict] = []

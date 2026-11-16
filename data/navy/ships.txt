@@ -1,28 +1,37 @@
-# Ship types for Phase 10 (Navies: 4 core ship classes everywhere plus
-# 4 historical 1453 regional ships unlocked by country, culture, or region).
+# Ship types for Phase 10 + Phase 13 Diplomatic Tech unlocks.
 #
-# key | Name | class | speed | hull | cannons | crew | months | cost | upkeep | capacity | goods | requires
+# key | Name | class | speed | hull | cannons | crew | months | cost | upkeep | capacity | goods | requires | min_dip_tech
 #
 # Classes:
-#   transport   Cog (carries 1,000 soldiers per ship)
+#   transport   Cog / Merchantman / Fluyt (carries 1,000 soldiers per capacity slot)
 #   galley      Oared galley (+50% combat effectiveness & +25% speed in inland seas:
 #               Mediterranean, Black Sea, Baltic, Red Sea)
-#   heavy       Carrack / heavy warship (strong broadside, durable hull)
-#   light       Light ship / caravel / dhow (fast, trade protection, scouting)
+#   heavy       Carrack / Galleon / Ship of the Line (heavy warship)
+#   light       Caravel / Barque / Frigate / Dhow (fast trade protection & scouting)
 #
 # Goods: bought from the building province's market on construction start
 #   (raising next month's pendingDemand there).
 # Requires (blank = every country; clauses separated by ";" are OR-ed):
 #   estate:<key> / government:<g> / culture:<c> / region:<r> / tags:<T>
 
-## 4 Core Ship Classes
-cog        | Cog        | transport | 1.00 | 90  | 2  | 80  | 6  | 15 | 0.06 | 1 | wood 1.5, naval_supplies 0.5, linen 0.5 |
-galley     | Galley     | galley    | 1.30 | 80  | 4  | 150 | 6  | 18 | 0.08 | 0 | wood 1.2, naval_supplies 0.8, linen 0.4 |
-carrack    | Carrack    | heavy     | 0.90 | 220 | 24 | 250 | 12 | 50 | 0.22 | 0 | wood 3.0, naval_supplies 1.5, wool_cloth 0.8, cannons 1.5 |
-light_ship | Caravel    | light     | 1.50 | 100 | 8  | 100 | 8  | 24 | 0.10 | 0 | wood 1.5, naval_supplies 0.8, linen 0.6, cannons 0.3 |
+## 4 Core Ship Classes (1453)
+cog        | Cog        | transport | 1.00 | 90  | 2  | 80  | 6  | 15 | 0.06 | 1 | wood 1.5, naval_supplies 0.5, linen 0.5                  | | 1
+galley     | Galley     | galley    | 1.30 | 80  | 4  | 150 | 6  | 18 | 0.08 | 0 | wood 1.2, naval_supplies 0.8, linen 0.4                  | | 1
+carrack    | Carrack    | heavy     | 0.90 | 220 | 24 | 250 | 12 | 50 | 0.22 | 0 | wood 3.0, naval_supplies 1.5, wool_cloth 0.8, cannons 1.5| | 4
+light_ship | Caravel    | light     | 1.50 | 100 | 8  | 100 | 8  | 24 | 0.10 | 0 | wood 1.5, naval_supplies 0.8, linen 0.6, cannons 0.3     | | 3
 
 ## 4 Regional Ships of 1453
-venetian_great_galley | Venetian Great Galley | galley | 1.25 | 125 | 10 | 180 | 8  | 28 | 0.12 | 0 | wood 1.8, naval_supplies 1.0, linen 0.6, cannons 0.5 | tags:VEN;culture:venetian
-ottoman_galley        | Ottoman Kadirga       | galley | 1.35 | 85  | 5  | 170 | 5  | 16 | 0.07 | 0 | wood 1.1, naval_supplies 0.8, linen 0.4              | tags:TUR;culture:turkish
-dhow                  | Dhow                  | light  | 1.60 | 90  | 4  | 85  | 6  | 20 | 0.08 | 0 | wood 1.2, naval_supplies 0.6, cotton_cloth 0.6       | region:Arabia,Egypt,Horn of Africa,Persia,Northwest India,Gujarat,Deccan,South India,Bengal;culture:bedouin,najdi,hejazi,yemeni,hadrami,omani,gulf_arab,egyptian,persian,gujarati,marathi,malayali,kannada,tamil,telugu,bengali,sindhi,konkani
-ghurab                | Ghurab                | heavy  | 1.15 | 165 | 14 | 180 | 10 | 38 | 0.16 | 0 | wood 2.4, naval_supplies 1.2, cotton_cloth 0.6, cannons 0.8 | region:Gujarat,Deccan,South India,Bengal,Arabia,Persia;culture:gujarati,marathi,malayali,tamil,telugu,bengali,persian,omani
+venetian_great_galley | Venetian Great Galley | galley | 1.25 | 125 | 10 | 180 | 8  | 28 | 0.12 | 0 | wood 1.8, naval_supplies 1.0, linen 0.6, cannons 0.5         | tags:VEN;culture:venetian | 4
+ottoman_galley        | Ottoman Kadirga       | galley | 1.35 | 85  | 5  | 170 | 5  | 16 | 0.07 | 0 | wood 1.1, naval_supplies 0.8, linen 0.4                      | tags:TUR;culture:turkish  | 4
+dhow                  | Dhow                  | light  | 1.60 | 90  | 4  | 85  | 6  | 20 | 0.08 | 0 | wood 1.2, naval_supplies 0.6, cotton_cloth 0.6               | region:Arabia,Egypt,Horn of Africa,Persia,Northwest India,Gujarat,Deccan,South India,Bengal;culture:bedouin,najdi,hejazi,yemeni,hadrami,omani,gulf_arab,egyptian,persian,gujarati,marathi,malayali,kannada,tamil,telugu,bengali,sindhi,konkani | 1
+ghurab                | Ghurab                | heavy  | 1.15 | 165 | 14 | 180 | 10 | 38 | 0.16 | 0 | wood 2.4, naval_supplies 1.2, cotton_cloth 0.6, cannons 0.8  | region:Gujarat,Deccan,South India,Bengal,Arabia,Persia;culture:gujarati,marathi,malayali,tamil,telugu,bengali,persian,omani | 4
+
+## Later-era EU4-style ships unlocked by Diplomatic Tech (levels 6-16)
+merchantman      | Merchantman       | transport | 1.15 | 120 | 4  | 90  | 6  | 18 | 0.08 | 1 | wood 1.8, naval_supplies 0.6, linen 0.6                  | | 6
+galleon          | Galleon           | heavy     | 1.00 | 320 | 36 | 300 | 12 | 65 | 0.28 | 0 | wood 3.6, naval_supplies 1.8, wool_cloth 1.0, cannons 2.0| | 8
+war_galley       | War Galley        | galley    | 1.35 | 115 | 8  | 170 | 6  | 22 | 0.10 | 0 | wood 1.4, naval_supplies 0.9, linen 0.5, cannons 0.4     | | 8
+barque           | Barque            | light     | 1.65 | 135 | 12 | 120 | 8  | 28 | 0.12 | 0 | wood 1.8, naval_supplies 0.9, linen 0.7, cannons 0.5     | | 10
+frigate          | Frigate           | light     | 1.75 | 175 | 18 | 150 | 9  | 36 | 0.15 | 0 | wood 2.2, naval_supplies 1.1, linen 0.8, cannons 0.8     | | 12
+galleass         | Galleass          | galley    | 1.25 | 165 | 16 | 210 | 8  | 34 | 0.15 | 0 | wood 2.0, naval_supplies 1.1, linen 0.7, cannons 0.8     | | 12
+flute            | Fluyt             | transport | 1.25 | 150 | 4  | 80  | 6  | 20 | 0.07 | 2 | wood 2.0, naval_supplies 0.7, linen 0.7                  | | 15
+ship_of_the_line | Ship of the Line  | heavy     | 1.05 | 460 | 56 | 400 | 14 | 90 | 0.38 | 0 | wood 4.5, naval_supplies 2.2, wool_cloth 1.2, cannons 3.0| | 16
