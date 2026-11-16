@@ -2,6 +2,9 @@ import Foundation
 
 /// Phase 12 state: plague (Part A), famine and earthquakes (Part B).
 /// Everything is stored per province in flat arrays, like `ProvinceTable`.
+/// The fixed earthquake data (`CalamityRules`) comes from
+/// `Resources/calamity1453.json` (built by `tools/calamity/calamitygen.py`
+/// from `data/calamity/fault_zones.txt`).
 
 /// The three sicknesses of the game.
 public enum Disease: Int, CaseIterable, Sendable, Codable {
@@ -132,6 +135,109 @@ public enum PlagueModel {
     public static func cordonCost(development: Int) -> Double { 0.6 + 0.06 * Double(development) }
 }
 
+/// Tuning for harvests and famine.
+public enum FamineModel {
+    /// The harvest is judged once a year, on 1 August.
+    public static let harvestMonth = 8
+    /// Months when men away with the levies leave crops standing in the field.
+    public static let harvestSeason = 7...9
+    /// A region's harvest: 1 on average, about 0.10 up or down in most years.
+    public static let regionSpread = 0.20
+    public static let stateSpread = 0.10
+    public static let worstHarvest = 0.6
+    public static let bestHarvest = 1.2
+    /// Each harvest month the levies stay raised costs this share of the crop.
+    public static let levyLossPerMonth = 0.08
+    /// Fully devastated land grows this much less.
+    public static let devastationLoss = 0.5
+    /// Besiegers and occupiers take their share of the crop.
+    public static let lootingFactor = 0.7
+    /// Famine starts when staple food falls below this share of what the
+    /// market is used to; each point further below adds `famineSlope` points.
+    public static let famineBelow = 0.9
+    public static let famineSlope = 3.0
+    public static let famineDecay = 0.15
+    /// How fast "what the market is used to" follows the real supply.
+    public static let normSpeed = 0.02
+    /// Share of peasants dying per month in the worst famine.
+    public static let monthlyDeaths = 0.006
+    public static let moodHit = 0.04
+    /// A famine this bad is worth an alert.
+    public static let alertAbove = 0.35
+
+    /// The poor starve first.
+    public static func classDeaths(_ c: SocialClass) -> Double {
+        switch c {
+        case .nobles: return 0.2
+        case .clergy: return 0.4
+        case .burghers: return 0.8
+        case .peasants: return 1.0
+        case .slaves: return 1.3
+        }
+    }
+}
+
+/// Tuning for earthquakes.
+public enum QuakeModel {
+    /// Neighbours of the epicentre feel this share of the shock.
+    public static let neighbourShare = 0.5
+    /// At full strength each building level falls with this chance.
+    public static let buildingLoss = 0.45
+    /// Share of the people killed at full strength.
+    public static let deaths = 0.03
+    public static let devastation = 0.25
+}
+
+/// Land where the earth shakes.
+public struct FaultZone: Sendable, Equatable {
+    public let name: String
+    /// Chance of a damaging earthquake in a year.
+    public let yearlyChance: Double
+    /// 0 to 1: how bad the worst earthquake here can be.
+    public let strength: Double
+    public let provinces: [ProvinceID]
+
+    public init(name: String, yearlyChance: Double, strength: Double, provinces: [ProvinceID]) {
+        self.name = name
+        self.yearlyChance = yearlyChance
+        self.strength = strength
+        self.provinces = provinces
+    }
+}
+
+/// An earthquake history records; it strikes on its date.
+public struct HistoricalQuake: Sendable, Equatable {
+    public let name: String
+    public let date: GameDate
+    public let province: ProvinceID
+    public let strength: Double
+
+    public init(name: String, date: GameDate, province: ProvinceID, strength: Double) {
+        self.name = name
+        self.date = date
+        self.province = province
+        self.strength = strength
+    }
+}
+
+/// Fixed data (the same in every game, not saved).
+public struct CalamityRules: Sendable, Equatable {
+    public var faultZones: [FaultZone] = []
+    public var historicalQuakes: [HistoricalQuake] = []
+    public init() {}
+}
+
+/// What an earthquake did.
+public struct QuakeRecord: Sendable, Equatable, Codable {
+    public var date: GameDate
+    public var name: String
+    public var epicentre: ProvinceID
+    public var strength: Double
+    public var deaths: Double
+    public var buildingLevelsLost: Int
+    public var fortLevelsLost: Int
+}
+
 /// One line for the alerts and the chronicle: where and when something struck.
 public struct CalamityNote: Sendable, Equatable, Codable {
     public var date: GameDate
@@ -179,6 +285,29 @@ public struct CalamityState: Sendable, Equatable, Codable {
     /// Newest last, kept short; for alerts.
     public var notes: [CalamityNote] = []
 
+    // Famine (Part B).
+    /// This year's harvest per province (1 = a normal year).
+    public var harvest: [Double] = []
+    /// Share of this year's crop lost because the levies were away at harvest.
+    public var levyHarvestLoss: [Double] = []
+    /// Staple food grown compared to normal, all causes together; the
+    /// market multiplies farm output by it.
+    public var stapleFactor: [Double] = []
+    /// Staple supply ÷ demand each market is used to (0 = not yet measured).
+    public var stapleNorm: [Double] = []
+    /// People who starved in the most recent month, per province.
+    public var lastFamineDeaths: [Double] = []
+    public var totalFamineDeaths: Double = 0
+    /// Year of the last harvest roll.
+    public var harvestYear: Int = 0
+
+    // Earthquakes (Part B).
+    public var totalQuakeDeaths: Double = 0
+    /// Newest last, kept short.
+    public var quakes: [QuakeRecord] = []
+    /// Names of the historical earthquakes that have already struck.
+    public var pastHistoricalQuakes: [String] = []
+
     public init() {}
 
     /// Makes room for every province (keeps what is there).
@@ -191,6 +320,10 @@ public struct CalamityState: Sendable, Equatable, Codable {
         quarantine = Self.fit(quarantine, n, false)
         cordon = Self.fit(cordon, n, false)
         lastDeaths = Self.fit(lastDeaths, n, 0)
+        harvest = Self.fit(harvest, n, 1)
+        levyHarvestLoss = Self.fit(levyHarvestLoss, n, 0)
+        stapleFactor = Self.fit(stapleFactor, n, 1)
+        lastFamineDeaths = Self.fit(lastFamineDeaths, n, 0)
         if totalDeaths.count != d { totalDeaths = Self.fit(totalDeaths, d, 0) }
         provinceCount = n
     }
@@ -243,8 +376,31 @@ public struct CalamityState: Sendable, Equatable, Codable {
         return f
     }
 
+    /// Farm output of staple food compared to normal (1 until measured).
+    @inline(__always)
+    public func stapleYieldFactor(_ p: Int) -> Double {
+        p >= 0 && p < stapleFactor.count ? stapleFactor[p] : 1
+    }
+
     public mutating func addNote(_ note: CalamityNote) {
         notes.append(note)
         if notes.count > 60 { notes.removeFirst(notes.count - 60) }
+    }
+}
+
+extension World {
+    /// The calamities' own stream of random numbers: split off the game's
+    /// stream the first time (reading its state uses up none of its
+    /// numbers), then carried on from month to month.
+    mutating func beginCalamityRandom(_ random: GameRandom) -> GameRandom {
+        if !calamity.seeded {
+            calamity.rngState = random.rawState ^ 0x5DEE_CE66_D1CE_4E5B
+            calamity.seeded = true
+        }
+        return GameRandom(seed: calamity.rngState)
+    }
+
+    mutating func endCalamityRandom(_ rng: GameRandom) {
+        calamity.rngState = rng.rawState
     }
 }

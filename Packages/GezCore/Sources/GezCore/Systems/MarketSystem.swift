@@ -103,6 +103,7 @@ public enum MarketSystem {
             let y: Double
             if producers.isStaple[k] {
                 y = MarketModel.stapleYield * MarketModel.terrainFood(world.provinces.terrain[p]) * (1 + bonus.staple[p])
+                    * world.calamity.stapleYieldFactor(p)
             } else if producers.good[k] == fishGood {
                 y = eco.goods.yield[g] * (1 + bonus.fish[p])
             } else {

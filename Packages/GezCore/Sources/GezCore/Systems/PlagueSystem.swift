@@ -135,13 +135,8 @@ public enum PlagueSystem {
         let P = world.provinces.count
         guard P > 0 else { return }
         world.calamity.resize(provinces: P)
-        if !world.calamity.seeded {
-            // Reading the state does not use up any of the game's numbers.
-            world.calamity.rngState = random.rawState ^ 0x5DEE_CE66_D1CE_4E5B
-            world.calamity.seeded = true
-        }
-        var rng = GameRandom(seed: world.calamity.rngState)
-        defer { world.calamity.rngState = rng.rawState }
+        var rng = world.beginCalamityRandom(random)
+        defer { world.endCalamityRandom(rng) }
 
         let D = CalamityState.diseaseCount
         let diseases = Disease.allCases
