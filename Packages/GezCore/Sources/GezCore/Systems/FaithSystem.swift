@@ -456,6 +456,9 @@ public enum FaithSystem {
                     break
                 }
 
+                // No new group for a trickle of people (review fix): wait until
+                // enough convert, unless the whole group converts at once.
+                if mergedIdx == nil && delta < PopDust.minNewGroup && delta < sz { continue }
                 world.pops.size[i] -= delta
                 convertedHere = true
                 if let j = mergedIdx {

@@ -129,6 +129,32 @@ public struct PopTable: Sendable {
 
     /// Rebuilds the SoA pop table deterministically from live rows plus any newly split rows,
     /// pruning depleted rows (`size <= 1e-9`) and merging matching identities cleanly per province.
+    /// Folds groups smaller than `below` people into the largest group of the
+    /// same class in their province (review fix, Phase 11: conversion and
+    /// migration left thousands of groups of a few people or less, and every
+    /// monthly system does work per group, so the game kept getting slower).
+    /// Total population is unchanged.
+    public mutating func foldDust(provinceCount: Int, below: Double = PopDust.foldBelow) {
+        var changed = false
+        for p in 0..<provinceCount {
+            let r = range(for: ProvinceID(p))
+            for i in r where size[i] > 1e-9 && size[i] < below {
+                var best = -1
+                var bestSize = 0.0
+                for j in r where j != i && socialClass[j] == socialClass[i] && size[j] > bestSize {
+                    best = j
+                    bestSize = size[j]
+                }
+                guard best >= 0, bestSize >= below else { continue }
+                satisfaction[best] = (satisfaction[best] * bestSize + satisfaction[i] * size[i]) / (bestSize + size[i])
+                size[best] = bestSize + size[i]
+                size[i] = 0
+                changed = true
+            }
+        }
+        if changed { rebuild(provinceCount: provinceCount) }
+    }
+
     public mutating func rebuild(provinceCount: Int, extraRows: [Row] = []) {
         struct LocalKey: Hashable {
             let culture: Int
@@ -418,4 +444,14 @@ public enum ClassSplit {
         }
         return out
     }
+}
+
+/// Limits on tiny pop groups (review fix, Phase 11).
+public enum PopDust {
+    /// Conversion, assimilation and migration only start a new group in a
+    /// province when at least this many people move; smaller amounts wait
+    /// (or join a matching group that already exists).
+    public static let minNewGroup = 25.0
+    /// Groups smaller than this are folded into the largest same-class group.
+    public static let foldBelow = 1.0
 }

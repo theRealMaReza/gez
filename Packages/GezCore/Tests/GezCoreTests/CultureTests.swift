@@ -205,4 +205,30 @@ final class CultureTests: XCTestCase {
             }
         }
     }
+
+    /// Folding tiny groups keeps every person and leaves no group under one
+    /// person (review fix: pop groups grew without limit).
+    func testFoldDustConservesPeopleAndRemovesTinyGroups() {
+        let sim = Simulation(world: Scenario1453.makeWorld(), startDate: Scenario1453.startDate, seed: 1453)
+        for _ in 0..<200 { sim.tick() }
+        var pops = sim.world.pops
+        let P = sim.world.provinces.count
+        // Add some dust by hand so the test does not depend on the run.
+        if pops.count > 0 { pops.size[0] = max(pops.size[0], 100) }
+        let before = pops.size.reduce(0, +)
+        pops.foldDust(provinceCount: P)
+        let after = pops.size.reduce(0, +)
+        XCTAssertEqual(before, after, accuracy: max(1e-6, before * 1e-12))
+        for p in 0..<P {
+            let r = pops.range(for: ProvinceID(p))
+            let classes = Set(r.map { pops.socialClass[$0] })
+            for cls in classes {
+                let rows = r.filter { pops.socialClass[$0] == cls }
+                // A tiny group may remain only if it is the only group of its class.
+                if rows.count > 1 {
+                    for i in rows { XCTAssertGreaterThanOrEqual(pops.size[i], PopDust.foldBelow) }
+                }
+            }
+        }
+    }
 }

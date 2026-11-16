@@ -207,6 +207,7 @@ public enum CultureSystem {
         updateDevastationAndFamine(&world, provinceCount: P)
         runAssimilation(&world, provinceCount: P, countryCount: C)
         runMigration(&world, provinceCount: P, countryCount: C, random: &random)
+        world.pops.foldDust(provinceCount: P)
     }
 
     // MARK: - Devastation & Famine
@@ -339,6 +340,10 @@ public enum CultureSystem {
                     break
                 }
 
+                if mergedIdx == nil && delta < PopDust.minNewGroup && delta < sz {
+                    totalPop += sz
+                    continue
+                }
                 world.pops.size[i] -= delta
                 changedHere = true
                 if let j = mergedIdx {
@@ -539,6 +544,10 @@ public enum CultureSystem {
                         && world.pops.size[j] > 0 {
                         mergedIdx = j
                         break
+                    }
+                    if mergedIdx == nil && clampedShare < PopDust.minNewGroup {
+                        actualMoved -= clampedShare
+                        continue
                     }
                     if let j = mergedIdx {
                         let prev = world.pops.size[j]
