@@ -241,11 +241,25 @@ public enum VassalSystem {
         let plotter = ch.fullName(v), victim = ch.fullName(ruler)
         if random.unit() < chance {
             world.people.record(date, c, "\(victim) dies, poisoned in a plot by \(plotter).")
-            CharacterSystem.kill(&world, ruler, date: date, random: &random)
+            CharacterSystem.kill(&world, ruler, date: date, random: &random, suppressEvent: true)
+            EventSystem.trigger(
+                &world,
+                eventID: "chronicle_vassal_plot_success",
+                for: c,
+                date: date,
+                tokens: ["victim": victim, "plotter": plotter]
+            )
         } else {
             world.people.record(date, c, "A plot by \(plotter) against \(victim) is uncovered.")
             for p in holdings(world, of: v) { revoke(&world, p, date: date, justified: true) }
             world.people.characters.favour[v.index] = -100
+            EventSystem.trigger(
+                &world,
+                eventID: "chronicle_vassal_plot_uncovered",
+                for: c,
+                date: date,
+                tokens: ["victim": victim, "plotter": plotter]
+            )
         }
     }
 

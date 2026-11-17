@@ -327,7 +327,7 @@ def validate_condition(key: str, val: str, ref: ReferenceData, ctx: str) -> dict
 
 def parse_prov_target(target: str, ref: ReferenceData, ctx: str) -> tuple[str, int]:
     t = target.strip()
-    if t in ("capital", "all"):
+    if t in ("capital", "all", "context"):
         return t, -1
     pidx = ref.resolve_province(t, ctx)
     return "province", pidx

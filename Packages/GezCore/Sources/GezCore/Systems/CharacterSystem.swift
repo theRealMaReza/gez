@@ -179,7 +179,7 @@ public enum CharacterSystem {
     }
 
     /// The ruler died (or left): the heir takes over, or someone is found.
-    static func succeed(_ world: inout World, _ c: CountryID, date: GameDate, random: inout GameRandom) {
+    static func succeed(_ world: inout World, _ c: CountryID, date: GameDate, random: inout GameRandom, suppressEvent: Bool = false) {
         let old = world.countries.ruler[c.index]
         // A smooth succession needs a known, adult heir; otherwise the realm is shaken.
         let smooth = world.countries.heir[c.index].map {
@@ -203,11 +203,23 @@ public enum CharacterSystem {
             world.countries.council[c.index][s.rawValue] = nil
         }
         world.countries.heir[c.index] = heir(world, c, date: date)
+        if !suppressEvent, let old, world.provinces.owner.contains(c) {
+            EventSystem.trigger(
+                &world,
+                eventID: "chronicle_ruler_death",
+                for: c,
+                date: date,
+                tokens: [
+                    "old_ruler": world.people.characters.fullName(old),
+                    "ruler": world.people.characters.fullName(ruler)
+                ]
+            )
+        }
     }
 
     /// Someone dies now (events, battles, executions): councils and thrones
     /// are refilled at once.
-    public static func kill(_ world: inout World, _ x: CharacterID, date: GameDate, random: inout GameRandom) {
+    public static func kill(_ world: inout World, _ x: CharacterID, date: GameDate, random: inout GameRandom, suppressEvent: Bool = false) {
         guard world.people.characters.isAlive(x) else { return }
         world.people.characters.death[x.index] = date
         VassalSystem.passOn(&world, from: x, date: date)
@@ -217,7 +229,7 @@ public enum CharacterSystem {
             }
         }
         for c in world.countries.ids where world.countries.ruler[c.index] == x {
-            succeed(&world, c, date: date, random: &random)
+            succeed(&world, c, date: date, random: &random, suppressEvent: suppressEvent)
         }
         for c in world.countries.ids where world.countries.heir[c.index] == x {
             world.countries.heir[c.index] = heir(world, c, date: date)

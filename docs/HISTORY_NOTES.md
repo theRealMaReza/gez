@@ -503,3 +503,19 @@ Alvise Loredan (Alvise held the post in other years). The data keeps
   brother, uncle or cousin in the character data); a realm whose dynasty
   has no such man gets no pretender?
 
+## Historical Events (Phase 14)
+
+- **66 historical events + 4 chronicle events** (`data/events/*.txt` -> `events1453.json`):
+  - **1453 character roster limits**: historical figures born after 1453 or absent from `data/characters/1453.txt` (e.g., Christopher Columbus, Vasco da Gama, Martin Luther, Zahir-ud-din Muhammad Babur, Shah Ismail I, Hernán Cortés, Gustav Vasa) act through event text, choices, and `MovementSystem` effects rather than being spawned mid-game as scripted `CharacterID` entries. Should post-1453 named historical figures later be added as spawnable characters?
+  - **Abul-Qasim Babur (`babur_m`, HRT, 1453) vs Mughal Babur (1504/1526)**: carefully distinguished — `hist_babur_kabul_1504` and `hist_babur_panipat_1526` target Kabul/Punjab owners (`TIM`, `HRT`, `KHO`, `AFG`) rather than requiring the 1453 Herat ruler `babur_m`?
+  - **Otranto (1480)** (`hist_otranto_1480`): mapped to province `Lecce` (which encompasses the Salento peninsula and Otranto in the province graph) rather than splitting a separate Otranto province?
+  - **Ladislaus the Posthumous (23 November 1457)** (`hist_ladislaus_death_1457`): fired for `HUN` on `exact_date = 1457-11-23` (first monthly tick thereafter) while `ladislaus5` is still living ruler, representing his sudden death in Prague and clearing the way for `hist_matthias_corvinus_black_army` (`1458+`); date-exact vs MTTH is a design choice?
+  - **Columbus patron chain**: `hist_columbus_portugal` (1484–1488) -> if declined, sets `columbus_seeks_patron` enabling `hist_columbus_castile` (1491–1495) -> if also declined, sets `columbus_castile_refused` enabling `hist_columbus_fallback` (`FRA`, `ENG`, `GEN`, `VEN`); overseas New World provinces are not yet on the map, so Columbus rewards diplomatic tech, prestige, and Atlantic trade modifiers rather than spawning colonies yet?
+  - **Vasco da Gama (1498)** (`hist_vasco_da_gama_calicut`): triggers for `POR` (1497–1504) if Lisbon is owned, paired with `hist_zamorin_calicut_1498` for Calicut's holder; trade modifiers model the Cape route spice boom without an off-map Atlantic/Indian lane simulation yet?
+  - **Luther's Theses (31 October 1517) & Safavid Rise (1501)**:
+    - `hist_luther_95_theses` (`SAX`, or `hist_luther_95_theses_alt` if another Catholic realm holds `Wittenberg`) calls `spawn_reformation = Wittenberg:protestant` into `MovementSystem` when `reformation_started = false`, letting historical triggers start the Reformation early or cleanly coordinate with the 1512–1529 structural Reformation check?
+    - `hist_safavid_rise_1501` (`Ardabil` owner, non-`TUR`/non-`MAM` Muslim realm, 1500–1518) calls `advance_safaviyya = triumphant` and switches state religion to `twelver` in line with the Phase 11 Safaviyya rule (fixed country tags)?
+  - **Alternate-history fallbacks**: key flashpoints include explicit counterfactual variants (`hist_fall_of_granada_conquered` vs `_war`, `hist_belgrade_1456_alt` for Ottoman-held Belgrade, `hist_end_hundred_years_war_eng`, `hist_constantinople_mosque` vs Christian-recovered `Konstantiniyye` via `not_tag` triggers, `hist_luther_95_theses_alt`), while rare non-historical borders simply suppress events whose preconditions no longer make sense?
+  - **Exact-date vs MTTH trade-off**: events tied to sharply dated historical shocks (`hist_belgrade_1456_hun` 1456-07-21, `hist_ladislaus_death_1457` 1457-11-23, `hist_vasco_da_gama_calicut` 1498-05-20) use `exact_date`, whereas structural developments use `mtth = 6..36` months; exact MTTH weights and AI option weights are initial balance estimates?
+
+

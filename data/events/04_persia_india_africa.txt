@@ -1,0 +1,444 @@
+# Hand-written historical events: Persia, Central Asia, India & Africa
+# Validated and compiled by tools/events/eventgen.py -> events1453.json
+
+event hist_uzun_hasan_otlukbeli
+title = Uzun Hasan and the Aq Qoyunlu Ascendancy
+text = Uniting the White Sheep Turkmen confederation from Diyarbakir to Azerbaijan, Uzun Hasan seeks Venetian cannon and alliances to rival both Qara Qoyunlu and the Ottoman Empire.
+category = historical
+countries = AKK
+date_from = 1467-01-01
+date_to = 1476-12-31
+mtth = 16
+fire_once = true
+major = true
+trigger:
+  ruler_alive = uzun_hasan
+  owns = Diyarbakir
+option:
+  label = Forge an anti-Ottoman league with Venice and Karaman
+  ai_weight = 75
+  effect:
+    change_opinion_both = VEN:35
+    change_opinion = TUR:-45
+    prestige = 12
+    add_modifier = white_sheep_cavalry:Aq Qoyunlu Banners:60:army_quality=0.08,manpower=0.12
+option:
+  label = Secure peace on the Anatolian frontier and focus on Persia
+  ai_weight = 25
+  effect:
+    change_opinion_both = TUR:20
+    add_claim = Tabriz
+    ducats = 40
+
+event hist_safaviyya_ardabil
+title = The Qizilbash of Ardabil
+text = Under Shaykhs Junayd and Haydar, the Sufi brotherhood of Ardabil transforms from quiet mystics into the crimson-capped Qizilbash ghazis, preaching devotion across Azerbaijan and eastern Anatolia.
+category = religious
+countries = AKK, QAR, SHI
+date_from = 1460-01-01
+date_to = 1495-12-31
+mtth = 24
+fire_once = true
+major = true
+trigger:
+  owns = Ardabil
+  safaviyya_phase = growing
+option:
+  label = Let the Qizilbash marchers gather in Azerbaijan
+  ai_weight = 75
+  effect:
+    advance_safaviyya = militant
+    pops_convert = Ardabil:sunni->twelver:0.25
+    unrest = Ardabil:8
+option:
+  label = Arrest the shaykh's lieutenants and watch the shrines
+  ai_weight = 25
+  effect:
+    advance_safaviyya = militant
+    ducats = -30
+    unrest = Ardabil:12
+    estate_loyalty = clergy:5
+
+event hist_safavid_rise_1501
+title = Ismail Safavi Proclaims the Shahdom
+text = Emerging from Ardabil at the head of devoted Qizilbash tribesmen, young Ismail enters Tabriz and proclaims Twelver Shi'ism the state faith of a reborn Persian realm.
+category = religious
+date_from = 1500-01-01
+date_to = 1518-12-31
+mtth = 16
+fire_once = true
+major = true
+trigger:
+  owns = Ardabil
+  religion_family = muslim
+  not_tag = TUR
+  not_tag = MAM
+option:
+  label = Proclaim Twelver Shi'ism and crown the Qizilbash Shah!
+  ai_weight = 85
+  effect:
+    advance_safaviyya = triumphant
+    change_religion = twelver
+    pops_convert = Ardabil:sunni->twelver:0.40
+    prestige = 20
+    stability = 1
+    add_modifier = qizilbash_zeal:Qizilbash Devotion:120:army_quality=0.10,manpower=0.15
+option:
+  label = Suppress the Qizilbash coup and uphold Sunni orthodoxy
+  ai_weight = 15
+  effect:
+    unrest = Ardabil:16
+    estate_loyalty = clergy:10
+    manpower = -2000
+
+event hist_chaldiran_1514
+title = The Eastern Frontier and Chaldiran
+text = Alarmed by Qizilbash preachers stirring Turkmen tribes across Anatolia, the Ottoman Sultan musters Janissary musketeers and chained field guns for a gruelling march into Azerbaijan.
+category = military
+countries = TUR
+date_from = 1513-01-01
+date_to = 1522-12-31
+mtth = 16
+fire_once = true
+major = true
+trigger:
+  safaviyya_phase = triumphant
+  owns = Konstantiniyye
+option:
+  label = March east with gun-wagons to break the Qizilbash!
+  ai_weight = 85
+  effect:
+    add_claim = Tabriz
+    add_modifier = chaldiran_guns:Imperial Tabur Cengi:60:army_quality=0.10
+    prestige = 10
+option:
+  label = Seal the mountain passes and patrol Anatolia
+  ai_weight = 15
+  effect:
+    manpower = 3000
+    add_modifier = anatolian_patrols:Anatolian Frontier Watch:60:fort_defence=0.15
+
+event hist_uzbek_transoxiana
+title = Muhammad Shaybani Khan and Samarkand
+text = Riding south from the Kipchak steppe, Muhammad Shaybani Khan's Uzbek horsemen sweep across the Syr Darya, challenging the fractured Timurid princes of Transoxiana.
+category = military
+countries = UZB
+date_from = 1500-01-01
+date_to = 1514-12-31
+mtth = 14
+fire_once = true
+major = true
+trigger:
+  exists = TIM
+  government = steppeHorde
+option:
+  label = Ride for Samarkand and claim Transoxiana!
+  ai_weight = 85
+  effect:
+    add_claim = Samarkand
+    add_cb = TIM:subjugation:60
+    spawn_units = capital:horse_archers:3
+    prestige = 10
+option:
+  label = Raid the frontier oases and hold the steppe
+  ai_weight = 15
+  effect:
+    ducats = 65
+    manpower = 2500
+
+event hist_babur_kabul_1504
+title = Babur's Rise at Kabul
+text = Driven from Fergana and Samarkand by Uzbek conquests, the young Timurid prince Zahir al-Din Muhammad Babur crosses the Hindu Kush and seizes Kabul as his new base of empire.
+category = historical
+countries = TIM, HRT, BDK
+date_from = 1504-10-01
+date_to = 1518-12-31
+mtth = 14
+fire_once = true
+major = true
+trigger:
+  provinces_min = 2
+  religion_family = muslim
+option:
+  label = Turn south toward Hindustan and train matchlockmen!
+  ai_weight = 80
+  effect:
+    add_claim = Delhi
+    prestige = 15
+    tech_progress = military:35
+    add_modifier = babur_memoirs:Babur's Warband:120:army_quality=0.08,manpower=0.12
+    set_global_flag = babur_rose
+option:
+  label = Fortify Kabul and look back toward Samarkand
+  ai_weight = 20
+  effect:
+    province_fort = Kabul:1
+    add_claim = Samarkand
+    manpower = 2500
+    set_global_flag = babur_rose
+
+event hist_babur_panipat_1526
+title = The First Battle of Panipat
+text = Armed with Ottoman-style matchlocks and lashed artillery wagons, Babur's Kabul host descends through the Khyber Pass toward Panipat to confront the Afghan Sultanate of Delhi.
+category = historical
+date_from = 1524-01-01
+date_to = 1532-12-31
+mtth = 14
+fire_once = true
+major = true
+trigger:
+  owns = Kabul
+  religion_family = muslim
+  exists = DEL
+  not_tag = DEL
+option:
+  label = Unleash the wagon-laager cannon on the road to Delhi!
+  ai_weight = 85
+  effect:
+    add_claim = Delhi
+    add_claim = Agra
+    add_cb = DEL:claim:60
+    spawn_units = Kabul:handgunners:2
+    prestige = 15
+option:
+  label = Exact border tribute from the Punjab governors
+  ai_weight = 15
+  effect:
+    ducats = 90
+    change_opinion = DEL:15
+
+event hist_mamluk_qaitbay_monopoly
+title = Qaitbay's Citadel and the Spice Monopoly
+text = Under Sultan Qaitbay, Cairo raises soaring stone domes and tightens royal control over the Karimi spice trade flowing from the Red Sea to Alexandria's Venetian fondaci.
+category = internal
+countries = MAM
+date_from = 1468-01-01
+date_to = 1496-08-08
+mtth = 24
+fire_once = true
+trigger:
+  owns = Cairo
+option:
+  label = Enforce the Sultan's spice monopoly and build Qaitbay's fort
+  ai_weight = 75
+  effect:
+    ducats = 90
+    province_dev = Cairo:1
+    add_modifier = karimi_monopoly:Red Sea Spice Monopoly:120:trade=0.12,tax=0.06
+option:
+  label = Grant lower customs to Alexandrian burghers and Venice
+  ai_weight = 25
+  effect:
+    estate_loyalty = burghers:12
+    change_opinion_both = VEN:20
+
+event hist_chaul_diu_1509
+title = Naval Showdown in the Arabian Sea
+text = With European carracks seizing spice fleets off Malabar and threatening the Red Sea, Cairo equips a joint war-galley armada with Gujarati and Ottoman aid to contest the Indian Ocean.
+category = military
+countries = MAM
+date_from = 1507-01-01
+date_to = 1514-12-31
+mtth = 12
+fire_once = true
+major = true
+trigger:
+  global_flag = cape_route_opened
+  exists = POR
+  owns = Cairo
+option:
+  label = Sail a Red Sea war fleet to Diu!
+  ai_weight = 80
+  effect:
+    ducats = -80
+    sailors = 1000
+    change_opinion = POR:-50
+    change_opinion_both = GUJ:30
+    prestige = 10
+option:
+  label = Strengthen Suez and Jeddah against oceanic raids
+  ai_weight = 20
+  effect:
+    manpower = 2500
+    province_fort = Cairo:1
+
+event hist_bahlul_lodi_delhi
+title = Bahlul Lodi Consolidates Hindustan
+text = Rallying Afghan clans from Sirhind and Lahore, Sultan Bahlul Lodi defends Delhi against the Sharqi sultans of Jaunpur and rebuilds the authority of the Delhi Sultanate.
+category = historical
+countries = DEL
+date_from = 1455-01-01
+date_to = 1480-12-31
+mtth = 18
+fire_once = true
+trigger:
+  ruler_alive = bahlul
+  owns = Delhi
+option:
+  label = Reward the Afghan maliks and press Jaunpur
+  ai_weight = 75
+  effect:
+    estate_loyalty = nobles:12
+    manpower = 4000
+    add_modifier = lodi_consolidation:Lodi Ascendancy:60:army_quality=0.06,tax=0.06
+option:
+  label = Reform the crown's revenue registers in the Doab
+  ai_weight = 25
+  effect:
+    ducats = 65
+    stability = 1
+
+event hist_rana_kumbha_chittor
+title = Rana Kumbha's Victory Tower at Chittor
+text = Master of fortress architecture, music, and war, Maharana Kumbha raises the soaring Kirti Stambha at Chittor and strengthens Mewar's hill forts against Gujarat and Malwa.
+category = historical
+countries = MEW
+date_from = 1455-01-01
+date_to = 1468-06-22
+mtth = 18
+fire_once = true
+trigger:
+  ruler_alive = kumbha
+  owns = Chittor
+option:
+  label = Raise the Victory Tower and fortresses of Kumbhalgarh
+  ai_weight = 80
+  effect:
+    ducats = -45
+    prestige = 15
+    province_fort = Chittor:1
+    add_modifier = rajput_bastions:Mewar Hill Forts:120:fort_defence=0.25
+option:
+  label = Muster the Rajput clans for border raids
+  ai_weight = 20
+  effect:
+    manpower = 3000
+    estate_loyalty = rajputs:12
+
+event hist_mahmud_begada_gujarat
+title = Mahmud Begada of Gujarat
+text = Capturing the hill citadels of Girnar and Champaner, Sultan Mahmud Begada extends Gujarati maritime prosperity across the Gulf of Cambay.
+category = historical
+countries = GUJ
+date_from = 1459-01-01
+date_to = 1495-12-31
+mtth = 24
+fire_once = true
+trigger:
+  provinces_min = 3
+option:
+  label = Patronise maritime trade and coastal forts
+  ai_weight = 75
+  effect:
+    prestige = 12
+    ducats = 60
+    add_modifier = cambay_ports:Cambay Prosperity:120:trade=0.12
+option:
+  label = Expand the royal war-elephant stables
+  ai_weight = 25
+  effect:
+    spawn_units = capital:war_elephants:1
+    manpower = 2500
+
+event hist_krishnadevaraya_vijayanagara
+title = Golden Age of Vijayanagara
+text = Under the Tuluva emperor Krishnadevaraya, Vijayanagara's courts ring with Telugu and Sanskrit verse while Portuguese Arabian horses mount its shock cavalry across the Deccan.
+category = historical
+countries = VIJ
+date_from = 1509-07-01
+date_to = 1529-12-31
+mtth = 18
+fire_once = true
+major = true
+trigger:
+  owns = Vijayanagara
+option:
+  label = Patronise the Ashtadiggajas poets and royal cavalry
+  ai_weight = 80
+  effect:
+    prestige = 18
+    stability = 1
+    province_dev = Vijayanagara:1
+    add_modifier = tuluva_golden_age:Vijayanagara Golden Age:120:tax=0.10,army_quality=0.08
+option:
+  label = Secure war-horses from coastal traders
+  ai_weight = 20
+  effect:
+    spawn_units = Vijayanagara:cavalry:2
+    manpower = 4000
+
+event hist_husain_shahi_bengal
+title = The Husain Shahi Renaissance in Bengal
+text = Restoring order across the Ganges delta, Alauddin Husain Shah welcomes Bengali scholars, builds brick mosques and temples, and expands Bengal's muslin and rice exports.
+category = historical
+countries = BNG
+date_from = 1494-01-01
+date_to = 1519-12-31
+mtth = 24
+fire_once = true
+trigger:
+  provinces_min = 4
+option:
+  label = Foster Bengali letters and delta trade
+  ai_weight = 75
+  effect:
+    stability = 1
+    prestige = 12
+    add_modifier = bengal_muslin:Delta Prosperity:120:trade=0.10,learning=0.12
+option:
+  label = Strengthen riverine war-fleets on the Padma
+  ai_weight = 25
+  effect:
+    sailors = 800
+    manpower = 3000
+
+event hist_zara_yaqob_debre_berhan
+title = The Council of Debre Berhan
+text = Summoning bishops and monks to Debre Berhan, Emperor Zara Yaqob settles Ethiopia's Sabbath controversy, strengthens the royal chewa garrisons, and sends envoys toward Christendom.
+category = religious
+countries = ETH
+date_from = 1454-01-01
+date_to = 1468-08-26
+mtth = 18
+fire_once = true
+trigger:
+  ruler_alive = zara_yaqob
+option:
+  label = Enforce church reform and centralise crown authority
+  ai_weight = 75
+  effect:
+    stability = 1
+    estate_loyalty = clergy:12
+    add_modifier = debre_berhan_reform:Debre Berhan Reforms:120:crown_power=0.10,stability_cost=-0.10
+option:
+  label = Grant autonomy to northern monastic houses
+  ai_weight = 25
+  effect:
+    estate_loyalty = clergy:15
+    prestige = 5
+
+event hist_ahmad_gragn_adal
+title = Ahmad Gragn's Banner in the Horn
+text = Uniting Somali and Harari warriors under the title of Imam, Ahmad ibn Ibrahim al-Ghazi acquires matchlocks from the Red Sea ports and prepares to challenge the Ethiopian highlands.
+category = military
+countries = ADA
+date_from = 1525-01-01
+date_to = 1538-12-31
+mtth = 16
+fire_once = true
+major = true
+trigger:
+  exists = ETH
+option:
+  label = Proclaim the highland campaign!
+  ai_weight = 80
+  effect:
+    add_cb = ETH:holyWar:60
+    spawn_units = capital:handgunners:2
+    add_modifier = adal_ghazi_host:Imam's Host:60:army_quality=0.10,manpower=0.15
+option:
+  label = Consolidate Zeila's Red Sea customs first
+  ai_weight = 20
+  effect:
+    ducats = 65
+    sailors = 500

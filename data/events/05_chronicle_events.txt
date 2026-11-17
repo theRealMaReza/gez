@@ -1,0 +1,104 @@
+# System-triggered events turning chronicle happenings into interactive pop-ups
+# Validated and compiled by tools/events/eventgen.py -> events1453.json
+
+event chronicle_rebel_rising
+title = Rebels Take Up Arms in {province}!
+text = Banners of revolt have been unfurled in {province}: {rebels} have risen {men} strong against the crown of {country}. Local magistrates beg for immediate orders.
+category = calamity
+fire_once = false
+per_country = false
+triggered_only = true
+option:
+  label = Dispatch the royal host to crush the rebels
+  ai_weight = 70
+  effect:
+    prestige = 1
+option:
+  label = Offer local tax relief to calm the countryside
+  ai_weight = 15
+  ai_mod = treasury_min=80 -> *1.5
+  effect:
+    ducats = -25
+    unrest = context:-6
+    prestige = -2
+option:
+  label = Muster an emergency town militia in the capital
+  ai_weight = 15
+  ai_mod = at_war=true -> *2.0
+  effect:
+    ducats = -30
+    manpower = 1500
+    unrest = context:3
+
+event chronicle_vassal_plot_success
+title = Poison in the Cup: {victim} Murdered!
+text = Tragedy strikes the court of {country}! {victim} has been slain by poison in a conspiracy orchestrated by {plotter}. The realm looks to {ruler} for justice or calm.
+category = dynastic
+fire_once = false
+per_country = false
+triggered_only = true
+option:
+  label = Denounce the traitor and rally loyal houses
+  ai_weight = 55
+  effect:
+    stability = -1
+    prestige = -5
+    add_vassal_favour = 10
+option:
+  label = Hush the scandal to spare the dynasty's name
+  ai_weight = 45
+  effect:
+    prestige = -10
+    add_modifier = court_whispers:Whispers at Court:24:crown_power=-0.05
+
+event chronicle_vassal_plot_uncovered
+title = Murder Plot Uncovered!
+text = Your spymaster has intercepted coded letters and poisoned phials: {plotter} conspired against the life of {victim}. Their estates have been seized for the crown; how shall the court respond?
+category = dynastic
+fire_once = false
+per_country = false
+triggered_only = true
+option:
+  label = Seize their titles and warn every magnate
+  ai_weight = 65
+  effect:
+    prestige = 5
+    estate_loyalty = nobles:-5
+option:
+  label = Show calculated clemency and exact a heavy fine
+  ai_weight = 35
+  ai_mod = treasury_max=60 -> *2.0
+  effect:
+    ducats = 50
+    add_vassal_favour = 10
+    prestige = -2
+
+event chronicle_ruler_death
+title = The Crown Passes to {ruler}
+text = {old_ruler} has passed from this world, leaving the realm of {country} to {ruler}. Nobles, clergy, and burghers gather at {capital} for the accession ceremonies.
+category = dynastic
+fire_once = false
+per_country = false
+triggered_only = true
+option:
+  label = Observe dignified mourning and steady the realm
+  ai_weight = 70
+  effect:
+    prestige = 2
+    estate_loyalty = clergy:3
+option:
+  label = Hold a lavish coronation to awe rivals
+  ai_weight = 15
+  ai_mod = treasury_min=200 -> *3.0
+  effect:
+    ducats = -40
+    prestige = 8
+    estate_loyalty = nobles:5
+option:
+  label = Confirm the estates' charters to heal unrest
+  ai_weight = 15
+  ai_mod = stability_max=-1 -> *4.0
+  effect:
+    estate_loyalty = nobles:6
+    estate_loyalty = burghers:5
+    prestige = -4

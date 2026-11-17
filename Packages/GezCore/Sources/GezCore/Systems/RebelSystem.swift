@@ -565,6 +565,18 @@ public enum RebelSystem {
         world.unrest.factions[at].victories = 0
         world.people.record(date, f.country,
                             "\(name(world, f)) rise in arms at \(world.provinces.name[seat]) with \(total) men!")
+        EventSystem.trigger(
+            &world,
+            eventID: "chronicle_rebel_rising",
+            for: f.country,
+            date: date,
+            tokens: [
+                "rebels": name(world, f),
+                "province": world.provinces.name[seat],
+                "men": "\(total)"
+            ],
+            contextProvince: ProvinceID(seat)
+        )
     }
 
     // MARK: - Fighting and winning

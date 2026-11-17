@@ -1,0 +1,467 @@
+# Hand-written historical events: Central Europe, Italy & Nordic Realms
+# Validated and compiled by tools/events/eventgen.py -> events1453.json
+
+event hist_peace_of_lodi
+title = The Peace of Lodi
+text = Exhausted by decades of mercenary wars across Lombardy and Romagna, Milan, Venice, and Florence gather to forge the Italic League, balancing Italy's great powers against foreign invasion.
+category = diplomatic
+countries = MLO
+date_from = 1454-04-01
+date_to = 1457-12-31
+mtth = 10
+fire_once = true
+major = true
+trigger:
+  owns = Milan
+  exists = VEN
+  exists = FLO
+option:
+  label = Sign the Italic League at Lodi
+  ai_weight = 80
+  effect:
+    change_opinion_both = VEN:35
+    change_opinion_both = FLO:30
+    stability = 1
+    prestige = 10
+option:
+  label = Keep a free hand in Lombardy
+  ai_weight = 20
+  effect:
+    manpower = 2000
+    change_opinion = VEN:-20
+
+event hist_printing_press_mainz
+title = The Printing Presses of Mainz
+text = Bitter episcopal rivalry has erupted into the Sack of Mainz, driving Johannes Gutenberg's trained printers across Germany and Italy — carrying movable type into every great market town.
+category = historical
+countries = MAI
+date_from = 1461-10-01
+date_to = 1466-12-31
+mtth = 8
+fire_once = true
+major = true
+trigger:
+  owns = Mainz
+option:
+  label = Protect the workshops and patronise printed books
+  ai_weight = 65
+  effect:
+    ducats = -30
+    prestige = 12
+    tech_progress = administrative:35
+    institution_spread = Mainz:printing_press:0.45
+    province_dev = Mainz:1
+option:
+  label = Let the master printers scatter to wealthier cities
+  ai_weight = 35
+  effect:
+    institution_spread = Mainz:printing_press:0.25
+    ducats = 25
+    estate_loyalty = clergy:5
+
+event hist_ladislaus_death_1457
+title = Death of Ladislaus the Posthumous
+text = At just seventeen, King Ladislaus V has died suddenly in Prague while preparing his wedding. The personal union binding Hungary, Bohemia, and Austria dissolves overnight as magnates and estates scramble for crowns.
+category = dynastic
+countries = HUN
+date_from = 1457-11-01
+date_to = 1458-06-01
+exact_date = 1457-11-23
+mtth = 0
+fire_once = true
+major = true
+trigger:
+  ruler_alive = ladislaus5
+option:
+  label = Mourn the young king and summon the Diet at Buda
+  ai_weight = 85
+  effect:
+    kill_character = ladislaus5
+    prestige = -5
+    set_global_flag = ladislaus_dead_1457
+option:
+  label = Secure the royal castles before rivals move
+  ai_weight = 15
+  effect:
+    kill_character = ladislaus5
+    ducats = -30
+    manpower = 2000
+    set_global_flag = ladislaus_dead_1457
+
+event hist_matthias_corvinus_black_army
+title = Matthias Corvinus and the Black Army
+text = Elected on the frozen Danube with Ladislaus V dead, the Hungarian crown builds a standing professional mercenary host — the Fekete Sereg — backed by royal taxation to hold the southern frontier.
+category = military
+countries = HUN
+date_from = 1458-01-24
+date_to = 1488-12-31
+mtth = 18
+fire_once = true
+major = true
+trigger:
+  not_ruler_alive = ladislaus5
+  owns = Buda
+option:
+  label = Raise the Black Army and reform royal taxes
+  ai_weight = 75
+  ai_mod = treasury_min=100 -> *1.4
+  effect:
+    ducats = -80
+    spawn_units = Buda:handgunners:2
+    add_modifier = black_army:The Black Army:120:army_quality=0.10,tax=0.08
+    estate_loyalty = nobles:-10
+option:
+  label = Rely upon the traditional noble banderia
+  ai_weight = 25
+  effect:
+    estate_loyalty = nobles:12
+    manpower = 2500
+
+event hist_podebrady_bohemia
+title = George of Poděbrady Elected King
+text = With the Habsburg-union throne vacant in Prague, the Bohemian estates turn to their native Utraquist governor George of Poděbrady, champion of the Basel Compacts.
+category = dynastic
+countries = BOH
+date_from = 1458-03-01
+date_to = 1471-03-22
+mtth = 14
+fire_once = true
+major = true
+trigger:
+  not_ruler_alive = ladislaus5
+  character_alive = podebrady
+  owns = Prague
+option:
+  label = Uphold the Hussite Compacts and crown a national king
+  ai_weight = 75
+  effect:
+    stability = 1
+    prestige = 10
+    change_opinion = PAP:-25
+    estate_loyalty = nobles:10
+option:
+  label = Placate Rome with promises of Catholic unity
+  ai_weight = 25
+  effect:
+    change_opinion = PAP:20
+    unrest = Prague:10
+
+event hist_alfonso_magnanimous_death
+title = Death of Alfonso the Magnanimous
+text = Alfonso V's passing splits his Mediterranean empire: Aragon, Sicily, and Sardinia pass to his brother, while Naples passes to his illegitimate son Ferrante amid baronial unrest.
+category = dynastic
+countries = NAP
+date_from = 1458-06-27
+date_to = 1463-12-31
+mtth = 12
+fire_once = true
+trigger:
+  not_ruler_alive = alfonso5
+  owns = Naples
+option:
+  label = Crush the Angevin barons and secure Naples
+  ai_weight = 70
+  effect:
+    stability = 1
+    estate_loyalty = nobles:-10
+    change_opinion = FRA:-20
+    prestige = 8
+option:
+  label = Buy the barons' loyalty with feudal privileges
+  ai_weight = 30
+  effect:
+    ducats = -50
+    estate_loyalty = nobles:12
+    add_vassal_favour = 15
+
+event hist_medici_golden_age
+title = Lorenzo the Magnificent's Florence
+text = Under Medici patronage, Florence's workshops, banks, and scholars shine as the heart of the Italian Renaissance, drawing artists and humanists from across Christendom.
+category = historical
+countries = FLO
+date_from = 1464-08-01
+date_to = 1492-04-08
+mtth = 24
+fire_once = true
+trigger:
+  owns = Florence
+  institution_present = renaissance
+option:
+  label = Lavish patronage upon scholars and builders
+  ai_weight = 75
+  effect:
+    ducats = -60
+    prestige = 15
+    tech_progress = administrative:40
+    province_dev = Florence:1
+    add_modifier = laurentian_age:Laurentian Golden Age:120:learning=0.20,trade=0.08
+option:
+  label = Guard the Medici bank's liquid reserves
+  ai_weight = 25
+  effect:
+    ducats = 80
+    add_modifier = medici_credit:Medici Credit:60:interest=-0.02
+    estate_loyalty = burghers:8
+
+event hist_pazzi_conspiracy
+title = The Pazzi Conspiracy
+text = During High Mass in Florence's Duomo, rival Pazzi bankers backed by Roman factions strike at the Medici brothers with concealed daggers.
+category = internal
+countries = FLO
+date_from = 1478-04-26
+date_to = 1484-12-31
+mtth = 18
+fire_once = true
+trigger:
+  owns = Florence
+  exists = PAP
+option:
+  label = Hang the conspirators and defy Rome's interdict
+  ai_weight = 80
+  effect:
+    stability = 1
+    change_opinion = PAP:-40
+    prestige = 10
+    estate_loyalty = burghers:10
+option:
+  label = Seek papal absolution through quiet diplomacy
+  ai_weight = 20
+  effect:
+    ducats = -50
+    change_opinion = PAP:20
+    prestige = -8
+
+event hist_savonarola_bonfire
+title = Savonarola and the Bonfire of the Vanities
+text = As French armies cross the Alps, the Dominican friar Girolamo Savonarola preaches apocalyptic repentance in Florence, burning luxury books and paintings in the Piazza della Signoria.
+category = religious
+countries = FLO
+date_from = 1494-11-01
+date_to = 1498-05-23
+mtth = 14
+fire_once = true
+trigger:
+  owns = Florence
+option:
+  label = Bow to the Piagnoni republic of virtue
+  ai_weight = 40
+  effect:
+    estate_loyalty = clergy:15
+    estate_loyalty = burghers:-12
+    stability = -1
+    add_modifier = pious_austerity:Savonarola's Austerity:36:stability_cost=-0.15,trade=-0.10
+option:
+  label = Restore secular order and arrest the friar
+  ai_weight = 60
+  effect:
+    estate_loyalty = burghers:10
+    estate_loyalty = clergy:-10
+    prestige = 5
+
+event hist_thirteen_years_war_thorn
+title = The Prussian Confederation and Thorn
+text = The towns and gentry of Prussia have risen against Teutonic rule, offering their allegiance to the Polish crown for access to the Vistula grain trade and Baltic ports.
+category = military
+countries = POL
+date_from = 1454-02-04
+date_to = 1466-10-19
+mtth = 16
+fire_once = true
+major = true
+trigger:
+  exists = TEU
+  owns = Krakow
+option:
+  label = Incorporate Prussia and claim Danzig!
+  ai_weight = 80
+  effect:
+    add_claim = Danzig
+    add_cb = TEU:claim:60
+    change_opinion = TEU:-50
+    estate_loyalty = burghers:10
+option:
+  label = Respect the Teutonic Order's Baltic charter
+  ai_weight = 20
+  effect:
+    change_opinion_both = TEU:25
+    change_opinion = PAP:10
+    prestige = -5
+
+event hist_venetian_ottoman_negroponte
+title = The Struggle for Negroponte and the Morea
+text = Ottoman fleets and land armies press hard against Venice's Stato da Màr in the Aegean. The Serenissima must decide whether to pour its treasury into the fleet or buy trading peace.
+category = military
+countries = VEN
+date_from = 1463-01-01
+date_to = 1479-01-25
+mtth = 24
+fire_once = true
+trigger:
+  exists = TUR
+  owns = Venice
+option:
+  label = Arm the Arsenal and hold our island fortresses
+  ai_weight = 65
+  ai_mod = treasury_min=150 -> *1.5
+  effect:
+    ducats = -80
+    sailors = 1000
+    province_fort = Negroponte:1
+    change_opinion = TUR:-30
+option:
+  label = Negotiate commercial tribute with the Porte
+  ai_weight = 35
+  effect:
+    ducats = -40
+    change_opinion_both = TUR:20
+    add_modifier = levant_trade_peace:Levantine Trade Accord:60:trade=0.10
+
+event hist_italian_wars_charles8
+title = The French Claim to Naples
+text = Tracing Angevin blood rights south of the Alps, Paris prepares a grand artillery train to march down the Italian peninsula, threatening to shatter the Peace of Lodi.
+category = diplomatic
+countries = FRA
+date_from = 1494-09-01
+date_to = 1502-12-31
+mtth = 18
+fire_once = true
+major = true
+trigger:
+  owns = Paris
+  exists = NAP
+  exists = MLO
+option:
+  label = Cross the Alps with culverins and gendarmes!
+  ai_weight = 75
+  ai_mod = at_war=false -> *1.5
+  effect:
+    add_claim = Naples
+    add_cb = NAP:claim:60
+    change_opinion = NAP:-40
+    change_opinion = VEN:-20
+    prestige = 10
+option:
+  label = Focus French arms on the Rhine and Flanders
+  ai_weight = 25
+  effect:
+    stability = 1
+    ducats = 50
+
+event hist_stockholm_bloodbath
+title = The Stockholm Bloodbath
+text = Seeking to crush Swedish separatism inside the Kalmar Union once and for all, the Danish crown holds a ruthless trial of Stockholm's magnates and bishops.
+category = historical
+countries = DAN
+date_from = 1518-01-01
+date_to = 1524-12-31
+mtth = 16
+fire_once = true
+major = true
+trigger:
+  exists = SWE
+  owns = Copenhagen
+option:
+  label = Strike down the Sture party to awe the north
+  ai_weight = 65
+  effect:
+    change_opinion = SWE:-80
+    prestige = -8
+    stability = -1
+    manpower = 1500
+option:
+  label = Convene a conciliatory Kalmar council instead
+  ai_weight = 35
+  effect:
+    change_opinion_both = SWE:25
+    estate_loyalty = nobles:10
+    ducats = -40
+
+event hist_luther_95_theses
+title = Luther's Ninety-Five Theses at Wittenberg
+text = An Augustinian friar named Martin Luther nails Ninety-Five Theses against indulgences to the castle church door in Wittenberg. Printed pamphlets carry his challenge across Europe within weeks.
+category = religious
+countries = SAX
+date_from = 1517-10-31
+date_to = 1525-12-31
+mtth = 8
+fire_once = true
+major = true
+trigger:
+  owns = Wittenberg
+  religion = catholic
+  reformation_started = false
+option:
+  label = Shelter the reformer and let debate spread
+  ai_weight = 75
+  effect:
+    spawn_reformation = Wittenberg:protestant
+    change_opinion = PAP:-40
+    estate_loyalty = clergy:-10
+    tech_progress = administrative:35
+    set_global_flag = luther_theses_posted
+option:
+  label = Condemn the theses and submit to Rome
+  ai_weight = 25
+  effect:
+    spawn_reformation = Wittenberg:protestant
+    change_opinion = PAP:20
+    unrest = Wittenberg:10
+    set_global_flag = luther_theses_posted
+
+event hist_luther_95_theses_alt
+title = The Ninety-Five Theses at Wittenberg
+text = Though Saxony no longer rules the Elbe, the monk Martin Luther's protest against indulgences erupts at Wittenberg university, igniting the Reformation across Christendom.
+category = religious
+date_from = 1517-10-31
+date_to = 1526-12-31
+mtth = 8
+fire_once = true
+major = true
+trigger:
+  not_tag = SAX
+  not_tag = PAP
+  owns = Wittenberg
+  religion = catholic
+  reformation_started = false
+option:
+  label = Let the printing presses carry the debate
+  ai_weight = 70
+  effect:
+    spawn_reformation = Wittenberg:protestant
+    change_opinion = PAP:-30
+    set_global_flag = luther_theses_posted
+option:
+  label = Enforce papal decrees in Wittenberg
+  ai_weight = 30
+  effect:
+    spawn_reformation = Wittenberg:protestant
+    unrest = Wittenberg:10
+    set_global_flag = luther_theses_posted
+
+event hist_diet_of_worms
+title = The Diet of Worms
+text = Summoned before the Imperial estates at Worms, Martin Luther refuses to recant his writings. The Empire now stands divided between Catholic loyalists and Evangelical princes.
+category = religious
+countries = HAB, AUS
+date_from = 1521-01-28
+date_to = 1532-12-31
+mtth = 14
+fire_once = true
+major = true
+trigger:
+  reformation_started = true
+  religion = catholic
+option:
+  label = Issue the Edict of Worms condemning the heresy
+  ai_weight = 75
+  effect:
+    change_opinion = PAP:25
+    estate_loyalty = clergy:10
+    prestige = 8
+    add_modifier = edict_of_worms:Edict of Worms:60:mood_other_faith=-0.08,army_quality=0.04
+option:
+  label = Grant religious peace to keep the princes united
+  ai_weight = 25
+  effect:
+    change_opinion = PAP:-25
+    add_modifier = worms_compromise:Imperial Conciliation:60:vassal_opinion=15,mood_other_faith=0.08
