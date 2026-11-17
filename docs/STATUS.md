@@ -25,15 +25,13 @@ Last updated: 16 November 2026.
 
 ## Next
 1. Owner play-test of Phase 13 on the Mac (`Tech` button, `K` map mode).
-2. **Phase 14: events and missions.** Condition-triggered historical
-   events with choices (Granada, Columbus, Vasco da Gama, Babur,
-   Reformation, Safavids...) and mission trees for major 1453 powers
-   (Ottomans, France, England, Castile, Portugal, Austria, Hungary, Venice,
-   Mamluks, Aq Qoyunlu, Timurids, Delhi, Vijayanagara), regional trees for
-   the rest.
+2. **Phase 14: historical events** with choices (Granada, Columbus,
+   Vasco da Gama, Babur, Reformation, Safavids...) and pop-ups for
+   risings, plots and deaths. Mission trees moved to Phase 21.
 3. Later: 15 AI setting (historical/free), 16 sound effects + tooltips,
    17 3D, 18 chronicle and stats, 19 multiplayer (on hold), 20 interface
-   and art (art script: `tools/uiart/ui_art_concept.py`).
+   and art (art script: `tools/uiart/ui_art_concept.py`), 21 mission
+   trees.
 
 ## Saving tokens (owner's choice, 16 Nov 2026)
 - One task per session (a phase part, or one PR review); HANDOFF carries

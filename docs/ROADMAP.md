@@ -272,15 +272,15 @@ Owner's choices: 3 EU4-style tech tracks (Administrative, Diplomatic, Military, 
 - [x] C. **Historical institutions** (`Systems/InstitutionSystem.swift`): dedicated deterministic `GameRandom` stream (`world.tech.rngState`), historical & dynamic origins, neighbour/trade-route/burgher+books spread, embracing for ducats, and tech speed/cost modifiers.
 - [x] D. **Godot screens & docs** (`godot/scripts/{TechnologyPanel,MapTechLayer}.gd`, `GezGodotTechBridge.swift`, `Main.gd`, `capture_snapshots.gd`): Technology window, Focus & Embrace controls, top-bar `Tech` button, Institutions (`K`) map mode, province People tab institution list, alerts, and `godot_technology_window.png` & `godot_map_institutions.png` snapshots.
 
-### Phase 14: Historical events ✅ (historical events PR, written by Gemini; mission trees moved to a later phase)
+### Phase 14: Historical events ✅ (historical events PR, written by Gemini; mission trees moved to Phase 21)
 Owner's choices: Condition-triggered historical events with 2–4 choices (firing when historical conditions & date windows are met) plus interactive chronicle pop-ups for rebel risings, vassal murder plots, and ruler deaths. Mission trees were moved to a later phase, keeping event conditions and effects general and reusable.
 - [x] A. **Event engine and data** (`data/events/*.txt` → `tools/events/eventgen.py` → `events1453.json`, `Events/Events.swift`, `Scenario/EventLoader.swift`, `Systems/EventSystem.swift`, `SaveGame.swift`, `GameSession.swift`): fixed reusable condition/effect vocabulary, monthly pre-filtered checks with `exact_date`/MTTH, dedicated saved RNG stream (`world.events.rngState`), optional `SaveSnapshot` state, AI weighted options, and `pauseOnEvents` setting.
 - [x] B. **Historical & chronicle events** (`data/events/01..05_*.txt`, `CharacterSystem.swift`, `VassalSystem.swift`, `RebelSystem.swift`, `HISTORY_NOTES.md`): 66 real-date historical events with counterfactual fallbacks (Hundred Years' War, Belgrade 1456, Ladislaus 1457, Printing Press, Skanderbeg, Trebizond, Otranto, Fall of Granada, Columbus chain, Vasco da Gama, Safavids, Babur, Luther's Theses / Reformation, etc.) + 4 chronicle pop-up events.
 - [x] C. **Godot screens, bridge & tests** (`godot/scripts/EventPopup.gd`, `Main.gd`, `GezGodotEventBridge.swift`, `capture_snapshots.gd`, `EventEngineTests.swift`, `HistoricalEventsTests.swift`, `GezGodotTests.swift`, `TenYearBalanceTests.swift`, `ProfileTests.swift`): modal event popup with effect tooltips & auto-pause toggle, alerts-area recent events strip, `godot_event_popup.png` snapshot, and full unit/determinism/save-load coverage.
-- [ ] Mission trees (deferred to a later phase; reuses the Phase 14 condition/effect vocabulary).
+- [ ] Mission trees: moved to **Phase 21** (owner, 16 Nov 2026: after 3D and the art pass); they reuse the Phase 14 condition/effect vocabulary.
 
 ### Phase 15: AI behaviour setting
-Owner's choices: Weighted AI goal & mission evaluation (never hard-scripted railroading): in **Historical AI** mode, AI countries prioritize their historical mission tree targets, traditional rivals/allies, and historically plausible event choices while still checking real army strength, treasury, and truces; in **Free AI** mode, AI countries evaluate all opportunities purely by strategic value, border weakness, trade wealth, and ruler personality traits.
+Owner's choices: Weighted AI goal & mission evaluation (never hard-scripted railroading): in **Historical AI** mode, AI countries prioritize their historical goals (a simple target list per country until the Phase 21 mission trees exist), traditional rivals/allies, and historically plausible event choices while still checking real army strength, treasury, and truces; in **Free AI** mode, AI countries evaluate all opportunities purely by strategic value, border weakness, trade wealth, and ruler personality traits.
 Game-setup option: **historical** AI (pursues real goals, like the Ottomans
 in the Balkans or Castile at Granada) or **free** AI. Builds on the AI
 grown since Phase 6.
@@ -358,6 +358,14 @@ script now in `tools/uiart/ui_art_concept.py`. Never use Paradox art.
    and paintings for the event pop-ups from Phase 14.
 
 After Phase 20: the **alpha build "Kayser"** (see "Build names" above).
+
+### Phase 21: Mission trees
+Moved here from Phase 14 by the owner (16 Nov 2026): after 3D (Phase 17)
+and the art pass (Phase 20). Branching mission trees for major 1453 powers
+(Ottomans, France, England, Castile, Portugal, Austria, Hungary, Venice,
+Mamluks, Aq Qoyunlu/Persia, Timurids, Delhi, Vijayanagara) and regional
+trees for all other nations, reusing the Phase 14 event conditions and
+effects; the Phase 15 historical AI then follows them.
 
 ### Backlog (decide later)
 - **Windows** version: decided, through Godot (Phase 8.5).
