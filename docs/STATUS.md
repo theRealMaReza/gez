@@ -12,7 +12,7 @@ Last updated: 16 November 2026.
   recommended first, one topic at a time.
 - Game: EU5-style grand strategy from **30 May 1453**, daily tick with
   pause and 5 speeds, Total War–style battles (fight or auto-resolve),
-  CK3-style real people of 1453. Mac and iPad first, Windows through Godot.
+  CK3-style real people of 1453. Mac and Windows (Godot); no iPad for now.
 - No music ever. Local saves only. Never ask for API keys in chat.
 - Alpha build name: **"Kayser"** (after Phase 20).
 
@@ -28,10 +28,11 @@ Last updated: 16 November 2026.
 2. **Phase 14: historical events** with choices (Granada, Columbus,
    Vasco da Gama, Babur, Reformation, Safavids...) and pop-ups for
    risings, plots and deaths. Mission trees moved to Phase 21.
-3. Later: 15 AI setting (historical/free), 16 sound effects + tooltips,
-   17 3D, 18 chronicle and stats, 19 multiplayer (on hold), 20 interface
-   and art (art script: `tools/uiart/ui_art_concept.py`), 21 mission
-   trees.
+3. Then: 15 AI setting, 16 sound (free CC0) + tooltips, 17 3D (Claude;
+   AI-made models, tool decided then), 18 chronicle, 20 art, 20.5
+   balance and play-test (Claude), **alpha "Kayser"**, then 21 mission
+   trees and 19 multiplayer. Who writes what: ROADMAP "Plan for the
+   remaining phases". Art script: `tools/uiart/ui_art_concept.py`.
 
 ## Saving tokens (owner's choice, 16 Nov 2026)
 - One task per session (a phase part, or one PR review); HANDOFF carries

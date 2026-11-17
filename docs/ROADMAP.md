@@ -12,7 +12,7 @@ via the `ci-snapshots` branch, and ask the owner multiple-choice questions
 ## Build names
 
 Decided by the owner on 13 November 2026 (session 6, on claude.ai).
-- **Alpha** (the build once all 20 phases are done): **"Kayser"**, after
+- **Alpha** (the build after Phase 20.5, the balance and play-test pass): **"Kayser"**, after
   *Kayser-i Rûm* ("Caesar of Rome"), the title Mehmed II took in 1453.
 - **Beta builds**: each iteration gets its own name; theme not chosen yet
   (ideas offered: years after 1453 such as Belgrade 1456, Granada 1492,
@@ -55,6 +55,27 @@ Decided by the owner on 13 November 2026 (session 6, on claude.ai).
 | 30 | Windows | **Yes, through Godot** (decided 14 Nov 2026): the screens move to Godot before Phase 9 (Phase 8.5); the Swift simulation stays |
 | + | Help | **Tooltips only** (no guided tutorial) |
 | + | Chronicle | **History book, graphs and timelapse near the end** |
+
+## Plan for the remaining phases (owner, 16 Nov 2026)
+
+Order: 14 events → 15 AI setting → 16 sound + tooltips → 17 3D →
+18 chronicle → 20 art → **20.5 balance and play-test** → **alpha
+"Kayser"** → 21 mission trees and 19 multiplayer.
+
+| Phase | Who writes | Decisions |
+|---|---|---|
+| 14 Historical events | Gemini | Mission trees moved to 21 |
+| 15 AI setting | Gemini | Historical AI uses a simple goal list per country until 21 |
+| 16 Sound + tooltips | Gemini | Sounds from free CC0 libraries (Kenney, Sonniss GDC, freesound CC0); tooltip text now, styled cards in 20 |
+| 17 3D | Claude | Built in Godot (not Metal); three parts: map, models, battles. Models are AI-generated; which tool is decided when 17 starts |
+| 18 Chronicle | Gemini | History is recorded from Phase 18 on (no early recording); timelapse covers games started after it |
+| 20 Art | Claude (pipeline) | As planned |
+| 20.5 Balance and play-test | Claude | Long AI-only runs plus the owner's play-throughs; fix balance, speed and bugs before Kayser |
+| 21 Mission trees | Gemini | After the alpha |
+| 19 Multiplayer | Claude | After the alpha |
+
+Platforms: **Mac and Windows only for now**; iPad not planned (needs
+Apple's paid account).
 
 ## Build order
 
@@ -358,6 +379,11 @@ script now in `tools/uiart/ui_art_concept.py`. Never use Paradox art.
    and paintings for the event pop-ups from Phase 14.
 
 After Phase 20: the **alpha build "Kayser"** (see "Build names" above).
+
+### Phase 20.5: Balance and play-test (Claude)
+Added by the owner on 16 Nov 2026. Long AI-only runs (balance lines in
+the CI logs), the owner's own play-throughs on the Mac, then fixes to
+balance, speed and bugs. Then the alpha build "Kayser".
 
 ### Phase 21: Mission trees
 Moved here from Phase 14 by the owner (16 Nov 2026): after 3D (Phase 17)

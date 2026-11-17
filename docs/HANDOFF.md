@@ -21,7 +21,8 @@ Last updated: Phase 14 (16 November 2026). Phases 0–13 and Phase 14 (historica
   turn-based. Before a battle: **fight it yourself or auto-resolve**.
 - Characters should be **fully like CK3**: real people of 1453 with their
   real families; invent people **only** where history records no one.
-- Platforms: **Mac and iPad** (owner has an M1 Mac and an M5 iPad).
+- Platforms: **Mac and Windows only for now** (owner, 16 Nov 2026; iPad
+  not planned). Originally Mac and iPad (owner has an M1 Mac and an M5 iPad).
   Swift / Xcode. **Windows might come later**, so keep `Packages/GezCore`
   pure Swift. **14 Nov: the owner decided to move the screens to Godot
   before Phase 9** (ROADMAP Phase 8.5); GezCore stays the simulation,
