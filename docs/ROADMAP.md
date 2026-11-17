@@ -12,7 +12,7 @@ via the `ci-snapshots` branch, and ask the owner multiple-choice questions
 ## Build names
 
 Decided by the owner on 13 November 2026 (session 6, on claude.ai).
-- **Alpha** (the build once all 20 phases are done): **"Kayser"**, after
+- **Alpha** (the build after Phase 20.5, the balance and play-test pass): **"Kayser"**, after
   *Kayser-i Rûm* ("Caesar of Rome"), the title Mehmed II took in 1453.
 - **Beta builds**: each iteration gets its own name; theme not chosen yet
   (ideas offered: years after 1453 such as Belgrade 1456, Granada 1492,
@@ -55,6 +55,30 @@ Decided by the owner on 13 November 2026 (session 6, on claude.ai).
 | 30 | Windows | **Yes, through Godot** (decided 14 Nov 2026): the screens move to Godot before Phase 9 (Phase 8.5); the Swift simulation stays |
 | + | Help | **Tooltips only** (no guided tutorial) |
 | + | Chronicle | **History book, graphs and timelapse near the end** |
+
+## Plan for the remaining phases (owner, 16 Nov 2026)
+
+Order: 14 events → 15 AI setting → 16 sound + tooltips → 17 3D →
+18 chronicle → 20 art → **20.5 balance and play-test** → **alpha
+"Kayser"** → 21 mission trees and 19 multiplayer.
+
+| Phase | Who writes | Decisions |
+|---|---|---|
+| 14 Historical events | Gemini | Mission trees moved to 21 |
+| 15 AI setting | Gemini | Historical AI uses a simple goal list per country until 21 |
+| 16 Sound + tooltips | Gemini | Sounds from free CC0 libraries (Kenney, Sonniss GDC, freesound CC0); tooltip text now, styled cards in 20 |
+| 17 3D | Claude | Built in Godot (not Metal); three parts: map, models, battles. Models from free CC0 kits (Quaternius, KayKit, Kenney) recoloured by region, plus simple models Claude builds in code with Blender; **no paid tools** |
+| 18 Chronicle | Gemini | History is recorded from Phase 18 on (no early recording); timelapse covers games started after it |
+| 20 Art | Claude (pipeline) | Frames, medallions, seals by our art script; building icons rendered from the 3D models; paintings (events, missions, portraits) made by the owner in the Gemini app from Claude's prompts. **No paid tools or per-image API costs** |
+| 20.5 Balance and play-test | Claude | Long AI-only runs plus the owner's play-throughs; fix balance, speed and bugs before Kayser |
+| 21 Mission trees | Gemini | After the alpha |
+| 19 Multiplayer | Claude | After the alpha; Epic Online Services (EOS) with join codes, as decided in session 6 |
+
+Money: **no extra paid services** (owner, 16 Nov 2026); the owner already
+pays for Claude and Gemini.
+
+Platforms: **Mac and Windows only for now**; iPad not planned (needs
+Apple's paid account).
 
 ## Build order
 
@@ -272,15 +296,15 @@ Owner's choices: 3 EU4-style tech tracks (Administrative, Diplomatic, Military, 
 - [x] C. **Historical institutions** (`Systems/InstitutionSystem.swift`): dedicated deterministic `GameRandom` stream (`world.tech.rngState`), historical & dynamic origins, neighbour/trade-route/burgher+books spread, embracing for ducats, and tech speed/cost modifiers.
 - [x] D. **Godot screens & docs** (`godot/scripts/{TechnologyPanel,MapTechLayer}.gd`, `GezGodotTechBridge.swift`, `Main.gd`, `capture_snapshots.gd`): Technology window, Focus & Embrace controls, top-bar `Tech` button, Institutions (`K`) map mode, province People tab institution list, alerts, and `godot_technology_window.png` & `godot_map_institutions.png` snapshots.
 
-### Phase 14: Historical events ✅ (historical events PR, written by Gemini; mission trees moved to a later phase)
+### Phase 14: Historical events ✅ (historical events PR, written by Gemini; mission trees moved to Phase 21)
 Owner's choices: Condition-triggered historical events with 2–4 choices (firing when historical conditions & date windows are met) plus interactive chronicle pop-ups for rebel risings, vassal murder plots, and ruler deaths. Mission trees were moved to a later phase, keeping event conditions and effects general and reusable.
 - [x] A. **Event engine and data** (`data/events/*.txt` → `tools/events/eventgen.py` → `events1453.json`, `Events/Events.swift`, `Scenario/EventLoader.swift`, `Systems/EventSystem.swift`, `SaveGame.swift`, `GameSession.swift`): fixed reusable condition/effect vocabulary, monthly pre-filtered checks with `exact_date`/MTTH, dedicated saved RNG stream (`world.events.rngState`), optional `SaveSnapshot` state, AI weighted options, and `pauseOnEvents` setting.
 - [x] B. **Historical & chronicle events** (`data/events/01..05_*.txt`, `CharacterSystem.swift`, `VassalSystem.swift`, `RebelSystem.swift`, `HISTORY_NOTES.md`): 66 real-date historical events with counterfactual fallbacks (Hundred Years' War, Belgrade 1456, Ladislaus 1457, Printing Press, Skanderbeg, Trebizond, Otranto, Fall of Granada, Columbus chain, Vasco da Gama, Safavids, Babur, Luther's Theses / Reformation, etc.) + 4 chronicle pop-up events.
 - [x] C. **Godot screens, bridge & tests** (`godot/scripts/EventPopup.gd`, `Main.gd`, `GezGodotEventBridge.swift`, `capture_snapshots.gd`, `EventEngineTests.swift`, `HistoricalEventsTests.swift`, `GezGodotTests.swift`, `TenYearBalanceTests.swift`, `ProfileTests.swift`): modal event popup with effect tooltips & auto-pause toggle, alerts-area recent events strip, `godot_event_popup.png` snapshot, and full unit/determinism/save-load coverage.
-- [ ] Mission trees (deferred to a later phase; reuses the Phase 14 condition/effect vocabulary).
+- [ ] Mission trees: moved to **Phase 21** (owner, 16 Nov 2026: after 3D and the art pass); they reuse the Phase 14 condition/effect vocabulary.
 
 ### Phase 15: AI behaviour setting
-Owner's choices: Weighted AI goal & mission evaluation (never hard-scripted railroading): in **Historical AI** mode, AI countries prioritize their historical mission tree targets, traditional rivals/allies, and historically plausible event choices while still checking real army strength, treasury, and truces; in **Free AI** mode, AI countries evaluate all opportunities purely by strategic value, border weakness, trade wealth, and ruler personality traits.
+Owner's choices: Weighted AI goal & mission evaluation (never hard-scripted railroading): in **Historical AI** mode, AI countries prioritize their historical goals (a simple target list per country until the Phase 21 mission trees exist), traditional rivals/allies, and historically plausible event choices while still checking real army strength, treasury, and truces; in **Free AI** mode, AI countries evaluate all opportunities purely by strategic value, border weakness, trade wealth, and ruler personality traits.
 Game-setup option: **historical** AI (pursues real goals, like the Ottomans
 in the Balkans or Castile at Granada) or **free** AI. Builds on the AI
 grown since Phase 6.
@@ -333,8 +357,7 @@ else is done. Until then, keep panels functional and don't style them.
 Reference: the owner's concept canvas on claude.ai ("Gez interface
 concept": today vs. after, main screen and court panel). Its art pieces
 were made in code (height maps lit as metal, leather and enamel) by a
-script saved in the claude.ai Project as `claude/ui-art-concept.py`; move
-it to `tools/uiart/` when this phase starts. Never use Paradox art.
+script now in `tools/uiart/ui_art_concept.py`. Never use Paradox art.
 1. **Style kit**: tooled leather top bar between gold mouldings, gold
    frames with rope moulding and corner rosettes (nine-slice), parchment
    panels, red cloth title banners, bevelled gold buttons, domed gold
@@ -359,6 +382,19 @@ it to `tools/uiart/` when this phase starts. Never use Paradox art.
    and paintings for the event pop-ups from Phase 14.
 
 After Phase 20: the **alpha build "Kayser"** (see "Build names" above).
+
+### Phase 20.5: Balance and play-test (Claude)
+Added by the owner on 16 Nov 2026. Long AI-only runs (balance lines in
+the CI logs), the owner's own play-throughs on the Mac, then fixes to
+balance, speed and bugs. Then the alpha build "Kayser".
+
+### Phase 21: Mission trees
+Moved here from Phase 14 by the owner (16 Nov 2026): after 3D (Phase 17)
+and the art pass (Phase 20). Branching mission trees for major 1453 powers
+(Ottomans, France, England, Castile, Portugal, Austria, Hungary, Venice,
+Mamluks, Aq Qoyunlu/Persia, Timurids, Delhi, Vijayanagara) and regional
+trees for all other nations, reusing the Phase 14 event conditions and
+effects; the Phase 15 historical AI then follows them.
 
 ### Backlog (decide later)
 - **Windows** version: decided, through Godot (Phase 8.5).

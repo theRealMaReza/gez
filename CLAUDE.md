@@ -38,8 +38,13 @@ build and verify from the cloud workspace. **The agreed plan is
   because the workspace has no internet). The Metal shader is
   `App/Shared/Map/Metal/MapShaders.metal`.
 - Credit external data in `docs/CREDITS.md`.
-- At the end of a session: update `docs/HANDOFF.md` and `docs/ROADMAP.md`,
-  and mirror both to the claude.ai Project (`claude/HANDOFF.md`,
-  `claude/ROADMAP.md`).
+- At the end of a session: update `docs/HANDOFF.md`, `docs/ROADMAP.md`
+  and the one-page `docs/STATUS.md`, and mirror **only STATUS** to the
+  claude.ai Project (`claude/STATUS.md`). Put lessons from the session in
+  `docs/SESSION_LOG.md`, not in HANDOFF.
+- Save tokens (owner's choice, 16 Nov 2026): read only the sections of
+  HANDOFF, DESIGN and SESSION_LOG a task needs; check CI with
+  `tools/ci/status.sh <branch> --wait` instead of polling and reading
+  whole logs; start PR reviews with `git diff --stat`; keep replies short.
 - Never ask for or paste API keys in chat; the owner stores secrets in
   GitHub Actions.
