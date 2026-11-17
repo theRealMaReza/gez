@@ -56,6 +56,11 @@ public enum DiplomacySystem {
         }
 
         // 3. War reparations (10% monthly income for 10 years)
+        for c in 0..<n {
+            world.countries.lastWarRepsIn[c] = 0
+            world.countries.lastWarRepsOut[c] = 0
+            world.countries.lastSlotUpkeep[c] = 0
+        }
         world.diplomacy.warReparations.removeAll { date >= $0.until }
         for rep in world.diplomacy.warReparations {
             let income = max(0.0, world.countries.lastMonthlyIncome[rep.payer.index])
@@ -65,6 +70,8 @@ public enum DiplomacySystem {
                 world.countries.treasury[rep.receiver.index] += payment
                 world.countries.lastMonthlyExpenses[rep.payer.index] += payment
                 world.countries.lastMonthlyIncome[rep.receiver.index] += payment
+                world.countries.lastWarRepsOut[rep.payer.index] += payment
+                world.countries.lastWarRepsIn[rep.receiver.index] += payment
             }
         }
 
@@ -80,6 +87,7 @@ public enum DiplomacySystem {
                 let cost = Double(excess) * 1.0
                 world.countries.treasury[c.index] = max(0.0, world.countries.treasury[c.index] - cost)
                 world.countries.lastMonthlyExpenses[c.index] += cost
+                world.countries.lastSlotUpkeep[c.index] = cost
             }
         }
     }

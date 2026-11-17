@@ -22,9 +22,23 @@ const DiplomacyPanelScript := preload("res://scripts/DiplomacyPanel.gd")
 const WarsPanelScript := preload("res://scripts/WarsPanel.gd")
 const BattleViewScript := preload("res://scripts/BattleView.gd")
 const EventPopupScript := preload("res://scripts/EventPopup.gd")
+const TooltipManagerScript := preload("res://scripts/TooltipManager.gd")
 
 var bridge: RefCounted = null
 var warned_missing_methods: Dictionary = {}
+
+# Hover tracking on map army/fleet counters
+var _hover_map_army_id: int = -1
+var _hover_map_fleet_id: int = -1
+
+# Game menu audio widgets
+var menu_mute_check: CheckBox
+var menu_ui_slider: HSlider
+var menu_fx_slider: HSlider
+var menu_amb_slider: HSlider
+var menu_ui_val_lbl: Label
+var menu_fx_val_lbl: Label
+var menu_amb_val_lbl: Label
 
 var map_rect: ColorRect
 var map_material: ShaderMaterial
@@ -222,6 +236,43 @@ func _call_bridge(method_name: String, args: Array = [], fallback: Variant = nul
 			push_warning("GezGodot is missing '%s': run godot/build_mac.sh, then quit (Cmd+Q) and reopen Godot." % method_name)
 		return fallback
 	return bridge.callv(method_name, args)
+
+func _audio() -> Node:
+	return get_node_or_null("/root/AudioManager")
+
+func _tip() -> Node:
+	return get_node_or_null("/root/TooltipManager")
+
+func play_sfx(cue: String) -> void:
+	var a := _audio()
+	if a != null:
+		a.call("play_effect", cue)
+
+func play_ui_sfx(cue: String = "ui_wood") -> void:
+	var a := _audio()
+	if a != null:
+		a.call("play_ui", cue)
+
+func bind_tip(ctrl: Control, title: String, summary: String = "") -> void:
+	if ctrl == null:
+		return
+	if ctrl.mouse_filter == Control.MOUSE_FILTER_IGNORE:
+		ctrl.mouse_filter = Control.MOUSE_FILTER_PASS
+	TooltipManagerScript.bind_text(ctrl, title, summary)
+
+func bind_breakdown(ctrl: Control, callback: Callable, fallback_title: String = "") -> void:
+	if ctrl == null:
+		return
+	if ctrl.mouse_filter == Control.MOUSE_FILTER_IGNORE:
+		ctrl.mouse_filter = Control.MOUSE_FILTER_PASS
+	TooltipManagerScript.bind_breakdown(ctrl, callback, fallback_title)
+
+func bind_tip_data(ctrl: Control, data: Dictionary) -> void:
+	if ctrl == null:
+		return
+	if ctrl.mouse_filter == Control.MOUSE_FILTER_IGNORE:
+		ctrl.mouse_filter = Control.MOUSE_FILTER_PASS
+	TooltipManagerScript.bind_data(ctrl, data)
 
 func _build_scene_ui() -> void:
 	# 1. Fullscreen shaded map ColorRect
@@ -470,12 +521,13 @@ func _build_top_bar() -> void:
 	top_arms_rect.custom_minimum_size = Vector2(28.0, 24.0)
 	top_arms_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	top_arms_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	bind_tip(top_arms_rect, "National Coat of Arms", "Your realm banner on 30 May 1453 and beyond.")
 	hbox.add_child(top_arms_rect)
 
 	top_country_btn = Button.new()
 	top_country_btn.text = "Ottoman Empire"
 	top_country_btn.flat = true
-	top_country_btn.tooltip_text = "Choose nation / New Game"
+	bind_tip(top_country_btn, "Active Realm", "Click to open the Nation Picker or start a new campaign.")
 	top_country_btn.add_theme_color_override("font_color", Color(0.97, 0.88, 0.62))
 	top_country_btn.add_theme_font_size_override("font_size", 16)
 	top_country_btn.pressed.connect(_toggle_nation_picker)
@@ -489,7 +541,7 @@ func _build_top_bar() -> void:
 	treasury_btn = Button.new()
 	treasury_btn.text = "0 (+0.0/mo)"
 	treasury_btn.custom_minimum_size = Vector2(150.0, 30.0)
-	treasury_btn.tooltip_text = "Ducats in the treasury (change last month). Opens the budget: taxes, loans & inflation"
+	bind_breakdown(treasury_btn, func() -> Variant: return _call_bridge("getMonthlyIncomeBreakdown", [], {}), "Treasury & Monthly Net")
 	treasury_btn.pressed.connect(_toggle_budget_window)
 	hbox.add_child(treasury_btn)
 
@@ -498,7 +550,7 @@ func _build_top_bar() -> void:
 	trade_btn = Button.new()
 	trade_btn.text = "Trade"
 	trade_btn.custom_minimum_size = Vector2(60.0, 30.0)
-	trade_btn.tooltip_text = "Trade routes, merchant capacity, tolls & embargoes"
+	bind_tip(trade_btn, "Trade & Markets", "Manage trade routes, merchant capacity, tolls and embargoes across regional markets.")
 	trade_btn.pressed.connect(_toggle_trade_window)
 	hbox.add_child(trade_btn)
 
@@ -507,7 +559,7 @@ func _build_top_bar() -> void:
 	court_btn = Button.new()
 	court_btn.text = "Court"
 	court_btn.custom_minimum_size = Vector2(60.0, 30.0)
-	court_btn.tooltip_text = "Ruler, family, council, vassals & marriages"
+	bind_tip(court_btn, "Royal Court & Family", "Inspect the ruler, heir, dynasty, royal council seats, vassals and court chronicle.")
 	court_btn.pressed.connect(_toggle_court_window)
 	hbox.add_child(court_btn)
 
@@ -516,28 +568,28 @@ func _build_top_bar() -> void:
 	stability_btn = Button.new()
 	stability_btn.text = "Stability +0"
 	stability_btn.custom_minimum_size = Vector2(92.0, 30.0)
-	stability_btn.tooltip_text = "Government: stability, estates, laws & reforms"
+	bind_breakdown(stability_btn, func() -> Variant: return _call_bridge("getStabilityBreakdown", [], {}), "Realm Stability & Government")
 	stability_btn.pressed.connect(_toggle_government_window)
 	hbox.add_child(stability_btn)
 
 	religion_btn = Button.new()
 	religion_btn.text = "Religion"
 	religion_btn.custom_minimum_size = Vector2(82.0, 30.0)
-	religion_btn.tooltip_text = "Religion, holy sites, missionaries, movements & accepted cultures"
+	bind_tip(religion_btn, "Religion & Cultures", "Direct missionaries, guard holy sites, watch historical movements and manage accepted cultures.")
 	religion_btn.pressed.connect(_toggle_religion_window)
 	hbox.add_child(religion_btn)
 
 	rebels_btn = Button.new()
 	rebels_btn.text = "Rebels"
 	rebels_btn.custom_minimum_size = Vector2(72.0, 30.0)
-	rebels_btn.tooltip_text = "Unrest, rebel factions, their demands and your answers"
+	bind_tip(rebels_btn, "Unrest & Rebel Factions", "Inspect province unrest causes, active rebel factions, uprising progress and countermeasures.")
 	rebels_btn.pressed.connect(_toggle_rebels_window)
 	hbox.add_child(rebels_btn)
 
 	tech_btn = Button.new()
 	tech_btn.text = "Tech"
 	tech_btn.custom_minimum_size = Vector2(76.0, 30.0)
-	tech_btn.tooltip_text = "Technology tracks, research speed & historical institutions"
+	bind_breakdown(tech_btn, func() -> Variant: return _call_bridge("getResearchSpeedBreakdown", ["administrative"], {}), "Technology & Research Speed")
 	tech_btn.pressed.connect(_toggle_tech_window)
 	hbox.add_child(tech_btn)
 
@@ -546,7 +598,7 @@ func _build_top_bar() -> void:
 	diplomacy_btn = Button.new()
 	diplomacy_btn.text = "Diplomacy"
 	diplomacy_btn.custom_minimum_size = Vector2(82.0, 30.0)
-	diplomacy_btn.tooltip_text = "Diplomacy, treaties, coalitions & war declarations"
+	bind_breakdown(diplomacy_btn, func() -> Variant: return _call_bridge("getRelationSlotsBreakdown", [], {}), "Diplomacy & Relation Slots")
 	diplomacy_btn.pressed.connect(_toggle_diplomacy_window)
 	hbox.add_child(diplomacy_btn)
 
@@ -554,13 +606,12 @@ func _build_top_bar() -> void:
 	wars_btn.text = "Wars"
 	wars_btn.visible = false
 	wars_btn.custom_minimum_size = Vector2(72.0, 30.0)
-	wars_btn.tooltip_text = "Active wars, war score, allies & peace negotiations"
+	bind_tip(wars_btn, "Active Wars", "Inspect ongoing wars, war score breakdowns, allies and peace offers.")
 	wars_btn.pressed.connect(_toggle_wars_window)
 	hbox.add_child(wars_btn)
 
 	inflation_label = _make_label("Inflation 0%", Color(0.92, 0.42, 0.38), 12)
-	inflation_label.tooltip_text = "Inflation raises costs; see the Budget window"
-	inflation_label.mouse_filter = Control.MOUSE_FILTER_PASS
+	bind_tip(inflation_label, "Currency Inflation", "Each 1% of inflation increases building, unit, technology and stability costs. Reduce it over time or through laws.")
 	inflation_label.visible = false
 	hbox.add_child(inflation_label)
 
@@ -569,14 +620,14 @@ func _build_top_bar() -> void:
 	armies_btn = Button.new()
 	armies_btn.text = "Armies 0 · MP 0"
 	armies_btn.custom_minimum_size = Vector2(140.0, 30.0)
-	armies_btn.tooltip_text = "Armies & Recruitment (Levies, Professionals, Mercenaries)"
+	bind_breakdown(armies_btn, func() -> Variant: return _call_bridge("getManpowerBreakdown", [], {}), "Armies & Maximum Manpower")
 	armies_btn.pressed.connect(_toggle_armies_window)
 	hbox.add_child(armies_btn)
 
 	fleets_btn = Button.new()
 	fleets_btn.text = "Fleets 0"
 	fleets_btn.custom_minimum_size = Vector2(115.0, 30.0)
-	fleets_btn.tooltip_text = "Fleets, Naval Transports & Blockades"
+	bind_breakdown(fleets_btn, func() -> Variant: return _call_bridge("getSailorsBreakdown", [], {}), "Fleets & Maximum Sailors")
 	fleets_btn.pressed.connect(_toggle_fleets_window)
 	hbox.add_child(fleets_btn)
 
@@ -588,30 +639,32 @@ func _build_top_bar() -> void:
 	selection_label.clip_text = true
 	selection_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	selection_label.custom_minimum_size = Vector2(0.0, 0.0)
+	bind_tip(selection_label, "Selected Map Tile", "Click any province or sea zone on the map to inspect its owner, population, terrain and garrison.")
 	hbox.add_child(selection_label)
 
 	play_as_btn = Button.new()
 	play_as_btn.visible = false
-	play_as_btn.tooltip_text = "Switch to the country that owns the selected province"
+	bind_tip(play_as_btn, "Play As Selected Nation", "Take immediate control of the country owning the currently selected province.")
 	play_as_btn.pressed.connect(_on_play_as_pressed)
 	hbox.add_child(play_as_btn)
 
 	menu_btn = Button.new()
 	menu_btn.text = "Menu"
 	menu_btn.custom_minimum_size = Vector2(68.0, 30.0)
-	menu_btn.tooltip_text = "Game Menu (Esc): New Game, Save, Load, Autosave, Quit"
+	bind_tip(menu_btn, "Game Menu (Esc)", "Save/load campaigns, configure autosaves, toggle event pausing, adjust sound effects and quit.")
 	menu_btn.pressed.connect(_toggle_game_menu)
 	hbox.add_child(menu_btn)
 
 	date_label = _make_label("30 May 1453", Color(0.96, 0.93, 0.86), 15)
 	date_label.custom_minimum_size = Vector2(104.0, 0.0)
 	date_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	bind_tip(date_label, "Campaign Date", "Current calendar date (campaign begins 30 May 1453). Economy, manpower, unrest and sieges tick daily and settle each 1st of the month.")
 	hbox.add_child(date_label)
 
 	pause_btn = Button.new()
 	pause_btn.text = "PAUSED"
 	pause_btn.custom_minimum_size = Vector2(72.0, 30.0)
-	pause_btn.tooltip_text = "Toggle Pause (Space)"
+	bind_tip(pause_btn, "Pause / Resume (Space)", "Pause keeps the simulation and ambient map sound effects silent while still letting you issue orders.")
 	pause_btn.pressed.connect(_on_pause_pressed)
 	hbox.add_child(pause_btn)
 
@@ -624,7 +677,7 @@ func _build_top_bar() -> void:
 		var b := Button.new()
 		b.text = str(s)
 		b.custom_minimum_size = Vector2(24.0, 30.0)
-		b.tooltip_text = "Speed %d (Key %d)" % [s, s]
+		bind_tip(b, "Game Speed %d (Key %d)" % [s, s], "Advance time at speed %d. Higher speeds step more days per real second." % s)
 		var spd := s
 		b.pressed.connect(func() -> void: _on_speed_selected(spd))
 		speed_box.add_child(b)
@@ -743,20 +796,23 @@ func _build_province_panel() -> void:
 	prov_owner_arms.custom_minimum_size = Vector2(24.0, 20.0)
 	prov_owner_arms.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	prov_owner_arms.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	bind_tip(prov_owner_arms, "Province Sovereign", "Coat of arms of the realm ruling this province.")
 	owner_row.add_child(prov_owner_arms)
 	prov_owner_label = _make_label("Owner", Color(0.95, 0.92, 0.85), 14)
 	prov_owner_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	bind_tip(prov_owner_label, "Province Owner", "Country that owns and taxes this province.")
 	owner_row.add_child(prov_owner_label)
 	prov_diplomacy_btn = Button.new()
 	prov_diplomacy_btn.text = "Diplomacy"
 	prov_diplomacy_btn.visible = false
-	prov_diplomacy_btn.tooltip_text = "Open Diplomacy with this country"
+	bind_tip(prov_diplomacy_btn, "Open Foreign Diplomacy", "Inspect relations, treaties and the AI's current strategic goal for this country.")
 	prov_diplomacy_btn.pressed.connect(func() -> void:
 		if prov_owner_index >= 0:
 			_open_diplomacy_with(prov_owner_index)
 	)
 	owner_row.add_child(prov_diplomacy_btn)
 	prov_capital_label = _make_label("★ Capital", Color(0.98, 0.84, 0.32), 12)
+	bind_tip(prov_capital_label, "National Capital", "Seat of government and court. Losing a capital yields major war score.")
 	owner_row.add_child(prov_capital_label)
 
 	prov_occupied_label = _make_label("", Color(0.95, 0.42, 0.38), 12)
@@ -815,9 +871,11 @@ func _build_sea_panel() -> void:
 	vbox.add_child(header)
 	sea_title_label = _make_label("Sea Zone", Color(0.86, 0.93, 0.98), 17)
 	sea_title_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	bind_tip(sea_title_label, "Sea Zone", "Maritime region navigable by fleets. Blockading enemy coasts disrupts trade and fort sieges.")
 	header.add_child(sea_title_label)
 	var close_btn := Button.new()
 	close_btn.text = "X"
+	bind_tip(close_btn, "Close Sea Panel")
 	close_btn.pressed.connect(_clear_selection)
 	header.add_child(close_btn)
 
@@ -826,12 +884,14 @@ func _build_sea_panel() -> void:
 	vbox.add_child(_make_label("Connects to", Color(0.95, 0.90, 0.78), 13))
 	sea_neighbors_label = _make_label("", Color(0.85, 0.83, 0.78), 12)
 	sea_neighbors_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	bind_tip(sea_neighbors_label, "Adjacent Waters & Activity", "Connected sea zones and any friendly or hostile fleets patrolling here.")
 	vbox.add_child(sea_neighbors_label)
 
 	sea_coast_title_label = _make_label("Coast", Color(0.95, 0.90, 0.78), 13)
 	vbox.add_child(sea_coast_title_label)
 	sea_coast_label = _make_label("", Color(0.85, 0.83, 0.78), 12)
 	sea_coast_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	bind_tip(sea_coast_label, "Coastal Provinces", "Land provinces bordering this sea zone.")
 	vbox.add_child(sea_coast_label)
 
 	sea_panel.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT, Control.PRESET_MODE_MINSIZE, 12)
@@ -852,9 +912,11 @@ func _build_market_panel() -> void:
 	vbox.add_child(header)
 	market_title_label = _make_label("Market", Color(0.97, 0.90, 0.68), 17)
 	market_title_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	bind_tip(market_title_label, "Regional Market", "Regional trading hub setting supply, demand and monthly prices for all goods in member provinces.")
 	header.add_child(market_title_label)
 	var close_btn := Button.new()
 	close_btn.text = "X"
+	bind_tip(close_btn, "Close Market Panel")
 	close_btn.pressed.connect(func() -> void:
 		open_market_index = -1
 		market_panel.visible = false
@@ -862,6 +924,7 @@ func _build_market_panel() -> void:
 	header.add_child(close_btn)
 
 	market_subtitle_label = _make_label("", Color(0.80, 0.75, 0.66), 12)
+	bind_tip(market_subtitle_label, "Market Summary", "Number of member provinces and market activity.")
 	vbox.add_child(market_subtitle_label)
 
 	market_cat_box = HBoxContainer.new()
@@ -873,18 +936,22 @@ func _build_market_panel() -> void:
 	vbox.add_child(cols)
 	var g_hdr := _make_label("Good", Color(0.82, 0.78, 0.68), 12)
 	g_hdr.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	bind_tip(g_hdr, "Trade Good", "Click any good below to plan an import route into this market.")
 	cols.add_child(g_hdr)
 	var p_hdr := _make_label("Price", Color(0.82, 0.78, 0.68), 12)
 	p_hdr.custom_minimum_size = Vector2(68.0, 0.0)
 	p_hdr.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	bind_tip(p_hdr, "Local Price", "Current market price per unit and recent monthly direction (▲ rising, ▼ falling).")
 	cols.add_child(p_hdr)
 	var s_hdr := _make_label("Supply", Color(0.82, 0.78, 0.68), 12)
 	s_hdr.custom_minimum_size = Vector2(64.0, 0.0)
 	s_hdr.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	bind_tip(s_hdr, "Market Supply", "Total units produced and imported here each month.")
 	cols.add_child(s_hdr)
 	var d_hdr := _make_label("Demand", Color(0.82, 0.78, 0.68), 12)
 	d_hdr.custom_minimum_size = Vector2(64.0, 0.0)
 	d_hdr.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	bind_tip(d_hdr, "Market Demand", "Total units consumed by population, construction and workshops each month.")
 	cols.add_child(d_hdr)
 
 	vbox.add_child(HSeparator.new())
@@ -958,6 +1025,7 @@ func _build_nation_picker_panel() -> void:
 	picker_arms_rect.custom_minimum_size = Vector2(54.0, 46.0)
 	picker_arms_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	picker_arms_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	bind_tip(picker_arms_rect, "Selected Nation Arms", "Coat of arms of the realm currently previewed below.")
 	card.add_child(picker_arms_rect)
 
 	var info_box := VBoxContainer.new()
@@ -966,18 +1034,23 @@ func _build_nation_picker_panel() -> void:
 	card.add_child(info_box)
 
 	picker_name_label = _make_label("Ottoman Empire (TUR)", Color(0.98, 0.90, 0.65), 16)
+	bind_tip(picker_name_label, "Country & Tag", "Official realm title and three-letter scenario tag.")
 	info_box.add_child(picker_name_label)
 	picker_meta_label = _make_label("Monarchy · Sunni", Color(0.80, 0.75, 0.65), 12)
+	bind_tip(picker_meta_label, "Government & State Religion", "Starting government form and primary state faith on 30 May 1453.")
 	info_box.add_child(picker_meta_label)
 	picker_ruler_label = _make_label("Ruler: Mehmed II", Color(0.92, 0.89, 0.82), 13)
+	bind_tip(picker_ruler_label, "Starting Ruler", "Monarch, Doge, Sultan or council leading this country at scenario start.")
 	info_box.add_child(picker_ruler_label)
 
 	var stats_row := HBoxContainer.new()
 	stats_row.add_theme_constant_override("separation", 16)
 	info_box.add_child(stats_row)
 	picker_treasury_label = _make_label("Treasury: 0 ducats", Color(0.96, 0.82, 0.34), 13)
+	bind_tip(picker_treasury_label, "Starting Treasury", "Initial ducat reserve available for armies, ships, buildings and trade.")
 	stats_row.add_child(picker_treasury_label)
 	picker_provinces_label = _make_label("Provinces: 0", Color(0.88, 0.85, 0.78), 13)
+	bind_tip(picker_provinces_label, "Starting Realm Size", "Number of owned provinces and combined province development.")
 	stats_row.add_child(picker_provinces_label)
 
 	var ai_row := HBoxContainer.new()
@@ -985,9 +1058,11 @@ func _build_nation_picker_panel() -> void:
 	vbox.add_child(ai_row)
 	var ai_lbl := _make_label("AI behaviour:", Color(0.90, 0.86, 0.76), 13)
 	ai_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	bind_tip(ai_lbl, "Campaign AI Behaviour", "Choose Historical (1453-1553 historical objectives) or Free AI (opportunistic sandbox goals).")
 	ai_row.add_child(ai_lbl)
 	picker_ai_option = OptionButton.new()
 	picker_ai_option.custom_minimum_size = Vector2(150.0, 0.0)
+	bind_tip(picker_ai_option, "AI Mode Selector", "Applied when starting a new 1453 campaign.")
 	picker_ai_option.item_selected.connect(_on_picker_ai_selected)
 	ai_row.add_child(picker_ai_option)
 
@@ -1134,9 +1209,105 @@ func _build_game_menu_panel() -> void:
 
 	vbox.add_child(HSeparator.new())
 
+	# Audio Settings (non-musical sound effects & ambience only)
+	var audio_hdr := HBoxContainer.new()
+	vbox.add_child(audio_hdr)
+	var audio_title := _make_label("Sound Effects & Ambience", Color(0.95, 0.88, 0.70), 14)
+	audio_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	bind_tip(audio_title, "Sound Effects Only", "Volume controls for UI clicks, world/battle sound effects and camera-zoom ambience. Strictly no music.")
+	audio_hdr.add_child(audio_title)
+
+	menu_mute_check = CheckBox.new()
+	menu_mute_check.text = "Mute All"
+	bind_tip(menu_mute_check, "Master Mute", "Silence all UI clicks, effects and ambience across the whole game.")
+	menu_mute_check.toggled.connect(func(muted: bool) -> void:
+		var a := _audio()
+		if a != null:
+			a.call("set_master_muted", muted)
+	)
+	audio_hdr.add_child(menu_mute_check)
+
+	var ui_row := HBoxContainer.new()
+	ui_row.add_theme_constant_override("separation", 8)
+	vbox.add_child(ui_row)
+	var ui_lbl := _make_label("UI Clicks", Color(0.84, 0.80, 0.72), 12)
+	ui_lbl.custom_minimum_size = Vector2(110.0, 0.0)
+	ui_row.add_child(ui_lbl)
+	menu_ui_slider = HSlider.new()
+	menu_ui_slider.min_value = 0.0
+	menu_ui_slider.max_value = 1.0
+	menu_ui_slider.step = 0.05
+	menu_ui_slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	bind_tip(menu_ui_slider, "UI Bus Volume", "Adjusts parchment and wood click volume. Saved in local settings.")
+	menu_ui_slider.value_changed.connect(func(v: float) -> void:
+		var a := _audio()
+		if a != null:
+			a.call("set_ui_volume", v)
+		if menu_ui_val_lbl != null:
+			menu_ui_val_lbl.text = "%d%%" % int(round(v * 100.0))
+	)
+	ui_row.add_child(menu_ui_slider)
+	menu_ui_val_lbl = _make_label("85%", Color(0.92, 0.88, 0.78), 12)
+	menu_ui_val_lbl.custom_minimum_size = Vector2(40.0, 0.0)
+	menu_ui_val_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	ui_row.add_child(menu_ui_val_lbl)
+
+	var fx_row := HBoxContainer.new()
+	fx_row.add_theme_constant_override("separation", 8)
+	vbox.add_child(fx_row)
+	var fx_lbl := _make_label("Effects", Color(0.84, 0.80, 0.72), 12)
+	fx_lbl.custom_minimum_size = Vector2(110.0, 0.0)
+	fx_row.add_child(fx_lbl)
+	menu_fx_slider = HSlider.new()
+	menu_fx_slider.min_value = 0.0
+	menu_fx_slider.max_value = 1.0
+	menu_fx_slider.step = 0.05
+	menu_fx_slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	bind_tip(menu_fx_slider, "Effects Bus Volume", "Adjusts coin clinks, marching boots, hoofbeats, construction hammers, cannons, swords and muskets.")
+	menu_fx_slider.value_changed.connect(func(v: float) -> void:
+		var a := _audio()
+		if a != null:
+			a.call("set_effects_volume", v)
+		if menu_fx_val_lbl != null:
+			menu_fx_val_lbl.text = "%d%%" % int(round(v * 100.0))
+	)
+	fx_row.add_child(menu_fx_slider)
+	menu_fx_val_lbl = _make_label("80%", Color(0.92, 0.88, 0.78), 12)
+	menu_fx_val_lbl.custom_minimum_size = Vector2(40.0, 0.0)
+	menu_fx_val_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	fx_row.add_child(menu_fx_val_lbl)
+
+	var amb_row := HBoxContainer.new()
+	amb_row.add_theme_constant_override("separation", 8)
+	vbox.add_child(amb_row)
+	var amb_lbl := _make_label("Ambience", Color(0.84, 0.80, 0.72), 12)
+	amb_lbl.custom_minimum_size = Vector2(110.0, 0.0)
+	amb_row.add_child(amb_lbl)
+	menu_amb_slider = HSlider.new()
+	menu_amb_slider.min_value = 0.0
+	menu_amb_slider.max_value = 1.0
+	menu_amb_slider.step = 0.05
+	menu_amb_slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	bind_tip(menu_amb_slider, "Ambience Bus Volume", "Adjusts wind, sea waves and city murmur as camera zoom and focus change.")
+	menu_amb_slider.value_changed.connect(func(v: float) -> void:
+		var a := _audio()
+		if a != null:
+			a.call("set_ambience_volume", v)
+		if menu_amb_val_lbl != null:
+			menu_amb_val_lbl.text = "%d%%" % int(round(v * 100.0))
+	)
+	amb_row.add_child(menu_amb_slider)
+	menu_amb_val_lbl = _make_label("55%", Color(0.92, 0.88, 0.78), 12)
+	menu_amb_val_lbl.custom_minimum_size = Vector2(40.0, 0.0)
+	menu_amb_val_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	amb_row.add_child(menu_amb_val_lbl)
+
+	vbox.add_child(HSeparator.new())
+
 	var quit_btn := Button.new()
 	quit_btn.text = "Quit Game"
 	quit_btn.custom_minimum_size = Vector2(0.0, 32.0)
+	bind_tip(quit_btn, "Quit Game", "Exit Gez to desktop.")
 	quit_btn.pressed.connect(func() -> void: get_tree().quit())
 	vbox.add_child(quit_btn)
 
@@ -1374,6 +1545,11 @@ func _process(delta: float) -> void:
 				_refresh_province_panel()
 			if wars_ui != null:
 				wars_ui.call("refresh_if_open")
+			var audio_evts: Variant = _call_bridge("consumeAudioEvents", [], [])
+			if audio_evts is Array and not (audio_evts as Array).is_empty():
+				var a := _audio()
+				if a != null:
+					a.call("play_events", audio_evts)
 		if (mask & 2) != 0:
 			_refresh_fleets()
 			# Monthly tick updated economy, constructions, populations, or markets
@@ -1540,6 +1716,9 @@ func _refresh_top_bar() -> void:
 	if p_int != _last_paused_int or spd != _last_speed_int:
 		_last_paused_int = p_int
 		_last_speed_int = spd
+		var a := _audio()
+		if a != null:
+			a.call("set_game_paused", paused)
 		pause_btn.text = "PAUSED" if paused else "RUNNING"
 		pause_btn.modulate = Color(1.0, 0.78, 0.45) if paused else Color(0.75, 1.0, 0.78)
 		for i in range(speed_buttons.size()):
@@ -1633,6 +1812,26 @@ func _refresh_game_menu() -> void:
 		autosave_option_btn.selected = freq_idx
 
 	_sync_pause_on_events_ui()
+
+	var a := _audio()
+	if a != null:
+		if menu_mute_check != null:
+			menu_mute_check.set_pressed_no_signal(bool(a.get("master_muted")))
+		if menu_ui_slider != null:
+			var uv := float(a.get("ui_volume"))
+			menu_ui_slider.set_value_no_signal(uv)
+			if menu_ui_val_lbl != null:
+				menu_ui_val_lbl.text = "%d%%" % int(round(uv * 100.0))
+		if menu_fx_slider != null:
+			var fv := float(a.get("effects_volume"))
+			menu_fx_slider.set_value_no_signal(fv)
+			if menu_fx_val_lbl != null:
+				menu_fx_val_lbl.text = "%d%%" % int(round(fv * 100.0))
+		if menu_amb_slider != null:
+			var av := float(a.get("ambience_volume"))
+			menu_amb_slider.set_value_no_signal(av)
+			if menu_amb_val_lbl != null:
+				menu_amb_val_lbl.text = "%d%%" % int(round(av * 100.0))
 
 	_clear_children(saves_list_box)
 	var saves: Array = _call_bridge("getSavedGames", [], [])
@@ -2002,7 +2201,7 @@ func _refresh_province_panel() -> void:
 		"people":
 			_build_province_people_tab(d)
 
-func _add_kv_row(parent: VBoxContainer, label_txt: String, value_txt: String) -> void:
+func _add_kv_row(parent: VBoxContainer, label_txt: String, value_txt: String, tip_title: String = "", tip_body: String = "") -> HBoxContainer:
 	var row := HBoxContainer.new()
 	parent.add_child(row)
 	var l := _make_label(label_txt, Color(0.80, 0.75, 0.66), 13)
@@ -2010,6 +2209,9 @@ func _add_kv_row(parent: VBoxContainer, label_txt: String, value_txt: String) ->
 	row.add_child(l)
 	var v := _make_label(value_txt, Color(0.95, 0.92, 0.84), 13)
 	row.add_child(v)
+	if not tip_title.is_empty():
+		bind_tip(row, tip_title, tip_body)
+	return row
 
 func _build_province_overview_tab(d: Dictionary) -> void:
 	var is_mine: bool = bool(d.get("isPlayerOwned", false))
@@ -2067,12 +2269,15 @@ func _build_province_overview_tab(d: Dictionary) -> void:
 				)
 				holder_row.add_child(grant_menu)
 
-	_add_kv_row(prov_content_box, "Development", str(d.get("developmentText", "")))
-	_add_kv_row(prov_content_box, "Land", str(d.get("landText", "")))
+	var prov_idx_here: int = int(d.get("provinceIndex", -1))
+	_add_kv_row(prov_content_box, "Development", str(d.get("developmentText", "")), "Province Development", "Raises local tax base, trade production, manpower recovery, fort capacity and building slots.")
+	_add_kv_row(prov_content_box, "Land", str(d.get("landText", "")), "Terrain & Geography", "Affects army combat width, movement speed, attacker terrain penalties and supply capacity.")
 	var river_txt: String = str(d.get("riverBordersText", ""))
 	if not river_txt.is_empty():
-		_add_kv_row(prov_content_box, "River borders", river_txt)
-	_add_kv_row(prov_content_box, "Supply limit", str(d.get("supplyText", "")))
+		_add_kv_row(prov_content_box, "River borders", river_txt, "River Crossings", "Attacking across a river inflicts a crossing penalty in land battles unless outmanoeuvred.")
+	var sup_row := _add_kv_row(prov_content_box, "Supply limit", str(d.get("supplyText", "")))
+	if prov_idx_here >= 0:
+		bind_breakdown(sup_row, func() -> Variant: return _call_bridge("getProvinceSupplyBreakdown", [prov_idx_here], {}), "Province Supply Limit")
 
 	if army_ui != null:
 		army_ui.call("append_province_military_sections", prov_content_box, d)
@@ -2203,6 +2408,7 @@ func _build_province_overview_tab(d: Dictionary) -> void:
 				var build_idx := t_idx
 				b_btn.pressed.connect(func() -> void:
 					if bool(_call_bridge("buildInSelectedProvince", [build_idx], false)):
+						play_sfx("building_finished")
 						_after_economy_action()
 				)
 				hdr.add_child(b_btn)
@@ -2271,7 +2477,7 @@ func _build_province_economy_tab(d: Dictionary) -> void:
 		row.add_child(v_lbl)
 
 	prov_content_box.add_child(HSeparator.new())
-	_add_kv_row(prov_content_box, "Worth", str(d.get("worthText", "")))
+	_add_kv_row(prov_content_box, "Worth", str(d.get("worthText", "")), "Total Monthly Value", "Estimated combined market value of all goods produced in this province.")
 
 	var sats: Array = d.get("classSatisfactions", [])
 	if not sats.is_empty():
@@ -2282,6 +2488,7 @@ func _build_province_economy_tab(d: Dictionary) -> void:
 			if s is Dictionary:
 				var col := VBoxContainer.new()
 				col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+				bind_tip(col, "%s Needs Met" % str(s.get("name", "Estate")), "Share of monthly consumer and luxury goods available in the local market.")
 				sat_row.add_child(col)
 				col.add_child(_make_label(str(s.get("percentText", "")), Color(0.95, 0.92, 0.84), 12))
 				col.add_child(_make_label(str(s.get("name", "")), Color(0.75, 0.70, 0.62), 11))
@@ -2311,7 +2518,7 @@ func _build_province_people_tab(d: Dictionary) -> void:
 	)
 	hdr.add_child(btn_state)
 
-	_add_kv_row(prov_content_box, "Population", str(d.get("populationText", "0")))
+	_add_kv_row(prov_content_box, "Population", str(d.get("populationText", "0")), "Total Inhabitants", "Combined population supporting taxes, production, manpower and sailors.")
 
 	prov_content_box.add_child(_make_label("Cultures", Color(0.84, 0.78, 0.66), 12))
 	var cultures: Array = d.get("cultures", [])
@@ -2368,14 +2575,18 @@ func _build_province_people_tab(d: Dictionary) -> void:
 		_add_kv_row(
 			prov_content_box,
 			"Conversion",
-			"%s (%s)" % [str(d.get("conversionText", "100%")), conv_rate]
+			"%s (%s)" % [str(d.get("conversionText", "100%")), conv_rate],
+			"Religious Conversion",
+			"Share of the population following your state faith, and current monthly missionary conversion rate."
 		)
-		_add_kv_row(prov_content_box, "Assimilation", str(d.get("assimilationText", "100%")))
-		_add_kv_row(prov_content_box, "Religious Unrest", str(d.get("religiousUnrestText", "0.0")))
+		_add_kv_row(prov_content_box, "Assimilation", str(d.get("assimilationText", "100%")), "Cultural Assimilation", "Share belonging to an accepted or primary culture of the realm.")
+		_add_kv_row(prov_content_box, "Religious Unrest", str(d.get("religiousUnrestText", "0.0")), "Religious Tension", "Local unrest contributed by unaccepted faiths in the province.")
 		_add_kv_row(
 			prov_content_box,
 			"Migration / Devast.",
-			"%s · Devast %s" % [str(d.get("netMigrationText", "+0")), str(d.get("devastationText", "0%"))]
+			"%s · Devast %s" % [str(d.get("netMigrationText", "+0")), str(d.get("devastationText", "0%"))],
+			"Population Migration & Devastation",
+			"Net monthly migration from war/plague/famine and current physical devastation reducing local output."
 		)
 
 		var hs_list: Array = d.get("holySites", [])
@@ -2505,11 +2716,14 @@ func _append_province_calamity_section(p_idx: int) -> void:
 	prov_content_box.add_child(HSeparator.new())
 	var unrest: float = float(c.get("unrest", 0.0))
 	var u_col: Color = Color(0.96, 0.42, 0.38) if unrest >= 40.0 else (Color(0.96, 0.78, 0.40) if unrest >= 20.0 else Color(0.84, 0.78, 0.66))
-	prov_content_box.add_child(_make_label("Unrest %s / 100" % str(c.get("unrestText", "0")), u_col, 12))
+	var u_lbl := _make_label("Unrest %s / 100" % str(c.get("unrestText", "0")), u_col, 12)
+	bind_breakdown(u_lbl, func() -> Variant: return _call_bridge("getUnrestBreakdown", [p_idx], {}), "Province Unrest Breakdown")
+	prov_content_box.add_child(u_lbl)
 	var causes: Array = c.get("unrestCauses", [])
 	for u_v in causes:
 		if u_v is Dictionary:
-			_add_kv_row(prov_content_box, "  " + str((u_v as Dictionary).get("name", "")), str((u_v as Dictionary).get("text", "")))
+			var u_row := _add_kv_row(prov_content_box, "  " + str((u_v as Dictionary).get("name", "")), str((u_v as Dictionary).get("text", "")))
+			bind_breakdown(u_row, func() -> Variant: return _call_bridge("getUnrestBreakdown", [p_idx], {}), "Province Unrest Breakdown")
 	var rebels: Array = c.get("rebels", [])
 	for r_v in rebels:
 		if r_v is Dictionary:
@@ -2617,6 +2831,7 @@ func _append_province_docks_section(d: Dictionary) -> void:
 				sbtn.disabled = not can_b
 				sbtn.pressed.connect(func() -> void:
 					if bool(_call_bridge("buildShipInSelectedProvince", [st_idx], false)):
+						play_sfx("building_finished")
 						_after_fleet_action()
 				)
 				prov_content_box.add_child(sbtn)
@@ -2806,6 +3021,19 @@ func _sync_camera_uniforms() -> void:
 	var default_tint := clampf(0.72 - 0.2 * zoom, 0.38, 0.66)
 	var tint: float = float(_call_bridge("getTintForZoom", [zoom], default_tint))
 	map_material.set_shader_parameter("tint", tint)
+
+	if bridge != null and zoom > 0.0:
+		var center_map_x := int(round((size.x * 0.5 - offset.x) / zoom))
+		var center_map_y := int(round((size.y * 0.5 - offset.y) / zoom))
+		var amb_v: Variant = _call_bridge("getAmbienceContext", [center_map_x, center_map_y, zoom], {})
+		if amb_v is Dictionary:
+			var amb: Dictionary = amb_v
+			var a := _audio()
+			if a != null:
+				a.call("update_ambience_weights",
+					float(amb.get("seaWeight", 0.0)),
+					float(amb.get("windWeight", 0.45)),
+					float(amb.get("cityWeight", 0.0)))
 	if icons_layer != null:
 		icons_layer.call("update_camera", zoom, offset)
 	if labels_layer != null:
@@ -2943,6 +3171,7 @@ func _unhandled_input(event: InputEvent) -> void:
 				var r_map_x := int(floor((event.position.x - offset.x) / zoom))
 				var r_map_y := int(floor((event.position.y - offset.y) / zoom))
 				if bool(_call_bridge("orderArmyMoveAt", [sel_army, r_map_x, r_map_y], false)):
+					play_sfx("march_boots")
 					_after_army_action()
 				get_viewport().set_input_as_handled()
 				return
@@ -2960,14 +3189,32 @@ func _unhandled_input(event: InputEvent) -> void:
 			get_viewport().set_input_as_handled()
 			return
 
-	if event is InputEventMouseMotion and is_pointer_down:
-		var delta_pos: Vector2 = event.position - pointer_down_pos
-		if not is_dragging and delta_pos.length() >= 3.0:
-			is_dragging = true
-		if is_dragging:
-			offset = _clamped_offset(drag_start_offset + delta_pos, zoom)
-			_sync_camera_uniforms()
-		get_viewport().set_input_as_handled()
+	if event is InputEventMouseMotion:
+		if is_pointer_down:
+			var delta_pos: Vector2 = event.position - pointer_down_pos
+			if not is_dragging and delta_pos.length() >= 3.0:
+				is_dragging = true
+			if is_dragging:
+				offset = _clamped_offset(drag_start_offset + delta_pos, zoom)
+				_sync_camera_uniforms()
+			var t_drag := _tip()
+			if t_drag != null:
+				t_drag.call("clear_canvas_tip", "map_unit")
+			_hover_map_army_id = -1
+			get_viewport().set_input_as_handled()
+		elif not nation_picker_panel.visible and armies_layer != null and bridge != null:
+			var t := _tip()
+			if t != null:
+				var hit_army: int = int(armies_layer.call("pick_army_at", event.position))
+				if hit_army >= 0:
+					if hit_army != _hover_map_army_id:
+						_hover_map_army_id = hit_army
+						var morale_d: Variant = _call_bridge("getArmyMoraleBreakdown", [hit_army], {})
+						if morale_d is Dictionary and bool((morale_d as Dictionary).get("valid", false)):
+							t.call("set_canvas_tip", "map_unit", morale_d)
+				elif _hover_map_army_id >= 0:
+					_hover_map_army_id = -1
+					t.call("clear_canvas_tip", "map_unit")
 
 func _handle_map_click(screen_pos: Vector2) -> void:
 	if bridge == null or zoom <= 0.0:
@@ -2978,7 +3225,8 @@ func _handle_map_click(screen_pos: Vector2) -> void:
 	# 1. If an army or fleet is in Move target-picking mode, clicking a province/sea orders a move there.
 	var move_army_id: int = int(_call_bridge("getMoveModeArmyId", [], -1))
 	if move_army_id >= 0:
-		_call_bridge("orderArmyMoveAt", [move_army_id, map_x, map_y], false)
+		if bool(_call_bridge("orderArmyMoveAt", [move_army_id, map_x, map_y], false)):
+			play_sfx("march_boots")
 		_call_bridge("setMoveModeForArmy", [-1], false)
 		_after_army_action()
 		return
@@ -3261,6 +3509,10 @@ func _refresh_alerts_bar() -> void:
 			_:
 				btn.modulate = Color(0.92, 0.80, 0.56)
 		var alert_copy := a.duplicate()
+		var tip_body := str(a.get("tooltip", ""))
+		if tip_body.is_empty():
+			tip_body = "Click to inspect and respond to this alert."
+		bind_tip(btn, str(a.get("label", "Alert")), tip_body)
 		btn.pressed.connect(func() -> void:
 			_on_alert_pressed(alert_copy)
 		)
@@ -3558,6 +3810,7 @@ func _build_battle_choice_modal() -> void:
 	lead_btn.text = "Lead Battle in Person"
 	lead_btn.custom_minimum_size = Vector2(210.0, 46.0)
 	lead_btn.modulate = Color(0.75, 1.0, 0.78)
+	bind_tip(lead_btn, "Command Tactical Battle", "Switch to the real-time tactical battlefield to position regiments, give orders and fire artillery or storm forts.")
 	lead_btn.pressed.connect(func() -> void:
 		battle_choice_panel.visible = false
 		if bool(_call_bridge("chooseLeadBattleInPerson", [], false)):
@@ -3571,6 +3824,7 @@ func _build_battle_choice_modal() -> void:
 	auto_btn.text = "Auto-Resolve"
 	auto_btn.custom_minimum_size = Vector2(180.0, 46.0)
 	auto_btn.modulate = Color(0.96, 0.84, 0.56)
+	bind_tip(auto_btn, "Resolve on Strategic Map", "Let commanders resolve the engagement automatically using strength, terrain, leaders and morale.")
 	auto_btn.pressed.connect(func() -> void:
 		battle_choice_panel.visible = false
 		_call_bridge("chooseAutoResolveBattle", [], {})

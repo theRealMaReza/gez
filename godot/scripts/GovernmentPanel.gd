@@ -172,6 +172,8 @@ func _refresh_stability(d: Dictionary) -> void:
 
 	var hdr := HBoxContainer.new()
 	stability_box.add_child(hdr)
+	if main_view != null:
+		main_view.call("bind_breakdown", hdr, func() -> Variant: return _call_bridge("getStabilityBreakdown", [], {}), "Stability Cost Breakdown")
 	var title := _make_label("Stability", Color(0.96, 0.90, 0.72), 14)
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	hdr.add_child(title)
@@ -186,9 +188,12 @@ func _refresh_stability(d: Dictionary) -> void:
 	var raise_btn := Button.new()
 	raise_btn.text = "Raise stability (%.0f ducats)" % cost
 	raise_btn.disabled = not can_raise
+	if main_view != null:
+		main_view.call("bind_breakdown", raise_btn, func() -> Variant: return _call_bridge("getStabilityBreakdown", [], {}), "Raise Stability Cost")
 	raise_btn.pressed.connect(func() -> void:
 		last_message = ""
-		_call_bridge("raiseStability", [], false)
+		if bool(_call_bridge("raiseStability", [], false)) and main_view != null:
+			main_view.call("play_sfx", "coin_clink")
 		_after_gov_change()
 	)
 	stability_box.add_child(raise_btn)

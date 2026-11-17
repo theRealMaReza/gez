@@ -90,6 +90,10 @@ func close_battle() -> void:
 		result_panel.visible = false
 	selected_units.clear()
 	_clear_gestures()
+	if main_view != null:
+		var t: Variant = main_view.call("_tip")
+		if t != null:
+			t.call("clear_canvas_tip", "battle_unit")
 
 func _clear_gestures() -> void:
 	drag_unit_index = -1
@@ -158,12 +162,16 @@ func _build_ui() -> void:
 	att_title_lbl = _make_label("Attacker", Color(0.96, 0.86, 0.56), 14)
 	att_box.add_child(att_title_lbl)
 	att_stats_lbl = _make_label("0 men", Color(0.90, 0.88, 0.80), 12)
+	if main_view != null:
+		main_view.call("bind_tip", att_stats_lbl, "Attacker Strength & Morale", "Remaining attacker soldiers versus initial force and average regiment morale.")
 	att_box.add_child(att_stats_lbl)
 	att_morale_bar = ProgressBar.new()
 	att_morale_bar.custom_minimum_size = Vector2(180.0, 10.0)
 	att_morale_bar.max_value = 100.0
 	att_morale_bar.value = 100.0
 	att_morale_bar.show_percentage = false
+	if main_view != null:
+		main_view.call("bind_tip", att_morale_bar, "Attacker Morale", "Average cohesion of attacker regiments. Zero morale causes units to rout.")
 	att_box.add_child(att_morale_bar)
 
 	var center_box := VBoxContainer.new()
@@ -171,6 +179,8 @@ func _build_ui() -> void:
 	top_hbox.add_child(center_box)
 	title_lbl = _make_label("Field Battle", Color(0.98, 0.94, 0.84), 15)
 	title_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	if main_view != null:
+		main_view.call("bind_tip", title_lbl, "Tactical Engagement", "Province battlefield, terrain modifiers and river crossing status.")
 	center_box.add_child(title_lbl)
 
 	var speed_row := HBoxContainer.new()
@@ -178,6 +188,8 @@ func _build_ui() -> void:
 	speed_row.add_theme_constant_override("separation", 6)
 	center_box.add_child(speed_row)
 	phase_lbl = _make_label("DEPLOYMENT · 00:00", Color(0.86, 0.82, 0.72), 12)
+	if main_view != null:
+		main_view.call("bind_tip", phase_lbl, "Battle Phase & Clock", "Deployment lets you position units freely; Active resolves combat ticks; Ended reports final casualties and war score.")
 	speed_row.add_child(phase_lbl)
 
 	for spd_pair in [[0, "Pause"], [1, "0.5x"], [2, "1x"], [3, "2x"]]:
@@ -185,6 +197,8 @@ func _build_ui() -> void:
 		var s_btn := Button.new()
 		s_btn.text = str(spd_pair[1])
 		s_btn.custom_minimum_size = Vector2(56.0, 30.0)
+		if main_view != null:
+			main_view.call("bind_tip", s_btn, "Battle Speed: %s" % str(spd_pair[1]), "Adjust tactical simulation playback speed (Space to pause).")
 		s_btn.pressed.connect(func() -> void:
 			_call_bridge("setTacticalBattleSpeed", [s_idx], false)
 			refresh_state()
@@ -200,6 +214,8 @@ func _build_ui() -> void:
 	def_box.add_child(def_title_lbl)
 	def_stats_lbl = _make_label("0 men", Color(0.90, 0.88, 0.80), 12)
 	def_stats_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	if main_view != null:
+		main_view.call("bind_tip", def_stats_lbl, "Defender Strength & Morale", "Remaining defender soldiers and garrison versus initial force.")
 	def_box.add_child(def_stats_lbl)
 	def_morale_bar = ProgressBar.new()
 	def_morale_bar.custom_minimum_size = Vector2(180.0, 10.0)
@@ -207,6 +223,8 @@ func _build_ui() -> void:
 	def_morale_bar.value = 100.0
 	def_morale_bar.show_percentage = false
 	def_morale_bar.size_flags_horizontal = Control.SIZE_SHRINK_END
+	if main_view != null:
+		main_view.call("bind_tip", def_morale_bar, "Defender Morale", "Average cohesion of defender regiments.")
 	def_box.add_child(def_morale_bar)
 
 	# 2. Central 2D Battlefield Canvas
@@ -262,6 +280,15 @@ func _build_ui() -> void:
 		var btn := Button.new()
 		btn.text = str(t_pair[1])
 		btn.custom_minimum_size = Vector2(104.0, 34.0)
+		if main_view != null:
+			var t_tips := {
+				"select": "Click a friendly regiment or drag a box to select multiple units (Key S).",
+				"move": "Click the battlefield to march selected regiments (Key M).",
+				"path": "Draw a curved waypoint path for maneuvers or flanks (Key P).",
+				"frontline": "Drag a line across the field to deploy selected units abreast (Key F).",
+				"attack": "Select an enemy unit or fort gate/wall to focus attack or assault."
+			}
+			main_view.call("bind_tip", btn, str(t_pair[1]), str(t_tips.get(key, "")))
 		btn.pressed.connect(func() -> void:
 			active_tool = key
 			_sync_tool_styles()
@@ -273,6 +300,8 @@ func _build_ui() -> void:
 	retreat_btn.text = "Retreat"
 	retreat_btn.custom_minimum_size = Vector2(88.0, 34.0)
 	retreat_btn.modulate = Color(1.0, 0.56, 0.50)
+	if main_view != null:
+		main_view.call("bind_tip", retreat_btn, "Order Tactical Retreat", "Disengage selected regiments toward your side's edge to preserve survivors.")
 	retreat_btn.pressed.connect(func() -> void:
 		if not selected_units.is_empty():
 			_call_bridge("orderBattleRetreat", [_selected_csv()], false)
@@ -290,6 +319,13 @@ func _build_ui() -> void:
 		eq_btn.text = str(eq_pair[1])
 		eq_btn.custom_minimum_size = Vector2(72.0, 34.0)
 		eq_btn.visible = false
+		if main_view != null:
+			var eq_tips := {
+				"ladders": "Equip scaling ladders to assault intact walls cleanly.",
+				"ram": "Bring a battering ram to shatter the fortress gate.",
+				"none": "Storm directly through an existing wall breach."
+			}
+			main_view.call("bind_tip", eq_btn, "Siege Equipment: " + str(eq_pair[1]), str(eq_tips.get(eq_key, "")))
 		eq_btn.pressed.connect(func() -> void:
 			if not selected_units.is_empty():
 				_call_bridge("orderBattleSiegeEquipment", [_selected_csv(), eq_key], false)
@@ -314,6 +350,8 @@ func _build_ui() -> void:
 		var f_btn := Button.new()
 		f_btn.text = str(f_pair[1])
 		f_btn.custom_minimum_size = Vector2(74.0, 32.0)
+		if main_view != null:
+			main_view.call("bind_tip", f_btn, "Formation: " + str(f_pair[1]), "Line widens fire; Column marches fast; Wedge boosts shock; Square & Wagons hold off cavalry; Skirmish evades missiles.")
 		f_btn.pressed.connect(func() -> void:
 			if not selected_units.is_empty():
 				_call_bridge("orderBattleFormation", [_selected_csv(), f_key], false)
@@ -335,6 +373,8 @@ func _build_ui() -> void:
 		var st_btn := Button.new()
 		st_btn.text = str(st_pair[1])
 		st_btn.custom_minimum_size = Vector2(76.0, 32.0)
+		if main_view != null:
+			main_view.call("bind_tip", st_btn, "Stance: " + str(st_pair[1]), "Controls engagement aggression, charging and missile fire discipline.")
 		st_btn.pressed.connect(func() -> void:
 			if not selected_units.is_empty():
 				_call_bridge("orderBattleStance", [_selected_csv(), st_key], false)
@@ -352,10 +392,14 @@ func _build_ui() -> void:
 	start_battle_btn.text = "Start Battle!"
 	start_battle_btn.custom_minimum_size = Vector2(160.0, 52.0)
 	start_battle_btn.modulate = Color(0.75, 1.0, 0.78)
+	if main_view != null:
+		main_view.call("bind_tip", start_battle_btn, "Begin Battle", "Lock initial deployment and begin live tactical combat.")
 	start_battle_btn.pressed.connect(func() -> void:
 		if bool(_call_bridge("startTacticalBattle", [], false)):
 			active_tool = "select"
 			refresh_state()
+			if main_view != null:
+				main_view.call("play_sfx", "battle_started")
 	)
 	bot_hbox.add_child(start_battle_btn)
 
@@ -474,6 +518,44 @@ func _process(delta: float) -> void:
 		if ticks > 0 or _refresh_accum >= 0.05:
 			_refresh_accum = 0.0
 			refresh_state()
+			if ticks > 0 and main_view != null and int(state.get("speedIndex", 2)) > 0:
+				_play_tactical_combat_sfx()
+
+func _play_tactical_combat_sfx() -> void:
+	if main_view == null:
+		return
+	var units: Array = state.get("units", [])
+	var has_ranged := false
+	var has_melee := false
+	var has_cav := false
+	var is_assault := bool(state.get("isAssault", false))
+	for u_v in units:
+		if not (u_v is Dictionary):
+			continue
+		var u: Dictionary = u_v
+		if int(u.get("men", 0)) <= 0 or bool(u.get("isRouting", false)):
+			continue
+		var max_ammo: int = int(u.get("maxAmmo", 0))
+		var ammo: int = int(u.get("ammo", 0))
+		var stance: String = str(u.get("stance", "hold"))
+		var cat: String = str(u.get("category", "")).to_lower()
+		if max_ammo > 0 and ammo > 0 and (stance == "volley" or stance == "advance"):
+			has_ranged = true
+		if stance == "charge" or stance == "advance":
+			if cat.contains("cavalry"):
+				has_cav = true
+			else:
+				has_melee = true
+		if cat.contains("artillery") and ammo > 0:
+			is_assault = true
+	if is_assault and randf() < 0.35:
+		main_view.call("play_sfx", "siege_cannon")
+	if has_ranged and randf() < 0.55:
+		main_view.call("play_sfx", "battle_musket")
+	if has_melee:
+		main_view.call("play_sfx", "battle_sword")
+	if has_cav and randf() < 0.45:
+		main_view.call("play_sfx", "hoofbeats")
 
 func refresh_state() -> void:
 	state = _call_bridge("getBattleState", [], {})
@@ -536,6 +618,10 @@ func _sync_ui_from_state() -> void:
 	phase_lbl.text = "%s · %02d:%02d" % [ph.to_upper(), secs / 60, secs % 60]
 
 	var cur_spd: int = int(state.get("speedIndex", 2))
+	if main_view != null:
+		var a: Variant = main_view.call("_audio")
+		if a != null:
+			a.call("set_game_paused", (ph != "active") or (cur_spd == 0))
 	for s_idx in speed_buttons.keys():
 		var b: Button = speed_buttons[s_idx]
 		b.disabled = (ph != "active")
@@ -1144,7 +1230,51 @@ func _on_canvas_gui_input(event: InputEvent) -> void:
 		elif is_dragging_frontline:
 			frontline_end_field = _canvas_to_field(event.position)
 			canvas.queue_redraw()
+		elif main_view != null:
+			_update_battle_canvas_hover(event.position)
 		canvas.accept_event()
+
+func _update_battle_canvas_hover(canvas_pos: Vector2) -> void:
+	var t: Variant = main_view.call("_tip")
+	if t == null:
+		return
+	var u_idx := _hit_test_unit(canvas_pos, false, false)
+	if u_idx >= 0:
+		var units: Array = state.get("units", [])
+		if u_idx < units.size() and units[u_idx] is Dictionary:
+			var u: Dictionary = units[u_idx]
+			var side_lbl := "Attacker" if int(u.get("side", 0)) == 0 else "Defender"
+			var entries := [
+				{"label": "Strength", "valueText": "%d / %d" % [int(u.get("men", 0)), int(u.get("maxMen", 1000))]},
+				{"label": "Morale", "value": float(u.get("morale", 0.0)), "valueText": "%.1f" % float(u.get("morale", 0.0))},
+				{"label": "Fatigue", "valueText": "%d%%" % int(round(float(u.get("fatigue", 0.0)) * 100.0))},
+				{"label": "Formation", "valueText": str(u.get("formation", "line")).capitalize()},
+				{"label": "Stance", "valueText": str(u.get("stance", "hold")).capitalize()}
+			]
+			if int(u.get("maxAmmo", 0)) > 0:
+				entries.append({"label": "Ammunition", "valueText": "%d / %d" % [int(u.get("ammo", 0)), int(u.get("maxAmmo", 0))]})
+			t.call("set_canvas_tip", "battle_unit", {
+				"valid": true,
+				"title": "%s (%s)" % [str(u.get("name", "Regiment")), side_lbl],
+				"summary": "ROUTING!" if bool(u.get("isRouting", false)) else "",
+				"entries": entries
+			})
+			return
+	var st_idx := _hit_test_structure(canvas_pos)
+	if st_idx >= 0:
+		var structs: Array = state.get("structures", [])
+		if st_idx < structs.size() and structs[st_idx] is Dictionary:
+			var st: Dictionary = structs[st_idx]
+			t.call("set_canvas_tip", "battle_unit", {
+				"valid": true,
+				"title": str(st.get("kind", "Fortification")).capitalize(),
+				"entries": [
+					{"label": "Integrity", "valueText": "%d%%" % int(round(float(st.get("hp", 1.0)) * 100.0))},
+					{"label": "Breached", "valueText": "Yes" if bool(st.get("breached", false)) else "No"}
+				]
+			})
+			return
+	t.call("clear_canvas_tip", "battle_unit")
 
 func _select_units_in_box(p0: Vector2, p1: Vector2) -> void:
 	selected_units.clear()

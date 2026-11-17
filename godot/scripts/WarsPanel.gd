@@ -241,10 +241,15 @@ func _add_war_card(war: Dictionary) -> void:
 	top.add_child(wname)
 
 	var ws_color := Color(0.45, 0.90, 0.45) if ws >= 0 else Color(0.95, 0.42, 0.38)
-	top.add_child(main.call("_make_label", "%+d%% WS" % ws, ws_color, 14))
+	var ws_lbl: Control = main.call("_make_label", "%+d%% WS" % ws, ws_color, 14)
+	var ws_war_id: String = str(war.get("warID", ""))
+	main.call("bind_breakdown", ws_lbl, func() -> Variant: return main.call("_call_bridge", "getWarScoreBreakdown", [ws_war_id], {}), "War Score Breakdown")
+	top.add_child(ws_lbl)
 
 	card.add_child(main.call("_make_label", "Since %s · Goal: %s" % [str(war.get("startDate", "")), str(war.get("warGoal", ""))], Color(0.78, 0.74, 0.66), 12))
-	card.add_child(main.call("_make_label", "Breakdown: Battles %+d%% · Blockades %+d%% · Occupation %+d%% · Ticking Goal %+d%%" % [battle_ws, blk_ws, occ_ws, tick_ws], Color(0.85, 0.82, 0.74), 12))
+	var bd_lbl: Control = main.call("_make_label", "Breakdown: Battles %+d%% · Blockades %+d%% · Occupation %+d%% · Ticking Goal %+d%%" % [battle_ws, blk_ws, occ_ws, tick_ws], Color(0.85, 0.82, 0.74), 12)
+	main.call("bind_breakdown", bd_lbl, func() -> Variant: return main.call("_call_bridge", "getWarScoreBreakdown", [ws_war_id], {}), "War Score Breakdown")
+	card.add_child(bd_lbl)
 
 	var naval_battles_var: Variant = war.get("recentNavalBattles", [])
 	var naval_battles: Array = naval_battles_var if naval_battles_var is Array else []

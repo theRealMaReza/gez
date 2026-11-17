@@ -15,46 +15,20 @@ enum DiplomacyLoader {
         var dip = Diplomacy()
         dip.resize(countries: world.countries.count)
 
-        // 1. Baseline diplomatic opinions & trust based on religion and government
+        // 1. Baseline diplomatic opinions & trust based on religion, government, and subject status
         for a in world.countries.ids {
             for b in world.countries.ids where a != b {
-                var opinion = 0
-                let trust = 50
-
-                let relA = world.countries.religion[a.index]
-                let relB = world.countries.religion[b.index]
-                if relA == relB {
-                    opinion += 10
-                } else if relA.family == relB.family {
-                    opinion -= 10
-                } else {
-                    opinion -= 25
-                }
-
-                let govA = world.countries.government[a.index]
-                let govB = world.countries.government[b.index]
-                if govA == govB {
-                    opinion += 10
-                } else {
-                    opinion -= 5
-                }
-
+                let factors = Diplomacy.baselineOpinionFactors(of: b, by: a, in: world)
+                let opinion = factors.reduce(0) { $0 + $1.value }
                 dip.setOpinion(of: b, by: a, value: opinion)
-                dip.setTrust(of: b, by: a, value: trust)
-            }
-        }
 
-        // 2. Overlords and subjects
-        for c in world.countries.ids {
-            if let overlord = world.countries.overlord[c.index] {
-                let isVassal = world.countries.subjectType[c.index] == .vassal
-                let opBonus = isVassal ? 30 : 15
-                let trBonus = isVassal ? 60 : 55
-
-                dip.modifyOpinion(of: c, by: overlord, delta: opBonus)
-                dip.modifyOpinion(of: overlord, by: c, delta: opBonus)
-                dip.setTrust(of: c, by: overlord, value: trBonus)
-                dip.setTrust(of: overlord, by: c, value: trBonus)
+                if world.countries.overlord[b.index] == a || world.countries.overlord[a.index] == b {
+                    let isVassal = (world.countries.overlord[b.index] == a && world.countries.subjectType[b.index] == .vassal)
+                        || (world.countries.overlord[a.index] == b && world.countries.subjectType[a.index] == .vassal)
+                    dip.setTrust(of: b, by: a, value: isVassal ? 60 : 55)
+                } else {
+                    dip.setTrust(of: b, by: a, value: 50)
+                }
             }
         }
 

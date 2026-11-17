@@ -257,13 +257,22 @@ func refresh(force: bool = false) -> void:
 		box.add_child(bar)
 
 		if not at_max:
-			box.add_child(_make_wrapped("Progress: %.1f / %.0f pts  (%s)" % [
+			var prog_lbl := _make_wrapped("Progress: %.1f / %.0f pts  (%s)" % [
 				float(tr.get("progress", 0.0)),
 				float(tr.get("effectiveCost", 600.0)),
 				str(tr.get("costModifiersText", ""))
-			], Color(0.84, 0.80, 0.72), 11))
+			], Color(0.84, 0.80, 0.72), 11)
+			var track_k_cost: String = str(tr.get("key", "administrative"))
+			if main_view != null:
+				main_view.call("bind_breakdown", prog_lbl, func() -> Variant: return _call_bridge("getTechCostBreakdown", [track_k_cost], {}), "Technology Point Cost")
+				main_view.call("bind_breakdown", bar, func() -> Variant: return _call_bridge("getTechCostBreakdown", [track_k_cost], {}), "Technology Point Cost")
+			box.add_child(prog_lbl)
 
-		box.add_child(_make_wrapped("Research speed: " + str(tr.get("sourcesText", "")), Color(0.74, 0.84, 0.90), 11))
+		var spd_lbl := _make_wrapped("Research speed: " + str(tr.get("sourcesText", "")), Color(0.74, 0.84, 0.90), 11)
+		var track_k_spd: String = str(tr.get("key", "administrative"))
+		if main_view != null:
+			main_view.call("bind_breakdown", spd_lbl, func() -> Variant: return _call_bridge("getResearchSpeedBreakdown", [track_k_spd], {}), "Monthly Research Speed")
+		box.add_child(spd_lbl)
 		var cur_sum := str(tr.get("currentSummary", ""))
 		if not cur_sum.is_empty():
 			box.add_child(_make_wrapped("Current: " + cur_sum, Color(0.76, 0.74, 0.66), 11))

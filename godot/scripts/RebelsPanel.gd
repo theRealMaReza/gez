@@ -274,7 +274,10 @@ func refresh(force: bool = false) -> void:
 		p_btn.flat = true
 		p_btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		p_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		p_btn.tooltip_text = "Biggest cause: %s" % str(p.get("causeText", ""))
+		var prov_u_idx := p_idx
+		if main_view != null and prov_u_idx >= 0:
+			main_view.call("bind_breakdown", p_btn, func() -> Variant: return _call_bridge("getUnrestBreakdown", [prov_u_idx], {}), "Province Unrest Breakdown")
+			main_view.call("bind_breakdown", row, func() -> Variant: return _call_bridge("getUnrestBreakdown", [prov_u_idx], {}), "Province Unrest Breakdown")
 		p_btn.pressed.connect(func() -> void: _focus_province(p_idx))
 		row.add_child(p_btn)
 		row.add_child(_make_label(str(p.get("causeText", "")), Color(0.74, 0.70, 0.64), 11))

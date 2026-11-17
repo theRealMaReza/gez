@@ -161,6 +161,10 @@ public struct SaveSnapshot: Sendable, Codable {
         public var lastTrade: [Double]
         public var lastTolls: [Double]
         public var lastVassalTax: [Double]
+        public var lastDebaseIncome: [Double]?
+        public var lastWarRepsIn: [Double]?
+        public var lastWarRepsOut: [Double]?
+        public var lastSlotUpkeep: [Double]?
         public var prestige: [Double]?
         public var primaryCulture: [CultureID]?
         public var acceptedCultures: [Set<CultureID>]?
@@ -328,6 +332,10 @@ public struct SaveSnapshot: Sendable, Codable {
             lastTrade: w.countries.lastTrade,
             lastTolls: w.countries.lastTolls,
             lastVassalTax: w.countries.lastVassalTax,
+            lastDebaseIncome: w.countries.lastDebaseIncome,
+            lastWarRepsIn: w.countries.lastWarRepsIn,
+            lastWarRepsOut: w.countries.lastWarRepsOut,
+            lastSlotUpkeep: w.countries.lastSlotUpkeep,
             prestige: w.countries.prestige,
             primaryCulture: w.countries.primaryCulture,
             acceptedCultures: w.countries.acceptedCultures
@@ -504,6 +512,10 @@ public struct SaveSnapshot: Sendable, Codable {
         w.countries.lastTrade = countries.lastTrade
         w.countries.lastTolls = countries.lastTolls
         w.countries.lastVassalTax = countries.lastVassalTax
+        if let v = countries.lastDebaseIncome, v.count == w.countries.count { w.countries.lastDebaseIncome = v }
+        if let v = countries.lastWarRepsIn, v.count == w.countries.count { w.countries.lastWarRepsIn = v }
+        if let v = countries.lastWarRepsOut, v.count == w.countries.count { w.countries.lastWarRepsOut = v }
+        if let v = countries.lastSlotUpkeep, v.count == w.countries.count { w.countries.lastSlotUpkeep = v }
         if let v = countries.prestige, v.count == w.countries.count { w.countries.prestige = v }
         if let v = countries.primaryCulture, v.count == w.countries.count { w.countries.primaryCulture = v }
         if let v = countries.acceptedCultures, v.count == w.countries.count { w.countries.acceptedCultures = v }

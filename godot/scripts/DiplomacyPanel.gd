@@ -36,6 +36,7 @@ func setup(p_main: Node) -> void:
 
 	title_box.add_child(main.call("_make_label", "Diplomacy", Color(0.97, 0.90, 0.68), 18))
 	slots_label = main.call("_make_label", "Relation Slots: 0 / 0", Color(0.84, 0.80, 0.72), 12)
+	main.call("bind_breakdown", slots_label, func() -> Variant: return main.call("_call_bridge", "getRelationSlotsBreakdown", [], {}), "Diplomatic Relation Slots")
 	title_box.add_child(slots_label)
 
 	var close_btn := Button.new()
@@ -209,6 +210,7 @@ func _build_target_section(target: Dictionary) -> void:
 	if not ai_goal_txt.is_empty():
 		var goal_lbl: Label = main.call("_make_label", "AI Goal: %s" % ai_goal_txt, Color(0.70, 0.84, 0.94), 11)
 		goal_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		main.call("bind_breakdown", goal_lbl, func() -> Variant: return main.call("_call_bridge", "getAIGoalBreakdown", [t_idx], {}), "AI Strategic Goal")
 		id_col.add_child(goal_lbl)
 
 	var at_war: bool = bool(target.get("atWar", false))
@@ -225,9 +227,15 @@ func _build_target_section(target: Dictionary) -> void:
 	var opinion: int = int(target.get("opinion", 0))
 	var trust: int = int(target.get("trust", 50))
 	var ae: int = int(target.get("ae", 0))
-	stats_row.add_child(_make_stat_box("Opinion", "%+d" % opinion, Color(0.45, 0.90, 0.45) if opinion >= 0 else Color(0.95, 0.42, 0.38)))
-	stats_row.add_child(_make_stat_box("Trust", "%d" % trust, Color(0.56, 0.80, 0.98)))
-	stats_row.add_child(_make_stat_box("Aggressive Exp.", "%d" % ae, Color(0.95, 0.42, 0.38) if ae >= 50 else Color(0.96, 0.70, 0.36)))
+	var op_box := _make_stat_box("Opinion", "%+d" % opinion, Color(0.45, 0.90, 0.45) if opinion >= 0 else Color(0.95, 0.42, 0.38))
+	main.call("bind_breakdown", op_box, func() -> Variant: return main.call("_call_bridge", "getRelationsBreakdown", [t_idx], {}), "Diplomatic Relations")
+	stats_row.add_child(op_box)
+	var tr_box := _make_stat_box("Trust", "%d" % trust, Color(0.56, 0.80, 0.98))
+	main.call("bind_tip", tr_box, "Diplomatic Trust", "Reliability in honoring alliances and agreements. Higher trust makes allies more likely to answer Calls to Arms.")
+	stats_row.add_child(tr_box)
+	var ae_box := _make_stat_box("Aggressive Exp.", "%d" % ae, Color(0.95, 0.42, 0.38) if ae >= 50 else Color(0.96, 0.70, 0.36))
+	main.call("bind_tip", ae_box, "Aggressive Expansion", "Outrage over conquests. Above 50 AE and negative relations, neighbors may unite in a Coalition against you.")
+	stats_row.add_child(ae_box)
 
 	# Active Treaties
 	var treaties: Array = target.get("treaties", [])

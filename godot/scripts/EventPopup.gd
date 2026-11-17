@@ -172,7 +172,10 @@ func _populate(details: Dictionary) -> void:
 
 		var btn := Button.new()
 		btn.text = lbl_text
-		btn.tooltip_text = tip_text
+		if main_view != null:
+			main_view.call("bind_tip", btn, lbl_text, tip_text)
+		else:
+			btn.tooltip_text = tip_text
 		btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		btn.custom_minimum_size = Vector2(520.0, 34.0)
 		btn.modulate = Color(1.0, 0.94, 0.78)

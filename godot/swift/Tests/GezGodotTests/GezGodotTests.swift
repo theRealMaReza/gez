@@ -1609,4 +1609,108 @@ struct GezGodotTests {
         let targetFree = dipFree["target"] as? [String: Any] ?? [:]
         #expect(((targetFree["aiGoalText"] as? String) ?? "").hasPrefix("Free AI:"))
     }
+
+    private static func expectBridgeBreakdownValid(
+        _ data: [String: Any],
+        label: String,
+        tolerance: Double = 0.5
+    ) {
+        #expect((data["valid"] as? Bool) == true, "Expected valid breakdown for \(label)")
+        let total = data["total"] as? Double ?? 0.0
+        let entries = data["entries"] as? [[String: Any]] ?? []
+        let sum = entries.reduce(0.0) { $0 + (($1["value"] as? Double) ?? 0.0) }
+        #expect(abs(sum - total) <= tolerance, "\(label): entries sum \(sum) != total \(total)")
+    }
+
+    @Test("Phase 16: Simulation breakdown bridge functions, audio events, ambience context, and SFX files exist")
+    func phase16BreakdownsAndAudioVerification() throws {
+        let controller = GezGodotController()
+        #expect(controller.setup(dataDirectoryPath: "", tag: "TUR"))
+
+        guard let s = controller.session, let tur = s.playerCountry else {
+            #expect(Bool(false), "Expected TUR player session")
+            return
+        }
+
+        // Advance simulation ~35 days so monthly income/upkeep and sieges/events settle.
+        s.advanceDays(35)
+
+        Self.expectBridgeBreakdownValid(controller.monthlyIncomeBreakdownData(), label: "monthlyIncome", tolerance: 0.01)
+        Self.expectBridgeBreakdownValid(controller.manpowerBreakdownData(), label: "manpower", tolerance: 1.0)
+        Self.expectBridgeBreakdownValid(controller.sailorsBreakdownData(), label: "sailors", tolerance: 1.0)
+        Self.expectBridgeBreakdownValid(controller.stabilityBreakdownData(), label: "stability", tolerance: 0.1)
+        Self.expectBridgeBreakdownValid(controller.relationSlotsBreakdownData(), label: "relationSlots", tolerance: 0.01)
+
+        for track in ["administrative", "diplomatic", "military"] {
+            Self.expectBridgeBreakdownValid(controller.researchSpeedBreakdownData(trackKey: track), label: "researchSpeed-\(track)", tolerance: 0.01)
+            Self.expectBridgeBreakdownValid(controller.techCostBreakdownData(trackKey: track), label: "techCost-\(track)", tolerance: 1.0)
+        }
+
+        if let army = s.world.military.armies(of: tur).first {
+            Self.expectBridgeBreakdownValid(controller.armyMoraleBreakdownData(armyId: Int(army.rawValue)), label: "armyMorale", tolerance: 0.01)
+        }
+        if let prov = s.world.provinces(ownedBy: tur).first {
+            Self.expectBridgeBreakdownValid(controller.unrestBreakdownData(provinceIndex: prov.index), label: "unrest", tolerance: 0.1)
+            Self.expectBridgeBreakdownValid(controller.provinceSupplyBreakdownData(provinceIndex: prov.index), label: "supply", tolerance: 1.0)
+        }
+        if let hun = s.world.countries.id(forTag: "HUN") {
+            Self.expectBridgeBreakdownValid(controller.relationsBreakdownData(targetCountryIndex: hun.index), label: "relations", tolerance: 0.01)
+            Self.expectBridgeBreakdownValid(controller.aiGoalBreakdownData(countryIndex: hun.index), label: "aiGoal", tolerance: 0.01)
+        }
+        if let war = s.world.diplomacy.wars.first {
+            Self.expectBridgeBreakdownValid(controller.warScoreBreakdownData(warID: war.id), label: "warScore", tolerance: 0.05)
+        }
+
+        // Siege breakdown on an existing siege or a newly placed one.
+        if let existingSiege = s.world.military.sieges.first {
+            Self.expectBridgeBreakdownValid(controller.siegeBreakdownData(provinceIndex: existingSiege.province.index), label: "siege", tolerance: 0.1)
+        } else if let turArmy = s.world.military.armies(of: tur).first {
+            let loc = s.world.military.armies.province[Int(turArmy.rawValue)]
+            s.simulation.world.military.sieges.append(Siege(
+                province: loc,
+                besieger: tur,
+                startDate: s.date,
+                progress: 1,
+                breached: false,
+                blockaded: false,
+                phaseDaysRemaining: 10
+            ))
+            Self.expectBridgeBreakdownValid(controller.siegeBreakdownData(provinceIndex: loc.index), label: "siege", tolerance: 0.1)
+        }
+
+        // Audio events drain cleanly.
+        _ = controller.consumeAudioEvents()
+        #expect(controller.consumeAudioEvents().isEmpty)
+
+        // Ambience context returns bounded weights across zooms.
+        let lowZoom = controller.ambienceContext(mapX: s.idMap.width / 2, mapY: s.idMap.height / 2, zoom: 0.6)
+        let highZoom = controller.ambienceContext(mapX: s.idMap.width / 2, mapY: s.idMap.height / 2, zoom: 3.5)
+        for ctx in [lowZoom, highZoom] {
+            for key in ["seaWeight", "windWeight", "cityWeight"] {
+                let v = ctx[key] as? Double ?? -1.0
+                #expect(v >= 0.0 && v <= 1.0, "Ambience weight \(key) out of range: \(v)")
+            }
+        }
+
+        // Verify every res://assets/audio/*.ogg path listed in AudioManager.gd exists on disk.
+        let testFileURL = URL(fileURLWithPath: #filePath)
+        let godotRoot = testFileURL
+            .deletingLastPathComponent() // GezGodotTests
+            .deletingLastPathComponent() // Tests
+            .deletingLastPathComponent() // swift
+            .deletingLastPathComponent() // godot
+        let audioManagerURL = godotRoot.appendingPathComponent("scripts/AudioManager.gd")
+        let audioManagerSource = try String(contentsOf: audioManagerURL, encoding: .utf8)
+        let regex = try NSRegularExpression(pattern: #"res://assets/audio/[A-Za-z0-9_.\-]+\.ogg"#)
+        let nsRange = NSRange(audioManagerSource.startIndex..<audioManagerSource.endIndex, in: audioManagerSource)
+        let matches = regex.matches(in: audioManagerSource, range: nsRange)
+        #expect(matches.count >= 15, "Expected at least 15 audio paths in AudioManager.gd")
+        for match in matches {
+            guard let swiftRange = Range(match.range, in: audioManagerSource) else { continue }
+            let resPath = String(audioManagerSource[swiftRange])
+            let relPath = resPath.replacingOccurrences(of: "res://", with: "")
+            let diskURL = godotRoot.appendingPathComponent(relPath)
+            #expect(FileManager.default.fileExists(atPath: diskURL.path), "Missing audio asset referenced in AudioManager.gd: \(resPath)")
+        }
+    }
 }

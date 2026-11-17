@@ -660,3 +660,9 @@ The owner found the first flat-colour look ugly, so looks are a priority.
 ## Milestones
 
 See `docs/ROADMAP.md` for the agreed feature decisions and build order.
+
+## Sound effects and breakdown tooltips (Phase 16)
+
+- **Shared simulation breakdowns (`Packages/GezCore/Sources/GezCore/Core/Breakdowns.swift`)**: every major tooltip breakdown (`monthlyIncome`, `manpower`, `sailors`, `armyMorale`, `siege`, `stability`, `unrest`, `researchSpeed`, `techCost`, `relations`, `relationSlots`, `aiGoal`, `provinceSupply`, `warScore`) calls the exact helper functions shared with simulation ticks so tooltip figures never diverge from monthly/daily math.
+- **Shared parchment tooltip panel (`godot/scripts/TooltipManager.gd`)**: singleton autoload on top canvas layer (`0.30s` hover delay, automatic viewport clamping, no off-screen clipping) intercepting `tooltip_text` and resolving live `@Callable` breakdown callbacks and canvas unit/fort hover tips.
+- **Non-musical audio (`godot/scripts/AudioManager.gd`)**: strictly zero music or tonal instruments; three AudioServer buses (`UI`, `Effects`, `Ambience`) with saved sliders + Master Mute (`user://audio_settings.cfg`), capped concurrent voice pools (`MAX_UI_PLAYERS = 3`, `MAX_EFFECT_PLAYERS = 5`), per-cue cooldowns, pause-gating (`Effects` suppressed and `Ambience` faded when paused; `UI` remains responsive), and camera zoom/terrain ambience weighting via `getAmbienceContext`.

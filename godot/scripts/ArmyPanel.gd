@@ -274,14 +274,27 @@ func refresh_selected_army_panel() -> void:
 
 	# Strength, morale, combat power, upkeep, supply & attrition
 	_add_kv_row(sel_army_box, "Strength", str(d.get("strengthText", "")))
+	if main_view != null:
+		main_view.call("bind_tip", sel_army_box.get_child(sel_army_box.get_child_count() - 1), "Army Strength", "Total combat-ready soldiers across all regiments.")
 	_add_kv_row(sel_army_box, "Morale", str(d.get("moraleText", "")))
+	if main_view != null:
+		main_view.call("bind_breakdown", sel_army_box.get_child(sel_army_box.get_child_count() - 1), func() -> Variant: return _call_bridge("getArmyMoraleBreakdown", [aid], {}), "Army Morale Breakdown")
 	_add_kv_row(sel_army_box, "Combat power", str(d.get("combatPowerText", "")))
+	if main_view != null:
+		main_view.call("bind_tip", sel_army_box.get_child(sel_army_box.get_child_count() - 1), "Combat Power", "Combined fire, shock and discipline output weighted by regiment morale and strength.")
 	_add_kv_row(sel_army_box, "Upkeep", str(d.get("upkeepText", "")))
+	if main_view != null:
+		main_view.call("bind_tip", sel_army_box.get_child(sel_army_box.get_child_count() - 1), "Monthly Army Upkeep", "Standing wages and mercenary contracts deducted from monthly treasury income.")
 
 	var over_supply: bool = bool(d.get("overSupply", false))
 	var sup_col := Color(0.96, 0.42, 0.36) if over_supply else Color(0.95, 0.92, 0.84)
+	var cur_prov_idx: int = int(d.get("provinceIndex", -1))
 	_add_kv_row(sel_army_box, "Province supply", str(d.get("supplyText", "")), sup_col)
+	if main_view != null and cur_prov_idx >= 0:
+		main_view.call("bind_breakdown", sel_army_box.get_child(sel_army_box.get_child_count() - 1), func() -> Variant: return _call_bridge("getProvinceSupplyBreakdown", [cur_prov_idx], {}), "Province Supply Limit")
 	_add_kv_row(sel_army_box, "Attrition", str(d.get("attritionText", "")), sup_col)
+	if main_view != null:
+		main_view.call("bind_tip", sel_army_box.get_child(sel_army_box.get_child_count() - 1), "Camp & Supply Attrition", "Monthly soldier losses suffered when stationed forces exceed local province supply or besiege hostile forts.")
 
 	# Action buttons: Move, Split, Merge, Disband
 	if bool(d.get("isPlayerOwned", false)):
@@ -398,10 +411,20 @@ func refresh_armies_window() -> void:
 
 	# 1. National manpower & force totals
 	_add_kv_row(armies_window_box, "National manpower", str(d.get("manpowerText", "0 / 0")), Color(0.98, 0.92, 0.72))
+	if main_view != null:
+		main_view.call("bind_breakdown", armies_window_box.get_child(armies_window_box.get_child_count() - 1), func() -> Variant: return _call_bridge("getManpowerBreakdown", [], {}), "Maximum Manpower Breakdown")
 	_add_kv_row(armies_window_box, "Standing professionals", "%d men" % int(d.get("standingMen", 0)))
+	if main_view != null:
+		main_view.call("bind_tip", armies_window_box.get_child(armies_window_box.get_child_count() - 1), "Professional Soldiers", "Permanent salaried regiments reinforced from national manpower.")
 	_add_kv_row(armies_window_box, "Raised levies", "%d men" % int(d.get("levyMen", 0)))
+	if main_view != null:
+		main_view.call("bind_tip", armies_window_box.get_child(armies_window_box.get_child_count() - 1), "Province Levies", "Seasonal militia summoned directly from province population. Disbanding returns them home.")
 	_add_kv_row(armies_window_box, "Mercenaries", str(d.get("mercenaryText", "0 / 0 men")))
+	if main_view != null:
+		main_view.call("bind_tip", armies_window_box.get_child(armies_window_box.get_child_count() - 1), "Mercenary Companies", "Hired soldiers for coin without costing national manpower, at higher monthly wages.")
 	_add_kv_row(armies_window_box, "Army upkeep", str(d.get("upkeepText", "−0.0 / month")))
+	if main_view != null:
+		main_view.call("bind_breakdown", armies_window_box.get_child(armies_window_box.get_child_count() - 1), func() -> Variant: return _call_bridge("getMonthlyIncomeBreakdown", [], {}), "Monthly Treasury Breakdown")
 
 	var attr_losses: int = int(d.get("lastAttritionLosses", 0))
 	if attr_losses > 0:
@@ -699,7 +722,8 @@ func _build_recruit_unit_rows(parent: VBoxContainer, units: Array, province_idx:
 		prof_btn.disabled = not can_prof
 		prof_btn.tooltip_text = prof_ref if not prof_ref.is_empty() else "Recruit standing professional regiment"
 		prof_btn.pressed.connect(func() -> void:
-			_call_bridge("recruitProfessionalInProvince", [u_idx, province_idx], false)
+			if bool(_call_bridge("recruitProfessionalInProvince", [u_idx, province_idx], false)) and main_view != null:
+				main_view.call("play_sfx", "hoofbeats" if u_cat.to_lower().contains("cavalry") else "march_boots")
 			if main_view != null:
 				main_view.call("_after_army_action")
 		)
@@ -711,7 +735,8 @@ func _build_recruit_unit_rows(parent: VBoxContainer, units: Array, province_idx:
 			merc_btn.disabled = not can_merc
 			merc_btn.tooltip_text = merc_ref if not merc_ref.is_empty() else "Hire mercenary regiment for gold"
 			merc_btn.pressed.connect(func() -> void:
-				_call_bridge("hireMercenaryInProvince", [u_idx, province_idx], false)
+				if bool(_call_bridge("hireMercenaryInProvince", [u_idx, province_idx], false)) and main_view != null:
+					main_view.call("play_sfx", "coin_clink")
 				if main_view != null:
 					main_view.call("_after_army_action")
 			)
@@ -796,9 +821,13 @@ func append_province_military_sections(parent: VBoxContainer, d: Dictionary) -> 
 				"%dd to roll" % phase_days,
 				Color(0.96, 0.45, 0.38)
 			)
+			if main_view != null and prov_idx >= 0:
+				main_view.call("bind_breakdown", parent.get_child(parent.get_child_count() - 1), func() -> Variant: return _call_bridge("getSiegeBreakdown", [prov_idx], {}), "Siege Progress & Modifiers")
 
 			var prog_row := HBoxContainer.new()
 			prog_row.add_theme_constant_override("separation", 8)
+			if main_view != null and prov_idx >= 0:
+				main_view.call("bind_breakdown", prog_row, func() -> Variant: return _call_bridge("getSiegeBreakdown", [prov_idx], {}), "Siege Progress & Modifiers")
 			parent.add_child(prog_row)
 			prog_row.add_child(_make_label("Progress: %d" % int(d.get("siegeProgress", 0)), Color(0.95, 0.92, 0.84), 12))
 			if bool(d.get("siegeBreached", false)):

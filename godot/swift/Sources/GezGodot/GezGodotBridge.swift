@@ -1438,6 +1438,7 @@ public final class GezGodotController {
         let rgb = w.countries.color[owner.index]
 
         let regs = armies.regiments[idx]
+        let techMoraleBonus = w.techEffects(owner, track: .military).landMorale
         var totalMen = 0
         var maxMen = 0
         var weightedMorale = 0.0
@@ -1445,11 +1446,12 @@ public final class GezGodotController {
         var regimentRows: [[String: Any]] = []
         for (rIndex, reg) in regs.enumerated() {
             let u = w.military.unit(reg.type)
+            let regMaxMorale = u.morale + techMoraleBonus
             totalMen += reg.men
             maxMen += u.maxMen
             let weight = Double(max(1, reg.men))
             weightedMorale += reg.morale * weight
-            weightedMaxMorale += u.morale * weight
+            weightedMaxMorale += regMaxMorale * weight
             let homeName = reg.homeProvince.map { w.provinces.name[$0.index] } ?? ""
             regimentRows.append([
                 "index": rIndex,
@@ -1461,8 +1463,8 @@ public final class GezGodotController {
                 "men": reg.men,
                 "maxMen": u.maxMen,
                 "morale": reg.morale,
-                "maxMorale": u.morale,
-                "moraleText": String(format: "%.2f / %.2f", reg.morale, u.morale),
+                "maxMorale": regMaxMorale,
+                "moraleText": String(format: "%.2f / %.2f", reg.morale, regMaxMorale),
                 "homeProvinceName": homeName
             ])
         }
@@ -1990,15 +1992,16 @@ public final class GezGodotController {
         let c = player.index
         let tax = w.countries.lastTax[c]
         let isDebasing = w.countries.debasing[c]
-        let debaseIncome = isDebasing ? w.countries.lastMonthlyIncome[c] * Finance.debaseOngoingIncome : 0.0
+        let debaseIncome = c < w.countries.lastDebaseIncome.count ? w.countries.lastDebaseIncome[c] : 0.0
         let income = w.countries.lastMonthlyIncome[c] + debaseIncome
         let spend = w.countries.lastMonthlyExpenses[c]
-        let net = income - spend
+        let net = Breakdowns.monthlyIncome(w, for: player).total
         let vassalTax = w.countries.lastVassalTax[c]
         let trade = w.countries.lastTrade[c]
         let tolls = w.countries.lastTolls[c]
         let buildingUpkeep = w.countries.lastUpkeep[c]
         let armyUpkeep = w.military.lastArmyUpkeep[c]
+        let navyUpkeep = c < w.navy.lastNavyUpkeep.count ? w.navy.lastNavyUpkeep[c] : 0.0
         let interest = w.countries.lastInterest[c]
         let treasury = w.countries.treasury[c]
         let bankruptMonths = w.countries.bankruptMonthsLeft[c]
@@ -2102,6 +2105,8 @@ public final class GezGodotController {
             "buildingUpkeepText": String(format: "−%.1f", buildingUpkeep),
             "armyUpkeep": armyUpkeep,
             "armyUpkeepText": String(format: "−%.1f", armyUpkeep),
+            "navyUpkeep": navyUpkeep,
+            "navyUpkeepText": String(format: "−%.1f", navyUpkeep),
             "interest": interest,
             "interestText": String(format: "−%.1f", interest),
             "taxBreakdown": taxBreakdown,
@@ -6006,6 +6011,92 @@ public final class GezGodotBridge: RefCounted {
     @Callable
     public func finishTacticalBattle() -> VariantDictionary {
         Self.toVariantDictionary(controller.finishTacticalBattleData())
+    }
+
+    // MARK: - Phase 16: Breakdowns & Audio Events
+
+    @Callable
+    public func getMonthlyIncomeBreakdown() -> VariantDictionary {
+        Self.toVariantDictionary(controller.monthlyIncomeBreakdownData())
+    }
+
+    @Callable
+    public func getManpowerBreakdown() -> VariantDictionary {
+        Self.toVariantDictionary(controller.manpowerBreakdownData())
+    }
+
+    @Callable
+    public func getSailorsBreakdown() -> VariantDictionary {
+        Self.toVariantDictionary(controller.sailorsBreakdownData())
+    }
+
+    @Callable
+    public func getArmyMoraleBreakdown(armyId: Int) -> VariantDictionary {
+        Self.toVariantDictionary(controller.armyMoraleBreakdownData(armyId: armyId))
+    }
+
+    @Callable
+    public func getSiegeBreakdown(provinceIndex: Int) -> VariantDictionary {
+        Self.toVariantDictionary(controller.siegeBreakdownData(provinceIndex: provinceIndex))
+    }
+
+    @Callable
+    public func getStabilityBreakdown() -> VariantDictionary {
+        Self.toVariantDictionary(controller.stabilityBreakdownData())
+    }
+
+    @Callable
+    public func getUnrestBreakdown(provinceIndex: Int) -> VariantDictionary {
+        Self.toVariantDictionary(controller.unrestBreakdownData(provinceIndex: provinceIndex))
+    }
+
+    @Callable
+    public func getResearchSpeedBreakdown(trackKey: String) -> VariantDictionary {
+        Self.toVariantDictionary(controller.researchSpeedBreakdownData(trackKey: trackKey))
+    }
+
+    @Callable
+    public func getTechCostBreakdown(trackKey: String) -> VariantDictionary {
+        Self.toVariantDictionary(controller.techCostBreakdownData(trackKey: trackKey))
+    }
+
+    @Callable
+    public func getRelationsBreakdown(targetCountryIndex: Int) -> VariantDictionary {
+        Self.toVariantDictionary(controller.relationsBreakdownData(targetCountryIndex: targetCountryIndex))
+    }
+
+    @Callable
+    public func getRelationSlotsBreakdown() -> VariantDictionary {
+        Self.toVariantDictionary(controller.relationSlotsBreakdownData())
+    }
+
+    @Callable
+    public func getAIGoalBreakdown(countryIndex: Int) -> VariantDictionary {
+        Self.toVariantDictionary(controller.aiGoalBreakdownData(countryIndex: countryIndex))
+    }
+
+    @Callable
+    public func getProvinceSupplyBreakdown(provinceIndex: Int) -> VariantDictionary {
+        Self.toVariantDictionary(controller.provinceSupplyBreakdownData(provinceIndex: provinceIndex))
+    }
+
+    @Callable
+    public func getWarScoreBreakdown(warID: String) -> VariantDictionary {
+        Self.toVariantDictionary(controller.warScoreBreakdownData(warID: warID))
+    }
+
+    @Callable
+    public func consumeAudioEvents() -> VariantArray {
+        let out = VariantArray()
+        for cue in controller.consumeAudioEvents() {
+            out.append(Variant(cue))
+        }
+        return out
+    }
+
+    @Callable
+    public func getAmbienceContext(mapX: Int, mapY: Int, zoom: Double) -> VariantDictionary {
+        Self.toVariantDictionary(controller.ambienceContext(mapX: mapX, mapY: mapY, zoom: zoom))
     }
 
     private static func parsePointCSV(_ csv: String) -> [TacticalPoint] {

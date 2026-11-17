@@ -419,6 +419,9 @@ func refresh(force: bool = false) -> void:
 		Color(0.84, 0.80, 0.72),
 		12
 	))
+	var slots_hdr_lbl := right_box.get_child(right_box.get_child_count() - 1) as Control
+	if main_view != null:
+		main_view.call("bind_tip", slots_hdr_lbl, "Accepted Culture Capacity", "Non-accepted cultures suffer tax (-25%) and manpower penalties and raise province unrest. Accepted cultures count as loyal subjects.")
 
 	var cultures: Array = d.get("cultures", [])
 	for c_v in cultures:
