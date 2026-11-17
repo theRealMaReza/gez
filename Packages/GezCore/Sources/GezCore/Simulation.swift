@@ -107,6 +107,7 @@ public final class Simulation {
             UnrestSystem.runMonthly(&world, date: date, random: &random)
             DiplomacySystem.runMonthly(&world, date: date)
             DiplomacyAISystem.runMonthly(&world, date: date, random: &random)
+            EventSystem.runMonthly(&world, date: date, random: &random)
         }
 
         if date.isFirstOfYear {

@@ -1,0 +1,559 @@
+# Hand-written historical events: Iberia & Western Europe
+# Validated and compiled by tools/events/eventgen.py -> events1453.json
+
+event hist_end_hundred_years_war_fra
+title = The End of the Hundred Years' War
+text = At Castillon in Gascony, Jean Bureau's artillery shattered the last English field army on the continent. Only Calais remains in English hands; {country} now faces the task of healing a century of war.
+category = historical
+countries = FRA
+date_from = 1453-07-17
+date_to = 1457-12-31
+mtth = 6
+fire_once = true
+major = true
+trigger:
+  owns = Paris
+  owns = Bordeaux
+  not_global_flag = hyw_settled_fra
+option:
+  label = Proclaim peace and rebuild the royal domain
+  ai_weight = 75
+  ai_mod = at_war=false -> *1.5
+  effect:
+    stability = 1
+    prestige = 12
+    add_modifier = post_hyw_recovery:Post-War Reconstruction:60:tax=0.10,build_cost=-0.10
+    set_global_flag = hyw_settled_fra
+option:
+  label = Keep the Compagnies d'Ordonnance ready for Calais
+  ai_weight = 25
+  ai_mod = at_war=true -> *2.0
+  effect:
+    add_claim = Calais
+    manpower = 2500
+    prestige = 6
+    set_global_flag = hyw_settled_fra
+
+event hist_end_hundred_years_war_eng
+title = The Bitter Peace of Gascony
+text = Word of John Talbot's defeat in Aquitaine has stunned Westminster. With France triumphant across the Channel, {ruler} faces mounting anger at court and murmurs of Yorkist discontent.
+category = historical
+countries = ENG
+date_from = 1453-08-01
+date_to = 1457-12-31
+mtth = 6
+fire_once = true
+major = true
+trigger:
+  not_owns = Paris
+  not_owns = Bordeaux
+  ruler_alive = henry6
+option:
+  label = Retreat into quiet devotion and retrenchment
+  ai_weight = 65
+  effect:
+    prestige = -10
+    ducats = 40
+    unrest = London:8
+    set_flag = eng_lost_gascony
+option:
+  label = Vow to reclaim the French inheritance
+  ai_weight = 35
+  ai_mod = treasury_min=200 -> *1.5
+  effect:
+    stability = -1
+    add_claim = Bordeaux
+    add_modifier = hurt_pride:Wounded Pride:36:manpower=0.10,army_quality=0.05
+    set_flag = eng_lost_gascony
+
+event hist_wars_of_the_roses
+title = The Wars of the Roses
+text = Rival branches of the House of Plantagenet — Lancaster's red rose and York's white — have drawn swords over the throne of {country}. Nobles muster retainers across the shires while the crown totters.
+category = dynastic
+countries = ENG
+date_from = 1455-05-22
+date_to = 1471-06-01
+mtth = 24
+fire_once = true
+major = true
+trigger:
+  owns = London
+  character_alive = edward_y
+option:
+  label = Rally the royal Lancastrian banner
+  ai_weight = 55
+  effect:
+    stability = -1
+    estate_loyalty = nobles:-15
+    unrest = London:12
+    spawn_units = London:longbowmen:2
+    set_flag = roses_fought
+option:
+  label = Compromise with the Duke of York's council
+  ai_weight = 30
+  ai_mod = stability_max=-1 -> *2.0
+  effect:
+    ducats = -60
+    prestige = -10
+    estate_loyalty = nobles:10
+    set_flag = roses_fought
+option:
+  label = Summon foreign mercenaries to awe both factions
+  ai_weight = 15
+  ai_mod = treasury_min=250 -> *2.0
+  effect:
+    ducats = -120
+    spawn_units = capital:infantry:3
+    unrest = London:6
+    set_flag = roses_fought
+
+event hist_louis_xi_pragmatic
+title = The Spider King's Centralisation
+text = Breaking the great feudal appanages by intrigue and royal ordinance, the French crown seeks to curb rebellious dukes and draw taxes straight into royal coffers.
+category = internal
+countries = FRA
+date_from = 1461-07-22
+date_to = 1480-12-31
+mtth = 24
+fire_once = true
+trigger:
+  owns = Paris
+  not_ruler_alive = charles7
+option:
+  label = Centralise justice and curb the princes
+  ai_weight = 75
+  effect:
+    add_modifier = spider_king_crown:Royal Centralisation:120:crown_power=0.15,tax=0.10,vassal_opinion=-10
+    estate_loyalty = nobles:-10
+    estate_loyalty = burghers:10
+option:
+  label = Confirm the peers' ancient liberties
+  ai_weight = 25
+  effect:
+    estate_loyalty = nobles:15
+    add_vassal_favour = 15
+    prestige = -5
+
+event hist_league_public_weal
+title = The League of the Public Weal
+text = Alarmed by Paris's growing power, Burgundy and the great French lords have formed the League of the Public Weal to defend feudal autonomy.
+category = diplomatic
+countries = BUR
+date_from = 1465-01-01
+date_to = 1474-12-31
+mtth = 18
+fire_once = true
+trigger:
+  exists = FRA
+  owns = Dijon
+  provinces_min = 5
+option:
+  label = Lead the League against royal tyranny
+  ai_weight = 70
+  effect:
+    change_opinion = FRA:-35
+    add_cb = FRA:claim:48
+    add_modifier = public_weal_league:League of the Public Weal:48:army_quality=0.06,vassal_opinion=10
+    prestige = 8
+option:
+  label = Seek a quiet accommodation with Paris
+  ai_weight = 30
+  effect:
+    change_opinion_both = FRA:20
+    ducats = 50
+    prestige = -5
+
+event hist_nancy_charles_bold
+title = The Bold Duke's Ambitions
+text = Seeking to weld his scattered Netherlandish and Burgundian lands into a middle kingdom from the North Sea to the Alps, the Duke of {country} marches toward Lorraine and the Swiss cantons.
+category = military
+countries = BUR
+date_from = 1474-01-01
+date_to = 1482-12-31
+mtth = 18
+fire_once = true
+major = true
+trigger:
+  ruler_alive = charles_bold
+  owns = Dijon
+option:
+  label = Press the siege of Nancy — fortune favours the bold!
+  ai_weight = 70
+  effect:
+    add_claim = Nancy
+    add_modifier = burgundian_ordonnance:Ducal Ordonnance:48:army_quality=0.08,manpower=0.10
+    set_global_flag = burgundy_nancy_war
+option:
+  label = Consolidate our wealthy Flemish cities first
+  ai_weight = 30
+  ai_mod = at_war=true -> *2.0
+  effect:
+    ducats = 75
+    estate_loyalty = burghers:10
+    province_dev = Bruges:1
+
+event hist_burgundian_inheritance
+title = The Burgundian Inheritance
+text = With Charles the Bold's line broken or imperilled, both Paris and the House of Habsburg claim the rich provinces of the Low Countries and Franche-Comté.
+category = dynastic
+countries = HAB, AUS
+date_from = 1477-01-05
+date_to = 1490-12-31
+mtth = 18
+fire_once = true
+major = true
+trigger:
+  exists = BUR
+  not_ruler_alive = charles_bold
+option:
+  label = Press Maximilian's marriage claim to Burgundy
+  ai_weight = 80
+  effect:
+    prestige = 15
+    add_claim = Bruges
+    add_claim = Antwerp
+    change_opinion = FRA:-30
+    change_opinion = BUR:25
+option:
+  label = Leave the western marches to France
+  ai_weight = 20
+  effect:
+    change_opinion_both = FRA:20
+    prestige = -10
+    ducats = 60
+
+event hist_henry_navigator_guinea
+title = Caravels Beyond Cape Bojador
+text = From his base in the Algarve, Prince Henry the Navigator dispatches lateen-rigged caravels down the West African coast, bringing ivory, pepper, and gold to {capital}.
+category = historical
+countries = POR
+date_from = 1454-01-01
+date_to = 1460-11-13
+mtth = 16
+fire_once = true
+trigger:
+  character_alive = henry_nav
+  owns = Lisbon
+  is_coastal = true
+option:
+  label = Fund further voyages down the Guinea coast
+  ai_weight = 80
+  ai_mod = treasury_min=80 -> *1.5
+  effect:
+    ducats = -40
+    tech_progress = diplomatic:45
+    sailors = 600
+    add_modifier = guinea_trade:Guinea Gold & Caravels:120:trade=0.12
+option:
+  label = Keep our ships close to the Maghrebi straits
+  ai_weight = 20
+  effect:
+    manpower = 1500
+    prestige = 3
+
+event hist_union_of_crowns_iberia
+title = The Marriage of Isabella and Ferdinand
+text = The secret wedding of Isabella of Castile and Ferdinand of Aragon in Valladolid promises to bind the two great Christian crowns of Iberia against rivals at home and abroad.
+category = dynastic
+countries = CAS
+date_from = 1469-10-19
+date_to = 1482-12-31
+mtth = 12
+fire_once = true
+major = true
+trigger:
+  exists = ARA
+  character_alive = isabella_c
+  character_alive = ferdinand_a
+option:
+  label = Celebrate the Iberian Union of Crowns
+  ai_weight = 85
+  effect:
+    change_opinion_both = ARA:60
+    stability = 1
+    prestige = 12
+    set_global_flag = iberian_wedding
+option:
+  label = Guard Castilian independence from Aragonese counsel
+  ai_weight = 15
+  effect:
+    estate_loyalty = nobles:10
+    change_opinion = ARA:-15
+
+event hist_castilian_succession_war
+title = The War of the Castilian Succession
+text = Following the death of Henry IV, rival claimants backed by Lisbon and Aragon contest the Castilian throne across the meseta and the Atlantic islands.
+category = dynastic
+countries = CAS
+date_from = 1474-12-11
+date_to = 1481-12-31
+mtth = 14
+fire_once = true
+trigger:
+  not_ruler_alive = henry4_c
+  owns = Toledo
+option:
+  label = Secure the crown by sword and royal cortes
+  ai_weight = 75
+  effect:
+    stability = 1
+    ducats = -50
+    estate_loyalty = nobles:-5
+    add_modifier = royal_hermandad:Santa Hermandad:60:crown_power=0.10,army_quality=0.05
+option:
+  label = Conciliate the grandees with sweeping pardons
+  ai_weight = 25
+  effect:
+    estate_loyalty = nobles:15
+    prestige = -6
+    add_modifier = grandee_concessions:Grandee Concessions:60:tax=-0.08
+
+event hist_spanish_inquisition
+title = The Tribunal of the Holy Office
+text = Seeking religious uniformity across newly united realms, {country} petitions Rome for a royal tribunal to root out heresy and enforce orthodoxy.
+category = religious
+countries = CAS
+date_from = 1478-11-01
+date_to = 1490-12-31
+mtth = 24
+fire_once = true
+trigger:
+  religion = catholic
+  owns = Toledo
+option:
+  label = Establish the Inquisition under royal authority
+  ai_weight = 70
+  effect:
+    change_opinion = PAP:15
+    estate_loyalty = clergy:12
+    add_modifier = holy_office:Tribunal of the Faith:120:stability_cost=-0.10,mood_other_faith=-0.10
+    unrest = Seville:6
+option:
+  label = Rely on gentle preaching by parish bishops
+  ai_weight = 30
+  effect:
+    estate_loyalty = clergy:-8
+    prestige = 4
+    add_modifier = tolerant_pastorate:Pastoral Preaching:120:learning=0.10
+
+event hist_fall_of_granada_war
+title = The Final Campaign for Granada
+text = For decades the Emirate of Granada has clung to the Sierra Nevada behind steep mountain passes. Now {country} stands poised to end Moorish rule in Iberia once and for all.
+category = historical
+countries = CAS, ARA
+date_from = 1482-01-01
+date_to = 1495-12-31
+mtth = 18
+fire_once = true
+major = true
+trigger:
+  exists = GRA
+  owns = Seville
+  not_global_flag = granada_resolved
+option:
+  label = Press the siege of Granada!
+  ai_weight = 80
+  ai_mod = at_war=false -> *1.5
+  ai_mod = treasury_min=100 -> *1.2
+  effect:
+    add_claim = Granada
+    add_claim = Malaga
+    add_claim = Almeria
+    add_modifier = granada_crusade:Granada Crusade:36:army_quality=0.08,manpower=0.10
+    set_global_flag = granada_resolved
+option:
+  label = Demand tribute and bide our time
+  ai_weight = 20
+  ai_mod = at_war=true -> *2.5
+  effect:
+    ducats = 60
+    prestige = -5
+    change_opinion = GRA:15
+    set_global_flag = granada_resolved
+
+event hist_fall_of_granada_conquered
+title = The Capitulation of the Alhambra
+text = With Granada already fallen into Christian hands, the royal court must decide whether to honour the generous surrender terms promised to the Mudéjar inhabitants or press immediate conversion.
+category = historical
+countries = CAS, ARA
+date_from = 1482-01-01
+date_to = 1505-12-31
+mtth = 12
+fire_once = true
+major = true
+trigger:
+  not_exists = GRA
+  owns = Granada
+  religion_family = christian
+  not_global_flag = granada_resolved
+option:
+  label = Honour the Capitulation of Santa Fe
+  ai_weight = 40
+  effect:
+    prestige = 15
+    stability = 1
+    unrest = Granada:-5
+    set_global_flag = granada_resolved
+option:
+  label = Order baptisms and unify the realm's faith
+  ai_weight = 60
+  effect:
+    pops_convert = Granada:sunni->catholic:0.35
+    unrest = Granada:14
+    estate_loyalty = clergy:10
+    set_global_flag = granada_resolved
+
+event hist_columbus_portugal
+title = A Genoese Mariner at Lisbon
+text = Christopher Columbus lays charts before the Portuguese court, claiming he can reach Cipangu and the Indies by sailing west across the Ocean Sea — in return for titles, a tenth of all wealth, and three ships.
+category = historical
+countries = POR
+date_from = 1484-01-01
+date_to = 1488-12-31
+mtth = 12
+fire_once = true
+major = true
+trigger:
+  owns = Lisbon
+  is_coastal = true
+  not_global_flag = columbus_funded
+option:
+  label = Decline — our mathematicians trust the Cape route
+  ai_weight = 85
+  effect:
+    prestige = 3
+    tech_progress = diplomatic:20
+    set_global_flag = columbus_seeks_patron
+option:
+  label = Fund Columbus's western voyage from Lisbon!
+  ai_weight = 15
+  ai_mod = treasury_min=250 -> *2.0
+  effect:
+    ducats = -100
+    prestige = 18
+    tech_progress = diplomatic:60
+    add_modifier = western_enterprise:Atlantic Enterprise:120:trade=0.15
+    set_global_flag = columbus_funded
+
+event hist_columbus_castile
+title = Columbus Seeks a Patron
+text = Rejected by Lisbon, the Genoese navigator Christopher Columbus arrives at court with bold plans to sail westward across the Atlantic to reach the spice lands of the East.
+category = historical
+countries = CAS
+date_from = 1491-01-01
+date_to = 1495-12-31
+mtth = 8
+fire_once = true
+major = true
+trigger:
+  global_flag = columbus_seeks_patron
+  not_global_flag = columbus_funded
+  is_coastal = true
+option:
+  label = Sponsor the expedition from Palos de la Frontera!
+  ai_weight = 85
+  ai_mod = treasury_min=80 -> *1.5
+  effect:
+    ducats = -80
+    prestige = 20
+    tech_progress = diplomatic:60
+    add_modifier = nueva_indias:Indies Voyages:120:trade=0.15,tax=0.05
+    set_global_flag = columbus_funded
+option:
+  label = Dismiss the adventurer as a dreamer
+  ai_weight = 15
+  ai_mod = treasury_max=40 -> *3.0
+  effect:
+    prestige = -3
+    set_global_flag = columbus_castile_refused
+
+event hist_columbus_fallback
+title = A Desperate Navigator Offers His Charts
+text = Rebuffed by both Iberia's crowns, Christopher Columbus now hawks his transatlantic charts to northern and Italian courts, promising a new ocean highway to Cathay.
+category = historical
+countries = FRA, ENG, GEN, VEN
+date_from = 1493-01-01
+date_to = 1498-12-31
+mtth = 12
+fire_once = true
+major = true
+trigger:
+  global_flag = columbus_castile_refused
+  not_global_flag = columbus_funded
+  is_coastal = true
+option:
+  label = Back the Genoese mariner's fleet!
+  ai_weight = 75
+  effect:
+    ducats = -90
+    prestige = 20
+    tech_progress = diplomatic:60
+    add_modifier = oceanic_charter:Oceanic Charter:120:trade=0.15
+    set_global_flag = columbus_funded
+option:
+  label = Keep our fleets in familiar waters
+  ai_weight = 25
+  effect:
+    ducats = 20
+
+event hist_treaty_of_tordesillas
+title = The Treaty of Tordesillas
+text = With rival Iberian sails crossing the Atlantic, the Pope brokers a meridian line dividing the newly found seas and spice lands between Castile and Portugal.
+category = diplomatic
+countries = POR
+date_from = 1494-06-01
+date_to = 1499-12-31
+mtth = 12
+fire_once = true
+trigger:
+  global_flag = columbus_funded
+  exists = CAS
+  owns = Lisbon
+option:
+  label = Ratify the meridian and safeguard our Brazil & Indies claims
+  ai_weight = 85
+  effect:
+    change_opinion_both = CAS:35
+    change_opinion = PAP:15
+    prestige = 8
+    add_modifier = tordesillas_monopoly:Atlantic Meridian:120:trade=0.10
+option:
+  label = Reject any limit on Portuguese sea lanes
+  ai_weight = 15
+  effect:
+    change_opinion = CAS:-25
+    sailors = 800
+
+event hist_vasco_da_gama_calicut
+title = Vasco da Gama Reaches Calicut
+text = Rounding the Cape of Storms and crossing the Indian Ocean with a Gujarati pilot, Vasco da Gama's carracks drop anchor off Calicut, opening a direct sea route from Europe to India's pepper markets.
+category = historical
+countries = POR
+date_from = 1498-05-01
+date_to = 1505-12-31
+mtth = 10
+fire_once = true
+major = true
+trigger:
+  owns = Lisbon
+  is_coastal = true
+  exists = CLT
+option:
+  label = Establish a feitoria and challenge the Red Sea spice trade
+  ai_weight = 85
+  effect:
+    ducats = 120
+    prestige = 22
+    tech_progress = diplomatic:50
+    add_modifier = india_carreira:Carreira da India:120:trade=0.20
+    change_opinion = MAM:-35
+    change_opinion = VEN:-25
+    set_global_flag = cape_route_opened
+option:
+  label = Trade peacefully under the Zamorin's customs
+  ai_weight = 15
+  effect:
+    ducats = 60
+    prestige = 10
+    change_opinion_both = CLT:25
+    set_global_flag = cape_route_opened

@@ -187,7 +187,10 @@ public final class GezGodotController {
             "dateText": dateText,
             "isPaused": isPaused,
             "speed": speed,
-            "alertsSignature": alertsSig
+            "alertsSignature": alertsSig,
+            "pendingEventCount": (session?.pendingPlayerEvent != nil ? 1 : 0),
+            "recentEventsSignature": recentEventsSignature,
+            "pauseOnEvents": pauseOnEvents
         ]
     }
 
@@ -5726,6 +5729,38 @@ public final class GezGodotBridge: RefCounted {
     @Callable
     public func getActiveAlerts() -> VariantArray {
         Self.toVariantArray(controller.activeAlerts())
+    }
+
+    // MARK: - Phase 14: Historical & Chronicle Events Callables
+
+    @Callable
+    public func hasPendingEvent() -> Bool {
+        controller.hasPendingEvent()
+    }
+
+    @Callable
+    public func getPendingEventDetails() -> VariantDictionary {
+        Self.toVariantDictionary(controller.pendingEventDetails())
+    }
+
+    @Callable
+    public func chooseEventOption(instanceID: Int, optionIndex: Int) -> Bool {
+        controller.chooseEventOption(instanceID: instanceID, optionIndex: optionIndex)
+    }
+
+    @Callable
+    public func getRecentEvents() -> VariantArray {
+        Self.toVariantArray(controller.recentEventsList())
+    }
+
+    @Callable
+    public func getPauseOnEvents() -> Bool {
+        controller.pauseOnEvents
+    }
+
+    @Callable
+    public func setPauseOnEvents(enabled: Bool) -> Bool {
+        controller.setPauseOnEvents(enabled)
     }
 
     @Callable

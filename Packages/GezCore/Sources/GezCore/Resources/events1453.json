@@ -1,0 +1,6440 @@
+{
+  "provinceCount": 1373,
+  "events": [
+    {
+      "id": "hist_end_hundred_years_war_fra",
+      "title": "The End of the Hundred Years' War",
+      "text": "At Castillon in Gascony, Jean Bureau's artillery shattered the last English field army on the continent. Only Calais remains in English hands; {country} now faces the task of healing a century of war.",
+      "category": "historical",
+      "countries": [
+        "FRA"
+      ],
+      "dateFrom": {
+        "year": 1453,
+        "month": 7,
+        "day": 17
+      },
+      "dateTo": {
+        "year": 1457,
+        "month": 12,
+        "day": 31
+      },
+      "exactDate": null,
+      "mtth": 6.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": true,
+      "trigger": [
+        {
+          "kind": "owns",
+          "str": "Paris",
+          "int": 73
+        },
+        {
+          "kind": "owns",
+          "str": "Bordeaux",
+          "int": 110
+        },
+        {
+          "kind": "not_global_flag",
+          "str": "hyw_settled_fra"
+        }
+      ],
+      "options": [
+        {
+          "label": "Proclaim peace and rebuild the royal domain",
+          "aiWeight": 75.0,
+          "aiModifiers": [
+            {
+              "condition": {
+                "kind": "at_war",
+                "bool": false
+              },
+              "op": "mul",
+              "value": 1.5
+            }
+          ],
+          "effects": [
+            {
+              "kind": "stability",
+              "int": 1
+            },
+            {
+              "kind": "prestige",
+              "num": 12.0
+            },
+            {
+              "kind": "add_modifier",
+              "str": "post_hyw_recovery",
+              "str2": "Post-War Reconstruction",
+              "int": 60,
+              "mods": {
+                "build_cost": -0.1,
+                "tax": 0.1
+              }
+            },
+            {
+              "kind": "set_global_flag",
+              "str": "hyw_settled_fra"
+            }
+          ]
+        },
+        {
+          "label": "Keep the Compagnies d'Ordonnance ready for Calais",
+          "aiWeight": 25.0,
+          "aiModifiers": [
+            {
+              "condition": {
+                "kind": "at_war",
+                "bool": true
+              },
+              "op": "mul",
+              "value": 2.0
+            }
+          ],
+          "effects": [
+            {
+              "kind": "add_claim",
+              "str": "Calais",
+              "int": 152
+            },
+            {
+              "kind": "manpower",
+              "num": 2500.0
+            },
+            {
+              "kind": "prestige",
+              "num": 6.0
+            },
+            {
+              "kind": "set_global_flag",
+              "str": "hyw_settled_fra"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hist_end_hundred_years_war_eng",
+      "title": "The Bitter Peace of Gascony",
+      "text": "Word of John Talbot's defeat in Aquitaine has stunned Westminster. With France triumphant across the Channel, {ruler} faces mounting anger at court and murmurs of Yorkist discontent.",
+      "category": "historical",
+      "countries": [
+        "ENG"
+      ],
+      "dateFrom": {
+        "year": 1453,
+        "month": 8,
+        "day": 1
+      },
+      "dateTo": {
+        "year": 1457,
+        "month": 12,
+        "day": 31
+      },
+      "exactDate": null,
+      "mtth": 6.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": true,
+      "trigger": [
+        {
+          "kind": "not_owns",
+          "str": "Paris",
+          "int": 73
+        },
+        {
+          "kind": "not_owns",
+          "str": "Bordeaux",
+          "int": 110
+        },
+        {
+          "kind": "ruler_alive",
+          "str": "henry6"
+        }
+      ],
+      "options": [
+        {
+          "label": "Retreat into quiet devotion and retrenchment",
+          "aiWeight": 65.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "prestige",
+              "num": -10.0
+            },
+            {
+              "kind": "ducats",
+              "num": 40.0
+            },
+            {
+              "kind": "unrest",
+              "target": "province",
+              "int": 147,
+              "num": 8.0
+            },
+            {
+              "kind": "set_flag",
+              "str": "eng_lost_gascony"
+            }
+          ]
+        },
+        {
+          "label": "Vow to reclaim the French inheritance",
+          "aiWeight": 35.0,
+          "aiModifiers": [
+            {
+              "condition": {
+                "kind": "treasury_min",
+                "num": 200.0
+              },
+              "op": "mul",
+              "value": 1.5
+            }
+          ],
+          "effects": [
+            {
+              "kind": "stability",
+              "int": -1
+            },
+            {
+              "kind": "add_claim",
+              "str": "Bordeaux",
+              "int": 110
+            },
+            {
+              "kind": "add_modifier",
+              "str": "hurt_pride",
+              "str2": "Wounded Pride",
+              "int": 36,
+              "mods": {
+                "army_quality": 0.05,
+                "manpower": 0.1
+              }
+            },
+            {
+              "kind": "set_flag",
+              "str": "eng_lost_gascony"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hist_wars_of_the_roses",
+      "title": "The Wars of the Roses",
+      "text": "Rival branches of the House of Plantagenet — Lancaster's red rose and York's white — have drawn swords over the throne of {country}. Nobles muster retainers across the shires while the crown totters.",
+      "category": "dynastic",
+      "countries": [
+        "ENG"
+      ],
+      "dateFrom": {
+        "year": 1455,
+        "month": 5,
+        "day": 22
+      },
+      "dateTo": {
+        "year": 1471,
+        "month": 6,
+        "day": 1
+      },
+      "exactDate": null,
+      "mtth": 24.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": true,
+      "trigger": [
+        {
+          "kind": "owns",
+          "str": "London",
+          "int": 147
+        },
+        {
+          "kind": "character_alive",
+          "str": "edward_y"
+        }
+      ],
+      "options": [
+        {
+          "label": "Rally the royal Lancastrian banner",
+          "aiWeight": 55.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "stability",
+              "int": -1
+            },
+            {
+              "kind": "estate_loyalty",
+              "str": "nobles",
+              "num": -15.0
+            },
+            {
+              "kind": "unrest",
+              "target": "province",
+              "int": 147,
+              "num": 12.0
+            },
+            {
+              "kind": "spawn_units",
+              "target": "province",
+              "int": 147,
+              "str": "longbowmen",
+              "int2": 2
+            },
+            {
+              "kind": "set_flag",
+              "str": "roses_fought"
+            }
+          ]
+        },
+        {
+          "label": "Compromise with the Duke of York's council",
+          "aiWeight": 30.0,
+          "aiModifiers": [
+            {
+              "condition": {
+                "kind": "stability_max",
+                "int": -1
+              },
+              "op": "mul",
+              "value": 2.0
+            }
+          ],
+          "effects": [
+            {
+              "kind": "ducats",
+              "num": -60.0
+            },
+            {
+              "kind": "prestige",
+              "num": -10.0
+            },
+            {
+              "kind": "estate_loyalty",
+              "str": "nobles",
+              "num": 10.0
+            },
+            {
+              "kind": "set_flag",
+              "str": "roses_fought"
+            }
+          ]
+        },
+        {
+          "label": "Summon foreign mercenaries to awe both factions",
+          "aiWeight": 15.0,
+          "aiModifiers": [
+            {
+              "condition": {
+                "kind": "treasury_min",
+                "num": 250.0
+              },
+              "op": "mul",
+              "value": 2.0
+            }
+          ],
+          "effects": [
+            {
+              "kind": "ducats",
+              "num": -120.0
+            },
+            {
+              "kind": "spawn_units",
+              "target": "capital",
+              "int": -1,
+              "str": "infantry",
+              "int2": 3
+            },
+            {
+              "kind": "unrest",
+              "target": "province",
+              "int": 147,
+              "num": 6.0
+            },
+            {
+              "kind": "set_flag",
+              "str": "roses_fought"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hist_louis_xi_pragmatic",
+      "title": "The Spider King's Centralisation",
+      "text": "Breaking the great feudal appanages by intrigue and royal ordinance, the French crown seeks to curb rebellious dukes and draw taxes straight into royal coffers.",
+      "category": "internal",
+      "countries": [
+        "FRA"
+      ],
+      "dateFrom": {
+        "year": 1461,
+        "month": 7,
+        "day": 22
+      },
+      "dateTo": {
+        "year": 1480,
+        "month": 12,
+        "day": 31
+      },
+      "exactDate": null,
+      "mtth": 24.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": false,
+      "trigger": [
+        {
+          "kind": "owns",
+          "str": "Paris",
+          "int": 73
+        },
+        {
+          "kind": "not_ruler_alive",
+          "str": "charles7"
+        }
+      ],
+      "options": [
+        {
+          "label": "Centralise justice and curb the princes",
+          "aiWeight": 75.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "add_modifier",
+              "str": "spider_king_crown",
+              "str2": "Royal Centralisation",
+              "int": 120,
+              "mods": {
+                "crown_power": 0.15,
+                "tax": 0.1,
+                "vassal_opinion": -10.0
+              }
+            },
+            {
+              "kind": "estate_loyalty",
+              "str": "nobles",
+              "num": -10.0
+            },
+            {
+              "kind": "estate_loyalty",
+              "str": "burghers",
+              "num": 10.0
+            }
+          ]
+        },
+        {
+          "label": "Confirm the peers' ancient liberties",
+          "aiWeight": 25.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "estate_loyalty",
+              "str": "nobles",
+              "num": 15.0
+            },
+            {
+              "kind": "add_vassal_favour",
+              "int": 15
+            },
+            {
+              "kind": "prestige",
+              "num": -5.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hist_league_public_weal",
+      "title": "The League of the Public Weal",
+      "text": "Alarmed by Paris's growing power, Burgundy and the great French lords have formed the League of the Public Weal to defend feudal autonomy.",
+      "category": "diplomatic",
+      "countries": [
+        "BUR"
+      ],
+      "dateFrom": {
+        "year": 1465,
+        "month": 1,
+        "day": 1
+      },
+      "dateTo": {
+        "year": 1474,
+        "month": 12,
+        "day": 31
+      },
+      "exactDate": null,
+      "mtth": 18.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": false,
+      "trigger": [
+        {
+          "kind": "exists",
+          "str": "FRA"
+        },
+        {
+          "kind": "owns",
+          "str": "Dijon",
+          "int": 135
+        },
+        {
+          "kind": "provinces_min",
+          "int": 5
+        }
+      ],
+      "options": [
+        {
+          "label": "Lead the League against royal tyranny",
+          "aiWeight": 70.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "change_opinion",
+              "str": "FRA",
+              "int": -35
+            },
+            {
+              "kind": "add_cb",
+              "str": "FRA",
+              "str2": "claim",
+              "int": 48
+            },
+            {
+              "kind": "add_modifier",
+              "str": "public_weal_league",
+              "str2": "League of the Public Weal",
+              "int": 48,
+              "mods": {
+                "army_quality": 0.06,
+                "vassal_opinion": 10.0
+              }
+            },
+            {
+              "kind": "prestige",
+              "num": 8.0
+            }
+          ]
+        },
+        {
+          "label": "Seek a quiet accommodation with Paris",
+          "aiWeight": 30.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "change_opinion_both",
+              "str": "FRA",
+              "int": 20
+            },
+            {
+              "kind": "ducats",
+              "num": 50.0
+            },
+            {
+              "kind": "prestige",
+              "num": -5.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hist_nancy_charles_bold",
+      "title": "The Bold Duke's Ambitions",
+      "text": "Seeking to weld his scattered Netherlandish and Burgundian lands into a middle kingdom from the North Sea to the Alps, the Duke of {country} marches toward Lorraine and the Swiss cantons.",
+      "category": "military",
+      "countries": [
+        "BUR"
+      ],
+      "dateFrom": {
+        "year": 1474,
+        "month": 1,
+        "day": 1
+      },
+      "dateTo": {
+        "year": 1482,
+        "month": 12,
+        "day": 31
+      },
+      "exactDate": null,
+      "mtth": 18.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": true,
+      "trigger": [
+        {
+          "kind": "ruler_alive",
+          "str": "charles_bold"
+        },
+        {
+          "kind": "owns",
+          "str": "Dijon",
+          "int": 135
+        }
+      ],
+      "options": [
+        {
+          "label": "Press the siege of Nancy — fortune favours the bold!",
+          "aiWeight": 70.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "add_claim",
+              "str": "Nancy",
+              "int": 141
+            },
+            {
+              "kind": "add_modifier",
+              "str": "burgundian_ordonnance",
+              "str2": "Ducal Ordonnance",
+              "int": 48,
+              "mods": {
+                "army_quality": 0.08,
+                "manpower": 0.1
+              }
+            },
+            {
+              "kind": "set_global_flag",
+              "str": "burgundy_nancy_war"
+            }
+          ]
+        },
+        {
+          "label": "Consolidate our wealthy Flemish cities first",
+          "aiWeight": 30.0,
+          "aiModifiers": [
+            {
+              "condition": {
+                "kind": "at_war",
+                "bool": true
+              },
+              "op": "mul",
+              "value": 2.0
+            }
+          ],
+          "effects": [
+            {
+              "kind": "ducats",
+              "num": 75.0
+            },
+            {
+              "kind": "estate_loyalty",
+              "str": "burghers",
+              "num": 10.0
+            },
+            {
+              "kind": "province_dev",
+              "target": "province",
+              "int": 225,
+              "int2": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hist_burgundian_inheritance",
+      "title": "The Burgundian Inheritance",
+      "text": "With Charles the Bold's line broken or imperilled, both Paris and the House of Habsburg claim the rich provinces of the Low Countries and Franche-Comté.",
+      "category": "dynastic",
+      "countries": [
+        "HAB",
+        "AUS"
+      ],
+      "dateFrom": {
+        "year": 1477,
+        "month": 1,
+        "day": 5
+      },
+      "dateTo": {
+        "year": 1490,
+        "month": 12,
+        "day": 31
+      },
+      "exactDate": null,
+      "mtth": 18.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": true,
+      "trigger": [
+        {
+          "kind": "exists",
+          "str": "BUR"
+        },
+        {
+          "kind": "not_ruler_alive",
+          "str": "charles_bold"
+        }
+      ],
+      "options": [
+        {
+          "label": "Press Maximilian's marriage claim to Burgundy",
+          "aiWeight": 80.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "prestige",
+              "num": 15.0
+            },
+            {
+              "kind": "add_claim",
+              "str": "Bruges",
+              "int": 225
+            },
+            {
+              "kind": "add_claim",
+              "str": "Antwerp",
+              "int": 230
+            },
+            {
+              "kind": "change_opinion",
+              "str": "FRA",
+              "int": -30
+            },
+            {
+              "kind": "change_opinion",
+              "str": "BUR",
+              "int": 25
+            }
+          ]
+        },
+        {
+          "label": "Leave the western marches to France",
+          "aiWeight": 20.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "change_opinion_both",
+              "str": "FRA",
+              "int": 20
+            },
+            {
+              "kind": "prestige",
+              "num": -10.0
+            },
+            {
+              "kind": "ducats",
+              "num": 60.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hist_henry_navigator_guinea",
+      "title": "Caravels Beyond Cape Bojador",
+      "text": "From his base in the Algarve, Prince Henry the Navigator dispatches lateen-rigged caravels down the West African coast, bringing ivory, pepper, and gold to {capital}.",
+      "category": "historical",
+      "countries": [
+        "POR"
+      ],
+      "dateFrom": {
+        "year": 1454,
+        "month": 1,
+        "day": 1
+      },
+      "dateTo": {
+        "year": 1460,
+        "month": 11,
+        "day": 13
+      },
+      "exactDate": null,
+      "mtth": 16.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": false,
+      "trigger": [
+        {
+          "kind": "character_alive",
+          "str": "henry_nav"
+        },
+        {
+          "kind": "owns",
+          "str": "Lisbon",
+          "int": 0
+        },
+        {
+          "kind": "is_coastal",
+          "bool": true
+        }
+      ],
+      "options": [
+        {
+          "label": "Fund further voyages down the Guinea coast",
+          "aiWeight": 80.0,
+          "aiModifiers": [
+            {
+              "condition": {
+                "kind": "treasury_min",
+                "num": 80.0
+              },
+              "op": "mul",
+              "value": 1.5
+            }
+          ],
+          "effects": [
+            {
+              "kind": "ducats",
+              "num": -40.0
+            },
+            {
+              "kind": "tech_progress",
+              "str": "diplomatic",
+              "num": 45.0
+            },
+            {
+              "kind": "sailors",
+              "num": 600.0
+            },
+            {
+              "kind": "add_modifier",
+              "str": "guinea_trade",
+              "str2": "Guinea Gold & Caravels",
+              "int": 120,
+              "mods": {
+                "trade": 0.12
+              }
+            }
+          ]
+        },
+        {
+          "label": "Keep our ships close to the Maghrebi straits",
+          "aiWeight": 20.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "manpower",
+              "num": 1500.0
+            },
+            {
+              "kind": "prestige",
+              "num": 3.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hist_union_of_crowns_iberia",
+      "title": "The Marriage of Isabella and Ferdinand",
+      "text": "The secret wedding of Isabella of Castile and Ferdinand of Aragon in Valladolid promises to bind the two great Christian crowns of Iberia against rivals at home and abroad.",
+      "category": "dynastic",
+      "countries": [
+        "CAS"
+      ],
+      "dateFrom": {
+        "year": 1469,
+        "month": 10,
+        "day": 19
+      },
+      "dateTo": {
+        "year": 1482,
+        "month": 12,
+        "day": 31
+      },
+      "exactDate": null,
+      "mtth": 12.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": true,
+      "trigger": [
+        {
+          "kind": "exists",
+          "str": "ARA"
+        },
+        {
+          "kind": "character_alive",
+          "str": "isabella_c"
+        },
+        {
+          "kind": "character_alive",
+          "str": "ferdinand_a"
+        }
+      ],
+      "options": [
+        {
+          "label": "Celebrate the Iberian Union of Crowns",
+          "aiWeight": 85.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "change_opinion_both",
+              "str": "ARA",
+              "int": 60
+            },
+            {
+              "kind": "stability",
+              "int": 1
+            },
+            {
+              "kind": "prestige",
+              "num": 12.0
+            },
+            {
+              "kind": "set_global_flag",
+              "str": "iberian_wedding"
+            }
+          ]
+        },
+        {
+          "label": "Guard Castilian independence from Aragonese counsel",
+          "aiWeight": 15.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "estate_loyalty",
+              "str": "nobles",
+              "num": 10.0
+            },
+            {
+              "kind": "change_opinion",
+              "str": "ARA",
+              "int": -15
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hist_castilian_succession_war",
+      "title": "The War of the Castilian Succession",
+      "text": "Following the death of Henry IV, rival claimants backed by Lisbon and Aragon contest the Castilian throne across the meseta and the Atlantic islands.",
+      "category": "dynastic",
+      "countries": [
+        "CAS"
+      ],
+      "dateFrom": {
+        "year": 1474,
+        "month": 12,
+        "day": 11
+      },
+      "dateTo": {
+        "year": 1481,
+        "month": 12,
+        "day": 31
+      },
+      "exactDate": null,
+      "mtth": 14.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": false,
+      "trigger": [
+        {
+          "kind": "not_ruler_alive",
+          "str": "henry4_c"
+        },
+        {
+          "kind": "owns",
+          "str": "Toledo",
+          "int": 31
+        }
+      ],
+      "options": [
+        {
+          "label": "Secure the crown by sword and royal cortes",
+          "aiWeight": 75.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "stability",
+              "int": 1
+            },
+            {
+              "kind": "ducats",
+              "num": -50.0
+            },
+            {
+              "kind": "estate_loyalty",
+              "str": "nobles",
+              "num": -5.0
+            },
+            {
+              "kind": "add_modifier",
+              "str": "royal_hermandad",
+              "str2": "Santa Hermandad",
+              "int": 60,
+              "mods": {
+                "army_quality": 0.05,
+                "crown_power": 0.1
+              }
+            }
+          ]
+        },
+        {
+          "label": "Conciliate the grandees with sweeping pardons",
+          "aiWeight": 25.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "estate_loyalty",
+              "str": "nobles",
+              "num": 15.0
+            },
+            {
+              "kind": "prestige",
+              "num": -6.0
+            },
+            {
+              "kind": "add_modifier",
+              "str": "grandee_concessions",
+              "str2": "Grandee Concessions",
+              "int": 60,
+              "mods": {
+                "tax": -0.08
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hist_spanish_inquisition",
+      "title": "The Tribunal of the Holy Office",
+      "text": "Seeking religious uniformity across newly united realms, {country} petitions Rome for a royal tribunal to root out heresy and enforce orthodoxy.",
+      "category": "religious",
+      "countries": [
+        "CAS"
+      ],
+      "dateFrom": {
+        "year": 1478,
+        "month": 11,
+        "day": 1
+      },
+      "dateTo": {
+        "year": 1490,
+        "month": 12,
+        "day": 31
+      },
+      "exactDate": null,
+      "mtth": 24.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": false,
+      "trigger": [
+        {
+          "kind": "religion",
+          "str": "catholic"
+        },
+        {
+          "kind": "owns",
+          "str": "Toledo",
+          "int": 31
+        }
+      ],
+      "options": [
+        {
+          "label": "Establish the Inquisition under royal authority",
+          "aiWeight": 70.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "change_opinion",
+              "str": "PAP",
+              "int": 15
+            },
+            {
+              "kind": "estate_loyalty",
+              "str": "clergy",
+              "num": 12.0
+            },
+            {
+              "kind": "add_modifier",
+              "str": "holy_office",
+              "str2": "Tribunal of the Faith",
+              "int": 120,
+              "mods": {
+                "mood_other_faith": -0.1,
+                "stability_cost": -0.1
+              }
+            },
+            {
+              "kind": "unrest",
+              "target": "province",
+              "int": 40,
+              "num": 6.0
+            }
+          ]
+        },
+        {
+          "label": "Rely on gentle preaching by parish bishops",
+          "aiWeight": 30.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "estate_loyalty",
+              "str": "clergy",
+              "num": -8.0
+            },
+            {
+              "kind": "prestige",
+              "num": 4.0
+            },
+            {
+              "kind": "add_modifier",
+              "str": "tolerant_pastorate",
+              "str2": "Pastoral Preaching",
+              "int": 120,
+              "mods": {
+                "learning": 0.1
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hist_fall_of_granada_war",
+      "title": "The Final Campaign for Granada",
+      "text": "For decades the Emirate of Granada has clung to the Sierra Nevada behind steep mountain passes. Now {country} stands poised to end Moorish rule in Iberia once and for all.",
+      "category": "historical",
+      "countries": [
+        "CAS",
+        "ARA"
+      ],
+      "dateFrom": {
+        "year": 1482,
+        "month": 1,
+        "day": 1
+      },
+      "dateTo": {
+        "year": 1495,
+        "month": 12,
+        "day": 31
+      },
+      "exactDate": null,
+      "mtth": 18.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": true,
+      "trigger": [
+        {
+          "kind": "exists",
+          "str": "GRA"
+        },
+        {
+          "kind": "owns",
+          "str": "Seville",
+          "int": 40
+        },
+        {
+          "kind": "not_global_flag",
+          "str": "granada_resolved"
+        }
+      ],
+      "options": [
+        {
+          "label": "Press the siege of Granada!",
+          "aiWeight": 80.0,
+          "aiModifiers": [
+            {
+              "condition": {
+                "kind": "at_war",
+                "bool": false
+              },
+              "op": "mul",
+              "value": 1.5
+            },
+            {
+              "condition": {
+                "kind": "treasury_min",
+                "num": 100.0
+              },
+              "op": "mul",
+              "value": 1.2
+            }
+          ],
+          "effects": [
+            {
+              "kind": "add_claim",
+              "str": "Granada",
+              "int": 49
+            },
+            {
+              "kind": "add_claim",
+              "str": "Malaga",
+              "int": 50
+            },
+            {
+              "kind": "add_claim",
+              "str": "Almeria",
+              "int": 51
+            },
+            {
+              "kind": "add_modifier",
+              "str": "granada_crusade",
+              "str2": "Granada Crusade",
+              "int": 36,
+              "mods": {
+                "army_quality": 0.08,
+                "manpower": 0.1
+              }
+            },
+            {
+              "kind": "set_global_flag",
+              "str": "granada_resolved"
+            }
+          ]
+        },
+        {
+          "label": "Demand tribute and bide our time",
+          "aiWeight": 20.0,
+          "aiModifiers": [
+            {
+              "condition": {
+                "kind": "at_war",
+                "bool": true
+              },
+              "op": "mul",
+              "value": 2.5
+            }
+          ],
+          "effects": [
+            {
+              "kind": "ducats",
+              "num": 60.0
+            },
+            {
+              "kind": "prestige",
+              "num": -5.0
+            },
+            {
+              "kind": "change_opinion",
+              "str": "GRA",
+              "int": 15
+            },
+            {
+              "kind": "set_global_flag",
+              "str": "granada_resolved"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hist_fall_of_granada_conquered",
+      "title": "The Capitulation of the Alhambra",
+      "text": "With Granada already fallen into Christian hands, the royal court must decide whether to honour the generous surrender terms promised to the Mudéjar inhabitants or press immediate conversion.",
+      "category": "historical",
+      "countries": [
+        "CAS",
+        "ARA"
+      ],
+      "dateFrom": {
+        "year": 1482,
+        "month": 1,
+        "day": 1
+      },
+      "dateTo": {
+        "year": 1505,
+        "month": 12,
+        "day": 31
+      },
+      "exactDate": null,
+      "mtth": 12.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": true,
+      "trigger": [
+        {
+          "kind": "not_exists",
+          "str": "GRA"
+        },
+        {
+          "kind": "owns",
+          "str": "Granada",
+          "int": 49
+        },
+        {
+          "kind": "religion_family",
+          "str": "christian"
+        },
+        {
+          "kind": "not_global_flag",
+          "str": "granada_resolved"
+        }
+      ],
+      "options": [
+        {
+          "label": "Honour the Capitulation of Santa Fe",
+          "aiWeight": 40.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "prestige",
+              "num": 15.0
+            },
+            {
+              "kind": "stability",
+              "int": 1
+            },
+            {
+              "kind": "unrest",
+              "target": "province",
+              "int": 49,
+              "num": -5.0
+            },
+            {
+              "kind": "set_global_flag",
+              "str": "granada_resolved"
+            }
+          ]
+        },
+        {
+          "label": "Order baptisms and unify the realm's faith",
+          "aiWeight": 60.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "pops_convert",
+              "target": "province",
+              "int": 49,
+              "str": "sunni",
+              "str2": "catholic",
+              "num": 0.35
+            },
+            {
+              "kind": "unrest",
+              "target": "province",
+              "int": 49,
+              "num": 14.0
+            },
+            {
+              "kind": "estate_loyalty",
+              "str": "clergy",
+              "num": 10.0
+            },
+            {
+              "kind": "set_global_flag",
+              "str": "granada_resolved"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hist_columbus_portugal",
+      "title": "A Genoese Mariner at Lisbon",
+      "text": "Christopher Columbus lays charts before the Portuguese court, claiming he can reach Cipangu and the Indies by sailing west across the Ocean Sea — in return for titles, a tenth of all wealth, and three ships.",
+      "category": "historical",
+      "countries": [
+        "POR"
+      ],
+      "dateFrom": {
+        "year": 1484,
+        "month": 1,
+        "day": 1
+      },
+      "dateTo": {
+        "year": 1488,
+        "month": 12,
+        "day": 31
+      },
+      "exactDate": null,
+      "mtth": 12.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": true,
+      "trigger": [
+        {
+          "kind": "owns",
+          "str": "Lisbon",
+          "int": 0
+        },
+        {
+          "kind": "is_coastal",
+          "bool": true
+        },
+        {
+          "kind": "not_global_flag",
+          "str": "columbus_funded"
+        }
+      ],
+      "options": [
+        {
+          "label": "Decline — our mathematicians trust the Cape route",
+          "aiWeight": 85.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "prestige",
+              "num": 3.0
+            },
+            {
+              "kind": "tech_progress",
+              "str": "diplomatic",
+              "num": 20.0
+            },
+            {
+              "kind": "set_global_flag",
+              "str": "columbus_seeks_patron"
+            }
+          ]
+        },
+        {
+          "label": "Fund Columbus's western voyage from Lisbon!",
+          "aiWeight": 15.0,
+          "aiModifiers": [
+            {
+              "condition": {
+                "kind": "treasury_min",
+                "num": 250.0
+              },
+              "op": "mul",
+              "value": 2.0
+            }
+          ],
+          "effects": [
+            {
+              "kind": "ducats",
+              "num": -100.0
+            },
+            {
+              "kind": "prestige",
+              "num": 18.0
+            },
+            {
+              "kind": "tech_progress",
+              "str": "diplomatic",
+              "num": 60.0
+            },
+            {
+              "kind": "add_modifier",
+              "str": "western_enterprise",
+              "str2": "Atlantic Enterprise",
+              "int": 120,
+              "mods": {
+                "trade": 0.15
+              }
+            },
+            {
+              "kind": "set_global_flag",
+              "str": "columbus_funded"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hist_columbus_castile",
+      "title": "Columbus Seeks a Patron",
+      "text": "Rejected by Lisbon, the Genoese navigator Christopher Columbus arrives at court with bold plans to sail westward across the Atlantic to reach the spice lands of the East.",
+      "category": "historical",
+      "countries": [
+        "CAS"
+      ],
+      "dateFrom": {
+        "year": 1491,
+        "month": 1,
+        "day": 1
+      },
+      "dateTo": {
+        "year": 1495,
+        "month": 12,
+        "day": 31
+      },
+      "exactDate": null,
+      "mtth": 8.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": true,
+      "trigger": [
+        {
+          "kind": "global_flag",
+          "str": "columbus_seeks_patron"
+        },
+        {
+          "kind": "not_global_flag",
+          "str": "columbus_funded"
+        },
+        {
+          "kind": "is_coastal",
+          "bool": true
+        }
+      ],
+      "options": [
+        {
+          "label": "Sponsor the expedition from Palos de la Frontera!",
+          "aiWeight": 85.0,
+          "aiModifiers": [
+            {
+              "condition": {
+                "kind": "treasury_min",
+                "num": 80.0
+              },
+              "op": "mul",
+              "value": 1.5
+            }
+          ],
+          "effects": [
+            {
+              "kind": "ducats",
+              "num": -80.0
+            },
+            {
+              "kind": "prestige",
+              "num": 20.0
+            },
+            {
+              "kind": "tech_progress",
+              "str": "diplomatic",
+              "num": 60.0
+            },
+            {
+              "kind": "add_modifier",
+              "str": "nueva_indias",
+              "str2": "Indies Voyages",
+              "int": 120,
+              "mods": {
+                "tax": 0.05,
+                "trade": 0.15
+              }
+            },
+            {
+              "kind": "set_global_flag",
+              "str": "columbus_funded"
+            }
+          ]
+        },
+        {
+          "label": "Dismiss the adventurer as a dreamer",
+          "aiWeight": 15.0,
+          "aiModifiers": [
+            {
+              "condition": {
+                "kind": "treasury_max",
+                "num": 40.0
+              },
+              "op": "mul",
+              "value": 3.0
+            }
+          ],
+          "effects": [
+            {
+              "kind": "prestige",
+              "num": -3.0
+            },
+            {
+              "kind": "set_global_flag",
+              "str": "columbus_castile_refused"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hist_columbus_fallback",
+      "title": "A Desperate Navigator Offers His Charts",
+      "text": "Rebuffed by both Iberia's crowns, Christopher Columbus now hawks his transatlantic charts to northern and Italian courts, promising a new ocean highway to Cathay.",
+      "category": "historical",
+      "countries": [
+        "FRA",
+        "ENG",
+        "GEN",
+        "VEN"
+      ],
+      "dateFrom": {
+        "year": 1493,
+        "month": 1,
+        "day": 1
+      },
+      "dateTo": {
+        "year": 1498,
+        "month": 12,
+        "day": 31
+      },
+      "exactDate": null,
+      "mtth": 12.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": true,
+      "trigger": [
+        {
+          "kind": "global_flag",
+          "str": "columbus_castile_refused"
+        },
+        {
+          "kind": "not_global_flag",
+          "str": "columbus_funded"
+        },
+        {
+          "kind": "is_coastal",
+          "bool": true
+        }
+      ],
+      "options": [
+        {
+          "label": "Back the Genoese mariner's fleet!",
+          "aiWeight": 75.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "ducats",
+              "num": -90.0
+            },
+            {
+              "kind": "prestige",
+              "num": 20.0
+            },
+            {
+              "kind": "tech_progress",
+              "str": "diplomatic",
+              "num": 60.0
+            },
+            {
+              "kind": "add_modifier",
+              "str": "oceanic_charter",
+              "str2": "Oceanic Charter",
+              "int": 120,
+              "mods": {
+                "trade": 0.15
+              }
+            },
+            {
+              "kind": "set_global_flag",
+              "str": "columbus_funded"
+            }
+          ]
+        },
+        {
+          "label": "Keep our fleets in familiar waters",
+          "aiWeight": 25.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "ducats",
+              "num": 20.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hist_treaty_of_tordesillas",
+      "title": "The Treaty of Tordesillas",
+      "text": "With rival Iberian sails crossing the Atlantic, the Pope brokers a meridian line dividing the newly found seas and spice lands between Castile and Portugal.",
+      "category": "diplomatic",
+      "countries": [
+        "POR"
+      ],
+      "dateFrom": {
+        "year": 1494,
+        "month": 6,
+        "day": 1
+      },
+      "dateTo": {
+        "year": 1499,
+        "month": 12,
+        "day": 31
+      },
+      "exactDate": null,
+      "mtth": 12.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": false,
+      "trigger": [
+        {
+          "kind": "global_flag",
+          "str": "columbus_funded"
+        },
+        {
+          "kind": "exists",
+          "str": "CAS"
+        },
+        {
+          "kind": "owns",
+          "str": "Lisbon",
+          "int": 0
+        }
+      ],
+      "options": [
+        {
+          "label": "Ratify the meridian and safeguard our Brazil & Indies claims",
+          "aiWeight": 85.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "change_opinion_both",
+              "str": "CAS",
+              "int": 35
+            },
+            {
+              "kind": "change_opinion",
+              "str": "PAP",
+              "int": 15
+            },
+            {
+              "kind": "prestige",
+              "num": 8.0
+            },
+            {
+              "kind": "add_modifier",
+              "str": "tordesillas_monopoly",
+              "str2": "Atlantic Meridian",
+              "int": 120,
+              "mods": {
+                "trade": 0.1
+              }
+            }
+          ]
+        },
+        {
+          "label": "Reject any limit on Portuguese sea lanes",
+          "aiWeight": 15.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "change_opinion",
+              "str": "CAS",
+              "int": -25
+            },
+            {
+              "kind": "sailors",
+              "num": 800.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hist_vasco_da_gama_calicut",
+      "title": "Vasco da Gama Reaches Calicut",
+      "text": "Rounding the Cape of Storms and crossing the Indian Ocean with a Gujarati pilot, Vasco da Gama's carracks drop anchor off Calicut, opening a direct sea route from Europe to India's pepper markets.",
+      "category": "historical",
+      "countries": [
+        "POR"
+      ],
+      "dateFrom": {
+        "year": 1498,
+        "month": 5,
+        "day": 1
+      },
+      "dateTo": {
+        "year": 1505,
+        "month": 12,
+        "day": 31
+      },
+      "exactDate": null,
+      "mtth": 10.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": true,
+      "trigger": [
+        {
+          "kind": "owns",
+          "str": "Lisbon",
+          "int": 0
+        },
+        {
+          "kind": "is_coastal",
+          "bool": true
+        },
+        {
+          "kind": "exists",
+          "str": "CLT"
+        }
+      ],
+      "options": [
+        {
+          "label": "Establish a feitoria and challenge the Red Sea spice trade",
+          "aiWeight": 85.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "ducats",
+              "num": 120.0
+            },
+            {
+              "kind": "prestige",
+              "num": 22.0
+            },
+            {
+              "kind": "tech_progress",
+              "str": "diplomatic",
+              "num": 50.0
+            },
+            {
+              "kind": "add_modifier",
+              "str": "india_carreira",
+              "str2": "Carreira da India",
+              "int": 120,
+              "mods": {
+                "trade": 0.2
+              }
+            },
+            {
+              "kind": "change_opinion",
+              "str": "MAM",
+              "int": -35
+            },
+            {
+              "kind": "change_opinion",
+              "str": "VEN",
+              "int": -25
+            },
+            {
+              "kind": "set_global_flag",
+              "str": "cape_route_opened"
+            }
+          ]
+        },
+        {
+          "label": "Trade peacefully under the Zamorin's customs",
+          "aiWeight": 15.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "ducats",
+              "num": 60.0
+            },
+            {
+              "kind": "prestige",
+              "num": 10.0
+            },
+            {
+              "kind": "change_opinion_both",
+              "str": "CLT",
+              "int": 25
+            },
+            {
+              "kind": "set_global_flag",
+              "str": "cape_route_opened"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hist_peace_of_lodi",
+      "title": "The Peace of Lodi",
+      "text": "Exhausted by decades of mercenary wars across Lombardy and Romagna, Milan, Venice, and Florence gather to forge the Italic League, balancing Italy's great powers against foreign invasion.",
+      "category": "diplomatic",
+      "countries": [
+        "MLO"
+      ],
+      "dateFrom": {
+        "year": 1454,
+        "month": 4,
+        "day": 1
+      },
+      "dateTo": {
+        "year": 1457,
+        "month": 12,
+        "day": 31
+      },
+      "exactDate": null,
+      "mtth": 10.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": true,
+      "trigger": [
+        {
+          "kind": "owns",
+          "str": "Milan",
+          "int": 372
+        },
+        {
+          "kind": "exists",
+          "str": "VEN"
+        },
+        {
+          "kind": "exists",
+          "str": "FLO"
+        }
+      ],
+      "options": [
+        {
+          "label": "Sign the Italic League at Lodi",
+          "aiWeight": 80.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "change_opinion_both",
+              "str": "VEN",
+              "int": 35
+            },
+            {
+              "kind": "change_opinion_both",
+              "str": "FLO",
+              "int": 30
+            },
+            {
+              "kind": "stability",
+              "int": 1
+            },
+            {
+              "kind": "prestige",
+              "num": 10.0
+            }
+          ]
+        },
+        {
+          "label": "Keep a free hand in Lombardy",
+          "aiWeight": 20.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "manpower",
+              "num": 2000.0
+            },
+            {
+              "kind": "change_opinion",
+              "str": "VEN",
+              "int": -20
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hist_printing_press_mainz",
+      "title": "The Printing Presses of Mainz",
+      "text": "Bitter episcopal rivalry has erupted into the Sack of Mainz, driving Johannes Gutenberg's trained printers across Germany and Italy — carrying movable type into every great market town.",
+      "category": "historical",
+      "countries": [
+        "MAI"
+      ],
+      "dateFrom": {
+        "year": 1461,
+        "month": 10,
+        "day": 1
+      },
+      "dateTo": {
+        "year": 1466,
+        "month": 12,
+        "day": 31
+      },
+      "exactDate": null,
+      "mtth": 8.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": true,
+      "trigger": [
+        {
+          "kind": "owns",
+          "str": "Mainz",
+          "int": 260
+        }
+      ],
+      "options": [
+        {
+          "label": "Protect the workshops and patronise printed books",
+          "aiWeight": 65.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "ducats",
+              "num": -30.0
+            },
+            {
+              "kind": "prestige",
+              "num": 12.0
+            },
+            {
+              "kind": "tech_progress",
+              "str": "administrative",
+              "num": 35.0
+            },
+            {
+              "kind": "institution_spread",
+              "target": "province",
+              "int": 260,
+              "str": "printing_press",
+              "num": 0.45
+            },
+            {
+              "kind": "province_dev",
+              "target": "province",
+              "int": 260,
+              "int2": 1
+            }
+          ]
+        },
+        {
+          "label": "Let the master printers scatter to wealthier cities",
+          "aiWeight": 35.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "institution_spread",
+              "target": "province",
+              "int": 260,
+              "str": "printing_press",
+              "num": 0.25
+            },
+            {
+              "kind": "ducats",
+              "num": 25.0
+            },
+            {
+              "kind": "estate_loyalty",
+              "str": "clergy",
+              "num": 5.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hist_ladislaus_death_1457",
+      "title": "Death of Ladislaus the Posthumous",
+      "text": "At just seventeen, King Ladislaus V has died suddenly in Prague while preparing his wedding. The personal union binding Hungary, Bohemia, and Austria dissolves overnight as magnates and estates scramble for crowns.",
+      "category": "dynastic",
+      "countries": [
+        "HUN"
+      ],
+      "dateFrom": {
+        "year": 1457,
+        "month": 11,
+        "day": 1
+      },
+      "dateTo": {
+        "year": 1458,
+        "month": 6,
+        "day": 1
+      },
+      "exactDate": {
+        "year": 1457,
+        "month": 11,
+        "day": 23
+      },
+      "mtth": 0.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": true,
+      "trigger": [
+        {
+          "kind": "ruler_alive",
+          "str": "ladislaus5"
+        }
+      ],
+      "options": [
+        {
+          "label": "Mourn the young king and summon the Diet at Buda",
+          "aiWeight": 85.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "kill_character",
+              "str": "ladislaus5"
+            },
+            {
+              "kind": "prestige",
+              "num": -5.0
+            },
+            {
+              "kind": "set_global_flag",
+              "str": "ladislaus_dead_1457"
+            }
+          ]
+        },
+        {
+          "label": "Secure the royal castles before rivals move",
+          "aiWeight": 15.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "kill_character",
+              "str": "ladislaus5"
+            },
+            {
+              "kind": "ducats",
+              "num": -30.0
+            },
+            {
+              "kind": "manpower",
+              "num": 2000.0
+            },
+            {
+              "kind": "set_global_flag",
+              "str": "ladislaus_dead_1457"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hist_matthias_corvinus_black_army",
+      "title": "Matthias Corvinus and the Black Army",
+      "text": "Elected on the frozen Danube with Ladislaus V dead, the Hungarian crown builds a standing professional mercenary host — the Fekete Sereg — backed by royal taxation to hold the southern frontier.",
+      "category": "military",
+      "countries": [
+        "HUN"
+      ],
+      "dateFrom": {
+        "year": 1458,
+        "month": 1,
+        "day": 24
+      },
+      "dateTo": {
+        "year": 1488,
+        "month": 12,
+        "day": 31
+      },
+      "exactDate": null,
+      "mtth": 18.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": true,
+      "trigger": [
+        {
+          "kind": "not_ruler_alive",
+          "str": "ladislaus5"
+        },
+        {
+          "kind": "owns",
+          "str": "Buda",
+          "int": 608
+        }
+      ],
+      "options": [
+        {
+          "label": "Raise the Black Army and reform royal taxes",
+          "aiWeight": 75.0,
+          "aiModifiers": [
+            {
+              "condition": {
+                "kind": "treasury_min",
+                "num": 100.0
+              },
+              "op": "mul",
+              "value": 1.4
+            }
+          ],
+          "effects": [
+            {
+              "kind": "ducats",
+              "num": -80.0
+            },
+            {
+              "kind": "spawn_units",
+              "target": "province",
+              "int": 608,
+              "str": "handgunners",
+              "int2": 2
+            },
+            {
+              "kind": "add_modifier",
+              "str": "black_army",
+              "str2": "The Black Army",
+              "int": 120,
+              "mods": {
+                "army_quality": 0.1,
+                "tax": 0.08
+              }
+            },
+            {
+              "kind": "estate_loyalty",
+              "str": "nobles",
+              "num": -10.0
+            }
+          ]
+        },
+        {
+          "label": "Rely upon the traditional noble banderia",
+          "aiWeight": 25.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "estate_loyalty",
+              "str": "nobles",
+              "num": 12.0
+            },
+            {
+              "kind": "manpower",
+              "num": 2500.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hist_podebrady_bohemia",
+      "title": "George of Poděbrady Elected King",
+      "text": "With the Habsburg-union throne vacant in Prague, the Bohemian estates turn to their native Utraquist governor George of Poděbrady, champion of the Basel Compacts.",
+      "category": "dynastic",
+      "countries": [
+        "BOH"
+      ],
+      "dateFrom": {
+        "year": 1458,
+        "month": 3,
+        "day": 1
+      },
+      "dateTo": {
+        "year": 1471,
+        "month": 3,
+        "day": 22
+      },
+      "exactDate": null,
+      "mtth": 14.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": true,
+      "trigger": [
+        {
+          "kind": "not_ruler_alive",
+          "str": "ladislaus5"
+        },
+        {
+          "kind": "character_alive",
+          "str": "podebrady"
+        },
+        {
+          "kind": "owns",
+          "str": "Prague",
+          "int": 323
+        }
+      ],
+      "options": [
+        {
+          "label": "Uphold the Hussite Compacts and crown a national king",
+          "aiWeight": 75.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "stability",
+              "int": 1
+            },
+            {
+              "kind": "prestige",
+              "num": 10.0
+            },
+            {
+              "kind": "change_opinion",
+              "str": "PAP",
+              "int": -25
+            },
+            {
+              "kind": "estate_loyalty",
+              "str": "nobles",
+              "num": 10.0
+            }
+          ]
+        },
+        {
+          "label": "Placate Rome with promises of Catholic unity",
+          "aiWeight": 25.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "change_opinion",
+              "str": "PAP",
+              "int": 20
+            },
+            {
+              "kind": "unrest",
+              "target": "province",
+              "int": 323,
+              "num": 10.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hist_alfonso_magnanimous_death",
+      "title": "Death of Alfonso the Magnanimous",
+      "text": "Alfonso V's passing splits his Mediterranean empire: Aragon, Sicily, and Sardinia pass to his brother, while Naples passes to his illegitimate son Ferrante amid baronial unrest.",
+      "category": "dynastic",
+      "countries": [
+        "NAP"
+      ],
+      "dateFrom": {
+        "year": 1458,
+        "month": 6,
+        "day": 27
+      },
+      "dateTo": {
+        "year": 1463,
+        "month": 12,
+        "day": 31
+      },
+      "exactDate": null,
+      "mtth": 12.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": false,
+      "trigger": [
+        {
+          "kind": "not_ruler_alive",
+          "str": "alfonso5"
+        },
+        {
+          "kind": "owns",
+          "str": "Naples",
+          "int": 413
+        }
+      ],
+      "options": [
+        {
+          "label": "Crush the Angevin barons and secure Naples",
+          "aiWeight": 70.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "stability",
+              "int": 1
+            },
+            {
+              "kind": "estate_loyalty",
+              "str": "nobles",
+              "num": -10.0
+            },
+            {
+              "kind": "change_opinion",
+              "str": "FRA",
+              "int": -20
+            },
+            {
+              "kind": "prestige",
+              "num": 8.0
+            }
+          ]
+        },
+        {
+          "label": "Buy the barons' loyalty with feudal privileges",
+          "aiWeight": 30.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "ducats",
+              "num": -50.0
+            },
+            {
+              "kind": "estate_loyalty",
+              "str": "nobles",
+              "num": 12.0
+            },
+            {
+              "kind": "add_vassal_favour",
+              "int": 15
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hist_medici_golden_age",
+      "title": "Lorenzo the Magnificent's Florence",
+      "text": "Under Medici patronage, Florence's workshops, banks, and scholars shine as the heart of the Italian Renaissance, drawing artists and humanists from across Christendom.",
+      "category": "historical",
+      "countries": [
+        "FLO"
+      ],
+      "dateFrom": {
+        "year": 1464,
+        "month": 8,
+        "day": 1
+      },
+      "dateTo": {
+        "year": 1492,
+        "month": 4,
+        "day": 8
+      },
+      "exactDate": null,
+      "mtth": 24.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": false,
+      "trigger": [
+        {
+          "kind": "owns",
+          "str": "Florence",
+          "int": 401
+        },
+        {
+          "kind": "institution_present",
+          "str": "renaissance"
+        }
+      ],
+      "options": [
+        {
+          "label": "Lavish patronage upon scholars and builders",
+          "aiWeight": 75.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "ducats",
+              "num": -60.0
+            },
+            {
+              "kind": "prestige",
+              "num": 15.0
+            },
+            {
+              "kind": "tech_progress",
+              "str": "administrative",
+              "num": 40.0
+            },
+            {
+              "kind": "province_dev",
+              "target": "province",
+              "int": 401,
+              "int2": 1
+            },
+            {
+              "kind": "add_modifier",
+              "str": "laurentian_age",
+              "str2": "Laurentian Golden Age",
+              "int": 120,
+              "mods": {
+                "learning": 0.2,
+                "trade": 0.08
+              }
+            }
+          ]
+        },
+        {
+          "label": "Guard the Medici bank's liquid reserves",
+          "aiWeight": 25.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "ducats",
+              "num": 80.0
+            },
+            {
+              "kind": "add_modifier",
+              "str": "medici_credit",
+              "str2": "Medici Credit",
+              "int": 60,
+              "mods": {
+                "interest": -0.02
+              }
+            },
+            {
+              "kind": "estate_loyalty",
+              "str": "burghers",
+              "num": 8.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hist_pazzi_conspiracy",
+      "title": "The Pazzi Conspiracy",
+      "text": "During High Mass in Florence's Duomo, rival Pazzi bankers backed by Roman factions strike at the Medici brothers with concealed daggers.",
+      "category": "internal",
+      "countries": [
+        "FLO"
+      ],
+      "dateFrom": {
+        "year": 1478,
+        "month": 4,
+        "day": 26
+      },
+      "dateTo": {
+        "year": 1484,
+        "month": 12,
+        "day": 31
+      },
+      "exactDate": null,
+      "mtth": 18.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": false,
+      "trigger": [
+        {
+          "kind": "owns",
+          "str": "Florence",
+          "int": 401
+        },
+        {
+          "kind": "exists",
+          "str": "PAP"
+        }
+      ],
+      "options": [
+        {
+          "label": "Hang the conspirators and defy Rome's interdict",
+          "aiWeight": 80.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "stability",
+              "int": 1
+            },
+            {
+              "kind": "change_opinion",
+              "str": "PAP",
+              "int": -40
+            },
+            {
+              "kind": "prestige",
+              "num": 10.0
+            },
+            {
+              "kind": "estate_loyalty",
+              "str": "burghers",
+              "num": 10.0
+            }
+          ]
+        },
+        {
+          "label": "Seek papal absolution through quiet diplomacy",
+          "aiWeight": 20.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "ducats",
+              "num": -50.0
+            },
+            {
+              "kind": "change_opinion",
+              "str": "PAP",
+              "int": 20
+            },
+            {
+              "kind": "prestige",
+              "num": -8.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hist_savonarola_bonfire",
+      "title": "Savonarola and the Bonfire of the Vanities",
+      "text": "As French armies cross the Alps, the Dominican friar Girolamo Savonarola preaches apocalyptic repentance in Florence, burning luxury books and paintings in the Piazza della Signoria.",
+      "category": "religious",
+      "countries": [
+        "FLO"
+      ],
+      "dateFrom": {
+        "year": 1494,
+        "month": 11,
+        "day": 1
+      },
+      "dateTo": {
+        "year": 1498,
+        "month": 5,
+        "day": 23
+      },
+      "exactDate": null,
+      "mtth": 14.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": false,
+      "trigger": [
+        {
+          "kind": "owns",
+          "str": "Florence",
+          "int": 401
+        }
+      ],
+      "options": [
+        {
+          "label": "Bow to the Piagnoni republic of virtue",
+          "aiWeight": 40.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "estate_loyalty",
+              "str": "clergy",
+              "num": 15.0
+            },
+            {
+              "kind": "estate_loyalty",
+              "str": "burghers",
+              "num": -12.0
+            },
+            {
+              "kind": "stability",
+              "int": -1
+            },
+            {
+              "kind": "add_modifier",
+              "str": "pious_austerity",
+              "str2": "Savonarola's Austerity",
+              "int": 36,
+              "mods": {
+                "stability_cost": -0.15,
+                "trade": -0.1
+              }
+            }
+          ]
+        },
+        {
+          "label": "Restore secular order and arrest the friar",
+          "aiWeight": 60.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "estate_loyalty",
+              "str": "burghers",
+              "num": 10.0
+            },
+            {
+              "kind": "estate_loyalty",
+              "str": "clergy",
+              "num": -10.0
+            },
+            {
+              "kind": "prestige",
+              "num": 5.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hist_thirteen_years_war_thorn",
+      "title": "The Prussian Confederation and Thorn",
+      "text": "The towns and gentry of Prussia have risen against Teutonic rule, offering their allegiance to the Polish crown for access to the Vistula grain trade and Baltic ports.",
+      "category": "military",
+      "countries": [
+        "POL"
+      ],
+      "dateFrom": {
+        "year": 1454,
+        "month": 2,
+        "day": 4
+      },
+      "dateTo": {
+        "year": 1466,
+        "month": 10,
+        "day": 19
+      },
+      "exactDate": null,
+      "mtth": 16.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": true,
+      "trigger": [
+        {
+          "kind": "exists",
+          "str": "TEU"
+        },
+        {
+          "kind": "owns",
+          "str": "Krakow",
+          "int": 505
+        }
+      ],
+      "options": [
+        {
+          "label": "Incorporate Prussia and claim Danzig!",
+          "aiWeight": 80.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "add_claim",
+              "str": "Danzig",
+              "int": 487
+            },
+            {
+              "kind": "add_cb",
+              "str": "TEU",
+              "str2": "claim",
+              "int": 60
+            },
+            {
+              "kind": "change_opinion",
+              "str": "TEU",
+              "int": -50
+            },
+            {
+              "kind": "estate_loyalty",
+              "str": "burghers",
+              "num": 10.0
+            }
+          ]
+        },
+        {
+          "label": "Respect the Teutonic Order's Baltic charter",
+          "aiWeight": 20.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "change_opinion_both",
+              "str": "TEU",
+              "int": 25
+            },
+            {
+              "kind": "change_opinion",
+              "str": "PAP",
+              "int": 10
+            },
+            {
+              "kind": "prestige",
+              "num": -5.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hist_venetian_ottoman_negroponte",
+      "title": "The Struggle for Negroponte and the Morea",
+      "text": "Ottoman fleets and land armies press hard against Venice's Stato da Màr in the Aegean. The Serenissima must decide whether to pour its treasury into the fleet or buy trading peace.",
+      "category": "military",
+      "countries": [
+        "VEN"
+      ],
+      "dateFrom": {
+        "year": 1463,
+        "month": 1,
+        "day": 1
+      },
+      "dateTo": {
+        "year": 1479,
+        "month": 1,
+        "day": 25
+      },
+      "exactDate": null,
+      "mtth": 24.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": false,
+      "trigger": [
+        {
+          "kind": "exists",
+          "str": "TUR"
+        },
+        {
+          "kind": "owns",
+          "str": "Venice",
+          "int": 387
+        }
+      ],
+      "options": [
+        {
+          "label": "Arm the Arsenal and hold our island fortresses",
+          "aiWeight": 65.0,
+          "aiModifiers": [
+            {
+              "condition": {
+                "kind": "treasury_min",
+                "num": 150.0
+              },
+              "op": "mul",
+              "value": 1.5
+            }
+          ],
+          "effects": [
+            {
+              "kind": "ducats",
+              "num": -80.0
+            },
+            {
+              "kind": "sailors",
+              "num": 1000.0
+            },
+            {
+              "kind": "province_fort",
+              "target": "province",
+              "int": 691,
+              "int2": 1
+            },
+            {
+              "kind": "change_opinion",
+              "str": "TUR",
+              "int": -30
+            }
+          ]
+        },
+        {
+          "label": "Negotiate commercial tribute with the Porte",
+          "aiWeight": 35.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "ducats",
+              "num": -40.0
+            },
+            {
+              "kind": "change_opinion_both",
+              "str": "TUR",
+              "int": 20
+            },
+            {
+              "kind": "add_modifier",
+              "str": "levant_trade_peace",
+              "str2": "Levantine Trade Accord",
+              "int": 60,
+              "mods": {
+                "trade": 0.1
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hist_italian_wars_charles8",
+      "title": "The French Claim to Naples",
+      "text": "Tracing Angevin blood rights south of the Alps, Paris prepares a grand artillery train to march down the Italian peninsula, threatening to shatter the Peace of Lodi.",
+      "category": "diplomatic",
+      "countries": [
+        "FRA"
+      ],
+      "dateFrom": {
+        "year": 1494,
+        "month": 9,
+        "day": 1
+      },
+      "dateTo": {
+        "year": 1502,
+        "month": 12,
+        "day": 31
+      },
+      "exactDate": null,
+      "mtth": 18.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": true,
+      "trigger": [
+        {
+          "kind": "owns",
+          "str": "Paris",
+          "int": 73
+        },
+        {
+          "kind": "exists",
+          "str": "NAP"
+        },
+        {
+          "kind": "exists",
+          "str": "MLO"
+        }
+      ],
+      "options": [
+        {
+          "label": "Cross the Alps with culverins and gendarmes!",
+          "aiWeight": 75.0,
+          "aiModifiers": [
+            {
+              "condition": {
+                "kind": "at_war",
+                "bool": false
+              },
+              "op": "mul",
+              "value": 1.5
+            }
+          ],
+          "effects": [
+            {
+              "kind": "add_claim",
+              "str": "Naples",
+              "int": 413
+            },
+            {
+              "kind": "add_cb",
+              "str": "NAP",
+              "str2": "claim",
+              "int": 60
+            },
+            {
+              "kind": "change_opinion",
+              "str": "NAP",
+              "int": -40
+            },
+            {
+              "kind": "change_opinion",
+              "str": "VEN",
+              "int": -20
+            },
+            {
+              "kind": "prestige",
+              "num": 10.0
+            }
+          ]
+        },
+        {
+          "label": "Focus French arms on the Rhine and Flanders",
+          "aiWeight": 25.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "stability",
+              "int": 1
+            },
+            {
+              "kind": "ducats",
+              "num": 50.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hist_stockholm_bloodbath",
+      "title": "The Stockholm Bloodbath",
+      "text": "Seeking to crush Swedish separatism inside the Kalmar Union once and for all, the Danish crown holds a ruthless trial of Stockholm's magnates and bishops.",
+      "category": "historical",
+      "countries": [
+        "DAN"
+      ],
+      "dateFrom": {
+        "year": 1518,
+        "month": 1,
+        "day": 1
+      },
+      "dateTo": {
+        "year": 1524,
+        "month": 12,
+        "day": 31
+      },
+      "exactDate": null,
+      "mtth": 16.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": true,
+      "trigger": [
+        {
+          "kind": "exists",
+          "str": "SWE"
+        },
+        {
+          "kind": "owns",
+          "str": "Copenhagen",
+          "int": 433
+        }
+      ],
+      "options": [
+        {
+          "label": "Strike down the Sture party to awe the north",
+          "aiWeight": 65.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "change_opinion",
+              "str": "SWE",
+              "int": -80
+            },
+            {
+              "kind": "prestige",
+              "num": -8.0
+            },
+            {
+              "kind": "stability",
+              "int": -1
+            },
+            {
+              "kind": "manpower",
+              "num": 1500.0
+            }
+          ]
+        },
+        {
+          "label": "Convene a conciliatory Kalmar council instead",
+          "aiWeight": 35.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "change_opinion_both",
+              "str": "SWE",
+              "int": 25
+            },
+            {
+              "kind": "estate_loyalty",
+              "str": "nobles",
+              "num": 10.0
+            },
+            {
+              "kind": "ducats",
+              "num": -40.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hist_luther_95_theses",
+      "title": "Luther's Ninety-Five Theses at Wittenberg",
+      "text": "An Augustinian friar named Martin Luther nails Ninety-Five Theses against indulgences to the castle church door in Wittenberg. Printed pamphlets carry his challenge across Europe within weeks.",
+      "category": "religious",
+      "countries": [
+        "SAX"
+      ],
+      "dateFrom": {
+        "year": 1517,
+        "month": 10,
+        "day": 31
+      },
+      "dateTo": {
+        "year": 1525,
+        "month": 12,
+        "day": 31
+      },
+      "exactDate": null,
+      "mtth": 8.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": true,
+      "trigger": [
+        {
+          "kind": "owns",
+          "str": "Wittenberg",
+          "int": 272
+        },
+        {
+          "kind": "religion",
+          "str": "catholic"
+        },
+        {
+          "kind": "reformation_started",
+          "bool": false
+        }
+      ],
+      "options": [
+        {
+          "label": "Shelter the reformer and let debate spread",
+          "aiWeight": 75.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "spawn_reformation",
+              "target": "province",
+              "int": 272,
+              "str": "protestant"
+            },
+            {
+              "kind": "change_opinion",
+              "str": "PAP",
+              "int": -40
+            },
+            {
+              "kind": "estate_loyalty",
+              "str": "clergy",
+              "num": -10.0
+            },
+            {
+              "kind": "tech_progress",
+              "str": "administrative",
+              "num": 35.0
+            },
+            {
+              "kind": "set_global_flag",
+              "str": "luther_theses_posted"
+            }
+          ]
+        },
+        {
+          "label": "Condemn the theses and submit to Rome",
+          "aiWeight": 25.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "spawn_reformation",
+              "target": "province",
+              "int": 272,
+              "str": "protestant"
+            },
+            {
+              "kind": "change_opinion",
+              "str": "PAP",
+              "int": 20
+            },
+            {
+              "kind": "unrest",
+              "target": "province",
+              "int": 272,
+              "num": 10.0
+            },
+            {
+              "kind": "set_global_flag",
+              "str": "luther_theses_posted"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hist_luther_95_theses_alt",
+      "title": "The Ninety-Five Theses at Wittenberg",
+      "text": "Though Saxony no longer rules the Elbe, the monk Martin Luther's protest against indulgences erupts at Wittenberg university, igniting the Reformation across Christendom.",
+      "category": "religious",
+      "countries": [],
+      "dateFrom": {
+        "year": 1517,
+        "month": 10,
+        "day": 31
+      },
+      "dateTo": {
+        "year": 1526,
+        "month": 12,
+        "day": 31
+      },
+      "exactDate": null,
+      "mtth": 8.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": true,
+      "trigger": [
+        {
+          "kind": "not_tag",
+          "str": "SAX"
+        },
+        {
+          "kind": "not_tag",
+          "str": "PAP"
+        },
+        {
+          "kind": "owns",
+          "str": "Wittenberg",
+          "int": 272
+        },
+        {
+          "kind": "religion",
+          "str": "catholic"
+        },
+        {
+          "kind": "reformation_started",
+          "bool": false
+        }
+      ],
+      "options": [
+        {
+          "label": "Let the printing presses carry the debate",
+          "aiWeight": 70.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "spawn_reformation",
+              "target": "province",
+              "int": 272,
+              "str": "protestant"
+            },
+            {
+              "kind": "change_opinion",
+              "str": "PAP",
+              "int": -30
+            },
+            {
+              "kind": "set_global_flag",
+              "str": "luther_theses_posted"
+            }
+          ]
+        },
+        {
+          "label": "Enforce papal decrees in Wittenberg",
+          "aiWeight": 30.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "spawn_reformation",
+              "target": "province",
+              "int": 272,
+              "str": "protestant"
+            },
+            {
+              "kind": "unrest",
+              "target": "province",
+              "int": 272,
+              "num": 10.0
+            },
+            {
+              "kind": "set_global_flag",
+              "str": "luther_theses_posted"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hist_diet_of_worms",
+      "title": "The Diet of Worms",
+      "text": "Summoned before the Imperial estates at Worms, Martin Luther refuses to recant his writings. The Empire now stands divided between Catholic loyalists and Evangelical princes.",
+      "category": "religious",
+      "countries": [
+        "HAB",
+        "AUS"
+      ],
+      "dateFrom": {
+        "year": 1521,
+        "month": 1,
+        "day": 28
+      },
+      "dateTo": {
+        "year": 1532,
+        "month": 12,
+        "day": 31
+      },
+      "exactDate": null,
+      "mtth": 14.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": true,
+      "trigger": [
+        {
+          "kind": "reformation_started",
+          "bool": true
+        },
+        {
+          "kind": "religion",
+          "str": "catholic"
+        }
+      ],
+      "options": [
+        {
+          "label": "Issue the Edict of Worms condemning the heresy",
+          "aiWeight": 75.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "change_opinion",
+              "str": "PAP",
+              "int": 25
+            },
+            {
+              "kind": "estate_loyalty",
+              "str": "clergy",
+              "num": 10.0
+            },
+            {
+              "kind": "prestige",
+              "num": 8.0
+            },
+            {
+              "kind": "add_modifier",
+              "str": "edict_of_worms",
+              "str2": "Edict of Worms",
+              "int": 60,
+              "mods": {
+                "army_quality": 0.04,
+                "mood_other_faith": -0.08
+              }
+            }
+          ]
+        },
+        {
+          "label": "Grant religious peace to keep the princes united",
+          "aiWeight": 25.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "change_opinion",
+              "str": "PAP",
+              "int": -25
+            },
+            {
+              "kind": "add_modifier",
+              "str": "worms_compromise",
+              "str2": "Imperial Conciliation",
+              "int": 60,
+              "mods": {
+                "mood_other_faith": 0.08,
+                "vassal_opinion": 15.0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hist_belgrade_1456_hun",
+      "title": "The Siege of Belgrade",
+      "text": "Ottoman hosts and river galleys close around the great fortress of Belgrade, key to the Hungarian plain. John Hunyadi and Friar Giovanni da Capistrano lead a crusading relief force down the Danube.",
+      "category": "military",
+      "countries": [
+        "HUN"
+      ],
+      "dateFrom": {
+        "year": 1456,
+        "month": 7,
+        "day": 1
+      },
+      "dateTo": {
+        "year": 1457,
+        "month": 6,
+        "day": 1
+      },
+      "exactDate": {
+        "year": 1456,
+        "month": 7,
+        "day": 21
+      },
+      "mtth": 0.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": true,
+      "trigger": [
+        {
+          "kind": "owns",
+          "str": "Belgrade",
+          "int": 624
+        },
+        {
+          "kind": "exists",
+          "str": "TUR"
+        },
+        {
+          "kind": "character_alive",
+          "str": "hunyadi"
+        },
+        {
+          "kind": "not_global_flag",
+          "str": "belgrade_1456_resolved"
+        }
+      ],
+      "options": [
+        {
+          "label": "Break the Ottoman siege lines under Hunyadi!",
+          "aiWeight": 85.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "prestige",
+              "num": 20.0
+            },
+            {
+              "kind": "stability",
+              "int": 1
+            },
+            {
+              "kind": "add_modifier",
+              "str": "belgrade_noon_bells",
+              "str2": "Victory at Belgrade",
+              "int": 60,
+              "mods": {
+                "army_quality": 0.08,
+                "fort_defence": 0.2
+              }
+            },
+            {
+              "kind": "change_opinion",
+              "str": "PAP",
+              "int": 25
+            },
+            {
+              "kind": "set_global_flag",
+              "str": "belgrade_1456_resolved"
+            }
+          ]
+        },
+        {
+          "label": "Hold the inner citadel and preserve the Danube fleet",
+          "aiWeight": 15.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "manpower",
+              "num": 3000.0
+            },
+            {
+              "kind": "province_fort",
+              "target": "province",
+              "int": 624,
+              "int2": 1
+            },
+            {
+              "kind": "set_global_flag",
+              "str": "belgrade_1456_resolved"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hist_belgrade_1456_alt",
+      "title": "The Gateway of the Danube",
+      "text": "With Belgrade already flying the Ottoman crescent, {country} fortifies the confluence of the Sava and Danube as a launchpad into Central Europe.",
+      "category": "military",
+      "countries": [
+        "TUR"
+      ],
+      "dateFrom": {
+        "year": 1456,
+        "month": 7,
+        "day": 1
+      },
+      "dateTo": {
+        "year": 1465,
+        "month": 12,
+        "day": 31
+      },
+      "exactDate": null,
+      "mtth": 12.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": true,
+      "trigger": [
+        {
+          "kind": "owns",
+          "str": "Belgrade",
+          "int": 624
+        },
+        {
+          "kind": "not_global_flag",
+          "str": "belgrade_1456_resolved"
+        }
+      ],
+      "options": [
+        {
+          "label": "Turn Belgrade into an imperial frontier fortress",
+          "aiWeight": 80.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "prestige",
+              "num": 15.0
+            },
+            {
+              "kind": "province_fort",
+              "target": "province",
+              "int": 624,
+              "int2": 1
+            },
+            {
+              "kind": "add_claim",
+              "str": "Buda",
+              "int": 608
+            },
+            {
+              "kind": "set_global_flag",
+              "str": "belgrade_1456_resolved"
+            }
+          ]
+        },
+        {
+          "label": "Settle frontier raiders along the Sava river",
+          "aiWeight": 20.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "manpower",
+              "num": 4000.0
+            },
+            {
+              "kind": "ducats",
+              "num": 50.0
+            },
+            {
+              "kind": "set_global_flag",
+              "str": "belgrade_1456_resolved"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hist_skanderbeg_lezhe",
+      "title": "Skanderbeg's Bastion in the Highlands",
+      "text": "From his mountain stronghold of Krujë, Gjergj Kastrioti Skanderbeg rallies the League of Lezhë, bleeding Ottoman expeditions in ambush after ambush.",
+      "category": "military",
+      "countries": [
+        "ALB"
+      ],
+      "dateFrom": {
+        "year": 1454,
+        "month": 1,
+        "day": 1
+      },
+      "dateTo": {
+        "year": 1468,
+        "month": 1,
+        "day": 17
+      },
+      "exactDate": null,
+      "mtth": 16.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": true,
+      "trigger": [
+        {
+          "kind": "ruler_alive",
+          "str": "skanderbeg"
+        },
+        {
+          "kind": "owns",
+          "str": "Kruje",
+          "int": 660
+        },
+        {
+          "kind": "exists",
+          "str": "TUR"
+        }
+      ],
+      "options": [
+        {
+          "label": "Defend Albania's passes to the last sword!",
+          "aiWeight": 85.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "prestige",
+              "num": 15.0
+            },
+            {
+              "kind": "add_modifier",
+              "str": "skanderbeg_league",
+              "str2": "League of Lezhë",
+              "int": 120,
+              "mods": {
+                "army_quality": 0.12,
+                "fort_defence": 0.25
+              }
+            },
+            {
+              "kind": "change_opinion",
+              "str": "PAP",
+              "int": 25
+            },
+            {
+              "kind": "change_opinion",
+              "str": "NAP",
+              "int": 20
+            }
+          ]
+        },
+        {
+          "label": "Accept Ottoman tributary peace to spare the valleys",
+          "aiWeight": 15.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "ducats",
+              "num": -30.0
+            },
+            {
+              "kind": "change_opinion",
+              "str": "TUR",
+              "int": 35
+            },
+            {
+              "kind": "prestige",
+              "num": -10.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hist_trebizond_1461",
+      "title": "The Ottoman March on Trebizond",
+      "text": "After sweeping across northern Anatolia, Ottoman columns and galleys descend on the Pontic Alps. The last remnant of the Komnenoi Empire at Trebizond faces an impossible choice.",
+      "category": "historical",
+      "countries": [
+        "TRE"
+      ],
+      "dateFrom": {
+        "year": 1461,
+        "month": 8,
+        "day": 1
+      },
+      "dateTo": {
+        "year": 1464,
+        "month": 12,
+        "day": 31
+      },
+      "exactDate": null,
+      "mtth": 10.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": true,
+      "trigger": [
+        {
+          "kind": "owns",
+          "str": "Trebizond",
+          "int": 749
+        },
+        {
+          "kind": "exists",
+          "str": "TUR"
+        },
+        {
+          "kind": "not_global_flag",
+          "str": "trebizond_1461_resolved"
+        }
+      ],
+      "options": [
+        {
+          "label": "Bar the gates of Trebizond and defy the Sultan!",
+          "aiWeight": 55.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "prestige",
+              "num": 12.0
+            },
+            {
+              "kind": "spawn_units",
+              "target": "province",
+              "int": 749,
+              "str": "infantry",
+              "int2": 2
+            },
+            {
+              "kind": "change_opinion",
+              "str": "TUR",
+              "int": -50
+            },
+            {
+              "kind": "set_global_flag",
+              "str": "trebizond_1461_resolved"
+            }
+          ]
+        },
+        {
+          "label": "Surrender Trebizond in exchange for honourable estates",
+          "aiWeight": 45.0,
+          "aiModifiers": [
+            {
+              "condition": {
+                "kind": "at_war",
+                "bool": false
+              },
+              "op": "mul",
+              "value": 0.8
+            }
+          ],
+          "effects": [
+            {
+              "kind": "cede_province",
+              "str": "TUR",
+              "int": 749
+            },
+            {
+              "kind": "ducats",
+              "num": 40.0
+            },
+            {
+              "kind": "prestige",
+              "num": -15.0
+            },
+            {
+              "kind": "set_global_flag",
+              "str": "trebizond_1461_resolved"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hist_trebizond_legacy_alt",
+      "title": "The Legacy of Pontic Trebizond",
+      "text": "With the Komnenian throne of Trebizond already extinguished, {country} integrates the Pontic Black Sea port and its Greek and Laz merchants into the imperial customs network.",
+      "category": "historical",
+      "countries": [
+        "TUR"
+      ],
+      "dateFrom": {
+        "year": 1461,
+        "month": 8,
+        "day": 1
+      },
+      "dateTo": {
+        "year": 1475,
+        "month": 12,
+        "day": 31
+      },
+      "exactDate": null,
+      "mtth": 12.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": false,
+      "trigger": [
+        {
+          "kind": "not_exists",
+          "str": "TRE"
+        },
+        {
+          "kind": "owns",
+          "str": "Trebizond",
+          "int": 749
+        },
+        {
+          "kind": "not_global_flag",
+          "str": "trebizond_1461_resolved"
+        }
+      ],
+      "options": [
+        {
+          "label": "Grant Pontic merchants imperial trading charters",
+          "aiWeight": 75.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "ducats",
+              "num": 60.0
+            },
+            {
+              "kind": "add_modifier",
+              "str": "pontic_ports",
+              "str2": "Black Sea Customs",
+              "int": 60,
+              "mods": {
+                "trade": 0.08
+              }
+            },
+            {
+              "kind": "set_global_flag",
+              "str": "trebizond_1461_resolved"
+            }
+          ]
+        },
+        {
+          "label": "Garrison the Pontic passes with timariots",
+          "aiWeight": 25.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "manpower",
+              "num": 2500.0
+            },
+            {
+              "kind": "pops_convert",
+              "target": "province",
+              "int": 749,
+              "str": "orthodox",
+              "str2": "sunni",
+              "num": 0.15
+            },
+            {
+              "kind": "set_global_flag",
+              "str": "trebizond_1461_resolved"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hist_otranto_1480_nap",
+      "title": "The Ottoman Landing at Otranto",
+      "text": "Crossing the Strait of Otranto with a grand fleet, Gedik Ahmed Pasha's soldiers storm the Apulian coast near Lecce, sending shockwaves to Rome and across all Italy.",
+      "category": "historical",
+      "countries": [
+        "NAP"
+      ],
+      "dateFrom": {
+        "year": 1480,
+        "month": 8,
+        "day": 1
+      },
+      "dateTo": {
+        "year": 1483,
+        "month": 12,
+        "day": 31
+      },
+      "exactDate": null,
+      "mtth": 10.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": true,
+      "trigger": [
+        {
+          "kind": "owns",
+          "str": "Lecce",
+          "int": 420
+        },
+        {
+          "kind": "exists",
+          "str": "TUR"
+        },
+        {
+          "kind": "not_global_flag",
+          "str": "otranto_resolved"
+        }
+      ],
+      "options": [
+        {
+          "label": "Rally an Italian crusade to retake Otranto!",
+          "aiWeight": 85.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "ducats",
+              "num": -60.0
+            },
+            {
+              "kind": "spawn_units",
+              "target": "province",
+              "int": 420,
+              "str": "infantry",
+              "int2": 3
+            },
+            {
+              "kind": "unrest",
+              "target": "province",
+              "int": 420,
+              "num": 10.0
+            },
+            {
+              "kind": "change_opinion",
+              "str": "PAP",
+              "int": 30
+            },
+            {
+              "kind": "change_opinion",
+              "str": "TUR",
+              "int": -40
+            },
+            {
+              "kind": "prestige",
+              "num": 12.0
+            },
+            {
+              "kind": "set_global_flag",
+              "str": "otranto_resolved"
+            }
+          ]
+        },
+        {
+          "label": "Fortify the Apulian hinterland and appeal to Aragon",
+          "aiWeight": 15.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "province_fort",
+              "target": "province",
+              "int": 420,
+              "int2": 1
+            },
+            {
+              "kind": "change_opinion",
+              "str": "ARA",
+              "int": 25
+            },
+            {
+              "kind": "prestige",
+              "num": -5.0
+            },
+            {
+              "kind": "set_global_flag",
+              "str": "otranto_resolved"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hist_otranto_1480_alt",
+      "title": "Footing Across the Adriatic",
+      "text": "Holding the Apulian shore around Lecce, Ottoman commanders weigh whether to push further into southern Italy or consolidate the Adriatic crossing.",
+      "category": "military",
+      "countries": [
+        "TUR"
+      ],
+      "dateFrom": {
+        "year": 1480,
+        "month": 8,
+        "day": 1
+      },
+      "dateTo": {
+        "year": 1486,
+        "month": 12,
+        "day": 31
+      },
+      "exactDate": null,
+      "mtth": 12.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": true,
+      "trigger": [
+        {
+          "kind": "owns",
+          "str": "Lecce",
+          "int": 420
+        },
+        {
+          "kind": "not_global_flag",
+          "str": "otranto_resolved"
+        }
+      ],
+      "options": [
+        {
+          "label": "Fortify Otranto as a bridgehead into Italy",
+          "aiWeight": 75.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "province_fort",
+              "target": "province",
+              "int": 420,
+              "int2": 1
+            },
+            {
+              "kind": "add_claim",
+              "str": "Bari",
+              "int": 418
+            },
+            {
+              "kind": "add_claim",
+              "str": "Naples",
+              "int": 413
+            },
+            {
+              "kind": "prestige",
+              "num": 15.0
+            },
+            {
+              "kind": "set_global_flag",
+              "str": "otranto_resolved"
+            }
+          ]
+        },
+        {
+          "label": "Withdraw the expedition across the strait with plunder",
+          "aiWeight": 25.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "ducats",
+              "num": 100.0
+            },
+            {
+              "kind": "manpower",
+              "num": 2000.0
+            },
+            {
+              "kind": "set_global_flag",
+              "str": "otranto_resolved"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hist_mehmed_kanunname",
+      "title": "Mehmed II's Kanunname and New Imperial Capital",
+      "text": "Rebuilding ruined Konstantiniyye with Topkapı Palace, the Grand Bazaar, and the Sahn-ı Seman madrasas, Mehmed II codifies the imperial Kanunname governing state, court, and succession.",
+      "category": "internal",
+      "countries": [
+        "TUR"
+      ],
+      "dateFrom": {
+        "year": 1454,
+        "month": 1,
+        "day": 1
+      },
+      "dateTo": {
+        "year": 1481,
+        "month": 5,
+        "day": 3
+      },
+      "exactDate": null,
+      "mtth": 24.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": true,
+      "trigger": [
+        {
+          "kind": "ruler_alive",
+          "str": "mehmed2"
+        },
+        {
+          "kind": "owns",
+          "str": "Konstantiniyye",
+          "int": 680
+        }
+      ],
+      "options": [
+        {
+          "label": "Promulgate the Kanunname and repopulate the Queen of Cities",
+          "aiWeight": 85.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "ducats",
+              "num": -75.0
+            },
+            {
+              "kind": "province_dev",
+              "target": "province",
+              "int": 680,
+              "int2": 1
+            },
+            {
+              "kind": "prestige",
+              "num": 15.0
+            },
+            {
+              "kind": "add_modifier",
+              "str": "kanunname_order",
+              "str2": "Imperial Kanunname",
+              "int": 120,
+              "mods": {
+                "learning": 0.1,
+                "reform_progress": 0.15,
+                "tax": 0.1
+              }
+            }
+          ]
+        },
+        {
+          "label": "Pour treasury into the Janissary hearth and siege foundries",
+          "aiWeight": 15.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "ducats",
+              "num": -50.0
+            },
+            {
+              "kind": "estate_loyalty",
+              "str": "janissaries",
+              "num": 12.0
+            },
+            {
+              "kind": "add_modifier",
+              "str": "imperial_foundry",
+              "str2": "Imperial Cannon Foundry",
+              "int": 120,
+              "mods": {
+                "army_quality": 0.06
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hist_cem_sultan_crisis",
+      "title": "The Flight of Cem Sultan",
+      "text": "Following Mehmed II's death, his younger son Cem contests the Ottoman throne before fleeing to Rhodes and Christendom, becoming a diplomatic hostage in European and Mamluk hands.",
+      "category": "dynastic",
+      "countries": [
+        "TUR"
+      ],
+      "dateFrom": {
+        "year": 1481,
+        "month": 5,
+        "day": 3
+      },
+      "dateTo": {
+        "year": 1488,
+        "month": 12,
+        "day": 31
+      },
+      "exactDate": null,
+      "mtth": 12.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": true,
+      "trigger": [
+        {
+          "kind": "not_ruler_alive",
+          "str": "mehmed2"
+        },
+        {
+          "kind": "owns",
+          "str": "Konstantiniyye",
+          "int": 680
+        }
+      ],
+      "options": [
+        {
+          "label": "Pay the Knights of Rhodes to keep Cem under watch",
+          "aiWeight": 75.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "ducats",
+              "num": -80.0
+            },
+            {
+              "kind": "stability",
+              "int": 1
+            },
+            {
+              "kind": "change_opinion",
+              "str": "KNI",
+              "int": 20
+            },
+            {
+              "kind": "change_opinion",
+              "str": "PAP",
+              "int": 15
+            }
+          ]
+        },
+        {
+          "label": "Demand Cem's unconditional surrender by threat of arms",
+          "aiWeight": 25.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "prestige",
+              "num": 10.0
+            },
+            {
+              "kind": "change_opinion",
+              "str": "KNI",
+              "int": -30
+            },
+            {
+              "kind": "change_opinion",
+              "str": "MAM",
+              "int": -25
+            },
+            {
+              "kind": "estate_loyalty",
+              "str": "janissaries",
+              "num": 8.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hist_vlad_targoviste_1462",
+      "title": "The Night Attack at Târgoviște",
+      "text": "Refusing further tribute to the Porte, Wallachia's Voivode Vlad III launches a daring nocturnal raid straight through the Sultan's Danube camp, inspiring awe and terror across the Balkans.",
+      "category": "military",
+      "countries": [
+        "WAL"
+      ],
+      "dateFrom": {
+        "year": 1456,
+        "month": 8,
+        "day": 1
+      },
+      "dateTo": {
+        "year": 1466,
+        "month": 12,
+        "day": 31
+      },
+      "exactDate": null,
+      "mtth": 18.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": false,
+      "trigger": [
+        {
+          "kind": "character_alive",
+          "str": "vlad3"
+        },
+        {
+          "kind": "exists",
+          "str": "TUR"
+        }
+      ],
+      "options": [
+        {
+          "label": "Scorch the borderlands and strike at night!",
+          "aiWeight": 75.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "prestige",
+              "num": 15.0
+            },
+            {
+              "kind": "add_modifier",
+              "str": "night_terror",
+              "str2": "Wallachian Guerrilla War",
+              "int": 48,
+              "mods": {
+                "army_quality": 0.1,
+                "fort_defence": 0.15
+              }
+            },
+            {
+              "kind": "change_opinion",
+              "str": "TUR",
+              "int": -50
+            },
+            {
+              "kind": "change_opinion",
+              "str": "HUN",
+              "int": 20
+            }
+          ]
+        },
+        {
+          "label": "Resume Danube tribute to spare the boyars' estates",
+          "aiWeight": 25.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "ducats",
+              "num": -30.0
+            },
+            {
+              "kind": "change_opinion",
+              "str": "TUR",
+              "int": 25
+            },
+            {
+              "kind": "estate_loyalty",
+              "str": "nobles",
+              "num": 10.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hist_stephen_vaslui_1475",
+      "title": "Stephen the Great at Vaslui",
+      "text": "Outnumbered in the foggy marshes of Vaslui, Voivode Stephen III lures a vast Ottoman host into crossfire, earning Pope Sixtus IV's praise as the Champion of Christ.",
+      "category": "military",
+      "countries": [
+        "MOL"
+      ],
+      "dateFrom": {
+        "year": 1470,
+        "month": 1,
+        "day": 1
+      },
+      "dateTo": {
+        "year": 1482,
+        "month": 12,
+        "day": 31
+      },
+      "exactDate": null,
+      "mtth": 20.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": false,
+      "trigger": [
+        {
+          "kind": "exists",
+          "str": "TUR"
+        },
+        {
+          "kind": "provinces_min",
+          "int": 2
+        }
+      ],
+      "options": [
+        {
+          "label": "Hold the Moldavian marshes and build stone monasteries!",
+          "aiWeight": 80.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "prestige",
+              "num": 15.0
+            },
+            {
+              "kind": "stability",
+              "int": 1
+            },
+            {
+              "kind": "add_modifier",
+              "str": "athlete_of_christ",
+              "str2": "Champion of Christendom",
+              "int": 60,
+              "mods": {
+                "army_quality": 0.08,
+                "fort_defence": 0.15
+              }
+            },
+            {
+              "kind": "change_opinion",
+              "str": "PAP",
+              "int": 25
+            }
+          ]
+        },
+        {
+          "label": "Seek peaceful border demarcation with the Porte",
+          "aiWeight": 20.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "ducats",
+              "num": -25.0
+            },
+            {
+              "kind": "change_opinion",
+              "str": "TUR",
+              "int": 20
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hist_knights_rhodes_1480",
+      "title": "The Great Siege of Rhodes",
+      "text": "Hundreds of Ottoman sails darken the waters off Rhodes as Mesih Pasha lands heavy siege cannons against the Hospitaller walls. Grand Master Pierre d'Aubusson mans the breach in person.",
+      "category": "military",
+      "countries": [
+        "KNI"
+      ],
+      "dateFrom": {
+        "year": 1480,
+        "month": 5,
+        "day": 1
+      },
+      "dateTo": {
+        "year": 1483,
+        "month": 12,
+        "day": 31
+      },
+      "exactDate": null,
+      "mtth": 10.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": true,
+      "trigger": [
+        {
+          "kind": "owns",
+          "str": "Rhodes",
+          "int": 705
+        },
+        {
+          "kind": "exists",
+          "str": "TUR"
+        }
+      ],
+      "options": [
+        {
+          "label": "Stand fast at the Tower of St. Nicholas!",
+          "aiWeight": 85.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "prestige",
+              "num": 20.0
+            },
+            {
+              "kind": "add_modifier",
+              "str": "bulwark_of_rhodes",
+              "str2": "Bulwark of Rhodes",
+              "int": 120,
+              "mods": {
+                "army_quality": 0.1,
+                "fort_defence": 0.3
+              }
+            },
+            {
+              "kind": "change_opinion",
+              "str": "PAP",
+              "int": 30
+            },
+            {
+              "kind": "ducats",
+              "num": 40.0
+            }
+          ]
+        },
+        {
+          "label": "Treat with the Porte for safe evacuation",
+          "aiWeight": 15.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "prestige",
+              "num": -15.0
+            },
+            {
+              "kind": "change_opinion",
+              "str": "PAP",
+              "int": -20
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hist_fall_of_kaffa_1475",
+      "title": "The Fall of Genoese Kaffa",
+      "text": "Ottoman warships under Gedik Ahmed Pasha appear off the Crimean port of Kaffa, ending Genoese rule on the Black Sea and drawing the Crimean Khanate into Ottoman orbit.",
+      "category": "diplomatic",
+      "countries": [
+        "CRI"
+      ],
+      "dateFrom": {
+        "year": 1475,
+        "month": 6,
+        "day": 1
+      },
+      "dateTo": {
+        "year": 1480,
+        "month": 12,
+        "day": 31
+      },
+      "exactDate": null,
+      "mtth": 14.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": false,
+      "trigger": [
+        {
+          "kind": "exists",
+          "str": "TUR"
+        },
+        {
+          "kind": "exists",
+          "str": "GEN"
+        },
+        {
+          "kind": "province_owner",
+          "str": "GEN",
+          "int": 1014
+        }
+      ],
+      "options": [
+        {
+          "label": "Ally with the Sublime Porte against Genoa and the Steppe",
+          "aiWeight": 80.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "change_opinion_both",
+              "str": "TUR",
+              "int": 50
+            },
+            {
+              "kind": "add_claim",
+              "str": "Kaffa",
+              "int": 1014
+            },
+            {
+              "kind": "prestige",
+              "num": 8.0
+            }
+          ]
+        },
+        {
+          "label": "Guard Crimean independence from both Porte and Horde",
+          "aiWeight": 20.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "manpower",
+              "num": 3000.0
+            },
+            {
+              "kind": "change_opinion",
+              "str": "TUR",
+              "int": -25
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hist_novgorod_annexation",
+      "title": "The Twilight of Lord Novgorod the Great",
+      "text": "Divided between pro-Lithuanian boyars and Muscovite sympathisers, the wealthy merchant republic of Novgorod faces Moscow's armies across the Shelon river.",
+      "category": "historical",
+      "countries": [
+        "MOS"
+      ],
+      "dateFrom": {
+        "year": 1471,
+        "month": 7,
+        "day": 1
+      },
+      "dateTo": {
+        "year": 1482,
+        "month": 12,
+        "day": 31
+      },
+      "exactDate": null,
+      "mtth": 18.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": true,
+      "trigger": [
+        {
+          "kind": "exists",
+          "str": "NOV"
+        },
+        {
+          "kind": "owns",
+          "str": "Moscow",
+          "int": 556
+        }
+      ],
+      "options": [
+        {
+          "label": "Silence the veche bell and claim Novgorod's lands!",
+          "aiWeight": 85.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "add_claim",
+              "str": "Novgorod",
+              "int": 578
+            },
+            {
+              "kind": "add_cb",
+              "str": "NOV",
+              "str2": "subjugation",
+              "int": 60
+            },
+            {
+              "kind": "change_opinion",
+              "str": "NOV",
+              "int": -60
+            },
+            {
+              "kind": "prestige",
+              "num": 10.0
+            }
+          ]
+        },
+        {
+          "label": "Content ourselves with Novgorodian silver tribute",
+          "aiWeight": 15.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "ducats",
+              "num": 70.0
+            },
+            {
+              "kind": "change_opinion_both",
+              "str": "NOV",
+              "int": 15
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hist_stand_on_the_ugra",
+      "title": "The Great Stand on the Ugra River",
+      "text": "Refusing to bow to Khan Akhmat's demand for Tatar tribute, Grand Prince Ivan III marches Muscovite handgunners and cannon to the banks of the Ugra, breaking two centuries of Golden Horde suzerainty.",
+      "category": "historical",
+      "countries": [
+        "MOS"
+      ],
+      "dateFrom": {
+        "year": 1478,
+        "month": 1,
+        "day": 1
+      },
+      "dateTo": {
+        "year": 1485,
+        "month": 12,
+        "day": 31
+      },
+      "exactDate": null,
+      "mtth": 16.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": true,
+      "trigger": [
+        {
+          "kind": "exists",
+          "str": "GRH"
+        },
+        {
+          "kind": "owns",
+          "str": "Moscow",
+          "int": 556
+        },
+        {
+          "kind": "provinces_min",
+          "int": 6
+        }
+      ],
+      "options": [
+        {
+          "label": "Tear up the khan's charter — Russia is sovereign!",
+          "aiWeight": 90.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "prestige",
+              "num": 20.0
+            },
+            {
+              "kind": "stability",
+              "int": 1
+            },
+            {
+              "kind": "add_modifier",
+              "str": "third_rome_sovereignty",
+              "str2": "Sovereign Grand Duchy",
+              "int": 120,
+              "mods": {
+                "manpower": 0.15,
+                "tax": 0.1
+              }
+            },
+            {
+              "kind": "change_opinion",
+              "str": "GRH",
+              "int": -60
+            }
+          ]
+        },
+        {
+          "label": "Pay one final gift to avoid a winter campaign",
+          "aiWeight": 10.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "ducats",
+              "num": -60.0
+            },
+            {
+              "kind": "prestige",
+              "num": -10.0
+            },
+            {
+              "kind": "change_opinion",
+              "str": "GRH",
+              "int": 20
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hist_ottoman_mamluk_marj_dabiq",
+      "title": "Showdown with the Mamluk Sultanate",
+      "text": "Border clashes in Cilicia and Syria and Mamluk harbouring of Ottoman rivals push Constantinople and Cairo toward a decisive struggle for the Levant and the Holy Cities.",
+      "category": "military",
+      "countries": [
+        "TUR"
+      ],
+      "dateFrom": {
+        "year": 1514,
+        "month": 1,
+        "day": 1
+      },
+      "dateTo": {
+        "year": 1522,
+        "month": 12,
+        "day": 31
+      },
+      "exactDate": null,
+      "mtth": 18.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": true,
+      "trigger": [
+        {
+          "kind": "exists",
+          "str": "MAM"
+        },
+        {
+          "kind": "owns",
+          "str": "Konstantiniyye",
+          "int": 680
+        }
+      ],
+      "options": [
+        {
+          "label": "March south into Syria with our field artillery!",
+          "aiWeight": 80.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "add_cb",
+              "str": "MAM",
+              "str2": "holyWar",
+              "int": 60
+            },
+            {
+              "kind": "add_claim",
+              "str": "Cairo",
+              "int": 807
+            },
+            {
+              "kind": "change_opinion",
+              "str": "MAM",
+              "int": -60
+            },
+            {
+              "kind": "add_modifier",
+              "str": "eastern_campaign",
+              "str2": "Syrian Expedition",
+              "int": 48,
+              "mods": {
+                "army_quality": 0.06,
+                "manpower": 0.12
+              }
+            }
+          ]
+        },
+        {
+          "label": "Preserve the Syrian frontier through diplomacy",
+          "aiWeight": 20.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "change_opinion_both",
+              "str": "MAM",
+              "int": 25
+            },
+            {
+              "kind": "ducats",
+              "num": 40.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hist_uzun_hasan_otlukbeli",
+      "title": "Uzun Hasan and the Aq Qoyunlu Ascendancy",
+      "text": "Uniting the White Sheep Turkmen confederation from Diyarbakir to Azerbaijan, Uzun Hasan seeks Venetian cannon and alliances to rival both Qara Qoyunlu and the Ottoman Empire.",
+      "category": "historical",
+      "countries": [
+        "AKK"
+      ],
+      "dateFrom": {
+        "year": 1467,
+        "month": 1,
+        "day": 1
+      },
+      "dateTo": {
+        "year": 1476,
+        "month": 12,
+        "day": 31
+      },
+      "exactDate": null,
+      "mtth": 16.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": true,
+      "trigger": [
+        {
+          "kind": "ruler_alive",
+          "str": "uzun_hasan"
+        },
+        {
+          "kind": "owns",
+          "str": "Diyarbakir",
+          "int": 752
+        }
+      ],
+      "options": [
+        {
+          "label": "Forge an anti-Ottoman league with Venice and Karaman",
+          "aiWeight": 75.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "change_opinion_both",
+              "str": "VEN",
+              "int": 35
+            },
+            {
+              "kind": "change_opinion",
+              "str": "TUR",
+              "int": -45
+            },
+            {
+              "kind": "prestige",
+              "num": 12.0
+            },
+            {
+              "kind": "add_modifier",
+              "str": "white_sheep_cavalry",
+              "str2": "Aq Qoyunlu Banners",
+              "int": 60,
+              "mods": {
+                "army_quality": 0.08,
+                "manpower": 0.12
+              }
+            }
+          ]
+        },
+        {
+          "label": "Secure peace on the Anatolian frontier and focus on Persia",
+          "aiWeight": 25.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "change_opinion_both",
+              "str": "TUR",
+              "int": 20
+            },
+            {
+              "kind": "add_claim",
+              "str": "Tabriz",
+              "int": 868
+            },
+            {
+              "kind": "ducats",
+              "num": 40.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hist_safaviyya_ardabil",
+      "title": "The Qizilbash of Ardabil",
+      "text": "Under Shaykhs Junayd and Haydar, the Sufi brotherhood of Ardabil transforms from quiet mystics into the crimson-capped Qizilbash ghazis, preaching devotion across Azerbaijan and eastern Anatolia.",
+      "category": "religious",
+      "countries": [
+        "AKK",
+        "QAR",
+        "SHI"
+      ],
+      "dateFrom": {
+        "year": 1460,
+        "month": 1,
+        "day": 1
+      },
+      "dateTo": {
+        "year": 1495,
+        "month": 12,
+        "day": 31
+      },
+      "exactDate": null,
+      "mtth": 24.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": true,
+      "trigger": [
+        {
+          "kind": "owns",
+          "str": "Ardabil",
+          "int": 871
+        },
+        {
+          "kind": "safaviyya_phase",
+          "str": "growing"
+        }
+      ],
+      "options": [
+        {
+          "label": "Let the Qizilbash marchers gather in Azerbaijan",
+          "aiWeight": 75.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "advance_safaviyya",
+              "str": "militant"
+            },
+            {
+              "kind": "pops_convert",
+              "target": "province",
+              "int": 871,
+              "str": "sunni",
+              "str2": "twelver",
+              "num": 0.25
+            },
+            {
+              "kind": "unrest",
+              "target": "province",
+              "int": 871,
+              "num": 8.0
+            }
+          ]
+        },
+        {
+          "label": "Arrest the shaykh's lieutenants and watch the shrines",
+          "aiWeight": 25.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "advance_safaviyya",
+              "str": "militant"
+            },
+            {
+              "kind": "ducats",
+              "num": -30.0
+            },
+            {
+              "kind": "unrest",
+              "target": "province",
+              "int": 871,
+              "num": 12.0
+            },
+            {
+              "kind": "estate_loyalty",
+              "str": "clergy",
+              "num": 5.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hist_safavid_rise_1501",
+      "title": "Ismail Safavi Proclaims the Shahdom",
+      "text": "Emerging from Ardabil at the head of devoted Qizilbash tribesmen, young Ismail enters Tabriz and proclaims Twelver Shi'ism the state faith of a reborn Persian realm.",
+      "category": "religious",
+      "countries": [],
+      "dateFrom": {
+        "year": 1500,
+        "month": 1,
+        "day": 1
+      },
+      "dateTo": {
+        "year": 1518,
+        "month": 12,
+        "day": 31
+      },
+      "exactDate": null,
+      "mtth": 16.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": true,
+      "trigger": [
+        {
+          "kind": "owns",
+          "str": "Ardabil",
+          "int": 871
+        },
+        {
+          "kind": "religion_family",
+          "str": "muslim"
+        },
+        {
+          "kind": "not_tag",
+          "str": "TUR"
+        },
+        {
+          "kind": "not_tag",
+          "str": "MAM"
+        }
+      ],
+      "options": [
+        {
+          "label": "Proclaim Twelver Shi'ism and crown the Qizilbash Shah!",
+          "aiWeight": 85.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "advance_safaviyya",
+              "str": "triumphant"
+            },
+            {
+              "kind": "change_religion",
+              "str": "twelver"
+            },
+            {
+              "kind": "pops_convert",
+              "target": "province",
+              "int": 871,
+              "str": "sunni",
+              "str2": "twelver",
+              "num": 0.4
+            },
+            {
+              "kind": "prestige",
+              "num": 20.0
+            },
+            {
+              "kind": "stability",
+              "int": 1
+            },
+            {
+              "kind": "add_modifier",
+              "str": "qizilbash_zeal",
+              "str2": "Qizilbash Devotion",
+              "int": 120,
+              "mods": {
+                "army_quality": 0.1,
+                "manpower": 0.15
+              }
+            }
+          ]
+        },
+        {
+          "label": "Suppress the Qizilbash coup and uphold Sunni orthodoxy",
+          "aiWeight": 15.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "unrest",
+              "target": "province",
+              "int": 871,
+              "num": 16.0
+            },
+            {
+              "kind": "estate_loyalty",
+              "str": "clergy",
+              "num": 10.0
+            },
+            {
+              "kind": "manpower",
+              "num": -2000.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hist_chaldiran_1514",
+      "title": "The Eastern Frontier and Chaldiran",
+      "text": "Alarmed by Qizilbash preachers stirring Turkmen tribes across Anatolia, the Ottoman Sultan musters Janissary musketeers and chained field guns for a gruelling march into Azerbaijan.",
+      "category": "military",
+      "countries": [
+        "TUR"
+      ],
+      "dateFrom": {
+        "year": 1513,
+        "month": 1,
+        "day": 1
+      },
+      "dateTo": {
+        "year": 1522,
+        "month": 12,
+        "day": 31
+      },
+      "exactDate": null,
+      "mtth": 16.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": true,
+      "trigger": [
+        {
+          "kind": "safaviyya_phase",
+          "str": "triumphant"
+        },
+        {
+          "kind": "owns",
+          "str": "Konstantiniyye",
+          "int": 680
+        }
+      ],
+      "options": [
+        {
+          "label": "March east with gun-wagons to break the Qizilbash!",
+          "aiWeight": 85.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "add_claim",
+              "str": "Tabriz",
+              "int": 868
+            },
+            {
+              "kind": "add_modifier",
+              "str": "chaldiran_guns",
+              "str2": "Imperial Tabur Cengi",
+              "int": 60,
+              "mods": {
+                "army_quality": 0.1
+              }
+            },
+            {
+              "kind": "prestige",
+              "num": 10.0
+            }
+          ]
+        },
+        {
+          "label": "Seal the mountain passes and patrol Anatolia",
+          "aiWeight": 15.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "manpower",
+              "num": 3000.0
+            },
+            {
+              "kind": "add_modifier",
+              "str": "anatolian_patrols",
+              "str2": "Anatolian Frontier Watch",
+              "int": 60,
+              "mods": {
+                "fort_defence": 0.15
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hist_uzbek_transoxiana",
+      "title": "Muhammad Shaybani Khan and Samarkand",
+      "text": "Riding south from the Kipchak steppe, Muhammad Shaybani Khan's Uzbek horsemen sweep across the Syr Darya, challenging the fractured Timurid princes of Transoxiana.",
+      "category": "military",
+      "countries": [
+        "UZB"
+      ],
+      "dateFrom": {
+        "year": 1500,
+        "month": 1,
+        "day": 1
+      },
+      "dateTo": {
+        "year": 1514,
+        "month": 12,
+        "day": 31
+      },
+      "exactDate": null,
+      "mtth": 14.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": true,
+      "trigger": [
+        {
+          "kind": "exists",
+          "str": "TIM"
+        },
+        {
+          "kind": "government",
+          "str": "steppeHorde"
+        }
+      ],
+      "options": [
+        {
+          "label": "Ride for Samarkand and claim Transoxiana!",
+          "aiWeight": 85.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "add_claim",
+              "str": "Samarkand",
+              "int": 1051
+            },
+            {
+              "kind": "add_cb",
+              "str": "TIM",
+              "str2": "subjugation",
+              "int": 60
+            },
+            {
+              "kind": "spawn_units",
+              "target": "capital",
+              "int": -1,
+              "str": "horse_archers",
+              "int2": 3
+            },
+            {
+              "kind": "prestige",
+              "num": 10.0
+            }
+          ]
+        },
+        {
+          "label": "Raid the frontier oases and hold the steppe",
+          "aiWeight": 15.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "ducats",
+              "num": 65.0
+            },
+            {
+              "kind": "manpower",
+              "num": 2500.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hist_babur_kabul_1504",
+      "title": "Babur's Rise at Kabul",
+      "text": "Driven from Fergana and Samarkand by Uzbek conquests, the young Timurid prince Zahir al-Din Muhammad Babur crosses the Hindu Kush and seizes Kabul as his new base of empire.",
+      "category": "historical",
+      "countries": [
+        "TIM",
+        "HRT",
+        "BDK"
+      ],
+      "dateFrom": {
+        "year": 1504,
+        "month": 10,
+        "day": 1
+      },
+      "dateTo": {
+        "year": 1518,
+        "month": 12,
+        "day": 31
+      },
+      "exactDate": null,
+      "mtth": 14.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": true,
+      "trigger": [
+        {
+          "kind": "provinces_min",
+          "int": 2
+        },
+        {
+          "kind": "religion_family",
+          "str": "muslim"
+        }
+      ],
+      "options": [
+        {
+          "label": "Turn south toward Hindustan and train matchlockmen!",
+          "aiWeight": 80.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "add_claim",
+              "str": "Delhi",
+              "int": 1109
+            },
+            {
+              "kind": "prestige",
+              "num": 15.0
+            },
+            {
+              "kind": "tech_progress",
+              "str": "military",
+              "num": 35.0
+            },
+            {
+              "kind": "add_modifier",
+              "str": "babur_memoirs",
+              "str2": "Babur's Warband",
+              "int": 120,
+              "mods": {
+                "army_quality": 0.08,
+                "manpower": 0.12
+              }
+            },
+            {
+              "kind": "set_global_flag",
+              "str": "babur_rose"
+            }
+          ]
+        },
+        {
+          "label": "Fortify Kabul and look back toward Samarkand",
+          "aiWeight": 20.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "province_fort",
+              "target": "province",
+              "int": 917,
+              "int2": 1
+            },
+            {
+              "kind": "add_claim",
+              "str": "Samarkand",
+              "int": 1051
+            },
+            {
+              "kind": "manpower",
+              "num": 2500.0
+            },
+            {
+              "kind": "set_global_flag",
+              "str": "babur_rose"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hist_babur_panipat_1526",
+      "title": "The First Battle of Panipat",
+      "text": "Armed with Ottoman-style matchlocks and lashed artillery wagons, Babur's Kabul host descends through the Khyber Pass toward Panipat to confront the Afghan Sultanate of Delhi.",
+      "category": "historical",
+      "countries": [],
+      "dateFrom": {
+        "year": 1524,
+        "month": 1,
+        "day": 1
+      },
+      "dateTo": {
+        "year": 1532,
+        "month": 12,
+        "day": 31
+      },
+      "exactDate": null,
+      "mtth": 14.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": true,
+      "trigger": [
+        {
+          "kind": "owns",
+          "str": "Kabul",
+          "int": 917
+        },
+        {
+          "kind": "religion_family",
+          "str": "muslim"
+        },
+        {
+          "kind": "exists",
+          "str": "DEL"
+        },
+        {
+          "kind": "not_tag",
+          "str": "DEL"
+        }
+      ],
+      "options": [
+        {
+          "label": "Unleash the wagon-laager cannon on the road to Delhi!",
+          "aiWeight": 85.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "add_claim",
+              "str": "Delhi",
+              "int": 1109
+            },
+            {
+              "kind": "add_claim",
+              "str": "Agra",
+              "int": 1120
+            },
+            {
+              "kind": "add_cb",
+              "str": "DEL",
+              "str2": "claim",
+              "int": 60
+            },
+            {
+              "kind": "spawn_units",
+              "target": "province",
+              "int": 917,
+              "str": "handgunners",
+              "int2": 2
+            },
+            {
+              "kind": "prestige",
+              "num": 15.0
+            }
+          ]
+        },
+        {
+          "label": "Exact border tribute from the Punjab governors",
+          "aiWeight": 15.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "ducats",
+              "num": 90.0
+            },
+            {
+              "kind": "change_opinion",
+              "str": "DEL",
+              "int": 15
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hist_mamluk_qaitbay_monopoly",
+      "title": "Qaitbay's Citadel and the Spice Monopoly",
+      "text": "Under Sultan Qaitbay, Cairo raises soaring stone domes and tightens royal control over the Karimi spice trade flowing from the Red Sea to Alexandria's Venetian fondaci.",
+      "category": "internal",
+      "countries": [
+        "MAM"
+      ],
+      "dateFrom": {
+        "year": 1468,
+        "month": 1,
+        "day": 1
+      },
+      "dateTo": {
+        "year": 1496,
+        "month": 8,
+        "day": 8
+      },
+      "exactDate": null,
+      "mtth": 24.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": false,
+      "trigger": [
+        {
+          "kind": "owns",
+          "str": "Cairo",
+          "int": 807
+        }
+      ],
+      "options": [
+        {
+          "label": "Enforce the Sultan's spice monopoly and build Qaitbay's fort",
+          "aiWeight": 75.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "ducats",
+              "num": 90.0
+            },
+            {
+              "kind": "province_dev",
+              "target": "province",
+              "int": 807,
+              "int2": 1
+            },
+            {
+              "kind": "add_modifier",
+              "str": "karimi_monopoly",
+              "str2": "Red Sea Spice Monopoly",
+              "int": 120,
+              "mods": {
+                "tax": 0.06,
+                "trade": 0.12
+              }
+            }
+          ]
+        },
+        {
+          "label": "Grant lower customs to Alexandrian burghers and Venice",
+          "aiWeight": 25.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "estate_loyalty",
+              "str": "burghers",
+              "num": 12.0
+            },
+            {
+              "kind": "change_opinion_both",
+              "str": "VEN",
+              "int": 20
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hist_chaul_diu_1509",
+      "title": "Naval Showdown in the Arabian Sea",
+      "text": "With European carracks seizing spice fleets off Malabar and threatening the Red Sea, Cairo equips a joint war-galley armada with Gujarati and Ottoman aid to contest the Indian Ocean.",
+      "category": "military",
+      "countries": [
+        "MAM"
+      ],
+      "dateFrom": {
+        "year": 1507,
+        "month": 1,
+        "day": 1
+      },
+      "dateTo": {
+        "year": 1514,
+        "month": 12,
+        "day": 31
+      },
+      "exactDate": null,
+      "mtth": 12.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": true,
+      "trigger": [
+        {
+          "kind": "global_flag",
+          "str": "cape_route_opened"
+        },
+        {
+          "kind": "exists",
+          "str": "POR"
+        },
+        {
+          "kind": "owns",
+          "str": "Cairo",
+          "int": 807
+        }
+      ],
+      "options": [
+        {
+          "label": "Sail a Red Sea war fleet to Diu!",
+          "aiWeight": 80.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "ducats",
+              "num": -80.0
+            },
+            {
+              "kind": "sailors",
+              "num": 1000.0
+            },
+            {
+              "kind": "change_opinion",
+              "str": "POR",
+              "int": -50
+            },
+            {
+              "kind": "change_opinion_both",
+              "str": "GUJ",
+              "int": 30
+            },
+            {
+              "kind": "prestige",
+              "num": 10.0
+            }
+          ]
+        },
+        {
+          "label": "Strengthen Suez and Jeddah against oceanic raids",
+          "aiWeight": 20.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "manpower",
+              "num": 2500.0
+            },
+            {
+              "kind": "province_fort",
+              "target": "province",
+              "int": 807,
+              "int2": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hist_bahlul_lodi_delhi",
+      "title": "Bahlul Lodi Consolidates Hindustan",
+      "text": "Rallying Afghan clans from Sirhind and Lahore, Sultan Bahlul Lodi defends Delhi against the Sharqi sultans of Jaunpur and rebuilds the authority of the Delhi Sultanate.",
+      "category": "historical",
+      "countries": [
+        "DEL"
+      ],
+      "dateFrom": {
+        "year": 1455,
+        "month": 1,
+        "day": 1
+      },
+      "dateTo": {
+        "year": 1480,
+        "month": 12,
+        "day": 31
+      },
+      "exactDate": null,
+      "mtth": 18.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": false,
+      "trigger": [
+        {
+          "kind": "ruler_alive",
+          "str": "bahlul"
+        },
+        {
+          "kind": "owns",
+          "str": "Delhi",
+          "int": 1109
+        }
+      ],
+      "options": [
+        {
+          "label": "Reward the Afghan maliks and press Jaunpur",
+          "aiWeight": 75.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "estate_loyalty",
+              "str": "nobles",
+              "num": 12.0
+            },
+            {
+              "kind": "manpower",
+              "num": 4000.0
+            },
+            {
+              "kind": "add_modifier",
+              "str": "lodi_consolidation",
+              "str2": "Lodi Ascendancy",
+              "int": 60,
+              "mods": {
+                "army_quality": 0.06,
+                "tax": 0.06
+              }
+            }
+          ]
+        },
+        {
+          "label": "Reform the crown's revenue registers in the Doab",
+          "aiWeight": 25.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "ducats",
+              "num": 65.0
+            },
+            {
+              "kind": "stability",
+              "int": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hist_rana_kumbha_chittor",
+      "title": "Rana Kumbha's Victory Tower at Chittor",
+      "text": "Master of fortress architecture, music, and war, Maharana Kumbha raises the soaring Kirti Stambha at Chittor and strengthens Mewar's hill forts against Gujarat and Malwa.",
+      "category": "historical",
+      "countries": [
+        "MEW"
+      ],
+      "dateFrom": {
+        "year": 1455,
+        "month": 1,
+        "day": 1
+      },
+      "dateTo": {
+        "year": 1468,
+        "month": 6,
+        "day": 22
+      },
+      "exactDate": null,
+      "mtth": 18.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": false,
+      "trigger": [
+        {
+          "kind": "ruler_alive",
+          "str": "kumbha"
+        },
+        {
+          "kind": "owns",
+          "str": "Chittor",
+          "int": 1176
+        }
+      ],
+      "options": [
+        {
+          "label": "Raise the Victory Tower and fortresses of Kumbhalgarh",
+          "aiWeight": 80.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "ducats",
+              "num": -45.0
+            },
+            {
+              "kind": "prestige",
+              "num": 15.0
+            },
+            {
+              "kind": "province_fort",
+              "target": "province",
+              "int": 1176,
+              "int2": 1
+            },
+            {
+              "kind": "add_modifier",
+              "str": "rajput_bastions",
+              "str2": "Mewar Hill Forts",
+              "int": 120,
+              "mods": {
+                "fort_defence": 0.25
+              }
+            }
+          ]
+        },
+        {
+          "label": "Muster the Rajput clans for border raids",
+          "aiWeight": 20.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "manpower",
+              "num": 3000.0
+            },
+            {
+              "kind": "estate_loyalty",
+              "str": "rajputs",
+              "num": 12.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hist_mahmud_begada_gujarat",
+      "title": "Mahmud Begada of Gujarat",
+      "text": "Capturing the hill citadels of Girnar and Champaner, Sultan Mahmud Begada extends Gujarati maritime prosperity across the Gulf of Cambay.",
+      "category": "historical",
+      "countries": [
+        "GUJ"
+      ],
+      "dateFrom": {
+        "year": 1459,
+        "month": 1,
+        "day": 1
+      },
+      "dateTo": {
+        "year": 1495,
+        "month": 12,
+        "day": 31
+      },
+      "exactDate": null,
+      "mtth": 24.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": false,
+      "trigger": [
+        {
+          "kind": "provinces_min",
+          "int": 3
+        }
+      ],
+      "options": [
+        {
+          "label": "Patronise maritime trade and coastal forts",
+          "aiWeight": 75.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "prestige",
+              "num": 12.0
+            },
+            {
+              "kind": "ducats",
+              "num": 60.0
+            },
+            {
+              "kind": "add_modifier",
+              "str": "cambay_ports",
+              "str2": "Cambay Prosperity",
+              "int": 120,
+              "mods": {
+                "trade": 0.12
+              }
+            }
+          ]
+        },
+        {
+          "label": "Expand the royal war-elephant stables",
+          "aiWeight": 25.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "spawn_units",
+              "target": "capital",
+              "int": -1,
+              "str": "war_elephants",
+              "int2": 1
+            },
+            {
+              "kind": "manpower",
+              "num": 2500.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hist_krishnadevaraya_vijayanagara",
+      "title": "Golden Age of Vijayanagara",
+      "text": "Under the Tuluva emperor Krishnadevaraya, Vijayanagara's courts ring with Telugu and Sanskrit verse while Portuguese Arabian horses mount its shock cavalry across the Deccan.",
+      "category": "historical",
+      "countries": [
+        "VIJ"
+      ],
+      "dateFrom": {
+        "year": 1509,
+        "month": 7,
+        "day": 1
+      },
+      "dateTo": {
+        "year": 1529,
+        "month": 12,
+        "day": 31
+      },
+      "exactDate": null,
+      "mtth": 18.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": true,
+      "trigger": [
+        {
+          "kind": "owns",
+          "str": "Vijayanagara",
+          "int": 1323
+        }
+      ],
+      "options": [
+        {
+          "label": "Patronise the Ashtadiggajas poets and royal cavalry",
+          "aiWeight": 80.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "prestige",
+              "num": 18.0
+            },
+            {
+              "kind": "stability",
+              "int": 1
+            },
+            {
+              "kind": "province_dev",
+              "target": "province",
+              "int": 1323,
+              "int2": 1
+            },
+            {
+              "kind": "add_modifier",
+              "str": "tuluva_golden_age",
+              "str2": "Vijayanagara Golden Age",
+              "int": 120,
+              "mods": {
+                "army_quality": 0.08,
+                "tax": 0.1
+              }
+            }
+          ]
+        },
+        {
+          "label": "Secure war-horses from coastal traders",
+          "aiWeight": 20.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "spawn_units",
+              "target": "province",
+              "int": 1323,
+              "str": "cavalry",
+              "int2": 2
+            },
+            {
+              "kind": "manpower",
+              "num": 4000.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hist_husain_shahi_bengal",
+      "title": "The Husain Shahi Renaissance in Bengal",
+      "text": "Restoring order across the Ganges delta, Alauddin Husain Shah welcomes Bengali scholars, builds brick mosques and temples, and expands Bengal's muslin and rice exports.",
+      "category": "historical",
+      "countries": [
+        "BNG"
+      ],
+      "dateFrom": {
+        "year": 1494,
+        "month": 1,
+        "day": 1
+      },
+      "dateTo": {
+        "year": 1519,
+        "month": 12,
+        "day": 31
+      },
+      "exactDate": null,
+      "mtth": 24.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": false,
+      "trigger": [
+        {
+          "kind": "provinces_min",
+          "int": 4
+        }
+      ],
+      "options": [
+        {
+          "label": "Foster Bengali letters and delta trade",
+          "aiWeight": 75.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "stability",
+              "int": 1
+            },
+            {
+              "kind": "prestige",
+              "num": 12.0
+            },
+            {
+              "kind": "add_modifier",
+              "str": "bengal_muslin",
+              "str2": "Delta Prosperity",
+              "int": 120,
+              "mods": {
+                "learning": 0.12,
+                "trade": 0.1
+              }
+            }
+          ]
+        },
+        {
+          "label": "Strengthen riverine war-fleets on the Padma",
+          "aiWeight": 25.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "sailors",
+              "num": 800.0
+            },
+            {
+              "kind": "manpower",
+              "num": 3000.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hist_zara_yaqob_debre_berhan",
+      "title": "The Council of Debre Berhan",
+      "text": "Summoning bishops and monks to Debre Berhan, Emperor Zara Yaqob settles Ethiopia's Sabbath controversy, strengthens the royal chewa garrisons, and sends envoys toward Christendom.",
+      "category": "religious",
+      "countries": [
+        "ETH"
+      ],
+      "dateFrom": {
+        "year": 1454,
+        "month": 1,
+        "day": 1
+      },
+      "dateTo": {
+        "year": 1468,
+        "month": 8,
+        "day": 26
+      },
+      "exactDate": null,
+      "mtth": 18.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": false,
+      "trigger": [
+        {
+          "kind": "ruler_alive",
+          "str": "zara_yaqob"
+        }
+      ],
+      "options": [
+        {
+          "label": "Enforce church reform and centralise crown authority",
+          "aiWeight": 75.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "stability",
+              "int": 1
+            },
+            {
+              "kind": "estate_loyalty",
+              "str": "clergy",
+              "num": 12.0
+            },
+            {
+              "kind": "add_modifier",
+              "str": "debre_berhan_reform",
+              "str2": "Debre Berhan Reforms",
+              "int": 120,
+              "mods": {
+                "crown_power": 0.1,
+                "stability_cost": -0.1
+              }
+            }
+          ]
+        },
+        {
+          "label": "Grant autonomy to northern monastic houses",
+          "aiWeight": 25.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "estate_loyalty",
+              "str": "clergy",
+              "num": 15.0
+            },
+            {
+              "kind": "prestige",
+              "num": 5.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hist_ahmad_gragn_adal",
+      "title": "Ahmad Gragn's Banner in the Horn",
+      "text": "Uniting Somali and Harari warriors under the title of Imam, Ahmad ibn Ibrahim al-Ghazi acquires matchlocks from the Red Sea ports and prepares to challenge the Ethiopian highlands.",
+      "category": "military",
+      "countries": [
+        "ADA"
+      ],
+      "dateFrom": {
+        "year": 1525,
+        "month": 1,
+        "day": 1
+      },
+      "dateTo": {
+        "year": 1538,
+        "month": 12,
+        "day": 31
+      },
+      "exactDate": null,
+      "mtth": 16.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": true,
+      "trigger": [
+        {
+          "kind": "exists",
+          "str": "ETH"
+        }
+      ],
+      "options": [
+        {
+          "label": "Proclaim the highland campaign!",
+          "aiWeight": 80.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "add_cb",
+              "str": "ETH",
+              "str2": "holyWar",
+              "int": 60
+            },
+            {
+              "kind": "spawn_units",
+              "target": "capital",
+              "int": -1,
+              "str": "handgunners",
+              "int2": 2
+            },
+            {
+              "kind": "add_modifier",
+              "str": "adal_ghazi_host",
+              "str2": "Imam's Host",
+              "int": 60,
+              "mods": {
+                "army_quality": 0.1,
+                "manpower": 0.15
+              }
+            }
+          ]
+        },
+        {
+          "label": "Consolidate Zeila's Red Sea customs first",
+          "aiWeight": 20.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "ducats",
+              "num": 65.0
+            },
+            {
+              "kind": "sailors",
+              "num": 500.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "chronicle_rebel_rising",
+      "title": "Rebels Take Up Arms in {province}!",
+      "text": "Banners of revolt have been unfurled in {province}: {rebels} have risen {men} strong against the crown of {country}. Local magistrates beg for immediate orders.",
+      "category": "calamity",
+      "countries": [],
+      "dateFrom": null,
+      "dateTo": null,
+      "exactDate": null,
+      "mtth": 12.0,
+      "mtthModifiers": [],
+      "fireOnce": false,
+      "perCountry": false,
+      "triggeredOnly": true,
+      "major": false,
+      "trigger": [],
+      "options": [
+        {
+          "label": "Dispatch the royal host to crush the rebels",
+          "aiWeight": 70.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "prestige",
+              "num": 1.0
+            }
+          ]
+        },
+        {
+          "label": "Offer local tax relief to calm the countryside",
+          "aiWeight": 15.0,
+          "aiModifiers": [
+            {
+              "condition": {
+                "kind": "treasury_min",
+                "num": 80.0
+              },
+              "op": "mul",
+              "value": 1.5
+            }
+          ],
+          "effects": [
+            {
+              "kind": "ducats",
+              "num": -25.0
+            },
+            {
+              "kind": "unrest",
+              "target": "context",
+              "int": -1,
+              "num": -6.0
+            },
+            {
+              "kind": "prestige",
+              "num": -2.0
+            }
+          ]
+        },
+        {
+          "label": "Muster an emergency town militia in the capital",
+          "aiWeight": 15.0,
+          "aiModifiers": [
+            {
+              "condition": {
+                "kind": "at_war",
+                "bool": true
+              },
+              "op": "mul",
+              "value": 2.0
+            }
+          ],
+          "effects": [
+            {
+              "kind": "ducats",
+              "num": -30.0
+            },
+            {
+              "kind": "manpower",
+              "num": 1500.0
+            },
+            {
+              "kind": "unrest",
+              "target": "context",
+              "int": -1,
+              "num": 3.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "chronicle_vassal_plot_success",
+      "title": "Poison in the Cup: {victim} Murdered!",
+      "text": "Tragedy strikes the court of {country}! {victim} has been slain by poison in a conspiracy orchestrated by {plotter}. The realm looks to {ruler} for justice or calm.",
+      "category": "dynastic",
+      "countries": [],
+      "dateFrom": null,
+      "dateTo": null,
+      "exactDate": null,
+      "mtth": 12.0,
+      "mtthModifiers": [],
+      "fireOnce": false,
+      "perCountry": false,
+      "triggeredOnly": true,
+      "major": false,
+      "trigger": [],
+      "options": [
+        {
+          "label": "Denounce the traitor and rally loyal houses",
+          "aiWeight": 55.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "stability",
+              "int": -1
+            },
+            {
+              "kind": "prestige",
+              "num": -5.0
+            },
+            {
+              "kind": "add_vassal_favour",
+              "int": 10
+            }
+          ]
+        },
+        {
+          "label": "Hush the scandal to spare the dynasty's name",
+          "aiWeight": 45.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "prestige",
+              "num": -10.0
+            },
+            {
+              "kind": "add_modifier",
+              "str": "court_whispers",
+              "str2": "Whispers at Court",
+              "int": 24,
+              "mods": {
+                "crown_power": -0.05
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "chronicle_vassal_plot_uncovered",
+      "title": "Murder Plot Uncovered!",
+      "text": "Your spymaster has intercepted coded letters and poisoned phials: {plotter} conspired against the life of {victim}. Their estates have been seized for the crown; how shall the court respond?",
+      "category": "dynastic",
+      "countries": [],
+      "dateFrom": null,
+      "dateTo": null,
+      "exactDate": null,
+      "mtth": 12.0,
+      "mtthModifiers": [],
+      "fireOnce": false,
+      "perCountry": false,
+      "triggeredOnly": true,
+      "major": false,
+      "trigger": [],
+      "options": [
+        {
+          "label": "Seize their titles and warn every magnate",
+          "aiWeight": 65.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "prestige",
+              "num": 5.0
+            },
+            {
+              "kind": "estate_loyalty",
+              "str": "nobles",
+              "num": -5.0
+            }
+          ]
+        },
+        {
+          "label": "Show calculated clemency and exact a heavy fine",
+          "aiWeight": 35.0,
+          "aiModifiers": [
+            {
+              "condition": {
+                "kind": "treasury_max",
+                "num": 60.0
+              },
+              "op": "mul",
+              "value": 2.0
+            }
+          ],
+          "effects": [
+            {
+              "kind": "ducats",
+              "num": 50.0
+            },
+            {
+              "kind": "add_vassal_favour",
+              "int": 10
+            },
+            {
+              "kind": "prestige",
+              "num": -2.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "chronicle_ruler_death",
+      "title": "The Crown Passes to {ruler}",
+      "text": "{old_ruler} has passed from this world, leaving the realm of {country} to {ruler}. Nobles, clergy, and burghers gather at {capital} for the accession ceremonies.",
+      "category": "dynastic",
+      "countries": [],
+      "dateFrom": null,
+      "dateTo": null,
+      "exactDate": null,
+      "mtth": 12.0,
+      "mtthModifiers": [],
+      "fireOnce": false,
+      "perCountry": false,
+      "triggeredOnly": true,
+      "major": false,
+      "trigger": [],
+      "options": [
+        {
+          "label": "Observe dignified mourning and steady the realm",
+          "aiWeight": 70.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "prestige",
+              "num": 2.0
+            },
+            {
+              "kind": "estate_loyalty",
+              "str": "clergy",
+              "num": 3.0
+            }
+          ]
+        },
+        {
+          "label": "Hold a lavish coronation to awe rivals",
+          "aiWeight": 15.0,
+          "aiModifiers": [
+            {
+              "condition": {
+                "kind": "treasury_min",
+                "num": 200.0
+              },
+              "op": "mul",
+              "value": 3.0
+            }
+          ],
+          "effects": [
+            {
+              "kind": "ducats",
+              "num": -40.0
+            },
+            {
+              "kind": "prestige",
+              "num": 8.0
+            },
+            {
+              "kind": "estate_loyalty",
+              "str": "nobles",
+              "num": 5.0
+            }
+          ]
+        },
+        {
+          "label": "Confirm the estates' charters to heal unrest",
+          "aiWeight": 15.0,
+          "aiModifiers": [
+            {
+              "condition": {
+                "kind": "stability_max",
+                "int": -1
+              },
+              "op": "mul",
+              "value": 4.0
+            }
+          ],
+          "effects": [
+            {
+              "kind": "estate_loyalty",
+              "str": "nobles",
+              "num": 6.0
+            },
+            {
+              "kind": "estate_loyalty",
+              "str": "burghers",
+              "num": 5.0
+            },
+            {
+              "kind": "prestige",
+              "num": -4.0
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

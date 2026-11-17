@@ -1,0 +1,473 @@
+# Hand-written historical events: Balkans, Ottoman Empire & Eastern Europe
+# Validated and compiled by tools/events/eventgen.py -> events1453.json
+
+event hist_belgrade_1456_hun
+title = The Siege of Belgrade
+text = Ottoman hosts and river galleys close around the great fortress of Belgrade, key to the Hungarian plain. John Hunyadi and Friar Giovanni da Capistrano lead a crusading relief force down the Danube.
+category = military
+countries = HUN
+date_from = 1456-07-01
+date_to = 1457-06-01
+exact_date = 1456-07-21
+mtth = 0
+fire_once = true
+major = true
+trigger:
+  owns = Belgrade
+  exists = TUR
+  character_alive = hunyadi
+  not_global_flag = belgrade_1456_resolved
+option:
+  label = Break the Ottoman siege lines under Hunyadi!
+  ai_weight = 85
+  effect:
+    prestige = 20
+    stability = 1
+    add_modifier = belgrade_noon_bells:Victory at Belgrade:60:fort_defence=0.20,army_quality=0.08
+    change_opinion = PAP:25
+    set_global_flag = belgrade_1456_resolved
+option:
+  label = Hold the inner citadel and preserve the Danube fleet
+  ai_weight = 15
+  effect:
+    manpower = 3000
+    province_fort = Belgrade:1
+    set_global_flag = belgrade_1456_resolved
+
+event hist_belgrade_1456_alt
+title = The Gateway of the Danube
+text = With Belgrade already flying the Ottoman crescent, {country} fortifies the confluence of the Sava and Danube as a launchpad into Central Europe.
+category = military
+countries = TUR
+date_from = 1456-07-01
+date_to = 1465-12-31
+mtth = 12
+fire_once = true
+major = true
+trigger:
+  owns = Belgrade
+  not_global_flag = belgrade_1456_resolved
+option:
+  label = Turn Belgrade into an imperial frontier fortress
+  ai_weight = 80
+  effect:
+    prestige = 15
+    province_fort = Belgrade:1
+    add_claim = Buda
+    set_global_flag = belgrade_1456_resolved
+option:
+  label = Settle frontier raiders along the Sava river
+  ai_weight = 20
+  effect:
+    manpower = 4000
+    ducats = 50
+    set_global_flag = belgrade_1456_resolved
+
+event hist_skanderbeg_lezhe
+title = Skanderbeg's Bastion in the Highlands
+text = From his mountain stronghold of Krujë, Gjergj Kastrioti Skanderbeg rallies the League of Lezhë, bleeding Ottoman expeditions in ambush after ambush.
+category = military
+countries = ALB
+date_from = 1454-01-01
+date_to = 1468-01-17
+mtth = 16
+fire_once = true
+major = true
+trigger:
+  ruler_alive = skanderbeg
+  owns = Kruje
+  exists = TUR
+option:
+  label = Defend Albania's passes to the last sword!
+  ai_weight = 85
+  effect:
+    prestige = 15
+    add_modifier = skanderbeg_league:League of Lezhë:120:fort_defence=0.25,army_quality=0.12
+    change_opinion = PAP:25
+    change_opinion = NAP:20
+option:
+  label = Accept Ottoman tributary peace to spare the valleys
+  ai_weight = 15
+  effect:
+    ducats = -30
+    change_opinion = TUR:35
+    prestige = -10
+
+event hist_trebizond_1461
+title = The Ottoman March on Trebizond
+text = After sweeping across northern Anatolia, Ottoman columns and galleys descend on the Pontic Alps. The last remnant of the Komnenoi Empire at Trebizond faces an impossible choice.
+category = historical
+countries = TRE
+date_from = 1461-08-01
+date_to = 1464-12-31
+mtth = 10
+fire_once = true
+major = true
+trigger:
+  owns = Trebizond
+  exists = TUR
+  not_global_flag = trebizond_1461_resolved
+option:
+  label = Bar the gates of Trebizond and defy the Sultan!
+  ai_weight = 55
+  effect:
+    prestige = 12
+    spawn_units = Trebizond:infantry:2
+    change_opinion = TUR:-50
+    set_global_flag = trebizond_1461_resolved
+option:
+  label = Surrender Trebizond in exchange for honourable estates
+  ai_weight = 45
+  ai_mod = at_war=false -> *0.8
+  effect:
+    cede_province = Trebizond:TUR
+    ducats = 40
+    prestige = -15
+    set_global_flag = trebizond_1461_resolved
+
+event hist_trebizond_legacy_alt
+title = The Legacy of Pontic Trebizond
+text = With the Komnenian throne of Trebizond already extinguished, {country} integrates the Pontic Black Sea port and its Greek and Laz merchants into the imperial customs network.
+category = historical
+countries = TUR
+date_from = 1461-08-01
+date_to = 1475-12-31
+mtth = 12
+fire_once = true
+trigger:
+  not_exists = TRE
+  owns = Trebizond
+  not_global_flag = trebizond_1461_resolved
+option:
+  label = Grant Pontic merchants imperial trading charters
+  ai_weight = 75
+  effect:
+    ducats = 60
+    add_modifier = pontic_ports:Black Sea Customs:60:trade=0.08
+    set_global_flag = trebizond_1461_resolved
+option:
+  label = Garrison the Pontic passes with timariots
+  ai_weight = 25
+  effect:
+    manpower = 2500
+    pops_convert = Trebizond:orthodox->sunni:0.15
+    set_global_flag = trebizond_1461_resolved
+
+event hist_otranto_1480_nap
+title = The Ottoman Landing at Otranto
+text = Crossing the Strait of Otranto with a grand fleet, Gedik Ahmed Pasha's soldiers storm the Apulian coast near Lecce, sending shockwaves to Rome and across all Italy.
+category = historical
+countries = NAP
+date_from = 1480-08-01
+date_to = 1483-12-31
+mtth = 10
+fire_once = true
+major = true
+trigger:
+  owns = Lecce
+  exists = TUR
+  not_global_flag = otranto_resolved
+option:
+  label = Rally an Italian crusade to retake Otranto!
+  ai_weight = 85
+  effect:
+    ducats = -60
+    spawn_units = Lecce:infantry:3
+    unrest = Lecce:10
+    change_opinion = PAP:30
+    change_opinion = TUR:-40
+    prestige = 12
+    set_global_flag = otranto_resolved
+option:
+  label = Fortify the Apulian hinterland and appeal to Aragon
+  ai_weight = 15
+  effect:
+    province_fort = Lecce:1
+    change_opinion = ARA:25
+    prestige = -5
+    set_global_flag = otranto_resolved
+
+event hist_otranto_1480_alt
+title = Footing Across the Adriatic
+text = Holding the Apulian shore around Lecce, Ottoman commanders weigh whether to push further into southern Italy or consolidate the Adriatic crossing.
+category = military
+countries = TUR
+date_from = 1480-08-01
+date_to = 1486-12-31
+mtth = 12
+fire_once = true
+major = true
+trigger:
+  owns = Lecce
+  not_global_flag = otranto_resolved
+option:
+  label = Fortify Otranto as a bridgehead into Italy
+  ai_weight = 75
+  effect:
+    province_fort = Lecce:1
+    add_claim = Bari
+    add_claim = Naples
+    prestige = 15
+    set_global_flag = otranto_resolved
+option:
+  label = Withdraw the expedition across the strait with plunder
+  ai_weight = 25
+  effect:
+    ducats = 100
+    manpower = 2000
+    set_global_flag = otranto_resolved
+
+event hist_mehmed_kanunname
+title = Mehmed II's Kanunname and New Imperial Capital
+text = Rebuilding ruined Konstantiniyye with Topkapı Palace, the Grand Bazaar, and the Sahn-ı Seman madrasas, Mehmed II codifies the imperial Kanunname governing state, court, and succession.
+category = internal
+countries = TUR
+date_from = 1454-01-01
+date_to = 1481-05-03
+mtth = 24
+fire_once = true
+major = true
+trigger:
+  ruler_alive = mehmed2
+  owns = Konstantiniyye
+option:
+  label = Promulgate the Kanunname and repopulate the Queen of Cities
+  ai_weight = 85
+  effect:
+    ducats = -75
+    province_dev = Konstantiniyye:1
+    prestige = 15
+    add_modifier = kanunname_order:Imperial Kanunname:120:tax=0.10,reform_progress=0.15,learning=0.10
+option:
+  label = Pour treasury into the Janissary hearth and siege foundries
+  ai_weight = 15
+  effect:
+    ducats = -50
+    estate_loyalty = janissaries:12
+    add_modifier = imperial_foundry:Imperial Cannon Foundry:120:army_quality=0.06
+
+event hist_cem_sultan_crisis
+title = The Flight of Cem Sultan
+text = Following Mehmed II's death, his younger son Cem contests the Ottoman throne before fleeing to Rhodes and Christendom, becoming a diplomatic hostage in European and Mamluk hands.
+category = dynastic
+countries = TUR
+date_from = 1481-05-03
+date_to = 1488-12-31
+mtth = 12
+fire_once = true
+major = true
+trigger:
+  not_ruler_alive = mehmed2
+  owns = Konstantiniyye
+option:
+  label = Pay the Knights of Rhodes to keep Cem under watch
+  ai_weight = 75
+  effect:
+    ducats = -80
+    stability = 1
+    change_opinion = KNI:20
+    change_opinion = PAP:15
+option:
+  label = Demand Cem's unconditional surrender by threat of arms
+  ai_weight = 25
+  effect:
+    prestige = 10
+    change_opinion = KNI:-30
+    change_opinion = MAM:-25
+    estate_loyalty = janissaries:8
+
+event hist_vlad_targoviste_1462
+title = The Night Attack at Târgoviște
+text = Refusing further tribute to the Porte, Wallachia's Voivode Vlad III launches a daring nocturnal raid straight through the Sultan's Danube camp, inspiring awe and terror across the Balkans.
+category = military
+countries = WAL
+date_from = 1456-08-01
+date_to = 1466-12-31
+mtth = 18
+fire_once = true
+trigger:
+  character_alive = vlad3
+  exists = TUR
+option:
+  label = Scorch the borderlands and strike at night!
+  ai_weight = 75
+  effect:
+    prestige = 15
+    add_modifier = night_terror:Wallachian Guerrilla War:48:army_quality=0.10,fort_defence=0.15
+    change_opinion = TUR:-50
+    change_opinion = HUN:20
+option:
+  label = Resume Danube tribute to spare the boyars' estates
+  ai_weight = 25
+  effect:
+    ducats = -30
+    change_opinion = TUR:25
+    estate_loyalty = nobles:10
+
+event hist_stephen_vaslui_1475
+title = Stephen the Great at Vaslui
+text = Outnumbered in the foggy marshes of Vaslui, Voivode Stephen III lures a vast Ottoman host into crossfire, earning Pope Sixtus IV's praise as the Champion of Christ.
+category = military
+countries = MOL
+date_from = 1470-01-01
+date_to = 1482-12-31
+mtth = 20
+fire_once = true
+trigger:
+  exists = TUR
+  provinces_min = 2
+option:
+  label = Hold the Moldavian marshes and build stone monasteries!
+  ai_weight = 80
+  effect:
+    prestige = 15
+    stability = 1
+    add_modifier = athlete_of_christ:Champion of Christendom:60:army_quality=0.08,fort_defence=0.15
+    change_opinion = PAP:25
+option:
+  label = Seek peaceful border demarcation with the Porte
+  ai_weight = 20
+  effect:
+    ducats = -25
+    change_opinion = TUR:20
+
+event hist_knights_rhodes_1480
+title = The Great Siege of Rhodes
+text = Hundreds of Ottoman sails darken the waters off Rhodes as Mesih Pasha lands heavy siege cannons against the Hospitaller walls. Grand Master Pierre d'Aubusson mans the breach in person.
+category = military
+countries = KNI
+date_from = 1480-05-01
+date_to = 1483-12-31
+mtth = 10
+fire_once = true
+major = true
+trigger:
+  owns = Rhodes
+  exists = TUR
+option:
+  label = Stand fast at the Tower of St. Nicholas!
+  ai_weight = 85
+  effect:
+    prestige = 20
+    add_modifier = bulwark_of_rhodes:Bulwark of Rhodes:120:fort_defence=0.30,army_quality=0.10
+    change_opinion = PAP:30
+    ducats = 40
+option:
+  label = Treat with the Porte for safe evacuation
+  ai_weight = 15
+  effect:
+    prestige = -15
+    change_opinion = PAP:-20
+
+event hist_fall_of_kaffa_1475
+title = The Fall of Genoese Kaffa
+text = Ottoman warships under Gedik Ahmed Pasha appear off the Crimean port of Kaffa, ending Genoese rule on the Black Sea and drawing the Crimean Khanate into Ottoman orbit.
+category = diplomatic
+countries = CRI
+date_from = 1475-06-01
+date_to = 1480-12-31
+mtth = 14
+fire_once = true
+trigger:
+  exists = TUR
+  exists = GEN
+  province_owner = Kaffa:GEN
+option:
+  label = Ally with the Sublime Porte against Genoa and the Steppe
+  ai_weight = 80
+  effect:
+    change_opinion_both = TUR:50
+    add_claim = Kaffa
+    prestige = 8
+option:
+  label = Guard Crimean independence from both Porte and Horde
+  ai_weight = 20
+  effect:
+    manpower = 3000
+    change_opinion = TUR:-25
+
+event hist_novgorod_annexation
+title = The Twilight of Lord Novgorod the Great
+text = Divided between pro-Lithuanian boyars and Muscovite sympathisers, the wealthy merchant republic of Novgorod faces Moscow's armies across the Shelon river.
+category = historical
+countries = MOS
+date_from = 1471-07-01
+date_to = 1482-12-31
+mtth = 18
+fire_once = true
+major = true
+trigger:
+  exists = NOV
+  owns = Moscow
+option:
+  label = Silence the veche bell and claim Novgorod's lands!
+  ai_weight = 85
+  effect:
+    add_claim = Novgorod
+    add_cb = NOV:subjugation:60
+    change_opinion = NOV:-60
+    prestige = 10
+option:
+  label = Content ourselves with Novgorodian silver tribute
+  ai_weight = 15
+  effect:
+    ducats = 70
+    change_opinion_both = NOV:15
+
+event hist_stand_on_the_ugra
+title = The Great Stand on the Ugra River
+text = Refusing to bow to Khan Akhmat's demand for Tatar tribute, Grand Prince Ivan III marches Muscovite handgunners and cannon to the banks of the Ugra, breaking two centuries of Golden Horde suzerainty.
+category = historical
+countries = MOS
+date_from = 1478-01-01
+date_to = 1485-12-31
+mtth = 16
+fire_once = true
+major = true
+trigger:
+  exists = GRH
+  owns = Moscow
+  provinces_min = 6
+option:
+  label = Tear up the khan's charter — Russia is sovereign!
+  ai_weight = 90
+  effect:
+    prestige = 20
+    stability = 1
+    add_modifier = third_rome_sovereignty:Sovereign Grand Duchy:120:tax=0.10,manpower=0.15
+    change_opinion = GRH:-60
+option:
+  label = Pay one final gift to avoid a winter campaign
+  ai_weight = 10
+  effect:
+    ducats = -60
+    prestige = -10
+    change_opinion = GRH:20
+
+event hist_ottoman_mamluk_marj_dabiq
+title = Showdown with the Mamluk Sultanate
+text = Border clashes in Cilicia and Syria and Mamluk harbouring of Ottoman rivals push Constantinople and Cairo toward a decisive struggle for the Levant and the Holy Cities.
+category = military
+countries = TUR
+date_from = 1514-01-01
+date_to = 1522-12-31
+mtth = 18
+fire_once = true
+major = true
+trigger:
+  exists = MAM
+  owns = Konstantiniyye
+option:
+  label = March south into Syria with our field artillery!
+  ai_weight = 80
+  effect:
+    add_cb = MAM:holyWar:60
+    add_claim = Cairo
+    change_opinion = MAM:-60
+    add_modifier = eastern_campaign:Syrian Expedition:48:army_quality=0.06,manpower=0.12
+option:
+  label = Preserve the Syrian frontier through diplomacy
+  ai_weight = 20
+  effect:
+    change_opinion_both = MAM:25
+    ducats = 40

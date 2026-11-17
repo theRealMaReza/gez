@@ -428,7 +428,7 @@ public enum MovementSystem {
         }
     }
 
-    private static func spawnCentre(in province: ProvinceID, religion: Religion, world: inout World, date: GameDate) {
+    static func spawnCentre(in province: ProvinceID, religion: Religion, world: inout World, date: GameDate) {
         world.faith.reformationCentres.append(ReformationCentre(province: province, religion: religion, foundedYear: date.year))
         world.faith.reformationReligions.insert(religion)
 

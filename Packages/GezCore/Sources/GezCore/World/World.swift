@@ -361,6 +361,10 @@ public struct World: Sendable {
     public var tech = TechState()
     /// Technology tracks, starting levels and institution rules (fixed data, not saved).
     public var techRules = TechRules()
+    /// Historical & chronicle events state, flags, modifiers and pending choices (Phase 14).
+    public var events = EventsState()
+    /// Event definitions and pre-filtered indices (fixed data, not saved).
+    public var eventRules = EventRules()
 
     public init(map: MapInfo = MapInfo(width: 1, height: 1, pixelsPerDegree: 1, longitudeMin: 0, latitudeMax: 0)) {
         self.map = map

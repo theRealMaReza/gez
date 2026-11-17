@@ -180,6 +180,7 @@ public struct GameAlertInfo: Identifiable, Sendable, Equatable {
         case rebels
         case techLevel
         case institution
+        case event
     }
 
     public let id: String

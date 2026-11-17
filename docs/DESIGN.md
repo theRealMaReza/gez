@@ -586,6 +586,28 @@ historical institutions, all defined in plain-text tables in
 - **Screens (`godot/scripts/TechnologyPanel.gd`, `MapTechLayer.gd`, `GezGodotTechBridge.swift`)**:
   top-bar `Tech` button (`Tech X/Y/Z`) and Technology window (tracks, progress, gain sources, cost modifiers, next unlocks, Focus buttons, Institutions with Embrace controls), Institutions (`K`) map mode with origin markers, province People tab institution breakdown, tech & institution alerts, and headless snapshots after multi-year simulation (`godot_map_institutions.png`, `godot_technology_window.png`).
 
+## Historical & Chronicle Events (Phase 14)
+
+Condition-triggered narrative events with 2–4 player/AI choices (mission trees moved to a later phase, with conditions & effects kept reusable):
+
+- **Data pipeline (`data/events/*.txt` → `tools/events/eventgen.py` → `events1453.json`)**:
+  reproducible JSON generator validating every country tag, province name, character ID, trait key, estate, good/tech/institution key, condition, and effect (`Scenario1453.loadEvents()` indexes country-whitelisted vs global candidates on load).
+- **Fixed reusable condition & effect vocabulary (`Packages/GezCore/Sources/GezCore/Events/Events.swift`, `EventSystem.swift`)**:
+  - Conditions: `tag`, `not_tag`, `exists`, `not_exists`, `owns`, `not_owns`, `controls`, `province_owner`, `province_religion`, `at_war_with`, `at_war`, `religion`, `not_religion`, `religion_family`, `culture`, `culture_family`, `government`, `is_subject`, `is_vassal_of`, `adm_tech`, `dip_tech`, `mil_tech`, `institution_spawned`, `institution_embraced`, `institution_present`, `stability_min`/`max`, `treasury_min`/`max`, `is_coastal`, `has_flag`, `not_flag`, `global_flag`, `not_global_flag`, `ruler_alive`, `not_ruler_alive`, `character_alive`, `ruler_trait`, `ruler_skill_min`, `reformation_started`, `safaviyya_phase`, `year_min`/`max`.
+  - Effects: `ducats`, `stability`, `prestige`, `estate_loyalty`, `unrest`, `pops_convert`, `add_claim`, `add_cb`, `spawn_units`, `set_flag`, `clear_flag`, `set_global_flag`, `clear_global_flag`, `add_modifier` (duration in months, applied in `GovernmentSystem`), `change_opinion`, `change_opinion_both`, `change_religion`, `accept_culture`, `manpower`, `sailors`, `tech_progress`, `kill_character`, `add_vassal_favour`, `province_dev`, `province_fort`, `institution_spread`, `spawn_reformation`, `advance_safaviyya`.
+- **Monthly evaluation & own dice**:
+  - Pre-filtered by country whitelist and `[date_from, date_to]` / `exact_date` with an `EventEvalContext` cache built once per month (`EventSystem.runMonthly`).
+  - Uses dedicated saved RNG stream `world.events.rngState` (`world.beginEventRandom` / `endEventRandom`), never drawing from `Simulation.random`.
+  - Exact-date events fire on the first monthly tick on or after `exact_date`; MTTH events use standard monthly probability $1 - 0.5^{1/(\text{mtth}\cdot\text{mult})}$ capped at `1.0`.
+- **Player pop-up & AI choices**:
+  - Player events enqueue in `world.events.pending` (`EventReport` alert pill `"Event: ..."`) and auto-pause `GameSession` unless `pauseOnEvents == false`.
+  - AI picks weighted options asynchronously (`ai_weight` scaled by situation modifiers).
+- **Historical & Chronicle events (70 total)**:
+  - **66 historical events** across five handcrafted files (`01_iberia_west.txt`, `02_central_italy_nordic.txt`, `03_balkans_east_russia.txt`, `04_persia_india_africa.txt`): End of the Hundred Years' War, Peace of Lodi, Belgrade 1456 (+ Ottoman fallback), Ladislaus V 1457, Printing Press at Mainz, Skanderbeg, Trebizond 1461, Otranto 1480 (`Lecce`), Fall of Granada (war & conquered fallbacks), Columbus patron chain (`POR` → `CAS` → northern courts), Vasco da Gama at Calicut 1498, Safavid rise 1501 (`MovementSystem`), Babur at Kabul/Panipat, Luther's Ninety-Five Theses 1517 (`MovementSystem`), Diet of Worms, etc.
+  - **4 chronicle event pop-ups** (`05_chronicle_events.txt`, triggered directly by systems): `chronicle_rebel_rising` (`RebelSystem`), `chronicle_vassal_plot_success` / `chronicle_vassal_plot_uncovered` (`VassalSystem`, suppressing duplicate death pop-up when poisoned), and `chronicle_ruler_death` (`CharacterSystem`).
+- **Godot screens (`godot/scripts/EventPopup.gd`, `Main.gd`, `GezGodotEventBridge.swift`, `capture_snapshots.gd`)**:
+  centered Event pop-up modal (category, date, title, wrapped narrative, optional `Locate` button, 2–4 option buttons with effect tooltips, `"Pause game on events"` toggle mirrored in Game Menu), collapsible `"Recent Events"` strip in the alerts area, and `godot_event_popup.png` snapshot.
+
 ## Architecture
 
 | Layer | Tech | Notes |

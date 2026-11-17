@@ -45,6 +45,9 @@ public final class GameSession {
     private var clock = GameClock()
     private var lastRunningSpeed: GameSpeed = .two
     private var speedBeforeBattlePrompt: GameSpeed?
+    /// When true (default), newly arriving historical or chronicle events pause the game.
+    public var pauseOnEvents: Bool = true
+    private var pausedForEventIDs: Set<Int> = []
 
     /// Interactive battle view support (enabled by Godot front-end; left false for App/ and pure simulation tests).
     public var interactiveBattlesEnabled: Bool = false {
@@ -145,6 +148,14 @@ public final class GameSession {
                 } else {
                     simulation.pendingHumanBattleID = nil
                 }
+            }
+            if pauseOnEvents,
+               let player = playerCountry,
+               let ev = simulation.world.events.pendingEvent(for: player),
+               !pausedForEventIDs.contains(ev.instanceID) {
+                pausedForEventIDs.insert(ev.instanceID)
+                speed = .paused
+                break
             }
         }
         date = simulation.date
@@ -720,6 +731,7 @@ public final class GameSession {
         pendingBattlePrompt = nil
         tacticalBattle = nil
         speedBeforeBattlePrompt = nil
+        pausedForEventIDs.removeAll()
         date = sim.date
         let picked = sim.world.countries.id(forTag: tag) ?? sim.world.countries.id(forTag: Scenario1453.defaultPlayerTag)
         playerCountry = picked
@@ -1061,6 +1073,15 @@ public final class GameSession {
                 label: "Institution: \(inst.name)",
                 province: recentSpawn.province
             ))
+        }
+
+        if let pendingEv = w.events.pendingEvent(for: player) {
+            out.insert(GameAlertInfo(
+                id: "event-\(pendingEv.instanceID)",
+                kind: .event,
+                label: "Event: \(pendingEv.title)",
+                province: pendingEv.contextProvince
+            ), at: 0)
         }
 
         return out
@@ -1586,5 +1607,29 @@ public final class GameSession {
         let refusal = InstitutionSystem.embrace(&simulation.world, player, institution: index, date: date)
         if refusal == nil { revision &+= 1 }
         return refusal
+    }
+
+    // MARK: - Phase 14: Historical & Chronicle Events
+
+    /// First pending event awaiting a decision from the current player country.
+    public var pendingPlayerEvent: PendingEvent? {
+        guard let player = playerCountry else { return nil }
+        return simulation.world.events.pendingEvent(for: player)
+    }
+
+    /// Resolves a pending event for the player by choosing `optionIndex` (`0..<options.count`).
+    @discardableResult
+    public func chooseEventOption(instanceID: Int, optionIndex: Int) -> Bool {
+        guard let player = playerCountry,
+              let pending = simulation.world.events.pending.first(where: { $0.instanceID == instanceID }),
+              pending.country == player else {
+            return false
+        }
+        let ok = EventSystem.resolvePendingEvent(&simulation.world, instanceID: instanceID, optionIndex: optionIndex, date: date)
+        if ok {
+            pausedForEventIDs.remove(instanceID)
+            revision &+= 1
+        }
+        return ok
     }
 }

@@ -21,6 +21,7 @@ const TechnologyPanelScript := preload("res://scripts/TechnologyPanel.gd")
 const DiplomacyPanelScript := preload("res://scripts/DiplomacyPanel.gd")
 const WarsPanelScript := preload("res://scripts/WarsPanel.gd")
 const BattleViewScript := preload("res://scripts/BattleView.gd")
+const EventPopupScript := preload("res://scripts/EventPopup.gd")
 
 var bridge: RefCounted = null
 var warned_missing_methods: Dictionary = {}
@@ -88,6 +89,11 @@ var armies_btn: Button
 var fleets_btn: Button
 var alerts_scroll: ScrollContainer
 var alerts_hbox: HBoxContainer
+var recent_events_panel: PanelContainer
+var recent_events_toggle_btn: Button
+var recent_events_list_box: VBoxContainer
+var recent_events_expanded: bool = false
+var _last_recent_events_sig: String = "__init__"
 var date_label: Label
 var selection_label: Label
 var fps_label: Label
@@ -144,6 +150,7 @@ var menu_status_label: Label
 var save_name_input: LineEdit
 var autosave_option_btn: OptionButton
 var autosave_keys: Array[String] = []
+var menu_pause_events_check: CheckBox
 var saves_list_box: VBoxContainer
 
 # Nation picker widgets
@@ -166,6 +173,9 @@ var battle_choice_title: Label
 var battle_choice_sub: Label
 var battle_choice_details: Label
 var battle_view: Control
+
+# Historical & Chronicle Event pop-up modal (Phase 14)
+var event_popup: Control
 
 # Heraldry cache (tag -> Texture2D)
 var arms_cache: Dictionary = {}
@@ -290,6 +300,7 @@ func _build_scene_ui() -> void:
 	# 3. Top bar panel & alerts row
 	_build_top_bar()
 	_build_alerts_bar()
+	_build_recent_events_bar()
 
 	# 4. Map mode bar (top-right, below top bar)
 	_build_map_mode_bar()
@@ -404,6 +415,13 @@ func _build_scene_ui() -> void:
 	battle_view.set_script(BattleViewScript)
 	add_child(battle_view)
 	battle_view.call("setup", self, bridge)
+
+	# 11. Historical & Chronicle Event pop-up modal (Phase 14)
+	event_popup = Control.new()
+	event_popup.name = "EventPopupUI"
+	event_popup.set_script(EventPopupScript)
+	add_child(event_popup)
+	event_popup.call("setup", self)
 
 func _make_panel_style(bg := Color(0.14, 0.11, 0.08, 0.96)) -> StyleBoxFlat:
 	var s := StyleBoxFlat.new()
@@ -1064,6 +1082,14 @@ func _build_game_menu_panel() -> void:
 	autosave_option_btn.item_selected.connect(_on_autosave_selected)
 	auto_row.add_child(autosave_option_btn)
 
+	menu_pause_events_check = CheckBox.new()
+	menu_pause_events_check.text = "Pause game on historical & chronicle events"
+	menu_pause_events_check.button_pressed = true
+	menu_pause_events_check.toggled.connect(func(enabled: bool) -> void:
+		_call_bridge("setPauseOnEvents", [enabled], enabled)
+	)
+	vbox.add_child(menu_pause_events_check)
+
 	vbox.add_child(HSeparator.new())
 
 	# Load Game list
@@ -1317,6 +1343,9 @@ func _process(delta: float) -> void:
 		_refresh_top_bar()
 		_refresh_armies()
 		_refresh_fleets()
+	if event_popup != null and bool(_call_bridge("hasPendingEvent", [], false)):
+		event_popup.call("open_pending_if_new", false)
+		_refresh_top_bar()
 	if mask != 0:
 		_refresh_top_bar()
 		if (mask & 1) != 0:
@@ -1503,6 +1532,11 @@ func _refresh_top_bar() -> void:
 		_last_alerts_sig = alerts_sig
 		_refresh_alerts_bar()
 
+	var recent_sig: String = str(top.get("recentEventsSignature", ""))
+	if recent_sig != _last_recent_events_sig:
+		_last_recent_events_sig = recent_sig
+		_refresh_recent_events()
+
 # MARK: - Map Modes (Q to I)
 
 func _select_map_mode(mode_key: String) -> void:
@@ -1578,6 +1612,8 @@ func _refresh_game_menu() -> void:
 	if freq_idx >= 0 and freq_idx < autosave_option_btn.item_count:
 		autosave_option_btn.selected = freq_idx
 
+	_sync_pause_on_events_ui()
+
 	_clear_children(saves_list_box)
 	var saves: Array = _call_bridge("getSavedGames", [], [])
 	if saves.is_empty():
@@ -1647,11 +1683,17 @@ func _after_world_replaced() -> void:
 	sea_panel.visible = false
 	open_market_index = -1
 	market_panel.visible = false
+	if event_popup != null:
+		event_popup.visible = false
+		event_popup.call("reset_seen")
+	_last_alerts_sig = "__init__"
+	_last_recent_events_sig = "__init__"
 	_close_top_left_windows()
 	_refresh_all_labels()
 	_refresh_styles_and_country_labels()
 	_refresh_town_icons()
 	_refresh_top_bar()
+	_refresh_recent_events()
 	_refresh_play_as_button()
 	_refresh_armies()
 	_refresh_fleets()
@@ -3127,6 +3169,7 @@ func _refresh_alerts_bar() -> void:
 	var alerts: Array = _call_bridge("getActiveAlerts", [], [])
 	if alerts.is_empty():
 		alerts_scroll.visible = false
+		_layout_recent_events_bar()
 		return
 	alerts_scroll.visible = true
 	for a_v in alerts:
@@ -3147,6 +3190,8 @@ func _refresh_alerts_bar() -> void:
 				btn.modulate = Color(0.55, 0.85, 1.0)
 			"techLevel", "institution":
 				btn.modulate = Color(0.60, 0.90, 0.62)
+			"event":
+				btn.modulate = Color(1.0, 0.88, 0.45)
 			"breach", "disloyalEstate":
 				btn.modulate = Color(1.0, 0.72, 0.38)
 			_:
@@ -3156,12 +3201,115 @@ func _refresh_alerts_bar() -> void:
 			_on_alert_pressed(alert_copy)
 		)
 		alerts_hbox.add_child(btn)
+	_layout_recent_events_bar()
+
+func _build_recent_events_bar() -> void:
+	recent_events_panel = PanelContainer.new()
+	recent_events_panel.name = "RecentEventsPanel"
+	recent_events_panel.position = Vector2(12.0, 88.0)
+	recent_events_panel.custom_minimum_size = Vector2(360.0, 0.0)
+	var st := _make_panel_style(Color(0.12, 0.10, 0.08, 0.90))
+	st.content_margin_left = 8.0
+	st.content_margin_right = 8.0
+	st.content_margin_top = 4.0
+	st.content_margin_bottom = 4.0
+	recent_events_panel.add_theme_stylebox_override("panel", st)
+	recent_events_panel.visible = false
+	add_child(recent_events_panel)
+
+	var vbox := VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 4)
+	recent_events_panel.add_child(vbox)
+
+	recent_events_toggle_btn = Button.new()
+	recent_events_toggle_btn.text = "Recent Events"
+	recent_events_toggle_btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	recent_events_toggle_btn.modulate = Color(0.95, 0.86, 0.58)
+	recent_events_toggle_btn.pressed.connect(func() -> void:
+		recent_events_expanded = not recent_events_expanded
+		_refresh_recent_events()
+	)
+	vbox.add_child(recent_events_toggle_btn)
+
+	recent_events_list_box = VBoxContainer.new()
+	recent_events_list_box.add_theme_constant_override("separation", 3)
+	recent_events_list_box.visible = false
+	vbox.add_child(recent_events_list_box)
+
+func _layout_recent_events_bar() -> void:
+	if recent_events_panel == null:
+		return
+	var alerts_vis := alerts_scroll != null and alerts_scroll.visible
+	recent_events_panel.position = Vector2(12.0, 88.0 if alerts_vis else 52.0)
+
+func _refresh_recent_events() -> void:
+	if recent_events_panel == null or recent_events_list_box == null or bridge == null:
+		return
+	_clear_children(recent_events_list_box)
+	var items: Array = _call_bridge("getRecentEvents", [], [])
+	if items.is_empty():
+		recent_events_panel.visible = false
+		return
+	recent_events_panel.visible = true
+	_layout_recent_events_bar()
+	var latest: Dictionary = items[0] if items[0] is Dictionary else {}
+	var arrow := "v" if recent_events_expanded else ">"
+	recent_events_toggle_btn.text = "%s Recent Events (%d): %s" % [
+		arrow,
+		items.size(),
+		str(latest.get("title", ""))
+	]
+	recent_events_list_box.visible = recent_events_expanded
+	if not recent_events_expanded:
+		return
+	for item_v in items:
+		if not (item_v is Dictionary):
+			continue
+		var item: Dictionary = item_v
+		var title_s: String = str(item.get("title", ""))
+		var date_s: String = str(item.get("dateText", ""))
+		var choice_s: String = str(item.get("chosenLabel", ""))
+		var eff_s: String = str(item.get("effectSummary", ""))
+		var row_lbl := _make_label("%s · %s (%s)" % [date_s, title_s, choice_s], Color(0.92, 0.87, 0.74), 11)
+		row_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		row_lbl.custom_minimum_size = Vector2(340.0, 0.0)
+		recent_events_list_box.add_child(row_lbl)
+		if not eff_s.is_empty():
+			var eff_lbl := _make_label("   " + eff_s, Color(0.72, 0.82, 0.66), 10)
+			eff_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			eff_lbl.custom_minimum_size = Vector2(340.0, 0.0)
+			recent_events_list_box.add_child(eff_lbl)
+
+func _open_event_popup() -> void:
+	if event_popup != null:
+		event_popup.call("open_pending_if_new", true)
+
+func _sync_pause_on_events_ui() -> void:
+	if menu_pause_events_check != null and bridge != null:
+		var enabled: bool = bool(_call_bridge("getPauseOnEvents", [], true))
+		menu_pause_events_check.set_pressed_no_signal(enabled)
+
+func _on_event_resolved() -> void:
+	_last_alerts_sig = "__init__"
+	_last_recent_events_sig = "__init__"
+	_refresh_top_bar()
+	_refresh_recent_events()
+	_refresh_styles_and_country_labels()
+	_refresh_faith_overlay()
+	_refresh_armies(true)
+	_refresh_fleets(true)
+	if province_panel.visible:
+		_refresh_province_panel()
+	if event_popup != null and bool(_call_bridge("hasPendingEvent", [], false)):
+		event_popup.call("open_pending_if_new", false)
 
 func _on_alert_pressed(alert: Dictionary) -> void:
 	var kind: String = str(alert.get("kind", ""))
 	var p_idx: int = int(alert.get("provinceIndex", -1))
 	var war_id: String = str(alert.get("warID", ""))
 	match kind:
+		"event":
+			_open_event_popup()
 		"peaceOffer":
 			_open_wars_and_peace(war_id)
 		"breach", "underSiege", "blockadedPort", "plague", "famine", "earthquake":

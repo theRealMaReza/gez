@@ -70,6 +70,7 @@ final class ProfileTests: XCTestCase {
                 time("UnrestSystem.runMonthly") { UnrestSystem.runMonthly(&world, date: date, random: &random) }
                 time("DiplomacySystem.runMonthly") { DiplomacySystem.runMonthly(&world, date: date) }
                 time("DiplomacyAISystem.runMonthly") { DiplomacyAISystem.runMonthly(&world, date: date, random: &random) }
+                time("EventSystem.runMonthly") { EventSystem.runMonthly(&world, date: date, random: &random) }
             }
             if date.isFirstOfYear {
                 time("CharacterSystem.runYearly") { CharacterSystem.runYearly(&world, date: date, random: &random) }

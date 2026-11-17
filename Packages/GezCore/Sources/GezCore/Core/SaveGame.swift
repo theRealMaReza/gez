@@ -264,6 +264,7 @@ public struct SaveSnapshot: Sendable, Codable {
     public var calamity: CalamityState?
     public var unrest: UnrestState?
     public var tech: TechState?
+    public var events: EventsState?
 
     public init(capturing simulation: Simulation) {
         let w = simulation.world
@@ -415,6 +416,7 @@ public struct SaveSnapshot: Sendable, Codable {
         self.calamity = w.calamity
         self.unrest = w.unrest
         self.tech = w.tech
+        self.events = w.events
     }
 
     /// Rebuilds an identical `Simulation` using a freshly created static base `World`.
@@ -593,6 +595,10 @@ public struct SaveSnapshot: Sendable, Codable {
                 provinces: w.provinces.count,
                 institutions: w.techRules.institutions.count
             )
+        }
+        if let events {
+            w.events = events
+            w.events.resize(countries: w.countries.count)
         }
 
         return Simulation(

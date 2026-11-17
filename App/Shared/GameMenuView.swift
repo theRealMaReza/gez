@@ -125,7 +125,7 @@ struct AlertsBanner: View {
                 action = {
                     if let p = info.province { model.select(province: p) }
                 }
-            case .plague, .famine, .earthquake, .rebels, .techLevel, .institution:
+            case .plague, .famine, .earthquake, .rebels, .techLevel, .institution, .event:
                 // Phase 12 alerts: the old Apple app only jumps to the province
                 // (the plague and rebel screens live in the Godot game).
                 systemImage = "exclamationmark.triangle.fill"
