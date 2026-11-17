@@ -99,6 +99,7 @@ public enum DiplomacyAISystem {
                 &world,
                 country: c,
                 landNeighbors: landNeighbors[c.index],
+                allNeighbors: landNeighbors,
                 ownedProvinces: ownedProvinces,
                 date: date,
                 random: &random
@@ -453,6 +454,7 @@ public enum DiplomacyAISystem {
         _ world: inout World,
         country c: CountryID,
         landNeighbors: Set<CountryID>,
+        allNeighbors: [Set<CountryID>],
         ownedProvinces: [[ProvinceID]],
         date: GameDate,
         random: inout GameRandom
@@ -531,9 +533,9 @@ public enum DiplomacyAISystem {
         // Look at neighbors with positive relations who have slots available
         var pool = landNeighbors
         if useGoalTreaties && isFree {
-            // Free AI also checks neighbors-of-hostile-neighbors for balance-of-power alliances
+            // Free AI also checks 2-hop neighbors of hostile neighbors for balance-of-power alliances
             for nb in landNeighbors where world.diplomacy.opinion(of: nb, by: c) < -15 {
-                for other in world.countries.ids where other != c && other != nb && !ownedProvinces[other.index].isEmpty {
+                for other in allNeighbors[nb.index] where other != c && other != nb && !ownedProvinces[other.index].isEmpty {
                     if world.diplomacy.opinion(of: nb, by: other) < -25 {
                         pool.insert(other)
                     }
@@ -773,7 +775,7 @@ public enum DiplomacyAISystem {
             case .succession: 100
             case .noCB: 0
             }
-            let ratioScore = (ourStrength - enemyStrength) / 100
+            let ratioScore = min(80, max(0, (ourStrength - enemyStrength) / 250))
             var totalScore = cbScore + ratioScore
             if isGoalTarget {
                 totalScore += 800
@@ -800,8 +802,8 @@ public enum DiplomacyAISystem {
             chance = max(chance, 0.45)
         } else if isFree {
             chance *= traits.warMultiplier
-        } else if hasDefendGoal || hasBuildGoal {
-            chance *= 0.45
+        } else if (hasDefendGoal || hasBuildGoal) && best.cb.type != .reconquest && best.cb.type != .claim {
+            chance *= 0.55
         }
         guard Double.random(in: 0..<1, using: &random) < chance else { return }
 
