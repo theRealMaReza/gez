@@ -356,6 +356,37 @@ final class UnrestTests: XCTestCase {
         XCTAssertEqual(world.unrest.risings, 0)
     }
 
+    /// A peace that takes a realm's last province ends its rebel factions
+    /// at once (review fix, Phase 13: peace can come on any day, and the
+    /// monthly clean-up left a landless country's faction for up to a month).
+    func testAnnexedCountryLosesItsRebelsAtOnce() throws {
+        var world = Scenario1453.makeWorld()
+        let tur = try XCTUnwrap(world.countries.id(forTag: "TUR"))
+        let alb = try XCTUnwrap(world.countries.id(forTag: "ALB"))
+        let war = try XCTUnwrap(world.diplomacy.activeWar(between: tur, and: alb))
+        let albania = world.provinces(ownedBy: alb)
+        XCTAssertFalse(albania.isEmpty)
+        world.unrest.resize(provinces: world.provinces.count, countries: world.countries.count)
+        var f = RebelFaction(id: 900, country: alb, kind: .peasants)
+        f.progress = 40
+        f.provinces = albania
+        world.unrest.factions.append(f)
+        world.unrest.factions.append(RebelFaction(id: 901, country: tur, kind: .peasants))
+
+        for p in albania { world.provinces.occupiedBy[p.index] = tur }
+        if let i = world.diplomacy.wars.firstIndex(where: { $0.id == war.id }) {
+            world.diplomacy.wars[i].warScore = war.isAttacker(tur) ? 1.0 : -1.0
+        }
+        let offer = PeaceOffer(warID: war.id, winner: tur, loser: alb,
+                               demands: albania.map { .cedeProvince(province: $0, to: tur) })
+        if case .failure(let err) = world.executePeaceTreaty(offer, date: GameDate(year: 1453, month: 7, day: 14), forceAccept: true) {
+            return XCTFail("Peace failed: \(err)")
+        }
+        XCTAssertTrue(world.provinces(ownedBy: alb).isEmpty)
+        XCTAssertNil(world.unrest.faction(id: 900), "the annexed realm's rebels are gone")
+        XCTAssertNotNil(world.unrest.faction(id: 901), "the winner's own factions stay")
+    }
+
     func testUnrestSaveLoadAndDeterminism() throws {
         let sim = Simulation(world: Scenario1453.makeWorld(), startDate: Scenario1453.startDate, seed: 31)
         let fra = try XCTUnwrap(sim.world.countries.id(forTag: "FRA"))

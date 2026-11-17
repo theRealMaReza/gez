@@ -492,5 +492,8 @@ extension World {
         for key in diplomacy.coalitions.keys {
             diplomacy.coalitions[key]?.remove(country)
         }
+        // A realm with no land has no rebels (Phase 12): clear its factions
+        // now, not at the next monthly tick, since peace can come any day.
+        unrest.factions.removeAll { $0.country == country }
     }
 }

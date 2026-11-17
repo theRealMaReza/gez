@@ -66,6 +66,7 @@ final class ProfileTests: XCTestCase {
                 time("CharacterSystem.runMonthly") { CharacterSystem.runMonthly(&world, date: date, random: &random) }
                 time("VassalSystem.runMonthly") { VassalSystem.runMonthly(&world, date: date, random: &random) }
                 time("GovernmentSystem.runMonthly") { GovernmentSystem.runMonthly(&world, date: date, random: &random) }
+                time("TechSystem.runMonthly") { TechSystem.runMonthly(&world, date: date, random: &random) }
                 time("UnrestSystem.runMonthly") { UnrestSystem.runMonthly(&world, date: date, random: &random) }
                 time("DiplomacySystem.runMonthly") { DiplomacySystem.runMonthly(&world, date: date) }
                 time("DiplomacyAISystem.runMonthly") { DiplomacyAISystem.runMonthly(&world, date: date, random: &random) }
