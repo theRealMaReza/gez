@@ -67,12 +67,15 @@ Order: 14 events → 15 AI setting → 16 sound + tooltips → 17 3D →
 | 14 Historical events | Gemini | Mission trees moved to 21 |
 | 15 AI setting | Gemini | Historical AI uses a simple goal list per country until 21 |
 | 16 Sound + tooltips | Gemini | Sounds from free CC0 libraries (Kenney, Sonniss GDC, freesound CC0); tooltip text now, styled cards in 20 |
-| 17 3D | Claude | Built in Godot (not Metal); three parts: map, models, battles. Models are AI-generated; which tool is decided when 17 starts |
+| 17 3D | Claude | Built in Godot (not Metal); three parts: map, models, battles. Models from free CC0 kits (Quaternius, KayKit, Kenney) recoloured by region, plus simple models Claude builds in code with Blender; **no paid tools** |
 | 18 Chronicle | Gemini | History is recorded from Phase 18 on (no early recording); timelapse covers games started after it |
-| 20 Art | Claude (pipeline) | As planned |
+| 20 Art | Claude (pipeline) | Frames, medallions, seals by our art script; building icons rendered from the 3D models; paintings (events, missions, portraits) made by the owner in the Gemini app from Claude's prompts. **No paid tools or per-image API costs** |
 | 20.5 Balance and play-test | Claude | Long AI-only runs plus the owner's play-throughs; fix balance, speed and bugs before Kayser |
 | 21 Mission trees | Gemini | After the alpha |
 | 19 Multiplayer | Claude | After the alpha; Epic Online Services (EOS) with join codes, as decided in session 6 |
+
+Money: **no extra paid services** (owner, 16 Nov 2026); the owner already
+pays for Claude and Gemini.
 
 Platforms: **Mac and Windows only for now**; iPad not planned (needs
 Apple's paid account).

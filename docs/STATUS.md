@@ -13,7 +13,8 @@ Last updated: 16 November 2026.
 - Game: EU5-style grand strategy from **30 May 1453**, daily tick with
   pause and 5 speeds, Total War–style battles (fight or auto-resolve),
   CK3-style real people of 1453. Mac and Windows (Godot); no iPad for now.
-- No music ever. Local saves only. Never ask for API keys in chat.
+- No music ever. Local saves only. No extra paid services (art: free
+  models, our code, and paintings the owner makes in the Gemini app). Never ask for API keys in chat.
 - Alpha build name: **"Kayser"** (after Phase 20).
 
 ## Where things stand
@@ -29,7 +30,7 @@ Last updated: 16 November 2026.
    Vasco da Gama, Babur, Reformation, Safavids...) and pop-ups for
    risings, plots and deaths. Mission trees moved to Phase 21.
 3. Then: 15 AI setting, 16 sound (free CC0) + tooltips, 17 3D (Claude;
-   AI-made models, tool decided then), 18 chronicle, 20 art, 20.5
+   free CC0 models + models built in code), 18 chronicle, 20 art, 20.5
    balance and play-test (Claude), **alpha "Kayser"**, then 21 mission
    trees and 19 multiplayer (Epic Online Services, join codes). Who writes what: ROADMAP "Plan for the
    remaining phases". Art script: `tools/uiart/ui_art_concept.py`.
