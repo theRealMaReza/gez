@@ -483,8 +483,13 @@ public enum DiplomacyAISystem {
         let maxSlots = world.diplomacy.relationSlots(for: c, world: world)
         guard used < maxSlots else { return }
 
+        // Give the 30 May 1453 starting diplomatic map one month before goal-driven shifts.
+        let useGoalTreaties = date >= GameDate(year: 1453, month: 7, day: 1)
+
         // Historical mode: pursue scripted ally_with targets first (even non-adjacent, e.g. PAP/NAP/POR/VEN)
-        if !isFree {
+        if useGoalTreaties && !isFree {
+            var aiRng = world.beginAIRandom(random)
+            defer { world.endAIRandom(aiRng) }
             for target in histAllies.sorted(by: { $0.index < $1.index }) {
                 guard !world.humanCountries.contains(target),
                       !ownedProvinces[target.index].isEmpty,
@@ -499,7 +504,7 @@ public enum DiplomacyAISystem {
                 let targetUsed = world.diplomacy.usedRelationSlots(for: target, world: world)
                 let targetMax = world.diplomacy.relationSlots(for: target, world: world)
                 guard targetUsed < targetMax else { continue }
-                let roll = Double.random(in: 0..<1, using: &random)
+                let roll = Double.random(in: 0..<1, using: &aiRng)
                 if roll < 0.55 {
                     world.diplomacy.addTreaty(Treaty(first: c, second: target, type: .alliance, note: "Historical Alliance \(date.year)"))
                     return
@@ -515,7 +520,7 @@ public enum DiplomacyAISystem {
                 let targetUsed = world.diplomacy.usedRelationSlots(for: target, world: world)
                 let targetMax = world.diplomacy.relationSlots(for: target, world: world)
                 guard targetUsed < targetMax else { continue }
-                let roll = Double.random(in: 0..<1, using: &random)
+                let roll = Double.random(in: 0..<1, using: &aiRng)
                 if roll < 0.35 {
                     world.diplomacy.addTreaty(Treaty(first: c, second: target, type: .nonAggression, note: "Historical Pact \(date.year)"))
                     return
@@ -525,7 +530,7 @@ public enum DiplomacyAISystem {
 
         // Look at neighbors with positive relations who have slots available
         var pool = landNeighbors
-        if isFree {
+        if useGoalTreaties && isFree {
             // Free AI also checks neighbors-of-hostile-neighbors for balance-of-power alliances
             for nb in landNeighbors where world.diplomacy.opinion(of: nb, by: c) < -15 {
                 for other in world.countries.ids where other != c && other != nb && !ownedProvinces[other.index].isEmpty {
@@ -543,7 +548,7 @@ public enum DiplomacyAISystem {
                   !world.diplomacy.isAtWar(c, other),
                   !world.diplomacy.areAllies(c, other),
                   !world.diplomacy.hasTruce(c, other) else { return false }
-            if !isFree && (conquerOwners.contains(other) || vassalTargets.contains(other)) {
+            if useGoalTreaties && !isFree && (conquerOwners.contains(other) || vassalTargets.contains(other)) {
                 return false
             }
             let opMutual = min(world.diplomacy.opinion(of: other, by: c), world.diplomacy.opinion(of: c, by: other))
@@ -560,8 +565,8 @@ public enum DiplomacyAISystem {
 
         let sameFamily = world.countries.religion[c.index].family == world.countries.religion[target.index].family
         let roll = Double.random(in: 0..<1, using: &random)
-        let allyChance = 0.35 * (isFree ? traits.diplomacyWeight : 1.0)
-        let pactChance = 0.25 * (isFree ? traits.diplomacyWeight : 1.0)
+        let allyChance = 0.35 * (useGoalTreaties && isFree ? traits.diplomacyWeight : 1.0)
+        let pactChance = 0.25 * (useGoalTreaties && isFree ? traits.diplomacyWeight : 1.0)
         if sameFamily && roll < allyChance {
             world.diplomacy.addTreaty(Treaty(first: c, second: target, type: .alliance, note: "AI Alliance \(date.year)"))
         } else if !world.diplomacy.hasTreaty(.nonAggression, between: c, and: target) && roll < pactChance {

@@ -116,6 +116,8 @@ public struct AIGoalRules: Sendable {
 /// Mutable per-country AI setting and goal progress saved in `.gezsave` files.
 public struct AIState: Sendable, Codable, Equatable {
     public var setting: AIBehaviourSetting = .historical
+    public var seeded: Bool = false
+    public var rngState: UInt64 = 0
     public var completedGoalIDs: [Set<String>] = []
     public var skippedGoalIDs: [Set<String>] = []
     public var currentGoalID: [String?] = []
@@ -151,5 +153,21 @@ public struct AIState: Sendable, Codable, Equatable {
         } else if usingFreeFallback.count > count {
             usingFreeFallback.removeLast(usingFreeFallback.count - count)
         }
+    }
+}
+
+extension World {
+    /// Dedicated RNG stream for Phase 15 AI goal-driven rolls, split off `Simulation.random`
+    /// without perturbing existing system luck.
+    mutating func beginAIRandom(_ random: GameRandom) -> GameRandom {
+        if !ai.seeded {
+            ai.rngState = random.rawState ^ 0xA115_1453_9E37_79B9
+            ai.seeded = true
+        }
+        return GameRandom(seed: ai.rngState)
+    }
+
+    mutating func endAIRandom(_ rng: GameRandom) {
+        ai.rngState = rng.rawState
     }
 }
