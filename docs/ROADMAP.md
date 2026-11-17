@@ -303,11 +303,11 @@ Owner's choices: Condition-triggered historical events with 2–4 choices (firin
 - [x] C. **Godot screens, bridge & tests** (`godot/scripts/EventPopup.gd`, `Main.gd`, `GezGodotEventBridge.swift`, `capture_snapshots.gd`, `EventEngineTests.swift`, `HistoricalEventsTests.swift`, `GezGodotTests.swift`, `TenYearBalanceTests.swift`, `ProfileTests.swift`): modal event popup with effect tooltips & auto-pause toggle, alerts-area recent events strip, `godot_event_popup.png` snapshot, and full unit/determinism/save-load coverage.
 - [ ] Mission trees: moved to **Phase 21** (owner, 16 Nov 2026: after 3D and the art pass); they reuse the Phase 14 condition/effect vocabulary.
 
-### Phase 15: AI behaviour setting
+### Phase 15: AI behaviour setting ✅ (Phase 15 PR, written by Gemini)
 Owner's choices: Weighted AI goal & mission evaluation (never hard-scripted railroading): in **Historical AI** mode, AI countries prioritize their historical goals (a simple target list per country until the Phase 21 mission trees exist), traditional rivals/allies, and historically plausible event choices while still checking real army strength, treasury, and truces; in **Free AI** mode, AI countries evaluate all opportunities purely by strategic value, border weakness, trade wealth, and ruler personality traits.
-Game-setup option: **historical** AI (pursues real goals, like the Ottomans
-in the Balkans or Castile at Granada) or **free** AI. Builds on the AI
-grown since Phase 6.
+- [x] **New-game setting & data pipeline** (`data/ai/goals_1453.txt` → `tools/ai/aigen.py` → `ai_goals1453.json`, `AI/AIGoals.swift`, `Scenario/AIGoalsLoader.swift`): "AI behaviour" option (`Historical` default vs `Free`), with 157 ordered goals across 28 key 1453 country tags (post-1453 Ottoman expansion, Hungary defending Belgrade in 1456 linked to `hist_belgrade_1456_hun`, European, Levantine, Balkan, and Russian powers).
+- [x] **Historical & Free AI evaluation + save/load** (`Systems/AIGoalSystem.swift`, `DiplomacyAISystem.swift`, `BuildingSystem.swift`, `ArmySystem.swift`, `EventSystem.swift`, `SaveGame.swift`, `GameSession.swift`): goal completion, skipping impossible/expired/too-weak goals, fallback to Free AI when lists run out, Free situational/trait evaluation, and save/load compatibility (old saves default to Historical).
+- [x] **Godot UI & tests** (`Main.gd`, `DiplomacyPanel.gd`, `GezGodotBridge.swift`, `AIGoalTests.swift`, `TenYearBalanceTests.swift`, `GezGodotTests.swift`): Nation Picker AI behaviour selector, Game Menu active AI indicator, Country View `AI Goal:` line, and unit/save-load/10-year headless tests for both settings.
 
 ### Phase 16: Sound effects and tooltips
 Owner's choices: Strictly zero music or musical instruments: procedural/recorded non-musical sound effects and environmental ambience only (UI parchment/wood clicks, coin clinks, marching boots, hoofbeats, hammer/construction, siege cannon thuds, sword/musket battle sounds, and camera-zoomed ocean/wind/city ambience) plus rich math-breakdown tooltips everywhere (hover on Mac, long-press on iPad).

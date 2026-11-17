@@ -437,6 +437,22 @@ public enum EventSystem {
                 }
             }
         }
+        if AIGoalSystem.isFreeMode(for: country, in: world) && w > 0 {
+            let traits = AIGoalSystem.traitProfile(for: country, in: world)
+            w = w * 0.55 + 22.5
+            for eff in opt.effects {
+                switch eff.kind {
+                case "manpower", "spawn_units", "add_cb", "add_claim":
+                    w *= (0.7 + 0.3 * traits.warMultiplier)
+                case "ducats", "province_dev":
+                    w *= (0.7 + 0.3 * traits.economyWeight)
+                case "change_opinion", "change_opinion_both":
+                    w *= (0.7 + 0.3 * traits.diplomacyWeight)
+                default:
+                    break
+                }
+            }
+        }
         return max(0.0, w)
     }
 

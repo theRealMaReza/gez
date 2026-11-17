@@ -82,4 +82,51 @@ struct TenYearBalanceTests {
         #expect(!w.diplomacy.treaties.isEmpty)
         #expect(!w.military.recentBattles.isEmpty)
     }
+
+    @Test("10-year headless simulation with Free AI remains stable and does not crash")
+    func tenYearHeadlessRunFreeAI() throws {
+        var world = Scenario1453.makeWorld()
+        world.ai.setting = .free
+        AIGoalSystem.updateGoals(&world, date: Scenario1453.startDate)
+        let sim = Simulation(world: world, startDate: Scenario1453.startDate, seed: 1453)
+
+        let initialProvinces = sim.world.provinces.count
+        let initialCountries = (0..<sim.world.countries.count).filter { !sim.world.provinces(ownedBy: CountryID($0)).isEmpty }.count
+        let initialPop = sim.world.provinces.population.reduce(0, +)
+
+        for _ in 0..<3650 {
+            sim.tick()
+        }
+
+        let w = sim.world
+        #expect(sim.date == GameDate(year: 1463, month: 5, day: 30))
+        #expect(sim.ticksRun == 3650)
+        #expect(w.ai.setting == .free)
+
+        for p in 0..<w.provinces.count {
+            #expect(w.provinces.population[p].isFinite && w.provinces.population[p] >= 0)
+            #expect(w.provinces.fortGarrison[p] >= 0 && w.provinces.fortGarrison[p] <= w.provinces.maxGarrison(of: ProvinceID(p)))
+        }
+        for c in 0..<w.countries.count {
+            #expect(w.countries.treasury[c].isFinite)
+            #expect(w.countries.inflation[c].isFinite && w.countries.inflation[c] >= 0)
+            #expect(w.military.manpower[c].isFinite && w.military.manpower[c] >= 0)
+        }
+        for m in 0..<w.economy.markets.price.count {
+            #expect(w.economy.markets.price[m].isFinite && w.economy.markets.price[m] > 0)
+        }
+
+        let finalPop = w.provinces.population.reduce(0, +)
+        #expect(finalPop > initialPop * 0.70 && finalPop < initialPop * 1.60)
+
+        let aliveCountries = (0..<w.countries.count).filter { idx in
+            w.provinces.owner.contains(CountryID(idx))
+        }
+        #expect(aliveCountries.count >= initialCountries / 2)
+        let largestCountryProvs = aliveCountries.map { cid in
+            w.provinces.owner.filter { $0 == CountryID(cid) }.count
+        }.max() ?? 0
+        #expect(largestCountryProvs < initialProvinces / 3)
+        #expect(w.diplomacy.wars.count < 40)
+    }
 }

@@ -608,6 +608,22 @@ Condition-triggered narrative events with 2–4 player/AI choices (mission trees
 - **Godot screens (`godot/scripts/EventPopup.gd`, `Main.gd`, `GezGodotEventBridge.swift`, `capture_snapshots.gd`)**:
   centered Event pop-up modal (category, date, title, wrapped narrative, optional `Locate` button, 2–4 option buttons with effect tooltips, `"Pause game on events"` toggle mirrored in Game Menu), collapsible `"Recent Events"` strip in the alerts area, and `godot_event_popup.png` snapshot.
 
+## AI Behaviour Setting (Phase 15)
+
+New-game setting (`AIBehaviourSetting`: `Historical` default vs `Free`), saved in `.gezsave` (`SaveSnapshot.ai`, defaulting old saves to `.historical`):
+
+- **Data pipeline (`data/ai/goals_1453.txt` → `tools/ai/aigen.py` → `ai_goals1453.json`)**:
+  157 ordered goals across 28 key 1453 country tags (`TUR`, `HUN`, `VEN`, `GEN`, `MLO`, `FLO`, `NAP`, `ARA`, `PAP`, `FRA`, `ENG`, `BUR`, `CAS`, `POR`, `HAB`, `AUS`, `POL`, `LIT`, `MOS`, `SER`, `BOS`, `WAL`, `MOL`, `ALB`, `MOE`, `TRE`, `MAM`, `KNI`). Each goal stores `id`, `type` (`conquer_province`, `defend_province`, `ally_with`, `vassalize`, `keep_peace_with`, `build_up`), `target`, `earliestDate`, `giveUpDate`, `priority`, and historical `note`.
+- **Historical AI (`Systems/AIGoalSystem.swift`)**:
+  - Follows the highest-priority feasible goal in `[earliestDate, giveUpDate]`.
+  - Automatically completes achieved goals (e.g. `hun_belgrade_1456` upon `belgrade_1456_resolved` or passing `1457-06-01`, province conquests, alliances, vassalizations, build-up thresholds) and skips impossible goals (target gone, `date > giveUpDate`, bankrupt or potential strength `< 0.45x` target alliance, unreachable overseas).
+  - Drives war declarations, peace priorities, alliance formation, non-aggression/restraint (`keep_peace_with`), defensive garrisoning/relief (`defend_province`), and army/economy build-up while still obeying strength, treasury, stability, and truce rules.
+  - Falls back seamlessly to Free AI once a country's historical goal list runs out (or for countries without a list).
+- **Free AI**:
+  - Evaluates opportunities solely from live threats, weak neighbours, trade/development wealth, balance-of-power alliances, and ruler personality traits (`AIGoalSystem.traitProfile`, adjusting war willingness, strength thresholds, economy investment, diplomacy, and event choice weights) with no history script.
+- **Godot UI (`Main.gd`, `DiplomacyPanel.gd`, `GezGodotBridge.swift`)**:
+  Nation Picker `"AI behaviour"` selector (`Historical` / `Free`), active AI indicator in Game Menu, and `AI Goal:` line in the Country View (`DiplomacyPanel`).
+
 ## Architecture
 
 | Layer | Tech | Notes |

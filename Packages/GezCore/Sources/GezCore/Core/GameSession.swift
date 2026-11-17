@@ -69,9 +69,12 @@ public final class GameSession {
     public init(
         tag: String = Scenario1453.defaultPlayerTag,
         seed: UInt64 = 1453,
-        savesDirectory: URL? = nil
+        savesDirectory: URL? = nil,
+        aiSetting: AIBehaviourSetting = .historical
     ) throws {
-        let sim = Simulation(world: Scenario1453.makeWorld(), startDate: Scenario1453.startDate, seed: seed)
+        var initialWorld = Scenario1453.makeWorld()
+        initialWorld.ai.setting = aiSetting
+        let sim = Simulation(world: initialWorld, startDate: Scenario1453.startDate, seed: seed)
         let map = try ProvinceIDMap.loadBundled()
         let seas = try ProvinceIDMap.loadBundledSeas()
         self.simulation = sim
@@ -85,8 +88,17 @@ public final class GameSession {
         if let picked {
             sim.world.humanCountries = [picked]
         }
+        AIGoalSystem.updateGoals(&sim.world, date: sim.date)
         refreshSavedGames()
         rebuildLabels()
+    }
+
+    public var aiSetting: AIBehaviourSetting {
+        simulation.world.ai.setting
+    }
+
+    public func aiGoalSummary(for country: CountryID) -> String {
+        AIGoalSystem.goalSummaryText(for: country, in: world)
     }
 
     public var playerTag: String? {
@@ -713,18 +725,18 @@ public final class GameSession {
     public func switchPlayer(to country: CountryID) {
         playerCountry = country
         simulation.world.humanCountries = [country]
+        AIGoalSystem.updateGoals(&simulation.world, date: date)
         selectedArmy = nil
         moveModeForArmy = nil
-        selectedFleet = nil
-        moveModeForFleet = nil
         selectedFleet = nil
         moveModeForFleet = nil
         revision &+= 1
     }
 
-    public func startNewGame(tag: String, seed: UInt64 = 1453) {
+    public func startNewGame(tag: String, seed: UInt64 = 1453, aiSetting: AIBehaviourSetting = .historical) {
         speed = .paused
-        let freshWorld = Scenario1453.makeWorld()
+        var freshWorld = Scenario1453.makeWorld()
+        freshWorld.ai.setting = aiSetting
         let sim = Simulation(world: freshWorld, startDate: Scenario1453.startDate, seed: seed)
         simulation = sim
         simulation.interceptHumanBattles = interactiveBattlesEnabled
@@ -738,6 +750,7 @@ public final class GameSession {
         if let picked {
             simulation.world.humanCountries = [picked]
         }
+        AIGoalSystem.updateGoals(&simulation.world, date: date)
         resetSelection()
         lastSaveStatus = nil
         rebuildLabels()

@@ -164,6 +164,10 @@ var picker_meta_label: Label
 var picker_ruler_label: Label
 var picker_treasury_label: Label
 var picker_provinces_label: Label
+var picker_ai_option: OptionButton
+var picker_ai_keys: Array[String] = []
+var picker_ai_descs: Array[String] = []
+var picker_ai_desc_label: Label
 var selected_picker_tag: String = "TUR"
 var cached_all_countries: Array = []
 
@@ -976,6 +980,21 @@ func _build_nation_picker_panel() -> void:
 	picker_provinces_label = _make_label("Provinces: 0", Color(0.88, 0.85, 0.78), 13)
 	stats_row.add_child(picker_provinces_label)
 
+	var ai_row := HBoxContainer.new()
+	ai_row.add_theme_constant_override("separation", 8)
+	vbox.add_child(ai_row)
+	var ai_lbl := _make_label("AI behaviour:", Color(0.90, 0.86, 0.76), 13)
+	ai_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	ai_row.add_child(ai_lbl)
+	picker_ai_option = OptionButton.new()
+	picker_ai_option.custom_minimum_size = Vector2(150.0, 0.0)
+	picker_ai_option.item_selected.connect(_on_picker_ai_selected)
+	ai_row.add_child(picker_ai_option)
+
+	picker_ai_desc_label = _make_label("", Color(0.74, 0.71, 0.64), 11)
+	picker_ai_desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	vbox.add_child(picker_ai_desc_label)
+
 	var actions_row := HBoxContainer.new()
 	actions_row.add_theme_constant_override("separation", 10)
 	vbox.add_child(actions_row)
@@ -1597,7 +1616,8 @@ func _refresh_game_menu() -> void:
 		return
 	var c_name: String = str(_call_bridge("getCountryName", [], "Observer"))
 	var d_text: String = str(_call_bridge("getDateText", [], "30 May 1453"))
-	menu_playing_label.text = "Playing as %s · %s" % [c_name, d_text]
+	var ai_name: String = str(_call_bridge("getAISettingDisplayName", [], "Historical"))
+	menu_playing_label.text = "Playing as %s · %s · AI: %s" % [c_name, d_text, ai_name]
 	# Same coat of arms as the top bar (the Apple game menu shows it too).
 	if menu_playing_arms != null and top_arms_rect != null:
 		menu_playing_arms.texture = top_arms_rect.texture
@@ -1785,8 +1805,49 @@ func _open_nation_picker() -> void:
 		picker_featured_flow.add_child(btn)
 
 	cached_all_countries = _call_bridge("getAllCountries", [], [])
+	_populate_ai_setting_options()
 	_refresh_picker_country_list()
 	_refresh_picker_selected_details()
+
+func _populate_ai_setting_options() -> void:
+	if picker_ai_option == null:
+		return
+	picker_ai_option.clear()
+	picker_ai_keys.clear()
+	picker_ai_descs.clear()
+	var opts: Array = _call_bridge("getAISettingOptions", [], [])
+	if opts.is_empty():
+		opts = [
+			{
+				"key": "historical",
+				"title": "Historical",
+				"description": "AI pursues post-1453 historical goals when feasible, falling back to Free if its list runs out."
+			},
+			{
+				"key": "free",
+				"title": "Free",
+				"description": "AI evaluates opportunities purely from threats, weak neighbours, wealth, alliances, and ruler traits."
+			}
+		]
+	for item in opts:
+		if item is Dictionary:
+			var k: String = str(item.get("key", "historical"))
+			var t: String = str(item.get("title", k.capitalize()))
+			var desc: String = str(item.get("description", ""))
+			picker_ai_keys.append(k)
+			picker_ai_descs.append(desc)
+			picker_ai_option.add_item(t)
+	var cur_ai: String = str(_call_bridge("getAISetting", [], "historical"))
+	var sel_idx := picker_ai_keys.find(cur_ai)
+	if sel_idx < 0:
+		sel_idx = 0
+	if picker_ai_option.item_count > 0:
+		picker_ai_option.select(sel_idx)
+		_on_picker_ai_selected(sel_idx)
+
+func _on_picker_ai_selected(idx: int) -> void:
+	if picker_ai_desc_label != null and idx >= 0 and idx < picker_ai_descs.size():
+		picker_ai_desc_label.text = picker_ai_descs[idx]
 
 func _refresh_picker_country_list() -> void:
 	_clear_children(picker_list_box)
@@ -1865,7 +1926,10 @@ func _on_picker_switch_pressed() -> void:
 
 func _on_picker_start_pressed() -> void:
 	var details: Dictionary = _call_bridge("getCountryDetails", [selected_picker_tag], {})
-	var ok: bool = bool(_call_bridge("startNewGame", [selected_picker_tag], false))
+	var ai_key := "historical"
+	if picker_ai_option != null and picker_ai_option.selected >= 0 and picker_ai_option.selected < picker_ai_keys.size():
+		ai_key = picker_ai_keys[picker_ai_option.selected]
+	var ok: bool = bool(_call_bridge("startNewGameWithAI", [selected_picker_tag, ai_key], false))
 	if ok:
 		nation_picker_panel.visible = false
 		_after_world_replaced()

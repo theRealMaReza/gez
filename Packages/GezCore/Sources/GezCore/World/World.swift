@@ -365,6 +365,10 @@ public struct World: Sendable {
     public var events = EventsState()
     /// Event definitions and pre-filtered indices (fixed data, not saved).
     public var eventRules = EventRules()
+    /// AI behaviour setting and per-country goal progress (Phase 15).
+    public var ai = AIState()
+    /// Historical AI goal lists loaded from `ai_goals1453.json` (fixed data, not saved).
+    public var aiRules = AIGoalRules()
 
     public init(map: MapInfo = MapInfo(width: 1, height: 1, pixelsPerDegree: 1, longitudeMin: 0, latitudeMax: 0)) {
         self.map = map

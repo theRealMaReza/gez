@@ -1,0 +1,2831 @@
+{
+  "provinceCount": 1373,
+  "goals": [
+    {
+      "id": "tur_serbia_smederevo",
+      "country": "TUR",
+      "type": "conquer_province",
+      "target": "Smederevo",
+      "earliestDate": {
+        "year": 1454,
+        "month": 4,
+        "day": 1
+      },
+      "giveUpDate": {
+        "year": 1465,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 95,
+      "note": "Mehmed II invaded Serbia 1454-1455 and annexed Smederevo in June 1459"
+    },
+    {
+      "id": "tur_morea_mystras",
+      "country": "TUR",
+      "type": "conquer_province",
+      "target": "Mystras",
+      "earliestDate": {
+        "year": 1458,
+        "month": 1,
+        "day": 1
+      },
+      "giveUpDate": {
+        "year": 1466,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 90,
+      "note": "Mehmed II campaigned in the Morea in 1458 and conquered Mystras in May 1460"
+    },
+    {
+      "id": "tur_candar_sinop",
+      "country": "TUR",
+      "type": "conquer_province",
+      "target": "Sinop",
+      "earliestDate": {
+        "year": 1460,
+        "month": 6,
+        "day": 1
+      },
+      "giveUpDate": {
+        "year": 1468,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 86,
+      "note": "Annexation of Sinop and Candar in 1461 en route to Trebizond"
+    },
+    {
+      "id": "tur_trebizond",
+      "country": "TUR",
+      "type": "conquer_province",
+      "target": "Trebizond",
+      "earliestDate": {
+        "year": 1461,
+        "month": 1,
+        "day": 1
+      },
+      "giveUpDate": {
+        "year": 1470,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 85,
+      "note": "Surrendered to Mehmed II on 15 August 1461"
+    },
+    {
+      "id": "tur_bosnia_jajce",
+      "country": "TUR",
+      "type": "conquer_province",
+      "target": "Jajce",
+      "earliestDate": {
+        "year": 1462,
+        "month": 6,
+        "day": 1
+      },
+      "giveUpDate": {
+        "year": 1475,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 80,
+      "note": "Ottoman conquest of Bosnia in May-June 1463"
+    },
+    {
+      "id": "tur_negroponte",
+      "country": "TUR",
+      "type": "conquer_province",
+      "target": "Negroponte",
+      "earliestDate": {
+        "year": 1463,
+        "month": 6,
+        "day": 1
+      },
+      "giveUpDate": {
+        "year": 1479,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 76,
+      "note": "Captured from Venice in July 1470 during the Ottoman-Venetian War (1463-1479)"
+    },
+    {
+      "id": "tur_black_sea_kaffa",
+      "country": "TUR",
+      "type": "conquer_province",
+      "target": "Kaffa",
+      "earliestDate": {
+        "year": 1474,
+        "month": 1,
+        "day": 1
+      },
+      "giveUpDate": {
+        "year": 1485,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 72,
+      "note": "Gedik Ahmed Pasha captured Genoese Kaffa in June 1475"
+    },
+    {
+      "id": "tur_crimea_vassal",
+      "country": "TUR",
+      "type": "vassalize",
+      "target": "CRI",
+      "earliestDate": {
+        "year": 1475,
+        "month": 1,
+        "day": 1
+      },
+      "giveUpDate": {
+        "year": 1488,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 70,
+      "note": "Crimean Khanate brought under Ottoman suzerainty (1475-1478)"
+    },
+    {
+      "id": "tur_rhodes_siege",
+      "country": "TUR",
+      "type": "conquer_province",
+      "target": "Rhodes",
+      "earliestDate": {
+        "year": 1479,
+        "month": 1,
+        "day": 1
+      },
+      "giveUpDate": {
+        "year": 1485,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 66,
+      "note": "First great Ottoman siege of Rhodes in May-August 1480 (date window covers Mehmed II's attempt; fell later in 1522)"
+    },
+    {
+      "id": "tur_otranto_lecce",
+      "country": "TUR",
+      "type": "conquer_province",
+      "target": "Lecce",
+      "earliestDate": {
+        "year": 1480,
+        "month": 1,
+        "day": 1
+      },
+      "giveUpDate": {
+        "year": 1484,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 64,
+      "note": "Gedik Ahmed Pasha landed at Otranto in July-August 1480 (held until Sept 1481)"
+    },
+    {
+      "id": "tur_peace_mamluks",
+      "country": "TUR",
+      "type": "keep_peace_with",
+      "target": "MAM",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1485,
+        "month": 1,
+        "day": 1
+      },
+      "priority": 60,
+      "note": "Early diplomatic amity until Ottoman-Mamluk border clashes in Cilicia began c. 1485"
+    },
+    {
+      "id": "tur_egypt_cairo",
+      "country": "TUR",
+      "type": "conquer_province",
+      "target": "Cairo",
+      "earliestDate": {
+        "year": 1515,
+        "month": 1,
+        "day": 1
+      },
+      "giveUpDate": {
+        "year": 1525,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 58,
+      "note": "Selim I's conquest of Syria and Egypt (1516-1517)"
+    },
+    {
+      "id": "hun_belgrade_1456",
+      "country": "HUN",
+      "type": "defend_province",
+      "target": "Belgrade",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1457,
+        "month": 6,
+        "day": 1
+      },
+      "priority": 98,
+      "note": "John Hunyadi and Capistrano defended Belgrade against Mehmed II in July 1456"
+    },
+    {
+      "id": "hun_black_army",
+      "country": "HUN",
+      "type": "build_up",
+      "target": "army",
+      "earliestDate": {
+        "year": 1457,
+        "month": 6,
+        "day": 1
+      },
+      "giveUpDate": {
+        "year": 1468,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 85,
+      "note": "Matthias Corvinus built the standing Black Army (Fekete Sereg) from 1458"
+    },
+    {
+      "id": "hun_ally_papacy",
+      "country": "HUN",
+      "type": "ally_with",
+      "target": "PAP",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1475,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 80,
+      "note": "Papal crusade backing against the Ottomans"
+    },
+    {
+      "id": "hun_ally_venice",
+      "country": "HUN",
+      "type": "ally_with",
+      "target": "VEN",
+      "earliestDate": {
+        "year": 1463,
+        "month": 1,
+        "day": 1
+      },
+      "giveUpDate": {
+        "year": 1479,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 75,
+      "note": "Anti-Ottoman alliance during the 1463-1479 war"
+    },
+    {
+      "id": "hun_moravia_olomouc",
+      "country": "HUN",
+      "type": "conquer_province",
+      "target": "Olomouc",
+      "earliestDate": {
+        "year": 1468,
+        "month": 1,
+        "day": 1
+      },
+      "giveUpDate": {
+        "year": 1480,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 65,
+      "note": "Bohemian War (1468-1478); Matthias held Moravia and Silesia by the 1479 Peace of Olomouc"
+    },
+    {
+      "id": "hun_vienna_campaign",
+      "country": "HUN",
+      "type": "conquer_province",
+      "target": "Vienna",
+      "earliestDate": {
+        "year": 1477,
+        "month": 1,
+        "day": 1
+      },
+      "giveUpDate": {
+        "year": 1490,
+        "month": 4,
+        "day": 6
+      },
+      "priority": 60,
+      "note": "Austrian-Hungarian War; Matthias captured Vienna in 1485 and held it until his death in April 1490"
+    },
+    {
+      "id": "ven_peace_milan",
+      "country": "VEN",
+      "type": "keep_peace_with",
+      "target": "MLO",
+      "earliestDate": {
+        "year": 1454,
+        "month": 4,
+        "day": 9
+      },
+      "giveUpDate": {
+        "year": 1482,
+        "month": 1,
+        "day": 1
+      },
+      "priority": 85,
+      "note": "Peace of Lodi (9 April 1454) and Italic League until the War of Ferrara (1482)"
+    },
+    {
+      "id": "ven_economy",
+      "country": "VEN",
+      "type": "build_up",
+      "target": "economy",
+      "earliestDate": {
+        "year": 1454,
+        "month": 4,
+        "day": 9
+      },
+      "giveUpDate": {
+        "year": 1465,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 80,
+      "note": "Adriatic and Levantine trade expansion"
+    },
+    {
+      "id": "ven_defend_negroponte",
+      "country": "VEN",
+      "type": "defend_province",
+      "target": "Negroponte",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1470,
+        "month": 8,
+        "day": 1
+      },
+      "priority": 78,
+      "note": "Key Aegean base held until July 1470"
+    },
+    {
+      "id": "ven_defend_modon",
+      "country": "VEN",
+      "type": "defend_province",
+      "target": "Modon",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1500,
+        "month": 8,
+        "day": 1
+      },
+      "priority": 74,
+      "note": "Venetian Morean port held until 1500"
+    },
+    {
+      "id": "ven_cyprus_nicosia",
+      "country": "VEN",
+      "type": "conquer_province",
+      "target": "Nicosia",
+      "earliestDate": {
+        "year": 1473,
+        "month": 1,
+        "day": 1
+      },
+      "giveUpDate": {
+        "year": 1492,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 70,
+      "note": "Venetian protectorate from 1473-1474 and formal annexation of Cyprus in 1489"
+    },
+    {
+      "id": "ven_cremona",
+      "country": "VEN",
+      "type": "conquer_province",
+      "target": "Cremona",
+      "earliestDate": {
+        "year": 1499,
+        "month": 1,
+        "day": 1
+      },
+      "giveUpDate": {
+        "year": 1509,
+        "month": 5,
+        "day": 1
+      },
+      "priority": 60,
+      "note": "Acquired Cremona in 1499 via the Treaty of Blois until the War of the League of Cambrai"
+    },
+    {
+      "id": "gen_economy",
+      "country": "GEN",
+      "type": "build_up",
+      "target": "economy",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1470,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 90,
+      "note": "Casa di San Giorgio banking and Black Sea/Levantine commerce"
+    },
+    {
+      "id": "gen_defend_kaffa",
+      "country": "GEN",
+      "type": "defend_province",
+      "target": "Kaffa",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1475,
+        "month": 6,
+        "day": 1
+      },
+      "priority": 85,
+      "note": "Black Sea colony administered by Bank of Saint George until June 1475"
+    },
+    {
+      "id": "gen_defend_chios",
+      "country": "GEN",
+      "type": "defend_province",
+      "target": "Chios",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1525,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 80,
+      "note": "Genoese Maona of Chios held until 1566 (end date capped for 15th/early-16th window)"
+    },
+    {
+      "id": "gen_defend_corsica",
+      "country": "GEN",
+      "type": "defend_province",
+      "target": "Bastia",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1525,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 75,
+      "note": "Genoese rule in Corsica"
+    },
+    {
+      "id": "gen_peace_ottomans",
+      "country": "GEN",
+      "type": "keep_peace_with",
+      "target": "TUR",
+      "earliestDate": {
+        "year": 1453,
+        "month": 6,
+        "day": 1
+      },
+      "giveUpDate": {
+        "year": 1474,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 70,
+      "note": "Galata commercial capitulation (1 June 1453) until the Kaffa crisis of 1475"
+    },
+    {
+      "id": "gen_peace_milan",
+      "country": "GEN",
+      "type": "keep_peace_with",
+      "target": "MLO",
+      "earliestDate": {
+        "year": 1464,
+        "month": 1,
+        "day": 1
+      },
+      "giveUpDate": {
+        "year": 1499,
+        "month": 1,
+        "day": 1
+      },
+      "priority": 62,
+      "note": "Sforza suzerainty/alignment over Genoa (intermittent 1464-1478 and 1487-1499; dates approximate)"
+    },
+    {
+      "id": "mlo_defend_milan",
+      "country": "MLO",
+      "type": "defend_province",
+      "target": "Milan",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1499,
+        "month": 9,
+        "day": 1
+      },
+      "priority": 95,
+      "note": "Francesco and Ludovico Sforza defending the Duchy until 1499"
+    },
+    {
+      "id": "mlo_ally_florence",
+      "country": "MLO",
+      "type": "ally_with",
+      "target": "FLO",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1494,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 90,
+      "note": "Sforza-Medici Italic League axis"
+    },
+    {
+      "id": "mlo_peace_venice",
+      "country": "MLO",
+      "type": "keep_peace_with",
+      "target": "VEN",
+      "earliestDate": {
+        "year": 1454,
+        "month": 4,
+        "day": 9
+      },
+      "giveUpDate": {
+        "year": 1482,
+        "month": 1,
+        "day": 1
+      },
+      "priority": 85,
+      "note": "Peace of Lodi (1454)"
+    },
+    {
+      "id": "mlo_economy",
+      "country": "MLO",
+      "type": "build_up",
+      "target": "economy",
+      "earliestDate": {
+        "year": 1454,
+        "month": 4,
+        "day": 9
+      },
+      "giveUpDate": {
+        "year": 1480,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 75,
+      "note": "Lombard silk, arms workshops, and canal irrigation"
+    },
+    {
+      "id": "mlo_peace_france",
+      "country": "MLO",
+      "type": "keep_peace_with",
+      "target": "FRA",
+      "earliestDate": {
+        "year": 1461,
+        "month": 7,
+        "day": 1
+      },
+      "giveUpDate": {
+        "year": 1494,
+        "month": 9,
+        "day": 1
+      },
+      "priority": 70,
+      "note": "Sforza-Louis XI alignment until Charles VIII's 1494 Italian War"
+    },
+    {
+      "id": "flo_ally_milan",
+      "country": "FLO",
+      "type": "ally_with",
+      "target": "MLO",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1494,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 92,
+      "note": "Medici-Sforza alliance"
+    },
+    {
+      "id": "flo_economy",
+      "country": "FLO",
+      "type": "build_up",
+      "target": "economy",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1492,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 90,
+      "note": "Medici banking and Renaissance Florence"
+    },
+    {
+      "id": "flo_peace_venice",
+      "country": "FLO",
+      "type": "keep_peace_with",
+      "target": "VEN",
+      "earliestDate": {
+        "year": 1454,
+        "month": 4,
+        "day": 9
+      },
+      "giveUpDate": {
+        "year": 1494,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 80,
+      "note": "Peace of Lodi balance"
+    },
+    {
+      "id": "flo_peace_naples",
+      "country": "FLO",
+      "type": "keep_peace_with",
+      "target": "NAP",
+      "earliestDate": {
+        "year": 1455,
+        "month": 1,
+        "day": 1
+      },
+      "giveUpDate": {
+        "year": 1494,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 78,
+      "note": "Italic League & Lorenzo de' Medici's 1480 diplomacy with Ferrante"
+    },
+    {
+      "id": "flo_defend_pisa",
+      "country": "FLO",
+      "type": "defend_province",
+      "target": "Pisa",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1494,
+        "month": 11,
+        "day": 1
+      },
+      "priority": 75,
+      "note": "Pisan port held until the 1494 revolt"
+    },
+    {
+      "id": "flo_conquer_siena",
+      "country": "FLO",
+      "type": "conquer_province",
+      "target": "Siena",
+      "earliestDate": {
+        "year": 1525,
+        "month": 1,
+        "day": 1
+      },
+      "giveUpDate": {
+        "year": 1559,
+        "month": 4,
+        "day": 1
+      },
+      "priority": 60,
+      "note": "Medici expansion into Siena (1550s)"
+    },
+    {
+      "id": "nap_defend_naples",
+      "country": "NAP",
+      "type": "defend_province",
+      "target": "Naples",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1503,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 92,
+      "note": "Ferrante defending the Kingdom against baronial and Angevin claimants"
+    },
+    {
+      "id": "nap_defend_lecce",
+      "country": "NAP",
+      "type": "defend_province",
+      "target": "Lecce",
+      "earliestDate": {
+        "year": 1479,
+        "month": 1,
+        "day": 1
+      },
+      "giveUpDate": {
+        "year": 1482,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 88,
+      "note": "Retaking and holding Otranto (Lecce) against the 1480-1481 Ottoman landing"
+    },
+    {
+      "id": "nap_ally_papacy",
+      "country": "NAP",
+      "type": "ally_with",
+      "target": "PAP",
+      "earliestDate": {
+        "year": 1458,
+        "month": 6,
+        "day": 27
+      },
+      "giveUpDate": {
+        "year": 1492,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 84,
+      "note": "Papal investiture and southern Italian alignment (interrupted briefly in 1485-1486 Barons' War)"
+    },
+    {
+      "id": "nap_peace_florence",
+      "country": "NAP",
+      "type": "keep_peace_with",
+      "target": "FLO",
+      "earliestDate": {
+        "year": 1455,
+        "month": 1,
+        "day": 1
+      },
+      "giveUpDate": {
+        "year": 1494,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 76,
+      "note": "Italic League & 1480 settlement"
+    },
+    {
+      "id": "nap_army",
+      "country": "NAP",
+      "type": "build_up",
+      "target": "army",
+      "earliestDate": {
+        "year": 1458,
+        "month": 7,
+        "day": 1
+      },
+      "giveUpDate": {
+        "year": 1485,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 70,
+      "note": "Royal Neapolitan army under Ferrante"
+    },
+    {
+      "id": "ara_ally_castile",
+      "country": "ARA",
+      "type": "ally_with",
+      "target": "CAS",
+      "earliestDate": {
+        "year": 1469,
+        "month": 10,
+        "day": 19
+      },
+      "giveUpDate": {
+        "year": 1516,
+        "month": 1,
+        "day": 23
+      },
+      "priority": 90,
+      "note": "Marriage of Ferdinand and Isabella (19 October 1469)"
+    },
+    {
+      "id": "ara_economy",
+      "country": "ARA",
+      "type": "build_up",
+      "target": "economy",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1479,
+        "month": 1,
+        "day": 1
+      },
+      "priority": 85,
+      "note": "Mediterranean Crown of Aragon commerce"
+    },
+    {
+      "id": "ara_defend_perpignan",
+      "country": "ARA",
+      "type": "defend_province",
+      "target": "Perpignan",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1493,
+        "month": 1,
+        "day": 1
+      },
+      "priority": 82,
+      "note": "Roussillon contested with France (pledged 1462, recovered 1493)"
+    },
+    {
+      "id": "ara_ally_naples",
+      "country": "ARA",
+      "type": "ally_with",
+      "target": "NAP",
+      "earliestDate": {
+        "year": 1458,
+        "month": 6,
+        "day": 27
+      },
+      "giveUpDate": {
+        "year": 1501,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 78,
+      "note": "Trastamara dynastic support after Alfonso V's death (27 June 1458)"
+    },
+    {
+      "id": "ara_conquer_naples",
+      "country": "ARA",
+      "type": "conquer_province",
+      "target": "Naples",
+      "earliestDate": {
+        "year": 1501,
+        "month": 1,
+        "day": 1
+      },
+      "giveUpDate": {
+        "year": 1505,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 75,
+      "note": "Ferdinand of Aragon's conquest of Naples (1503-1504)"
+    },
+    {
+      "id": "pap_defend_rome",
+      "country": "PAP",
+      "type": "defend_province",
+      "target": "Rome",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1527,
+        "month": 5,
+        "day": 1
+      },
+      "priority": 95,
+      "note": "Papal capital until the 1527 Sack of Rome"
+    },
+    {
+      "id": "pap_ally_hungary",
+      "country": "PAP",
+      "type": "ally_with",
+      "target": "HUN",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1490,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 85,
+      "note": "Papal crusading subsidies and alliance with Hunyadi & Matthias Corvinus"
+    },
+    {
+      "id": "pap_ally_venice",
+      "country": "PAP",
+      "type": "ally_with",
+      "target": "VEN",
+      "earliestDate": {
+        "year": 1458,
+        "month": 1,
+        "day": 1
+      },
+      "giveUpDate": {
+        "year": 1482,
+        "month": 1,
+        "day": 1
+      },
+      "priority": 78,
+      "note": "Anti-Ottoman league until the 1482 War of Ferrara"
+    },
+    {
+      "id": "pap_economy",
+      "country": "PAP",
+      "type": "build_up",
+      "target": "economy",
+      "earliestDate": {
+        "year": 1455,
+        "month": 1,
+        "day": 1
+      },
+      "giveUpDate": {
+        "year": 1490,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 75,
+      "note": "Renaissance rebuilding of Rome"
+    },
+    {
+      "id": "pap_conquer_urbino",
+      "country": "PAP",
+      "type": "conquer_province",
+      "target": "Urbino",
+      "earliestDate": {
+        "year": 1502,
+        "month": 1,
+        "day": 1
+      },
+      "giveUpDate": {
+        "year": 1520,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 65,
+      "note": "Romagna/Urbino consolidation under Alexander VI/Cesare Borgia and Julius II/Leo X"
+    },
+    {
+      "id": "fra_bordeaux",
+      "country": "FRA",
+      "type": "conquer_province",
+      "target": "Bordeaux",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1460,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 98,
+      "note": "Final campaign of the Hundred Years' War; Castillon (17 July 1453)"
+    },
+    {
+      "id": "fra_burgundy_dijon",
+      "country": "FRA",
+      "type": "conquer_province",
+      "target": "Dijon",
+      "earliestDate": {
+        "year": 1477,
+        "month": 1,
+        "day": 5
+      },
+      "giveUpDate": {
+        "year": 1485,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 88,
+      "note": "Louis XI seized the Duchy of Burgundy after Charles the Bold died at Nancy (5 Jan 1477)"
+    },
+    {
+      "id": "fra_ally_scotland",
+      "country": "FRA",
+      "type": "ally_with",
+      "target": "SCO",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1558,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 85,
+      "note": "Auld Alliance"
+    },
+    {
+      "id": "fra_picardy_amiens",
+      "country": "FRA",
+      "type": "conquer_province",
+      "target": "Amiens",
+      "earliestDate": {
+        "year": 1477,
+        "month": 1,
+        "day": 5
+      },
+      "giveUpDate": {
+        "year": 1485,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 84,
+      "note": "Recovery of Picardy and Somme towns in 1477"
+    },
+    {
+      "id": "fra_provence_aix",
+      "country": "FRA",
+      "type": "conquer_province",
+      "target": "Aix",
+      "earliestDate": {
+        "year": 1481,
+        "month": 12,
+        "day": 11
+      },
+      "giveUpDate": {
+        "year": 1490,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 80,
+      "note": "Union of Provence upon the death of Charles IV of Anjou (11 Dec 1481)"
+    },
+    {
+      "id": "fra_brittany_rennes",
+      "country": "FRA",
+      "type": "conquer_province",
+      "target": "Rennes",
+      "earliestDate": {
+        "year": 1488,
+        "month": 7,
+        "day": 28
+      },
+      "giveUpDate": {
+        "year": 1532,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 75,
+      "note": "Saint-Aubin-du-Cormier (1488) and union of Brittany"
+    },
+    {
+      "id": "fra_naples_expedition",
+      "country": "FRA",
+      "type": "conquer_province",
+      "target": "Naples",
+      "earliestDate": {
+        "year": 1494,
+        "month": 9,
+        "day": 1
+      },
+      "giveUpDate": {
+        "year": 1504,
+        "month": 1,
+        "day": 1
+      },
+      "priority": 65,
+      "note": "Charles VIII (1494-1495) and Louis XII (1501) Italian Wars"
+    },
+    {
+      "id": "eng_defend_calais",
+      "country": "ENG",
+      "type": "defend_province",
+      "target": "Calais",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1558,
+        "month": 1,
+        "day": 7
+      },
+      "priority": 88,
+      "note": "Calais Pale held until January 1558"
+    },
+    {
+      "id": "eng_economy",
+      "country": "ENG",
+      "type": "build_up",
+      "target": "economy",
+      "earliestDate": {
+        "year": 1454,
+        "month": 1,
+        "day": 1
+      },
+      "giveUpDate": {
+        "year": 1485,
+        "month": 8,
+        "day": 22
+      },
+      "priority": 85,
+      "note": "Recovery after the Hundred Years' War and Wars of the Roses"
+    },
+    {
+      "id": "eng_ally_portugal",
+      "country": "ENG",
+      "type": "ally_with",
+      "target": "POR",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1553,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 84,
+      "note": "Treaty of Windsor"
+    },
+    {
+      "id": "eng_peace_france",
+      "country": "ENG",
+      "type": "keep_peace_with",
+      "target": "FRA",
+      "earliestDate": {
+        "year": 1455,
+        "month": 5,
+        "day": 22
+      },
+      "giveUpDate": {
+        "year": 1475,
+        "month": 8,
+        "day": 29
+      },
+      "priority": 82,
+      "note": "Wars of the Roses limited continental war until Treaty of Picquigny (1475)"
+    },
+    {
+      "id": "eng_ally_burgundy",
+      "country": "ENG",
+      "type": "ally_with",
+      "target": "BUR",
+      "earliestDate": {
+        "year": 1468,
+        "month": 7,
+        "day": 3
+      },
+      "giveUpDate": {
+        "year": 1477,
+        "month": 1,
+        "day": 5
+      },
+      "priority": 78,
+      "note": "Edward IV and Charles the Bold (Margaret of York marriage, July 1468)"
+    },
+    {
+      "id": "eng_tudor_army",
+      "country": "ENG",
+      "type": "build_up",
+      "target": "army",
+      "earliestDate": {
+        "year": 1485,
+        "month": 8,
+        "day": 22
+      },
+      "giveUpDate": {
+        "year": 1513,
+        "month": 1,
+        "day": 1
+      },
+      "priority": 72,
+      "note": "Tudor consolidation after Bosworth (22 Aug 1485)"
+    },
+    {
+      "id": "eng_peace_scotland",
+      "country": "ENG",
+      "type": "keep_peace_with",
+      "target": "SCO",
+      "earliestDate": {
+        "year": 1502,
+        "month": 1,
+        "day": 24
+      },
+      "giveUpDate": {
+        "year": 1513,
+        "month": 8,
+        "day": 1
+      },
+      "priority": 68,
+      "note": "Treaty of Perpetual Peace (24 Jan 1502) until Flodden (1513)"
+    },
+    {
+      "id": "bur_economy",
+      "country": "BUR",
+      "type": "build_up",
+      "target": "economy",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1467,
+        "month": 6,
+        "day": 15
+      },
+      "priority": 90,
+      "note": "Low Countries commerce under Philip the Good"
+    },
+    {
+      "id": "bur_liege",
+      "country": "BUR",
+      "type": "conquer_province",
+      "target": "Liege",
+      "earliestDate": {
+        "year": 1465,
+        "month": 1,
+        "day": 1
+      },
+      "giveUpDate": {
+        "year": 1472,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 88,
+      "note": "Burgundian Wars against Liege (1465-1468)"
+    },
+    {
+      "id": "bur_lorraine_nancy",
+      "country": "BUR",
+      "type": "conquer_province",
+      "target": "Nancy",
+      "earliestDate": {
+        "year": 1474,
+        "month": 1,
+        "day": 1
+      },
+      "giveUpDate": {
+        "year": 1477,
+        "month": 1,
+        "day": 5
+      },
+      "priority": 85,
+      "note": "Charles the Bold's campaign to link Burgundy and the Low Countries (Battle of Nancy, 5 Jan 1477)"
+    },
+    {
+      "id": "bur_ally_england",
+      "country": "BUR",
+      "type": "ally_with",
+      "target": "ENG",
+      "earliestDate": {
+        "year": 1467,
+        "month": 6,
+        "day": 15
+      },
+      "giveUpDate": {
+        "year": 1477,
+        "month": 1,
+        "day": 5
+      },
+      "priority": 82,
+      "note": "Anglo-Burgundian alliance against Louis XI"
+    },
+    {
+      "id": "bur_utrecht",
+      "country": "BUR",
+      "type": "conquer_province",
+      "target": "Utrecht",
+      "earliestDate": {
+        "year": 1456,
+        "month": 1,
+        "day": 1
+      },
+      "giveUpDate": {
+        "year": 1477,
+        "month": 1,
+        "day": 5
+      },
+      "priority": 78,
+      "note": "Philip the Good's assertion over the Prince-Bishopric of Utrecht (1456)"
+    },
+    {
+      "id": "bur_defend_dijon",
+      "country": "BUR",
+      "type": "defend_province",
+      "target": "Dijon",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1482,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 74,
+      "note": "Heartland of the Duchy of Burgundy"
+    },
+    {
+      "id": "cas_granada",
+      "country": "CAS",
+      "type": "conquer_province",
+      "target": "Granada",
+      "earliestDate": {
+        "year": 1482,
+        "month": 1,
+        "day": 1
+      },
+      "giveUpDate": {
+        "year": 1495,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 95,
+      "note": "Granada War (1482 - 2 Jan 1492)"
+    },
+    {
+      "id": "cas_ally_aragon",
+      "country": "CAS",
+      "type": "ally_with",
+      "target": "ARA",
+      "earliestDate": {
+        "year": 1469,
+        "month": 10,
+        "day": 19
+      },
+      "giveUpDate": {
+        "year": 1516,
+        "month": 1,
+        "day": 23
+      },
+      "priority": 92,
+      "note": "Marriage of Isabella and Ferdinand (19 Oct 1469)"
+    },
+    {
+      "id": "cas_malaga",
+      "country": "CAS",
+      "type": "conquer_province",
+      "target": "Malaga",
+      "earliestDate": {
+        "year": 1482,
+        "month": 1,
+        "day": 1
+      },
+      "giveUpDate": {
+        "year": 1495,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 90,
+      "note": "Siege and capture of Malaga (August 1487)"
+    },
+    {
+      "id": "cas_economy",
+      "country": "CAS",
+      "type": "build_up",
+      "target": "economy",
+      "earliestDate": {
+        "year": 1454,
+        "month": 1,
+        "day": 1
+      },
+      "giveUpDate": {
+        "year": 1481,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 82,
+      "note": "Internal recovery before the Granada campaigns (dates approximate across Henry IV's strife and 1479 Alcacovas)"
+    },
+    {
+      "id": "cas_ally_france",
+      "country": "CAS",
+      "type": "ally_with",
+      "target": "FRA",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1475,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 80,
+      "note": "Traditional Franco-Castilian alliance until the War of the Castilian Succession"
+    },
+    {
+      "id": "cas_peace_portugal",
+      "country": "CAS",
+      "type": "keep_peace_with",
+      "target": "POR",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1474,
+        "month": 12,
+        "day": 11
+      },
+      "priority": 78,
+      "note": "Truce of Medina del Campo until Henry IV's death (11 Dec 1474)"
+    },
+    {
+      "id": "cas_navarre_pamplona",
+      "country": "CAS",
+      "type": "conquer_province",
+      "target": "Pamplona",
+      "earliestDate": {
+        "year": 1512,
+        "month": 7,
+        "day": 1
+      },
+      "giveUpDate": {
+        "year": 1520,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 70,
+      "note": "Conquest of Upper Navarre (July 1512)"
+    },
+    {
+      "id": "por_ally_england",
+      "country": "POR",
+      "type": "ally_with",
+      "target": "ENG",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1553,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 88,
+      "note": "Treaty of Windsor"
+    },
+    {
+      "id": "por_economy",
+      "country": "POR",
+      "type": "build_up",
+      "target": "economy",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1498,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 86,
+      "note": "Guinea trade and oceanic navigation under Henry the Navigator, Afonso V, and John II"
+    },
+    {
+      "id": "por_peace_castile_early",
+      "country": "POR",
+      "type": "keep_peace_with",
+      "target": "CAS",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1474,
+        "month": 12,
+        "day": 11
+      },
+      "priority": 85,
+      "note": "Truce of Medina del Campo"
+    },
+    {
+      "id": "por_tangier",
+      "country": "POR",
+      "type": "conquer_province",
+      "target": "Tangier",
+      "earliestDate": {
+        "year": 1458,
+        "month": 1,
+        "day": 1
+      },
+      "giveUpDate": {
+        "year": 1475,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 82,
+      "note": "Afonso V's Moroccan campaigns (Alcacer Ceguer 1458; Arzila and Tangier August 1471)"
+    },
+    {
+      "id": "por_peace_castile_alcacovas",
+      "country": "POR",
+      "type": "keep_peace_with",
+      "target": "CAS",
+      "earliestDate": {
+        "year": 1479,
+        "month": 9,
+        "day": 4
+      },
+      "giveUpDate": {
+        "year": 1553,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 80,
+      "note": "Treaty of Alcacovas (4 Sept 1479) and Tordesillas (1494)"
+    },
+    {
+      "id": "por_safi",
+      "country": "POR",
+      "type": "conquer_province",
+      "target": "Safi",
+      "earliestDate": {
+        "year": 1505,
+        "month": 1,
+        "day": 1
+      },
+      "giveUpDate": {
+        "year": 1516,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 68,
+      "note": "Manuel I's Moroccan fortresses (Safi 1508)"
+    },
+    {
+      "id": "hab_defend_graz",
+      "country": "HAB",
+      "type": "defend_province",
+      "target": "Graz",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1493,
+        "month": 8,
+        "day": 19
+      },
+      "priority": 90,
+      "note": "Frederick III's Inner Austrian seat until his death (19 Aug 1493)"
+    },
+    {
+      "id": "hab_vienna_reunite",
+      "country": "HAB",
+      "type": "conquer_province",
+      "target": "Vienna",
+      "earliestDate": {
+        "year": 1458,
+        "month": 1,
+        "day": 1
+      },
+      "giveUpDate": {
+        "year": 1493,
+        "month": 8,
+        "day": 19
+      },
+      "priority": 88,
+      "note": "Reuniting Lower Austria after Ladislaus V's death (1457) and recovering Vienna from Matthias Corvinus (1490)"
+    },
+    {
+      "id": "hab_peace_hungary",
+      "country": "HAB",
+      "type": "keep_peace_with",
+      "target": "HUN",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1458,
+        "month": 1,
+        "day": 1
+      },
+      "priority": 85,
+      "note": "Habsburg family truce under Ladislaus the Posthumous"
+    },
+    {
+      "id": "hab_economy",
+      "country": "HAB",
+      "type": "build_up",
+      "target": "economy",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1477,
+        "month": 1,
+        "day": 1
+      },
+      "priority": 80,
+      "note": "Frederick III's fiscal and Styrian consolidation"
+    },
+    {
+      "id": "hab_ally_burgundy",
+      "country": "HAB",
+      "type": "ally_with",
+      "target": "BUR",
+      "earliestDate": {
+        "year": 1473,
+        "month": 1,
+        "day": 1
+      },
+      "giveUpDate": {
+        "year": 1477,
+        "month": 1,
+        "day": 5
+      },
+      "priority": 76,
+      "note": "Trier negotiations (1473) and Mary of Burgundy marriage pact"
+    },
+    {
+      "id": "hab_tyrol_innsbruck",
+      "country": "HAB",
+      "type": "conquer_province",
+      "target": "Innsbruck",
+      "earliestDate": {
+        "year": 1490,
+        "month": 3,
+        "day": 16
+      },
+      "giveUpDate": {
+        "year": 1500,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 72,
+      "note": "Reunification of Tyrol under Maximilian I (March 1490)"
+    },
+    {
+      "id": "aus_defend_vienna",
+      "country": "AUS",
+      "type": "defend_province",
+      "target": "Vienna",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1490,
+        "month": 8,
+        "day": 19
+      },
+      "priority": 92,
+      "note": "Defending Vienna against internal claimants and Hungary"
+    },
+    {
+      "id": "aus_ally_inner_austria",
+      "country": "AUS",
+      "type": "ally_with",
+      "target": "HAB",
+      "earliestDate": {
+        "year": 1457,
+        "month": 11,
+        "day": 23
+      },
+      "giveUpDate": {
+        "year": 1493,
+        "month": 8,
+        "day": 19
+      },
+      "priority": 85,
+      "note": "Habsburg alignment after Ladislaus V's death (23 Nov 1457)"
+    },
+    {
+      "id": "aus_army",
+      "country": "AUS",
+      "type": "build_up",
+      "target": "army",
+      "earliestDate": {
+        "year": 1457,
+        "month": 11,
+        "day": 23
+      },
+      "giveUpDate": {
+        "year": 1485,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 78,
+      "note": "Austrian defence forces"
+    },
+    {
+      "id": "pol_ally_lithuania",
+      "country": "POL",
+      "type": "ally_with",
+      "target": "LIT",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1569,
+        "month": 7,
+        "day": 1
+      },
+      "priority": 96,
+      "note": "Jagiellonian personal union until the Union of Lublin (1569)"
+    },
+    {
+      "id": "pol_danzig",
+      "country": "POL",
+      "type": "conquer_province",
+      "target": "Danzig",
+      "earliestDate": {
+        "year": 1454,
+        "month": 2,
+        "day": 4
+      },
+      "giveUpDate": {
+        "year": 1467,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 92,
+      "note": "Thirteen Years' War (Feb 1454 - Oct 1466)"
+    },
+    {
+      "id": "pol_marienburg",
+      "country": "POL",
+      "type": "conquer_province",
+      "target": "Marienburg",
+      "earliestDate": {
+        "year": 1454,
+        "month": 2,
+        "day": 4
+      },
+      "giveUpDate": {
+        "year": 1467,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 88,
+      "note": "Royal Prussia ceded in Second Peace of Thorn (19 Oct 1466)"
+    },
+    {
+      "id": "pol_vassalize_teutons",
+      "country": "POL",
+      "type": "vassalize",
+      "target": "TEU",
+      "earliestDate": {
+        "year": 1466,
+        "month": 10,
+        "day": 19
+      },
+      "giveUpDate": {
+        "year": 1525,
+        "month": 4,
+        "day": 8
+      },
+      "priority": 78,
+      "note": "Remaining Teutonic Prussia made a Polish fief in 1466 until secularization in 1525"
+    },
+    {
+      "id": "pol_peace_hungary",
+      "country": "POL",
+      "type": "keep_peace_with",
+      "target": "HUN",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1471,
+        "month": 1,
+        "day": 1
+      },
+      "priority": 72,
+      "note": "Peaceful relations prior to Jagiellonian-Corvinus Bohemian rivalry (1471)"
+    },
+    {
+      "id": "pol_defend_krakow",
+      "country": "POL",
+      "type": "defend_province",
+      "target": "Krakow",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1525,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 70,
+      "note": "Royal capital defence"
+    },
+    {
+      "id": "lit_ally_poland",
+      "country": "LIT",
+      "type": "ally_with",
+      "target": "POL",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1569,
+        "month": 7,
+        "day": 1
+      },
+      "priority": 96,
+      "note": "Jagiellonian union"
+    },
+    {
+      "id": "lit_defend_smolensk",
+      "country": "LIT",
+      "type": "defend_province",
+      "target": "Smolensk",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1514,
+        "month": 8,
+        "day": 1
+      },
+      "priority": 90,
+      "note": "Eastern frontier fortress until lost to Muscovy in August 1514"
+    },
+    {
+      "id": "lit_defend_kiev",
+      "country": "LIT",
+      "type": "defend_province",
+      "target": "Kiev",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1520,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 84,
+      "note": "Southern Dnieper frontier (sacked by Mengli I Giray in 1482)"
+    },
+    {
+      "id": "lit_army",
+      "country": "LIT",
+      "type": "build_up",
+      "target": "army",
+      "earliestDate": {
+        "year": 1460,
+        "month": 1,
+        "day": 1
+      },
+      "giveUpDate": {
+        "year": 1500,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 76,
+      "note": "Border army against Crimea and Muscovy"
+    },
+    {
+      "id": "lit_peace_moscow",
+      "country": "LIT",
+      "type": "keep_peace_with",
+      "target": "MOS",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1487,
+        "month": 1,
+        "day": 1
+      },
+      "priority": 72,
+      "note": "Treaty of 1449 held until the border wars of 1487-1494"
+    },
+    {
+      "id": "mos_novgorod",
+      "country": "MOS",
+      "type": "conquer_province",
+      "target": "Novgorod",
+      "earliestDate": {
+        "year": 1470,
+        "month": 1,
+        "day": 1
+      },
+      "giveUpDate": {
+        "year": 1480,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 95,
+      "note": "Battle of Shelon (1471) and annexation of Novgorod (Jan 1478)"
+    },
+    {
+      "id": "mos_defend_moscow",
+      "country": "MOS",
+      "type": "defend_province",
+      "target": "Moscow",
+      "earliestDate": {
+        "year": 1478,
+        "month": 1,
+        "day": 1
+      },
+      "giveUpDate": {
+        "year": 1482,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 90,
+      "note": "Great Stand on the Ugra River (1480) against the Great Horde"
+    },
+    {
+      "id": "mos_economy",
+      "country": "MOS",
+      "type": "build_up",
+      "target": "economy",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1465,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 88,
+      "note": "Recovery after the Muscovite Civil War (Shemyaka died July 1453)"
+    },
+    {
+      "id": "mos_tver",
+      "country": "MOS",
+      "type": "conquer_province",
+      "target": "Tver",
+      "earliestDate": {
+        "year": 1484,
+        "month": 1,
+        "day": 1
+      },
+      "giveUpDate": {
+        "year": 1488,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 85,
+      "note": "Ivan III annexed Tver in September 1485"
+    },
+    {
+      "id": "mos_vyazma",
+      "country": "MOS",
+      "type": "conquer_province",
+      "target": "Vyazma",
+      "earliestDate": {
+        "year": 1492,
+        "month": 1,
+        "day": 1
+      },
+      "giveUpDate": {
+        "year": 1505,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 78,
+      "note": "First Russo-Lithuanian War (Vyazma ceded 1494)"
+    },
+    {
+      "id": "mos_smolensk",
+      "country": "MOS",
+      "type": "conquer_province",
+      "target": "Smolensk",
+      "earliestDate": {
+        "year": 1512,
+        "month": 1,
+        "day": 1
+      },
+      "giveUpDate": {
+        "year": 1518,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 74,
+      "note": "Captured by Vasily III in July-August 1514"
+    },
+    {
+      "id": "mos_vassalize_ryazan",
+      "country": "MOS",
+      "type": "vassalize",
+      "target": "RYA",
+      "earliestDate": {
+        "year": 1483,
+        "month": 1,
+        "day": 1
+      },
+      "giveUpDate": {
+        "year": 1521,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 72,
+      "note": "Ryazan under Muscovite dominance from 1483; formally annexed 1521"
+    },
+    {
+      "id": "ser_defend_smederevo",
+      "country": "SER",
+      "type": "defend_province",
+      "target": "Smederevo",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1460,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 95,
+      "note": "Despotate capital held until June 1459"
+    },
+    {
+      "id": "ser_defend_novobrdo",
+      "country": "SER",
+      "type": "defend_province",
+      "target": "Novo Brdo",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1456,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 90,
+      "note": "Silver-mining centre besieged and taken by Mehmed II in June 1455"
+    },
+    {
+      "id": "ser_ally_hungary",
+      "country": "SER",
+      "type": "ally_with",
+      "target": "HUN",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1459,
+        "month": 6,
+        "day": 20
+      },
+      "priority": 85,
+      "note": "Seeking Hungarian protection against Ottoman annexation"
+    },
+    {
+      "id": "ser_army",
+      "country": "SER",
+      "type": "build_up",
+      "target": "army",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1459,
+        "month": 6,
+        "day": 20
+      },
+      "priority": 78,
+      "note": "Garrisoning Danube fortresses"
+    },
+    {
+      "id": "bos_defend_jajce",
+      "country": "BOS",
+      "type": "defend_province",
+      "target": "Jajce",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1464,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 92,
+      "note": "Royal seat until 1463"
+    },
+    {
+      "id": "bos_defend_bobovac",
+      "country": "BOS",
+      "type": "defend_province",
+      "target": "Bobovac",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1463,
+        "month": 7,
+        "day": 1
+      },
+      "priority": 88,
+      "note": "Crown fortress besieged May 1463"
+    },
+    {
+      "id": "bos_ally_hungary",
+      "country": "BOS",
+      "type": "ally_with",
+      "target": "HUN",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1463,
+        "month": 7,
+        "day": 1
+      },
+      "priority": 84,
+      "note": "King Stephen Tomasevic sought Hungarian aid against the Ottomans"
+    },
+    {
+      "id": "bos_ally_papacy",
+      "country": "BOS",
+      "type": "ally_with",
+      "target": "PAP",
+      "earliestDate": {
+        "year": 1458,
+        "month": 1,
+        "day": 1
+      },
+      "giveUpDate": {
+        "year": 1463,
+        "month": 7,
+        "day": 1
+      },
+      "priority": 75,
+      "note": "Papal crown sent by Pius II in 1461"
+    },
+    {
+      "id": "bos_army",
+      "country": "BOS",
+      "type": "build_up",
+      "target": "army",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1463,
+        "month": 7,
+        "day": 1
+      },
+      "priority": 70,
+      "note": "Defence preparations"
+    },
+    {
+      "id": "wal_defend_targoviste",
+      "country": "WAL",
+      "type": "defend_province",
+      "target": "Targoviste",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1477,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 92,
+      "note": "Capital defended by Vlad III Dracula (Night Attack at Targoviste, June 1462)"
+    },
+    {
+      "id": "wal_ally_hungary",
+      "country": "WAL",
+      "type": "ally_with",
+      "target": "HUN",
+      "earliestDate": {
+        "year": 1456,
+        "month": 8,
+        "day": 1
+      },
+      "giveUpDate": {
+        "year": 1476,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 86,
+      "note": "Vlad III's alliance with Hunyadi and Matthias Corvinus (note: strained during Vlad's imprisonment 1462-1474)"
+    },
+    {
+      "id": "wal_ally_moldavia",
+      "country": "WAL",
+      "type": "ally_with",
+      "target": "MOL",
+      "earliestDate": {
+        "year": 1457,
+        "month": 4,
+        "day": 1
+      },
+      "giveUpDate": {
+        "year": 1476,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 80,
+      "note": "Vlad III aided Stephen the Great in 1457 (later clashed over Chilia in 1462; approximate)"
+    },
+    {
+      "id": "wal_army",
+      "country": "WAL",
+      "type": "build_up",
+      "target": "army",
+      "earliestDate": {
+        "year": 1456,
+        "month": 8,
+        "day": 1
+      },
+      "giveUpDate": {
+        "year": 1470,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 75,
+      "note": "Wallachian border levies"
+    },
+    {
+      "id": "mol_defend_suceava",
+      "country": "MOL",
+      "type": "defend_province",
+      "target": "Suceava",
+      "earliestDate": {
+        "year": 1457,
+        "month": 4,
+        "day": 1
+      },
+      "giveUpDate": {
+        "year": 1504,
+        "month": 7,
+        "day": 2
+      },
+      "priority": 92,
+      "note": "Stephen the Great's capital (held against Ottomans 1476 and Poland 1497)"
+    },
+    {
+      "id": "mol_ally_poland",
+      "country": "MOL",
+      "type": "ally_with",
+      "target": "POL",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1497,
+        "month": 1,
+        "day": 1
+      },
+      "priority": 90,
+      "note": "Moldavian homage to Poland until John Albert's 1497 campaign"
+    },
+    {
+      "id": "mol_defend_akkerman",
+      "country": "MOL",
+      "type": "defend_province",
+      "target": "Akkerman",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1484,
+        "month": 8,
+        "day": 1
+      },
+      "priority": 84,
+      "note": "Black Sea port (Cetatea Alba) held until Ottoman siege August 1484"
+    },
+    {
+      "id": "mol_conquer_kilia",
+      "country": "MOL",
+      "type": "conquer_province",
+      "target": "Kilia",
+      "earliestDate": {
+        "year": 1462,
+        "month": 1,
+        "day": 1
+      },
+      "giveUpDate": {
+        "year": 1484,
+        "month": 7,
+        "day": 1
+      },
+      "priority": 78,
+      "note": "Stephen the Great captured Chilia (Kilia) in January 1465; held until July 1484"
+    },
+    {
+      "id": "mol_army",
+      "country": "MOL",
+      "type": "build_up",
+      "target": "army",
+      "earliestDate": {
+        "year": 1457,
+        "month": 4,
+        "day": 1
+      },
+      "giveUpDate": {
+        "year": 1485,
+        "month": 12,
+        "day": 31
+      },
+      "priority": 76,
+      "note": "Stephen's peasant-and-boyar host (Vaslui 1475)"
+    },
+    {
+      "id": "alb_defend_kruje",
+      "country": "ALB",
+      "type": "defend_province",
+      "target": "Kruje",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1478,
+        "month": 6,
+        "day": 1
+      },
+      "priority": 98,
+      "note": "Skanderbeg's mountain fortress (held until 1478)"
+    },
+    {
+      "id": "alb_ally_naples",
+      "country": "ALB",
+      "type": "ally_with",
+      "target": "NAP",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1468,
+        "month": 1,
+        "day": 17
+      },
+      "priority": 88,
+      "note": "Treaty of Gaeta (1451) continued with Ferrante of Naples until Skanderbeg's death (17 Jan 1468)"
+    },
+    {
+      "id": "alb_ally_venice",
+      "country": "ALB",
+      "type": "ally_with",
+      "target": "VEN",
+      "earliestDate": {
+        "year": 1463,
+        "month": 1,
+        "day": 1
+      },
+      "giveUpDate": {
+        "year": 1479,
+        "month": 1,
+        "day": 1
+      },
+      "priority": 82,
+      "note": "League of Lezhe cooperation with Venice during the 1463-1479 war"
+    },
+    {
+      "id": "alb_army",
+      "country": "ALB",
+      "type": "build_up",
+      "target": "army",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1468,
+        "month": 1,
+        "day": 17
+      },
+      "priority": 75,
+      "note": "League of Lezhe forces"
+    },
+    {
+      "id": "moe_defend_mystras",
+      "country": "MOE",
+      "type": "defend_province",
+      "target": "Mystras",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1460,
+        "month": 6,
+        "day": 1
+      },
+      "priority": 92,
+      "note": "Capital of the Despotate of the Morea until May 1460"
+    },
+    {
+      "id": "moe_defend_monemvasia",
+      "country": "MOE",
+      "type": "defend_province",
+      "target": "Monemvasia",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1460,
+        "month": 6,
+        "day": 1
+      },
+      "priority": 88,
+      "note": "Coastal stronghold"
+    },
+    {
+      "id": "moe_ally_venice",
+      "country": "MOE",
+      "type": "ally_with",
+      "target": "VEN",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1460,
+        "month": 6,
+        "day": 1
+      },
+      "priority": 80,
+      "note": "Seeking Venetian maritime aid from Modon and Nauplia"
+    },
+    {
+      "id": "moe_army",
+      "country": "MOE",
+      "type": "build_up",
+      "target": "army",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1460,
+        "month": 6,
+        "day": 1
+      },
+      "priority": 75,
+      "note": "Defence of the Hexamilion and Peloponnese"
+    },
+    {
+      "id": "tre_defend_trebizond",
+      "country": "TRE",
+      "type": "defend_province",
+      "target": "Trebizond",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1461,
+        "month": 8,
+        "day": 15
+      },
+      "priority": 96,
+      "note": "Empire of Trebizond held until 15 August 1461"
+    },
+    {
+      "id": "tre_ally_akkoyunlu",
+      "country": "TRE",
+      "type": "ally_with",
+      "target": "AKK",
+      "earliestDate": {
+        "year": 1458,
+        "month": 1,
+        "day": 1
+      },
+      "giveUpDate": {
+        "year": 1461,
+        "month": 8,
+        "day": 15
+      },
+      "priority": 90,
+      "note": "Marriage alliance of Theodora Komnene (Despina Khatun) with Uzun Hasan in 1458"
+    },
+    {
+      "id": "tre_ally_georgia",
+      "country": "TRE",
+      "type": "ally_with",
+      "target": "GEO",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1461,
+        "month": 8,
+        "day": 15
+      },
+      "priority": 84,
+      "note": "Komnenoi-Bagrationi frontier alignment"
+    },
+    {
+      "id": "tre_army",
+      "country": "TRE",
+      "type": "build_up",
+      "target": "army",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1461,
+        "month": 8,
+        "day": 15
+      },
+      "priority": 75,
+      "note": "Pontic defence forces"
+    },
+    {
+      "id": "mam_defend_cairo",
+      "country": "MAM",
+      "type": "defend_province",
+      "target": "Cairo",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1517,
+        "month": 1,
+        "day": 22
+      },
+      "priority": 92,
+      "note": "Mamluk capital until Ridaniya (22 Jan 1517)"
+    },
+    {
+      "id": "mam_economy",
+      "country": "MAM",
+      "type": "build_up",
+      "target": "economy",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1496,
+        "month": 8,
+        "day": 8
+      },
+      "priority": 90,
+      "note": "Red Sea spice trade and Qaitbay's architectural prosperity (until Qaitbay's death 1496)"
+    },
+    {
+      "id": "mam_defend_aleppo",
+      "country": "MAM",
+      "type": "defend_province",
+      "target": "Aleppo",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1516,
+        "month": 8,
+        "day": 24
+      },
+      "priority": 86,
+      "note": "Northern Syrian frontier until Marj Dabiq (24 Aug 1516)"
+    },
+    {
+      "id": "mam_peace_ottomans",
+      "country": "MAM",
+      "type": "keep_peace_with",
+      "target": "TUR",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1485,
+        "month": 1,
+        "day": 1
+      },
+      "priority": 82,
+      "note": "Friendly relations until the 1485-1491 Ottoman-Mamluk border conflict"
+    },
+    {
+      "id": "mam_cyprus_influence",
+      "country": "MAM",
+      "type": "conquer_province",
+      "target": "Nicosia",
+      "earliestDate": {
+        "year": 1460,
+        "month": 1,
+        "day": 1
+      },
+      "giveUpDate": {
+        "year": 1473,
+        "month": 1,
+        "day": 1
+      },
+      "priority": 72,
+      "note": "Mamluk expedition backing James II in the Cypriot civil war (1460-1464; Cyprus was a tributary rather than directly annexed)"
+    },
+    {
+      "id": "mam_ally_gujarat",
+      "country": "MAM",
+      "type": "ally_with",
+      "target": "GUJ",
+      "earliestDate": {
+        "year": 1505,
+        "month": 1,
+        "day": 1
+      },
+      "giveUpDate": {
+        "year": 1517,
+        "month": 1,
+        "day": 22
+      },
+      "priority": 68,
+      "note": "Mamluk-Gujarati naval coalition against Portuguese fleets in the Indian Ocean (Chaul 1508 / Diu 1509)"
+    },
+    {
+      "id": "kni_defend_rhodes",
+      "country": "KNI",
+      "type": "defend_province",
+      "target": "Rhodes",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1522,
+        "month": 12,
+        "day": 22
+      },
+      "priority": 98,
+      "note": "Island stronghold held through 1480 siege until December 1522"
+    },
+    {
+      "id": "kni_ally_papacy",
+      "country": "KNI",
+      "type": "ally_with",
+      "target": "PAP",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1522,
+        "month": 12,
+        "day": 22
+      },
+      "priority": 88,
+      "note": "Crusading order under papal protection"
+    },
+    {
+      "id": "kni_ally_venice",
+      "country": "KNI",
+      "type": "ally_with",
+      "target": "VEN",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1522,
+        "month": 12,
+        "day": 22
+      },
+      "priority": 82,
+      "note": "Aegean and Levantine naval cooperation"
+    },
+    {
+      "id": "kni_army",
+      "country": "KNI",
+      "type": "build_up",
+      "target": "army",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1480,
+        "month": 5,
+        "day": 1
+      },
+      "priority": 76,
+      "note": "Garrisoning Rhodes before the 1480 Ottoman siege"
+    },
+    {
+      "id": "kni_economy",
+      "country": "KNI",
+      "type": "build_up",
+      "target": "economy",
+      "earliestDate": {
+        "year": 1453,
+        "month": 5,
+        "day": 30
+      },
+      "giveUpDate": {
+        "year": 1522,
+        "month": 12,
+        "day": 22
+      },
+      "priority": 70,
+      "note": "Priory remittances and port fortifications"
+    }
+  ]
+}

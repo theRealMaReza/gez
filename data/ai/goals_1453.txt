@@ -1,0 +1,278 @@
+# Historical AI goal lists after 30 May 1453 (Phase 15)
+# Validated and compiled by tools/ai/aigen.py -> ai_goals1453.json
+#
+# Format:
+#   country | id | type | target | earliest_date | give_up_date | priority | note
+#
+# Goal types:
+#   conquer_province  target = ProvinceName (must exist in scenario1453.json)
+#   defend_province   target = ProvinceName (must exist in scenario1453.json)
+#   ally_with         target = CountryTag (must exist in scenario1453.json)
+#   vassalize         target = CountryTag (must exist in scenario1453.json)
+#   keep_peace_with   target = CountryTag (must exist in scenario1453.json)
+#   build_up          target = army | economy
+#
+# Historical uncertainty notes:
+# - Exact campaign planning start dates vs campaign execution dates are noted where approximate.
+
+# ==============================================================================
+# 1. OTTOMAN EMPIRE (TUR)
+# Constantinople fell on 29 May 1453; goals begin after that.
+# ==============================================================================
+TUR | tur_serbia_smederevo | conquer_province | Smederevo | 1454-04-01 | 1465-12-31 | 95 | Mehmed II invaded Serbia 1454-1455 and annexed Smederevo in June 1459
+TUR | tur_morea_mystras | conquer_province | Mystras | 1458-01-01 | 1466-12-31 | 90 | Mehmed II campaigned in the Morea in 1458 and conquered Mystras in May 1460
+TUR | tur_candar_sinop | conquer_province | Sinop | 1460-06-01 | 1468-12-31 | 86 | Annexation of Sinop and Candar in 1461 en route to Trebizond
+TUR | tur_trebizond | conquer_province | Trebizond | 1461-01-01 | 1470-12-31 | 85 | Surrendered to Mehmed II on 15 August 1461
+TUR | tur_bosnia_jajce | conquer_province | Jajce | 1462-06-01 | 1475-12-31 | 80 | Ottoman conquest of Bosnia in May-June 1463
+TUR | tur_negroponte | conquer_province | Negroponte | 1463-06-01 | 1479-12-31 | 76 | Captured from Venice in July 1470 during the Ottoman-Venetian War (1463-1479)
+TUR | tur_black_sea_kaffa | conquer_province | Kaffa | 1474-01-01 | 1485-12-31 | 72 | Gedik Ahmed Pasha captured Genoese Kaffa in June 1475
+TUR | tur_crimea_vassal | vassalize | CRI | 1475-01-01 | 1488-12-31 | 70 | Crimean Khanate brought under Ottoman suzerainty (1475-1478)
+TUR | tur_rhodes_siege | conquer_province | Rhodes | 1479-01-01 | 1485-12-31 | 66 | First great Ottoman siege of Rhodes in May-August 1480 (date window covers Mehmed II's attempt; fell later in 1522)
+TUR | tur_otranto_lecce | conquer_province | Lecce | 1480-01-01 | 1484-12-31 | 64 | Gedik Ahmed Pasha landed at Otranto in July-August 1480 (held until Sept 1481)
+TUR | tur_peace_mamluks | keep_peace_with | MAM | 1453-05-30 | 1485-01-01 | 60 | Early diplomatic amity until Ottoman-Mamluk border clashes in Cilicia began c. 1485
+TUR | tur_egypt_cairo | conquer_province | Cairo | 1515-01-01 | 1525-12-31 | 58 | Selim I's conquest of Syria and Egypt (1516-1517)
+
+# ==============================================================================
+# 2. HUNGARY (HUN)
+# Must try to hold Belgrade in 1456 (linked to hist_belgrade_1456_hun).
+# ==============================================================================
+HUN | hun_belgrade_1456 | defend_province | Belgrade | 1453-05-30 | 1457-06-01 | 98 | John Hunyadi and Capistrano defended Belgrade against Mehmed II in July 1456
+HUN | hun_black_army | build_up | army | 1457-06-01 | 1468-12-31 | 85 | Matthias Corvinus built the standing Black Army (Fekete Sereg) from 1458
+HUN | hun_ally_papacy | ally_with | PAP | 1453-05-30 | 1475-12-31 | 80 | Papal crusade backing against the Ottomans
+HUN | hun_ally_venice | ally_with | VEN | 1463-01-01 | 1479-12-31 | 75 | Anti-Ottoman alliance during the 1463-1479 war
+HUN | hun_moravia_olomouc | conquer_province | Olomouc | 1468-01-01 | 1480-12-31 | 65 | Bohemian War (1468-1478); Matthias held Moravia and Silesia by the 1479 Peace of Olomouc
+HUN | hun_vienna_campaign | conquer_province | Vienna | 1477-01-01 | 1490-04-06 | 60 | Austrian-Hungarian War; Matthias captured Vienna in 1485 and held it until his death in April 1490
+
+# ==============================================================================
+# 3. VENICE (VEN)
+# ==============================================================================
+VEN | ven_peace_milan | keep_peace_with | MLO | 1454-04-09 | 1482-01-01 | 85 | Peace of Lodi (9 April 1454) and Italic League until the War of Ferrara (1482)
+VEN | ven_economy | build_up | economy | 1454-04-09 | 1465-12-31 | 80 | Adriatic and Levantine trade expansion
+VEN | ven_defend_negroponte | defend_province | Negroponte | 1453-05-30 | 1470-08-01 | 78 | Key Aegean base held until July 1470
+VEN | ven_defend_modon | defend_province | Modon | 1453-05-30 | 1500-08-01 | 74 | Venetian Morean port held until 1500
+VEN | ven_cyprus_nicosia | conquer_province | Nicosia | 1473-01-01 | 1492-12-31 | 70 | Venetian protectorate from 1473-1474 and formal annexation of Cyprus in 1489
+VEN | ven_cremona | conquer_province | Cremona | 1499-01-01 | 1509-05-01 | 60 | Acquired Cremona in 1499 via the Treaty of Blois until the War of the League of Cambrai
+
+# ==============================================================================
+# 4. GENOA (GEN)
+# ==============================================================================
+GEN | gen_economy | build_up | economy | 1453-05-30 | 1470-12-31 | 90 | Casa di San Giorgio banking and Black Sea/Levantine commerce
+GEN | gen_defend_kaffa | defend_province | Kaffa | 1453-05-30 | 1475-06-01 | 85 | Black Sea colony administered by Bank of Saint George until June 1475
+GEN | gen_defend_chios | defend_province | Chios | 1453-05-30 | 1525-12-31 | 80 | Genoese Maona of Chios held until 1566 (end date capped for 15th/early-16th window)
+GEN | gen_defend_corsica | defend_province | Bastia | 1453-05-30 | 1525-12-31 | 75 | Genoese rule in Corsica
+GEN | gen_peace_ottomans | keep_peace_with | TUR | 1453-06-01 | 1474-12-31 | 70 | Galata commercial capitulation (1 June 1453) until the Kaffa crisis of 1475
+GEN | gen_peace_milan | keep_peace_with | MLO | 1464-01-01 | 1499-01-01 | 62 | Sforza suzerainty/alignment over Genoa (intermittent 1464-1478 and 1487-1499; dates approximate)
+
+# ==============================================================================
+# 5. MILAN (MLO)
+# ==============================================================================
+MLO | mlo_defend_milan | defend_province | Milan | 1453-05-30 | 1499-09-01 | 95 | Francesco and Ludovico Sforza defending the Duchy until 1499
+MLO | mlo_ally_florence | ally_with | FLO | 1453-05-30 | 1494-12-31 | 90 | Sforza-Medici Italic League axis
+MLO | mlo_peace_venice | keep_peace_with | VEN | 1454-04-09 | 1482-01-01 | 85 | Peace of Lodi (1454)
+MLO | mlo_economy | build_up | economy | 1454-04-09 | 1480-12-31 | 75 | Lombard silk, arms workshops, and canal irrigation
+MLO | mlo_peace_france | keep_peace_with | FRA | 1461-07-01 | 1494-09-01 | 70 | Sforza-Louis XI alignment until Charles VIII's 1494 Italian War
+
+# ==============================================================================
+# 6. FLORENCE (FLO)
+# ==============================================================================
+FLO | flo_ally_milan | ally_with | MLO | 1453-05-30 | 1494-12-31 | 92 | Medici-Sforza alliance
+FLO | flo_economy | build_up | economy | 1453-05-30 | 1492-12-31 | 90 | Medici banking and Renaissance Florence
+FLO | flo_peace_venice | keep_peace_with | VEN | 1454-04-09 | 1494-12-31 | 80 | Peace of Lodi balance
+FLO | flo_peace_naples | keep_peace_with | NAP | 1455-01-01 | 1494-12-31 | 78 | Italic League & Lorenzo de' Medici's 1480 diplomacy with Ferrante
+FLO | flo_defend_pisa | defend_province | Pisa | 1453-05-30 | 1494-11-01 | 75 | Pisan port held until the 1494 revolt
+FLO | flo_conquer_siena | conquer_province | Siena | 1525-01-01 | 1559-04-01 | 60 | Medici expansion into Siena (1550s)
+
+# ==============================================================================
+# 7. NAPLES (NAP) & ARAGON (ARA)
+# ==============================================================================
+NAP | nap_defend_naples | defend_province | Naples | 1453-05-30 | 1503-12-31 | 92 | Ferrante defending the Kingdom against baronial and Angevin claimants
+NAP | nap_defend_lecce | defend_province | Lecce | 1479-01-01 | 1482-12-31 | 88 | Retaking and holding Otranto (Lecce) against the 1480-1481 Ottoman landing
+NAP | nap_ally_papacy | ally_with | PAP | 1458-06-27 | 1492-12-31 | 84 | Papal investiture and southern Italian alignment (interrupted briefly in 1485-1486 Barons' War)
+NAP | nap_peace_florence | keep_peace_with | FLO | 1455-01-01 | 1494-12-31 | 76 | Italic League & 1480 settlement
+NAP | nap_army | build_up | army | 1458-07-01 | 1485-12-31 | 70 | Royal Neapolitan army under Ferrante
+
+ARA | ara_ally_castile | ally_with | CAS | 1469-10-19 | 1516-01-23 | 90 | Marriage of Ferdinand and Isabella (19 October 1469)
+ARA | ara_economy | build_up | economy | 1453-05-30 | 1479-01-01 | 85 | Mediterranean Crown of Aragon commerce
+ARA | ara_defend_perpignan | defend_province | Perpignan | 1453-05-30 | 1493-01-01 | 82 | Roussillon contested with France (pledged 1462, recovered 1493)
+ARA | ara_ally_naples | ally_with | NAP | 1458-06-27 | 1501-12-31 | 78 | Trastamara dynastic support after Alfonso V's death (27 June 1458)
+ARA | ara_conquer_naples | conquer_province | Naples | 1501-01-01 | 1505-12-31 | 75 | Ferdinand of Aragon's conquest of Naples (1503-1504)
+
+# ==============================================================================
+# 8. PAPAL STATES (PAP)
+# ==============================================================================
+PAP | pap_defend_rome | defend_province | Rome | 1453-05-30 | 1527-05-01 | 95 | Papal capital until the 1527 Sack of Rome
+PAP | pap_ally_hungary | ally_with | HUN | 1453-05-30 | 1490-12-31 | 85 | Papal crusading subsidies and alliance with Hunyadi & Matthias Corvinus
+PAP | pap_ally_venice | ally_with | VEN | 1458-01-01 | 1482-01-01 | 78 | Anti-Ottoman league until the 1482 War of Ferrara
+PAP | pap_economy | build_up | economy | 1455-01-01 | 1490-12-31 | 75 | Renaissance rebuilding of Rome
+PAP | pap_conquer_urbino | conquer_province | Urbino | 1502-01-01 | 1520-12-31 | 65 | Romagna/Urbino consolidation under Alexander VI/Cesare Borgia and Julius II/Leo X
+
+# ==============================================================================
+# 9. FRANCE (FRA)
+# ==============================================================================
+FRA | fra_bordeaux | conquer_province | Bordeaux | 1453-05-30 | 1460-12-31 | 98 | Final campaign of the Hundred Years' War; Castillon (17 July 1453)
+FRA | fra_burgundy_dijon | conquer_province | Dijon | 1477-01-05 | 1485-12-31 | 88 | Louis XI seized the Duchy of Burgundy after Charles the Bold died at Nancy (5 Jan 1477)
+FRA | fra_ally_scotland | ally_with | SCO | 1453-05-30 | 1558-12-31 | 85 | Auld Alliance
+FRA | fra_picardy_amiens | conquer_province | Amiens | 1477-01-05 | 1485-12-31 | 84 | Recovery of Picardy and Somme towns in 1477
+FRA | fra_provence_aix | conquer_province | Aix | 1481-12-11 | 1490-12-31 | 80 | Union of Provence upon the death of Charles IV of Anjou (11 Dec 1481)
+FRA | fra_brittany_rennes | conquer_province | Rennes | 1488-07-28 | 1532-12-31 | 75 | Saint-Aubin-du-Cormier (1488) and union of Brittany
+FRA | fra_naples_expedition | conquer_province | Naples | 1494-09-01 | 1504-01-01 | 65 | Charles VIII (1494-1495) and Louis XII (1501) Italian Wars
+
+# ==============================================================================
+# 10. ENGLAND (ENG)
+# ==============================================================================
+ENG | eng_defend_calais | defend_province | Calais | 1453-05-30 | 1558-01-07 | 88 | Calais Pale held until January 1558
+ENG | eng_economy | build_up | economy | 1454-01-01 | 1485-08-22 | 85 | Recovery after the Hundred Years' War and Wars of the Roses
+ENG | eng_ally_portugal | ally_with | POR | 1453-05-30 | 1553-12-31 | 84 | Treaty of Windsor
+ENG | eng_peace_france | keep_peace_with | FRA | 1455-05-22 | 1475-08-29 | 82 | Wars of the Roses limited continental war until Treaty of Picquigny (1475)
+ENG | eng_ally_burgundy | ally_with | BUR | 1468-07-03 | 1477-01-05 | 78 | Edward IV and Charles the Bold (Margaret of York marriage, July 1468)
+ENG | eng_tudor_army | build_up | army | 1485-08-22 | 1513-01-01 | 72 | Tudor consolidation after Bosworth (22 Aug 1485)
+ENG | eng_peace_scotland | keep_peace_with | SCO | 1502-01-24 | 1513-08-01 | 68 | Treaty of Perpetual Peace (24 Jan 1502) until Flodden (1513)
+
+# ==============================================================================
+# 11. BURGUNDY (BUR)
+# ==============================================================================
+BUR | bur_economy | build_up | economy | 1453-05-30 | 1467-06-15 | 90 | Low Countries commerce under Philip the Good
+BUR | bur_liege | conquer_province | Liege | 1465-01-01 | 1472-12-31 | 88 | Burgundian Wars against Liege (1465-1468)
+BUR | bur_lorraine_nancy | conquer_province | Nancy | 1474-01-01 | 1477-01-05 | 85 | Charles the Bold's campaign to link Burgundy and the Low Countries (Battle of Nancy, 5 Jan 1477)
+BUR | bur_ally_england | ally_with | ENG | 1467-06-15 | 1477-01-05 | 82 | Anglo-Burgundian alliance against Louis XI
+BUR | bur_utrecht | conquer_province | Utrecht | 1456-01-01 | 1477-01-05 | 78 | Philip the Good's assertion over the Prince-Bishopric of Utrecht (1456)
+BUR | bur_defend_dijon | defend_province | Dijon | 1453-05-30 | 1482-12-31 | 74 | Heartland of the Duchy of Burgundy
+
+# ==============================================================================
+# 12. CASTILE (CAS)
+# ==============================================================================
+CAS | cas_granada | conquer_province | Granada | 1482-01-01 | 1495-12-31 | 95 | Granada War (1482 - 2 Jan 1492)
+CAS | cas_ally_aragon | ally_with | ARA | 1469-10-19 | 1516-01-23 | 92 | Marriage of Isabella and Ferdinand (19 Oct 1469)
+CAS | cas_malaga | conquer_province | Malaga | 1482-01-01 | 1495-12-31 | 90 | Siege and capture of Malaga (August 1487)
+CAS | cas_economy | build_up | economy | 1454-01-01 | 1481-12-31 | 82 | Internal recovery before the Granada campaigns (dates approximate across Henry IV's strife and 1479 Alcacovas)
+CAS | cas_ally_france | ally_with | FRA | 1453-05-30 | 1475-12-31 | 80 | Traditional Franco-Castilian alliance until the War of the Castilian Succession
+CAS | cas_peace_portugal | keep_peace_with | POR | 1453-05-30 | 1474-12-11 | 78 | Truce of Medina del Campo until Henry IV's death (11 Dec 1474)
+CAS | cas_navarre_pamplona | conquer_province | Pamplona | 1512-07-01 | 1520-12-31 | 70 | Conquest of Upper Navarre (July 1512)
+
+# ==============================================================================
+# 13. PORTUGAL (POR)
+# ==============================================================================
+POR | por_ally_england | ally_with | ENG | 1453-05-30 | 1553-12-31 | 88 | Treaty of Windsor
+POR | por_economy | build_up | economy | 1453-05-30 | 1498-12-31 | 86 | Guinea trade and oceanic navigation under Henry the Navigator, Afonso V, and John II
+POR | por_peace_castile_early | keep_peace_with | CAS | 1453-05-30 | 1474-12-11 | 85 | Truce of Medina del Campo
+POR | por_tangier | conquer_province | Tangier | 1458-01-01 | 1475-12-31 | 82 | Afonso V's Moroccan campaigns (Alcacer Ceguer 1458; Arzila and Tangier August 1471)
+POR | por_peace_castile_alcacovas | keep_peace_with | CAS | 1479-09-04 | 1553-12-31 | 80 | Treaty of Alcacovas (4 Sept 1479) and Tordesillas (1494)
+POR | por_safi | conquer_province | Safi | 1505-01-01 | 1516-12-31 | 68 | Manuel I's Moroccan fortresses (Safi 1508)
+
+# ==============================================================================
+# 14. THE EMPEROR / INNER AUSTRIA (HAB) & AUSTRIA (AUS)
+# ==============================================================================
+HAB | hab_defend_graz | defend_province | Graz | 1453-05-30 | 1493-08-19 | 90 | Frederick III's Inner Austrian seat until his death (19 Aug 1493)
+HAB | hab_vienna_reunite | conquer_province | Vienna | 1458-01-01 | 1493-08-19 | 88 | Reuniting Lower Austria after Ladislaus V's death (1457) and recovering Vienna from Matthias Corvinus (1490)
+HAB | hab_peace_hungary | keep_peace_with | HUN | 1453-05-30 | 1458-01-01 | 85 | Habsburg family truce under Ladislaus the Posthumous
+HAB | hab_economy | build_up | economy | 1453-05-30 | 1477-01-01 | 80 | Frederick III's fiscal and Styrian consolidation
+HAB | hab_ally_burgundy | ally_with | BUR | 1473-01-01 | 1477-01-05 | 76 | Trier negotiations (1473) and Mary of Burgundy marriage pact
+HAB | hab_tyrol_innsbruck | conquer_province | Innsbruck | 1490-03-16 | 1500-12-31 | 72 | Reunification of Tyrol under Maximilian I (March 1490)
+
+AUS | aus_defend_vienna | defend_province | Vienna | 1453-05-30 | 1490-08-19 | 92 | Defending Vienna against internal claimants and Hungary
+AUS | aus_ally_inner_austria | ally_with | HAB | 1457-11-23 | 1493-08-19 | 85 | Habsburg alignment after Ladislaus V's death (23 Nov 1457)
+AUS | aus_army | build_up | army | 1457-11-23 | 1485-12-31 | 78 | Austrian defence forces
+
+# ==============================================================================
+# 15. POLAND (POL) & LITHUANIA (LIT)
+# ==============================================================================
+POL | pol_ally_lithuania | ally_with | LIT | 1453-05-30 | 1569-07-01 | 96 | Jagiellonian personal union until the Union of Lublin (1569)
+POL | pol_danzig | conquer_province | Danzig | 1454-02-04 | 1467-12-31 | 92 | Thirteen Years' War (Feb 1454 - Oct 1466)
+POL | pol_marienburg | conquer_province | Marienburg | 1454-02-04 | 1467-12-31 | 88 | Royal Prussia ceded in Second Peace of Thorn (19 Oct 1466)
+POL | pol_vassalize_teutons | vassalize | TEU | 1466-10-19 | 1525-04-08 | 78 | Remaining Teutonic Prussia made a Polish fief in 1466 until secularization in 1525
+POL | pol_peace_hungary | keep_peace_with | HUN | 1453-05-30 | 1471-01-01 | 72 | Peaceful relations prior to Jagiellonian-Corvinus Bohemian rivalry (1471)
+POL | pol_defend_krakow | defend_province | Krakow | 1453-05-30 | 1525-12-31 | 70 | Royal capital defence
+
+LIT | lit_ally_poland | ally_with | POL | 1453-05-30 | 1569-07-01 | 96 | Jagiellonian union
+LIT | lit_defend_smolensk | defend_province | Smolensk | 1453-05-30 | 1514-08-01 | 90 | Eastern frontier fortress until lost to Muscovy in August 1514
+LIT | lit_defend_kiev | defend_province | Kiev | 1453-05-30 | 1520-12-31 | 84 | Southern Dnieper frontier (sacked by Mengli I Giray in 1482)
+LIT | lit_army | build_up | army | 1460-01-01 | 1500-12-31 | 76 | Border army against Crimea and Muscovy
+LIT | lit_peace_moscow | keep_peace_with | MOS | 1453-05-30 | 1487-01-01 | 72 | Treaty of 1449 held until the border wars of 1487-1494
+
+# ==============================================================================
+# 16. MOSCOW / MUSCOVY (MOS)
+# ==============================================================================
+MOS | mos_novgorod | conquer_province | Novgorod | 1470-01-01 | 1480-12-31 | 95 | Battle of Shelon (1471) and annexation of Novgorod (Jan 1478)
+MOS | mos_defend_moscow | defend_province | Moscow | 1478-01-01 | 1482-12-31 | 90 | Great Stand on the Ugra River (1480) against the Great Horde
+MOS | mos_economy | build_up | economy | 1453-05-30 | 1465-12-31 | 88 | Recovery after the Muscovite Civil War (Shemyaka died July 1453)
+MOS | mos_tver | conquer_province | Tver | 1484-01-01 | 1488-12-31 | 85 | Ivan III annexed Tver in September 1485
+MOS | mos_vyazma | conquer_province | Vyazma | 1492-01-01 | 1505-12-31 | 78 | First Russo-Lithuanian War (Vyazma ceded 1494)
+MOS | mos_smolensk | conquer_province | Smolensk | 1512-01-01 | 1518-12-31 | 74 | Captured by Vasily III in July-August 1514
+MOS | mos_vassalize_ryazan | vassalize | RYA | 1483-01-01 | 1521-12-31 | 72 | Ryazan under Muscovite dominance from 1483; formally annexed 1521
+
+# ==============================================================================
+# 17. SERBIA (SER)
+# ==============================================================================
+SER | ser_defend_smederevo | defend_province | Smederevo | 1453-05-30 | 1460-12-31 | 95 | Despotate capital held until June 1459
+SER | ser_defend_novobrdo | defend_province | Novo Brdo | 1453-05-30 | 1456-12-31 | 90 | Silver-mining centre besieged and taken by Mehmed II in June 1455
+SER | ser_ally_hungary | ally_with | HUN | 1453-05-30 | 1459-06-20 | 85 | Seeking Hungarian protection against Ottoman annexation
+SER | ser_army | build_up | army | 1453-05-30 | 1459-06-20 | 78 | Garrisoning Danube fortresses
+
+# ==============================================================================
+# 18. BOSNIA (BOS)
+# ==============================================================================
+BOS | bos_defend_jajce | defend_province | Jajce | 1453-05-30 | 1464-12-31 | 92 | Royal seat until 1463
+BOS | bos_defend_bobovac | defend_province | Bobovac | 1453-05-30 | 1463-07-01 | 88 | Crown fortress besieged May 1463
+BOS | bos_ally_hungary | ally_with | HUN | 1453-05-30 | 1463-07-01 | 84 | King Stephen Tomasevic sought Hungarian aid against the Ottomans
+BOS | bos_ally_papacy | ally_with | PAP | 1458-01-01 | 1463-07-01 | 75 | Papal crown sent by Pius II in 1461
+BOS | bos_army | build_up | army | 1453-05-30 | 1463-07-01 | 70 | Defence preparations
+
+# ==============================================================================
+# 19. WALLACHIA (WAL)
+# ==============================================================================
+WAL | wal_defend_targoviste | defend_province | Targoviste | 1453-05-30 | 1477-12-31 | 92 | Capital defended by Vlad III Dracula (Night Attack at Targoviste, June 1462)
+WAL | wal_ally_hungary | ally_with | HUN | 1456-08-01 | 1476-12-31 | 86 | Vlad III's alliance with Hunyadi and Matthias Corvinus (note: strained during Vlad's imprisonment 1462-1474)
+WAL | wal_ally_moldavia | ally_with | MOL | 1457-04-01 | 1476-12-31 | 80 | Vlad III aided Stephen the Great in 1457 (later clashed over Chilia in 1462; approximate)
+WAL | wal_army | build_up | army | 1456-08-01 | 1470-12-31 | 75 | Wallachian border levies
+
+# ==============================================================================
+# 20. MOLDAVIA (MOL)
+# ==============================================================================
+MOL | mol_defend_suceava | defend_province | Suceava | 1457-04-01 | 1504-07-02 | 92 | Stephen the Great's capital (held against Ottomans 1476 and Poland 1497)
+MOL | mol_ally_poland | ally_with | POL | 1453-05-30 | 1497-01-01 | 90 | Moldavian homage to Poland until John Albert's 1497 campaign
+MOL | mol_defend_akkerman | defend_province | Akkerman | 1453-05-30 | 1484-08-01 | 84 | Black Sea port (Cetatea Alba) held until Ottoman siege August 1484
+MOL | mol_conquer_kilia | conquer_province | Kilia | 1462-01-01 | 1484-07-01 | 78 | Stephen the Great captured Chilia (Kilia) in January 1465; held until July 1484
+MOL | mol_army | build_up | army | 1457-04-01 | 1485-12-31 | 76 | Stephen's peasant-and-boyar host (Vaslui 1475)
+
+# ==============================================================================
+# 21. ALBANIA / SKANDERBEG (ALB)
+# ==============================================================================
+ALB | alb_defend_kruje | defend_province | Kruje | 1453-05-30 | 1478-06-01 | 98 | Skanderbeg's mountain fortress (held until 1478)
+ALB | alb_ally_naples | ally_with | NAP | 1453-05-30 | 1468-01-17 | 88 | Treaty of Gaeta (1451) continued with Ferrante of Naples until Skanderbeg's death (17 Jan 1468)
+ALB | alb_ally_venice | ally_with | VEN | 1463-01-01 | 1479-01-01 | 82 | League of Lezhe cooperation with Venice during the 1463-1479 war
+ALB | alb_army | build_up | army | 1453-05-30 | 1468-01-17 | 75 | League of Lezhe forces
+
+# ==============================================================================
+# 22. MOREA (MOE)
+# ==============================================================================
+MOE | moe_defend_mystras | defend_province | Mystras | 1453-05-30 | 1460-06-01 | 92 | Capital of the Despotate of the Morea until May 1460
+MOE | moe_defend_monemvasia | defend_province | Monemvasia | 1453-05-30 | 1460-06-01 | 88 | Coastal stronghold
+MOE | moe_ally_venice | ally_with | VEN | 1453-05-30 | 1460-06-01 | 80 | Seeking Venetian maritime aid from Modon and Nauplia
+MOE | moe_army | build_up | army | 1453-05-30 | 1460-06-01 | 75 | Defence of the Hexamilion and Peloponnese
+
+# ==============================================================================
+# 23. TREBIZOND (TRE)
+# ==============================================================================
+TRE | tre_defend_trebizond | defend_province | Trebizond | 1453-05-30 | 1461-08-15 | 96 | Empire of Trebizond held until 15 August 1461
+TRE | tre_ally_akkoyunlu | ally_with | AKK | 1458-01-01 | 1461-08-15 | 90 | Marriage alliance of Theodora Komnene (Despina Khatun) with Uzun Hasan in 1458
+TRE | tre_ally_georgia | ally_with | GEO | 1453-05-30 | 1461-08-15 | 84 | Komnenoi-Bagrationi frontier alignment
+TRE | tre_army | build_up | army | 1453-05-30 | 1461-08-15 | 75 | Pontic defence forces
+
+# ==============================================================================
+# 24. MAMLUK SULTANATE (MAM)
+# ==============================================================================
+MAM | mam_defend_cairo | defend_province | Cairo | 1453-05-30 | 1517-01-22 | 92 | Mamluk capital until Ridaniya (22 Jan 1517)
+MAM | mam_economy | build_up | economy | 1453-05-30 | 1496-08-08 | 90 | Red Sea spice trade and Qaitbay's architectural prosperity (until Qaitbay's death 1496)
+MAM | mam_defend_aleppo | defend_province | Aleppo | 1453-05-30 | 1516-08-24 | 86 | Northern Syrian frontier until Marj Dabiq (24 Aug 1516)
+MAM | mam_peace_ottomans | keep_peace_with | TUR | 1453-05-30 | 1485-01-01 | 82 | Friendly relations until the 1485-1491 Ottoman-Mamluk border conflict
+MAM | mam_cyprus_influence | conquer_province | Nicosia | 1460-01-01 | 1473-01-01 | 72 | Mamluk expedition backing James II in the Cypriot civil war (1460-1464; Cyprus was a tributary rather than directly annexed)
+MAM | mam_ally_gujarat | ally_with | GUJ | 1505-01-01 | 1517-01-22 | 68 | Mamluk-Gujarati naval coalition against Portuguese fleets in the Indian Ocean (Chaul 1508 / Diu 1509)
+
+# ==============================================================================
+# 25. KNIGHTS OF RHODES / HOSPITALLERS (KNI)
+# ==============================================================================
+KNI | kni_defend_rhodes | defend_province | Rhodes | 1453-05-30 | 1522-12-22 | 98 | Island stronghold held through 1480 siege until December 1522
+KNI | kni_ally_papacy | ally_with | PAP | 1453-05-30 | 1522-12-22 | 88 | Crusading order under papal protection
+KNI | kni_ally_venice | ally_with | VEN | 1453-05-30 | 1522-12-22 | 82 | Aegean and Levantine naval cooperation
+KNI | kni_army | build_up | army | 1453-05-30 | 1480-05-01 | 76 | Garrisoning Rhodes before the 1480 Ottoman siege
+KNI | kni_economy | build_up | economy | 1453-05-30 | 1522-12-22 | 70 | Priory remittances and port fortifications

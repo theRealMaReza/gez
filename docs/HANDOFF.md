@@ -6,7 +6,7 @@ judgment calls) and `CLAUDE.md` (rules). Lessons from past sessions and reviews 
 `docs/SESSION_LOG.md` (read only the part a task needs). This file says where the project
 stands, how to work on it, and what to do next.
 
-Last updated: Phase 14 (16 November 2026). Phases 0–13 and Phase 14 (historical & chronicle events) are done; mission trees were moved to a later phase. Phase 14 implemented on branch `gemini/phase14-events` (`Events/`, `Systems/EventSystem.swift`, `data/events/`, `tools/events/eventgen.py`, `godot/scripts/EventPopup.gd`, `GezGodotEventBridge.swift`). Next: Phase 15 (AI behaviour setting) and deferred mission trees.
+Last updated: Phase 15 (16 November 2026). Phases 0–15 are done; mission trees remain in Phase 21. Phase 15 implemented on branch `gemini/phase-15-ai-setting` (`AI/AIGoals.swift`, `Scenario/AIGoalsLoader.swift`, `Systems/AIGoalSystem.swift`, `data/ai/goals_1453.txt`, `tools/ai/aigen.py`, `DiplomacyAISystem.swift`, `SaveGame.swift`, `GameSession.swift`, `godot/scripts/{Main,DiplomacyPanel}.gd`, `GezGodotBridge.swift`). Next: Phase 16 (Sound effects and tooltips).
 
 ## The owner
 
@@ -66,20 +66,19 @@ Everything below is built, tested on CI and visible in the app.
 | Plague, famine & rebels (Phase 12) | `Packages/GezCore/Sources/GezCore/{Calamity,Unrest}/`, `Systems/{PlagueSystem,FamineSystem,QuakeSystem,UnrestSystem,RebelSystem}.swift`, `data/calamity/fault_zones.txt` (`calamity1453.json`), `godot/scripts/{RebelsPanel,MapCalamityLayer}.gd`: plague, camp fever and smallpox (outbreaks in crowded towns, ports, sieges and camps; spread by road, trade route, sea and armies; deaths by class; fading immunity; Port Quarantine and Cordon), yearly harvests and famine, 27 fault zones + 4 known earthquakes, unrest 0–100 per province from eleven causes, five rebel factions per country that raise real armies from their pops and enforce demands, concessions / troops / lower taxes for player and AI; Godot Rebels window, Plague (P) and Unrest (L) map modes, province People tab section, alerts |
 | Technology (Phase 13) | `Packages/GezCore/Sources/GezCore/Technology/`, `Systems/{TechSystem,InstitutionSystem}.swift`, `data/technology/` (`technology1453.json` via `techgen.py`), `godot/scripts/{TechnologyPanel,MapTechLayer}.gd`, `GezGodotTechBridge.swift`: 3 EU4-style tech tracks (Administrative, Diplomatic, Military, levels 1–20 starting 2–4 in 1453), monthly research from ruler + council + Learning + Colleges + Paper/Books routed by Research Focus, −5%/level Neighbour Bonus, ahead-of-time penalty, EU4-style unit/ship/fort/building/trade-range/admin-eff unlocks keeping 1453 starters intact, and 4 historical institutions (Renaissance 1453, Printing Press Mainz 1462, Global Trade 1550, Manufactories 1600) with dedicated RNG stream `world.tech.rngState`; Godot Technology window, Institutions (K) map mode, province panel institutions, alerts |
 | Historical events (Phase 14) | `Packages/GezCore/Sources/GezCore/Events/`, `Systems/EventSystem.swift`, `Scenario/EventLoader.swift`, `data/events/*.txt` (`events1453.json` via `eventgen.py`), `godot/scripts/EventPopup.gd`, `GezGodotEventBridge.swift`: 66 condition-triggered historical events with 2–4 choices and counterfactual fallbacks + 4 interactive chronicle pop-up events (rebel risings, vassal murder plots, ruler deaths), fixed reusable condition/effect vocabulary for future missions, dedicated saved RNG stream `world.events.rngState`, AI weighted choices, `pauseOnEvents` setting, Godot modal event popup, and collapsible Recent Events list in the alerts area |
+| AI behaviour setting (Phase 15) | `Packages/GezCore/Sources/GezCore/AI/AIGoals.swift`, `Scenario/AIGoalsLoader.swift`, `Systems/AIGoalSystem.swift`, `data/ai/goals_1453.txt` (`ai_goals1453.json` via `aigen.py`), `DiplomacyAISystem.swift`, `BuildingSystem.swift`, `ArmySystem.swift`, `EventSystem.swift`, `SaveGame.swift`, `GameSession.swift`, `godot/scripts/{Main,DiplomacyPanel}.gd`: New-game "AI behaviour" selector (`Historical` default vs `Free`); 157 historical goals across 28 key 1453 tags (incl. post-1453 Ottoman targets and Hungary defending Belgrade in 1456 linked to `hist_belgrade_1456_hun`), skipping impossible/expired/too-weak goals and falling back to Free AI when lists run out; Free AI driven by threats, weak neighbours, trade wealth, and ruler traits; full save/load with legacy save fallback to Historical; and Country View AI Goal line |
 | App windows (old Apple app) | Top bar: treasury (Budget), Trade, Court, Stability (Government), Armies (manpower, field armies, commanders, levies, recruitment). Province panel tabs: Overview (holder, supply, levy, buildings), Economy, People. Market panel. Map modes Q–I; 2D army counters and marching arrows |
-| Tests | GezCore simulation tests (incl. `StartingWarsTests`, `FingerprintTests`, `BattleEngineTests`, `FaithTests`, `CultureTests`, `PlagueTests`, `FamineTests`, `UnrestTests`, `TechnologyTests`, five long runs), GezGodot bridge tests (incl. Phase 9, Phase 11, Phase 12 & Phase 13 bridge tests), App snapshot tests; note `FingerprintTests` updates whenever economy/manpower/pop rules change |
+| Tests | GezCore simulation tests (incl. `StartingWarsTests`, `FingerprintTests`, `BattleEngineTests`, `FaithTests`, `CultureTests`, `PlagueTests`, `FamineTests`, `UnrestTests`, `TechnologyTests`, `AIGoalTests`, six long runs), GezGodot bridge tests (incl. Phase 9, Phase 11, Phase 12, Phase 13, Phase 14 & Phase 15 bridge tests), App snapshot tests; note `FingerprintTests` updates whenever economy/manpower/pop rules change |
 
 Also built (Phases 7–8): diplomacy, war and peace, auto-resolved battles,
 sieges, save/load and autosave, nation picker, alerts. Not started (later
-phases): mission trees (deferred from Phase 14), AI setting (Phase 15), sound, 3D, chronicle, multiplayer.
+phases): sound & tooltips (Phase 16), 3D (Phase 17), chronicle (Phase 18), multiplayer (Phase 19), EU art pass (Phase 20), mission trees (Phase 21).
 
 ## What to do next
 
-1. **Owner play-test of Phase 14** on the Mac (`git pull`,
-   `./godot/build_mac.sh`, Cmd+Q Godot, reopen, Play): run forward until
-   an event or succession pops up, check choice tooltips and recent events
-   in the alerts area, and toggle `"Pause game on historical & chronicle events"` in the game menu.
-2. **Mission trees / Phase 15: AI behaviour setting** (ROADMAP).
+1. **Owner play-test of Phase 15** on the Mac (`git pull`,
+   `./godot/build_mac.sh`, Cmd+Q Godot, reopen): open Nation Picker (`New Game / Choose Nation...`), pick `Historical` or `Free` under **AI behaviour**, press **Start**, and open Diplomacy (Country View) on any AI nation to see its live `AI Goal:` line.
+2. **Phase 16: Sound effects and tooltips** (ROADMAP).
 3. Follow-ups: the campaign still uses platform maths (`MarketModel.km`
    distances, `hypot` in the AI), which can differ between Mac, Windows and
    Linux; move it to `Core/DetMath.swift` before multiplayer (Phase 19),
@@ -233,6 +232,7 @@ of them are reproducible (same input, byte-identical output).
 | `data/calamity/fault_zones.txt` | `python3 tools/calamity/calamitygen.py` (fault zones store province indices: rerun after any map change) | `calamity1453.json` |
 | `data/technology/` | `python3 tools/technology/techgen.py` (stores Mainz index and regions: rerun after any map change) | `technology1453.json` |
 | `data/events/` | `python3 tools/events/eventgen.py` (validates tags, provinces, characters, conditions & effects) | `events1453.json` |
+| `data/ai/goals_1453.txt` | `python3 tools/ai/aigen.py` (validates tags, provinces, goal types, dates & priorities) | `ai_goals1453.json` |
 | `data/heraldry/choices.txt` | push it; the Heraldry workflow downloads and converts | `App/Resources/Heraldry/arms_<TAG>.png`, `data/heraldry/credits.json` |
 | app icon (portolan chart, drawn from the province map) | `python3 tools/icon/make_icon.py` | `App/Resources/Assets.xcassets/AppIcon.appiconset/`, `docs/icon_preview.png` |
 
