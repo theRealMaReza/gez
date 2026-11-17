@@ -1533,4 +1533,53 @@ struct GezGodotTests {
         let overlayOrigins = controller.techOverlayData()["origins"] as? [[String: Any]] ?? []
         #expect(!overlayOrigins.isEmpty)
     }
+
+    @Test("Phase 14: Event popup bridge details, option resolution, pause toggle, and recent events list")
+    func phase14EventBridgeAndRecentList() {
+        let controller = GezGodotController()
+        #expect(controller.setup(dataDirectoryPath: "", tag: "HUN"))
+        #expect(!controller.hasPendingEvent())
+        #expect(controller.pauseOnEvents == true)
+
+        // Toggle pauseOnEvents setting off and back on.
+        #expect(controller.setPauseOnEvents(false) == false)
+        #expect((controller.playerTopBarDetails()["pauseOnEvents"] as? Bool) == false)
+        #expect(controller.setPauseOnEvents(true) == true)
+
+        guard let s = controller.session, let hun = s.playerCountry else {
+            #expect(Bool(false), "Expected HUN player session")
+            return
+        }
+
+        // Trigger Belgrade 1456 for player HUN and inspect bridge popup details + alert.
+        let triggered = EventSystem.trigger(
+            &s.simulation.world,
+            eventID: "hist_belgrade_1456_hun",
+            for: hun,
+            date: GameDate(year: 1456, month: 7, day: 21)
+        )
+        #expect(triggered)
+        #expect(controller.hasPendingEvent())
+        #expect((controller.playerTopBarDetails()["pendingEventCount"] as? Int) == 1)
+        #expect(controller.activeAlerts().contains { ($0["kind"] as? String) == "event" })
+
+        let details = controller.pendingEventDetails()
+        #expect((details["hasPending"] as? Bool) == true)
+        #expect((details["eventID"] as? String) == "hist_belgrade_1456_hun")
+        let instID = details["instanceID"] as? Int ?? -1
+        let options = details["options"] as? [[String: Any]] ?? []
+        #expect(options.count >= 2 && options.count <= 4)
+        #expect(!((options[0]["tooltip"] as? String) ?? "").isEmpty)
+
+        // Resolve first option and confirm recent events list updates cleanly.
+        #expect(controller.chooseEventOption(instanceID: instID, optionIndex: 0))
+        #expect(!controller.hasPendingEvent())
+        #expect((controller.playerTopBarDetails()["pendingEventCount"] as? Int) == 0)
+
+        let recent = controller.recentEventsList()
+        #expect(recent.count == 1)
+        #expect((recent[0]["eventID"] as? String) == "hist_belgrade_1456_hun")
+        #expect(!((recent[0]["chosenLabel"] as? String) ?? "").isEmpty)
+        #expect(!controller.recentEventsSignature.isEmpty)
+    }
 }

@@ -358,5 +358,23 @@ func _run_captures() -> void:
 	await _save_shot("godot_technology_window.png")
 	root_node.call("_close_top_left_windows", "")
 
+	# Phase 14: Historical event pop-up (advance Hungary until a historical or chronicle event fires).
+	bridge.call("startNewGame", "HUN")
+	root_node.call("_after_world_replaced")
+	root_node.call("_close_top_left_windows", "")
+	root_node.call("_select_map_mode", "political")
+	var event_steps: int = 0
+	while not bool(bridge.call("hasPendingEvent")) and event_steps < 120:
+		bridge.call("advanceSimulationDays", 30)
+		event_steps += 1
+	root_node.call("_refresh_styles_and_country_labels")
+	root_node.call("_refresh_top_bar")
+	root_node.call("_open_event_popup")
+	await _save_shot("godot_event_popup.png")
+	var pending_ev: Dictionary = bridge.call("getPendingEventDetails")
+	if bool(pending_ev.get("hasPending", false)):
+		bridge.call("chooseEventOption", int(pending_ev.get("instanceID", -1)), 0)
+		root_node.call("_on_event_resolved")
+
 	print("All Godot snapshots captured to: " + out_dir)
 	quit(0)

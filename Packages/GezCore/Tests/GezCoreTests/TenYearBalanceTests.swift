@@ -40,6 +40,7 @@ struct TenYearBalanceTests {
                      totalSec, dailySec, monthlySec, sim.world.diplomacy.wars.count, sim.world.diplomacy.treaties.count))
 
         let w = sim.world
+        print(EventReport.line(w))
         #expect(sim.date == GameDate(year: 1463, month: 5, day: 30))
         #expect(sim.ticksRun == 3650)
 
