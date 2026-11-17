@@ -2,7 +2,8 @@
 
 Read this first, then `docs/ROADMAP.md` (the agreed plan), `docs/DESIGN.md`
 (how every system works, with all numbers), `docs/HISTORY_NOTES.md` (history
-judgment calls) and `CLAUDE.md` (rules). This file says where the project
+judgment calls) and `CLAUDE.md` (rules). Lessons from past sessions and reviews are in
+`docs/SESSION_LOG.md` (read only the part a task needs). This file says where the project
 stands, how to work on it, and what to do next.
 
 Last updated: Phase 14 (16 November 2026). Phases 0–13 and Phase 14 (historical & chronicle events) are done; mission trees were moved to a later phase. Phase 14 implemented on branch `gemini/phase14-events` (`Events/`, `Systems/EventSystem.swift`, `data/events/`, `tools/events/eventgen.py`, `godot/scripts/EventPopup.gd`, `GezGodotEventBridge.swift`). Next: Phase 15 (AI behaviour setting) and deferred mission trees.
@@ -88,53 +89,6 @@ phases): mission trees (deferred from Phase 14), AI setting (Phase 15), sound, 3
    deleted on GitHub (the workspace cannot delete branches); retire `App/`
    when the owner says so.
 
-### Session 10: Phase 12 written by Claude (PR #26)
-- The owner had Claude write this phase instead of reviewing Gemini.
-  One commit per part (A plague, B famine and earthquakes, C unrest and
-  rebels, D screens and docs).
-- **Own dice**: plague, famine, earthquakes and rebels use
-  `world.calamity.rngState` (a `GameRandom` split off the game's stream on
-  the first monthly tick, saved). Use `world.beginCalamityRandom(random)` /
-  `endCalamityRandom(rng)` for any new calamity; never draw from the main
-  `random` there, or every existing system's luck shifts.
-- **Tuning**: `tools/calamity/plague_prototype.py` is a Python copy of the
-  spread rules (keep constants in step with `PlagueModel`). The test
-  `testTwoYearsOfCalamitiesStaySane` and the ten-year run (every year)
-  print a `CALAMITY ...` line into the CI log (`CalamityReport.line`):
-  read it after any rule change (deaths, unrest, how many factions and
-  risings).
-- **Famine is relative**: each market remembers its usual staple supply
-  (`calamity.stapleNorm`); Hormuz, Aksum, Aden, Mogadishu and Tunis always
-  run 20–35% short of staples in the economy model and would otherwise
-  starve forever.
-- **Rebel armies** are ordinary `isRebel` armies owned by the country;
-  `world.unrest.isFactionArmy(index)` tells them from vassal revolts
-  (`ArmySystem.resolveRebelClash` skips them; `RebelSystem.fight` handles
-  them). They stand still for now (no marching on the capital).
-- **Found on the way**: `ReligionPanel.gd` called a `_focus_map_on_point`
-  that does not exist in `Main.gd` (clicking a province name in the
-  Religion window did nothing); fixed to `_focus_and_select_province`.
-- `testPopulationGrowsOverAYear` now allows 2% loss in the first year
-  (people also die of plague and hunger).
-- **Ten-year run (seed 1453, first version)**: the world falls from 202 M
-  to 195 M people; disease kills about 4.5 M and famine 2.7 M in ten
-  years, earthquakes 46 k; only 2 rebel risings worldwide (1 won, 1
-  crushed), 1 faction bought off. Judged too deadly and rebels too rare,
-  so the first tune (owner: "do what you think is right") cut camp fever
-  (siege 6→4%, camp 4→2% a month, lethality 15→12%), smallpox
-  (lethality 12→8%, outbreaks 0.03→0.02%) and famine deaths (0.3→0.2% a
-  month), and made Peasant Rebels (threshold 12→10, rate 0.15→0.20),
-  Separatists (16→14, 0.15→0.20) and Zealots (30→26) rise sooner. Read
-  the yearly `CALAMITY` lines of the next long run to see the effect.
-- **Draft pull requests**: the REST API cannot mark a draft "ready" (that
-  needs GraphQL, which is blocked here) and refuses to merge a draft. Open
-  pull requests as normal ones from the start. If one is a draft, close it
-  and open the same branch again as a normal pull request.
-- Not done / ideas: rebels marching and besieging, plague arriving with
-  fleets and refugees, hospitals or granaries as buildings, an event
-  pop-up when a rising starts (Phase 14), AI changing tax for other
-  classes.
-
 ### How Claude reviews Gemini's pull requests (owner's choice, 15 Nov 2026)
 The owner found full reviews too slow (each CI round with the three game
 builds takes ~40 min, the long simulations ~50 min). From Phase 11 on:
@@ -148,49 +102,6 @@ builds takes ~40 min, the long simulations ~50 min). From Phase 11 on:
   then, and fix anything red directly on `main` or in a small follow-up PR.
 - Still run the profile/fingerprint job by hand (~5 min) when a PR changes
   the daily or monthly tick, since speed regressions are easy to miss.
-
-### Session 7 review of PR #23 (navies)
-- Fixed: `NavySystem.runDaily` took ~4.3 ms/day (half the tick); dock
-  permissions are now built once a day (`NavySystem.dockFriends`, tested
-  against the pairwise check). Admirals and army commanders are different
-  people. Army path search skips strait checks when no hostile fleet is at
-  sea. The Godot top bar scales down to fit the window. History question:
-  Giacomo vs Alvise Loredan (HISTORY_NOTES).
-- The 10-year debug run went 163 s → 433 s with the navy; check it again
-  after the strait shortcut. The profile job now times the navy systems.
-
-### Session 7 review of PR #22 (battle view)
-- Fixed: platform-independent battle maths (`Core/DetMath.swift`; the
-  `BATTLE_CHECKSUM` printed by `BattleEngineTests` must match in the Mac,
-  Linux and Windows test logs), walls hold the garrison in, every same-day
-  battle of the player's gets the choice, same-coloured armies drawn apart,
-  battle pace (`BattleEngine.pace = 0.125`, time limits 10/15 min; an even
-  ~9,000-man battle lasts ~3 min, `testBattleLastsMinutesNotSeconds`).
-- Look at the battle screenshots (`godot_battle_*.png`, `godot_assault.png`)
-  for units in impossible places and for battles that end too fast.
-
-### Session 7 review of PR #21 (lessons for the next reviews)
-- Gemini's "green" builds were not proof: the Linux export could not load
-  GezCore (Swift runtime not copied) and the Mac export failed. Each export
-  job now starts the exported game headless and requires the line
-  "Gez: 1453 world loaded".
-- `godot --headless --path godot --quit` does not register the extension;
-  use `--import` before exporting or rendering screenshots.
-- Speed claims: compare with `FingerprintTests` (by-hand profile job:
-  `gh workflow run ci.yml --ref <branch> -f only=profile`, then diff the
-  `FINGERPRINT` lines of two branches). Pure speed-ups must match line for
-  line. Measured: 5.7 → 3.9 ms per game day identical; 3.1 ms with the
-  three AI behaviour changes from PR #15 (documented in DESIGN.md).
-- Watch for precomputed lists that go stale inside a loop that changes
-  them (alliances, soldier counts).
-- Screenshots are taken at the game's default 1440×900; look for things
-  pushed off-screen.
-
-Phase 7 history additions by Claude's review: the Albanian–Ottoman war and
-the Delhi–Jaunpur war were active on 30 May 1453 and are now in
-`data/diplomacy/wars_1453.txt`. Still doubtful: Scotland as an active
-co-belligerent in the Hundred Years' War in 1453, and the Ottoman–Genoese
-truce (Galata surrendered on 1 June 1453, two days after the start).
 
 ## Working with Gemini (from session 6)
 
@@ -222,7 +133,7 @@ When the owner asks Claude to test Gemini's work:
    and what to tell Gemini. Leave review comments on the pull request
    (`gh pr review <n> --comment -b "..."` or `--request-changes`).
 6. Merge only when CI is green and the owner agrees
-   (`gh pr merge <n> --squash`), then mirror HANDOFF and ROADMAP to the
+   (`gh pr merge <n> --squash`), then update `docs/STATUS.md` and mirror it to the
    Project if they changed.
 
 ## Website (session 6)
@@ -273,7 +184,8 @@ SmartScreen (More info > Run anyway) until the Microsoft Store.
     to the `ci-snapshots` branch.
   - arm64 Mac runners are sometimes unavailable for hours, and a newer push
     cancels older runs, so "cancelled" jobs are normal.
-- Watching CI from the workspace:
+- Watching CI from the workspace: `tools/ci/status.sh <branch> --wait`
+  (one call; prints pass/fail per job and only the error lines). By hand:
   ```sh
   gh api "repos/yv28f5k922-dot/Gez/actions/runs?head_sha=$(git rev-parse HEAD)" \
     --jq '.workflow_runs[] | "\(.id) \(.name) \(.status) \(.conclusion)"'
@@ -345,9 +257,9 @@ uncertain and get listed in HISTORY_NOTES.
 - Never use Paradox or Creative Assembly data or art.
 - Credit outside data in `docs/CREDITS.md`.
 - Keep `docs/DESIGN.md` current when design changes; tick phases in
-  `docs/ROADMAP.md`; update this file at the end of a session; mirror this
-  file and ROADMAP to the claude.ai Project (`claude/HANDOFF.md`,
-  `claude/ROADMAP.md`).
+  `docs/ROADMAP.md`; update this file and `docs/STATUS.md` at the end of a session; mirror
+  STATUS to the claude.ai Project (`claude/STATUS.md`; only that one, to
+  keep every chat's start small).
 - Commit messages end with the attribution lines from the session's
   system reminder.
 
@@ -428,22 +340,3 @@ Kabarda = Kabardian noble banner; Oirats = Dzungar banner; Jats =
 Bharatpur; Sami = 1986 Sami flag; Alania/Vainakh = later-era flags; Kirat
 = modern Kirat flag; Albania = Kastrioti arms; Komi, Mordvins, Berbers,
 Guanches, Somali, Najd = plain banner.
-
-## Session 9 review of PR #24 (religion and culture)
-
-- Speed: `CultureStanding` (end of `CultureSystem.swift`) builds
-  accepted / same family / foreign for every (country, culture) once; the
-  monthly economy and max manpower read it instead of comparing culture
-  family strings per pop. Profile went 11.7 → 5.6 ms/day (Phase 10: 4.2).
-- Pop groups grew without limit (14k → 42k in a year) because conversion,
-  assimilation and migration made a new group for any amount of people.
-  `PopDust.minNewGroup = 25` (smaller amounts wait or join a matching
-  group) and `PopTable.foldDust` (monthly, at the end of
-  `CultureSystem.runMonthly`) folds groups under 1 person into the largest
-  same-class group. 18k groups after a year. Watch this number (the
-  profile prints `pop groups=`) whenever a system creates pop groups.
-- `testPopulationGrowsOverAYear` / `testPopsGrowWithTime` assumed the world
-  always grows in year one; one extra AI war broke that. Growth is now
-  tested on its own; the full year must stay within 0.5%.
-- Temporary branches the owner can delete: `claude/diag-a`,
-  `claude/diag-b`, `claude/fingerprint-base`, `claude/fingerprint-speedonly`.
