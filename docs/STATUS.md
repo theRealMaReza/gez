@@ -15,21 +15,23 @@ Last updated: 16 November 2026.
   CK3-style real people of 1453. Mac and Windows (Godot); no iPad for now.
 - No music ever. Local saves only. No extra paid services (art: free
   models, our code, and paintings the owner makes in the Gemini app). Never ask for API keys in chat.
-- Alpha build name: **"Kayser"** (after Phase 20).
+- Alpha build name: **"Kayser"** (after Phase 20.5).
 
 ## Where things stand
-- Phases 0–13 done (map, economy, trade, characters, government, armies,
+- Phases 0–14 done (map, economy, trade, characters, government, armies,
   diplomacy and war, sieges, Godot screens, battle view, navies, religion
-  and culture, plague/famine/rebels, technology).
+  and culture, plague/famine/rebels, technology,
+  historical events: 70, merged 16 Nov 2026, PR #30).
 - Gemini writes most code on `gemini/*` branches; Claude reviews
   (routine: HANDOFF "Working with Gemini" and "How Claude reviews").
 
 ## Next
-1. Owner play-test of Phase 13 on the Mac (`Tech` button, `K` map mode).
-2. **Phase 14: historical events** with choices (Granada, Columbus,
-   Vasco da Gama, Babur, Reformation, Safavids...) and pop-ups for
-   risings, plots and deaths. Mission trees moved to Phase 21.
-3. Then: 15 AI setting, 16 sound (free CC0) + tooltips, 17 3D (Claude;
+1. Owner play-test of Phase 14 on the Mac (`git pull`,
+   `./godot/build_mac.sh`, start a game; Hungary gets Belgrade in July
+   1456).
+2. **Phase 15: AI setting** (historical or free; historical AI uses a
+   simple goal list per country until the Phase 21 mission trees).
+3. Then: 16 sound (free CC0) + tooltips, 17 3D (Claude;
    free CC0 models + models built in code), 18 chronicle, 20 art, 20.5
    balance and play-test (Claude), **alpha "Kayser"**, then 21 mission
    trees and 19 multiplayer (Epic Online Services, join codes). Who writes what: ROADMAP "Plan for the
