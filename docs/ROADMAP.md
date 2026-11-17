@@ -72,7 +72,7 @@ Order: 14 events → 15 AI setting → 16 sound + tooltips → 17 3D →
 | 20 Art | Claude (pipeline) | As planned |
 | 20.5 Balance and play-test | Claude | Long AI-only runs plus the owner's play-throughs; fix balance, speed and bugs before Kayser |
 | 21 Mission trees | Gemini | After the alpha |
-| 19 Multiplayer | Claude | After the alpha |
+| 19 Multiplayer | Claude | After the alpha; Epic Online Services (EOS) with join codes, as decided in session 6 |
 
 Platforms: **Mac and Windows only for now**; iPad not planned (needs
 Apple's paid account).

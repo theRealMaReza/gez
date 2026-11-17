@@ -31,7 +31,7 @@ Last updated: 16 November 2026.
 3. Then: 15 AI setting, 16 sound (free CC0) + tooltips, 17 3D (Claude;
    AI-made models, tool decided then), 18 chronicle, 20 art, 20.5
    balance and play-test (Claude), **alpha "Kayser"**, then 21 mission
-   trees and 19 multiplayer. Who writes what: ROADMAP "Plan for the
+   trees and 19 multiplayer (Epic Online Services, join codes). Who writes what: ROADMAP "Plan for the
    remaining phases". Art script: `tools/uiart/ui_art_concept.py`.
 
 ## Saving tokens (owner's choice, 16 Nov 2026)
