@@ -1,0 +1,37 @@
+# Hand-written historical events: Iberia & Western Europe
+# Validated and compiled by tools/events/eventgen.py -> events1453.json
+
+event hist_fall_of_granada_war
+title = The Final Campaign for Granada
+text = For decades the Emirate of Granada has clung to the Sierra Nevada behind steep mountain passes. Now {country} stands poised to end Moorish rule in Iberia once and for all.
+category = historical
+countries = CAS, ARA
+date_from = 1482-01-01
+date_to = 1495-12-31
+mtth = 18
+fire_once = true
+major = true
+trigger:
+  exists = GRA
+  owns = Seville
+  not_global_flag = granada_resolved
+option:
+  label = Press the siege of Granada!
+  ai_weight = 80
+  ai_mod = at_war=false -> *1.5
+  ai_mod = treasury_min=100 -> *1.2
+  effect:
+    add_claim = Granada
+    add_claim = Malaga
+    add_claim = Almeria
+    add_modifier = granada_crusade:Granada Crusade:36:army_quality=0.08,manpower=0.10
+    set_global_flag = granada_resolved
+option:
+  label = Demand tribute and bide our time
+  ai_weight = 20
+  ai_mod = at_war=true -> *2.5
+  effect:
+    ducats = 60
+    prestige = -5
+    change_opinion = GRA:15
+    set_global_flag = granada_resolved

@@ -257,6 +257,28 @@ extension Diplomacy {
             }
         }
 
+        // 7b. Event-granted Casus Belli
+        for granted in world.events.grantedCBs where granted.country == attacker && granted.target == defender {
+            if !result.contains(where: { $0.type == granted.casusBelli }) {
+                let defName = world.countries.name[defender.index]
+                let goal: WarGoal
+                if let cap = world.countries.capital[defender.index],
+                   granted.casusBelli != .holyWar && granted.casusBelli != .tribute && granted.casusBelli != .coalition && granted.casusBelli != .noCB {
+                    goal = .conquerProvince(cap)
+                } else {
+                    goal = .superiority
+                }
+                result.append(CasusBelliInstance(
+                    type: granted.casusBelli,
+                    target: defender,
+                    warGoal: goal,
+                    targetProvince: world.countries.capital[defender.index],
+                    name: "Historical Cause against \(defName)",
+                    description: "Granted by historical event."
+                ))
+            }
+        }
+
         // 8. No-CB: Always available as fallback
         let defName = world.countries.name[defender.index]
         result.append(CasusBelliInstance(

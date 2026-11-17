@@ -464,7 +464,7 @@ extension World {
         return .success(truceYears)
     }
 
-    private mutating func transferProvince(_ pid: ProvinceID, to recipient: CountryID, from previousOwner: CountryID) {
+    mutating func transferProvince(_ pid: ProvinceID, to recipient: CountryID, from previousOwner: CountryID) {
         provinces.owner[pid.index] = recipient
         provinces.occupiedBy[pid.index] = nil
         provinces.occupationTarget[pid.index] = nil

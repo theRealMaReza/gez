@@ -149,7 +149,11 @@ public enum UnrestSystem {
         var points = Array(repeating: 0.0, count: P * UnrestCause.allCases.count)
         let K = UnrestCause.allCases.count
         for p in 0..<P {
-            if world.unrest.calm[p] > 0 { world.unrest.calm[p] = max(0, world.unrest.calm[p] - UnrestModel.calmFade) }
+            if world.unrest.calm[p] > 0 {
+                world.unrest.calm[p] = max(0, world.unrest.calm[p] - UnrestModel.calmFade)
+            } else if world.unrest.calm[p] < 0 {
+                world.unrest.calm[p] = min(0, world.unrest.calm[p] + UnrestModel.calmFade)
+            }
             guard world.provinces.owner[p] != nil else {
                 world.unrest.unrest[p] = 0
                 continue

@@ -169,6 +169,11 @@ public enum GovernmentSystem {
                 fx.add(def.disloyal, times: min(1, g.power[i][e.index] * 2))
             }
         }
+        for mod in world.events.activeModifiers where mod.country == c {
+            for k in fx.values.indices where k < mod.values.count {
+                fx.values[k] += mod.values[k]
+            }
+        }
         world.government.effects[i] = fx
     }
 

@@ -1,0 +1,135 @@
+{
+  "provinceCount": 1373,
+  "events": [
+    {
+      "id": "hist_fall_of_granada_war",
+      "title": "The Final Campaign for Granada",
+      "text": "For decades the Emirate of Granada has clung to the Sierra Nevada behind steep mountain passes. Now {country} stands poised to end Moorish rule in Iberia once and for all.",
+      "category": "historical",
+      "countries": [
+        "CAS",
+        "ARA"
+      ],
+      "dateFrom": {
+        "year": 1482,
+        "month": 1,
+        "day": 1
+      },
+      "dateTo": {
+        "year": 1495,
+        "month": 12,
+        "day": 31
+      },
+      "exactDate": null,
+      "mtth": 18.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": true,
+      "trigger": [
+        {
+          "kind": "exists",
+          "str": "GRA"
+        },
+        {
+          "kind": "owns",
+          "str": "Seville",
+          "int": 40
+        },
+        {
+          "kind": "not_global_flag",
+          "str": "granada_resolved"
+        }
+      ],
+      "options": [
+        {
+          "label": "Press the siege of Granada!",
+          "aiWeight": 80.0,
+          "aiModifiers": [
+            {
+              "condition": {
+                "kind": "at_war",
+                "bool": false
+              },
+              "op": "mul",
+              "value": 1.5
+            },
+            {
+              "condition": {
+                "kind": "treasury_min",
+                "num": 100.0
+              },
+              "op": "mul",
+              "value": 1.2
+            }
+          ],
+          "effects": [
+            {
+              "kind": "add_claim",
+              "str": "Granada",
+              "int": 49
+            },
+            {
+              "kind": "add_claim",
+              "str": "Malaga",
+              "int": 50
+            },
+            {
+              "kind": "add_claim",
+              "str": "Almeria",
+              "int": 51
+            },
+            {
+              "kind": "add_modifier",
+              "str": "granada_crusade",
+              "str2": "Granada Crusade",
+              "int": 36,
+              "mods": {
+                "army_quality": 0.08,
+                "manpower": 0.1
+              }
+            },
+            {
+              "kind": "set_global_flag",
+              "str": "granada_resolved"
+            }
+          ]
+        },
+        {
+          "label": "Demand tribute and bide our time",
+          "aiWeight": 20.0,
+          "aiModifiers": [
+            {
+              "condition": {
+                "kind": "at_war",
+                "bool": true
+              },
+              "op": "mul",
+              "value": 2.5
+            }
+          ],
+          "effects": [
+            {
+              "kind": "ducats",
+              "num": 60.0
+            },
+            {
+              "kind": "prestige",
+              "num": -5.0
+            },
+            {
+              "kind": "change_opinion",
+              "str": "GRA",
+              "int": 15
+            },
+            {
+              "kind": "set_global_flag",
+              "str": "granada_resolved"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
