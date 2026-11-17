@@ -79,6 +79,15 @@ public enum DiplomacyAISystem {
             provs.reduce(0) { $0 + world.provinces.development[$1.index] }
         }
 
+        // Refresh Historical / Free AI goals once per month using live map & strengths
+        AIGoalSystem.updateGoals(
+            &world,
+            date: date,
+            ownedProvinces: cbOwned,
+            landNeighbors: cbNeighbors,
+            soldiersByCountry: soldiersByCountry
+        )
+
         // 2. Peacetime treaties (every country) & war declarations (staggered half per month for speed)
         let loanCounts = computeLoanCounts(world, countryCount: n)
         for c in world.countries.ids {
@@ -90,6 +99,7 @@ public enum DiplomacyAISystem {
                 &world,
                 country: c,
                 landNeighbors: landNeighbors[c.index],
+                allNeighbors: landNeighbors,
                 ownedProvinces: ownedProvinces,
                 date: date,
                 random: &random
@@ -175,6 +185,7 @@ public enum DiplomacyAISystem {
 
             var enemies: Set<CountryID> = []
             var priorityTargets: [ProvinceID] = []
+            let defendGoals = Set(AIGoalSystem.activeDefendProvinces(for: c, date: date, in: world))
             for w in wars {
                 let myEnemies = w.isAttacker(c) ? w.defenders : w.attackers
                 for e in myEnemies { enemies.insert(e) }
@@ -187,6 +198,20 @@ public enum DiplomacyAISystem {
                 }
             }
             guard !enemies.isEmpty else { continue }
+
+            // Historical defend_province targets under threat or occupation get top relief priority
+            for defProv in defendGoals.sorted(by: { $0.index < $1.index }) where world.provinces.owner[defProv.index] == c {
+                let isOccupied = world.provinces.occupiedBy[defProv.index].map { enemies.contains($0) } ?? false
+                let enemyNear = world.provinces.neighbors[defProv.index].contains { nb in
+                    (armiesByProvince[nb.index] ?? []).contains { aid in
+                        let ai = Int(aid.rawValue)
+                        return world.military.armies.alive[ai] && enemies.contains(world.military.armies.owner[ai])
+                    }
+                }
+                if isOccupied || enemyNear {
+                    priorityTargets.insert(defProv, at: 0)
+                }
+            }
 
             let idleArmies = world.military.armies(of: c).filter { aid in
                 let i = Int(aid.rawValue)
@@ -335,6 +360,22 @@ public enum DiplomacyAISystem {
             var demands: [PeaceDemand] = []
             if !isStalemate {
                 var remainingWS = fullyOccupied ? 100 : absWS
+                let winnerIsHistorical = !AIGoalSystem.isFreeMode(for: winner, in: world)
+                let winnerGoalProvs = winnerIsHistorical
+                    ? Set(AIGoalSystem.activeConquerProvinces(for: winner, date: date, in: world))
+                    : []
+                let winnerVassalGoal = winnerIsHistorical
+                    && AIGoalSystem.activeVassalizeTargets(for: winner, date: date, in: world).contains(loser)
+
+                if (war.casusBelli == .subjugation || winnerVassalGoal)
+                    && world.countries.overlord[loser.index] == nil {
+                    let vasCost = world.diplomacy.peaceDemandCost(.makeVassal, loser: loser, war: war, in: world)
+                    if vasCost <= remainingWS {
+                        demands.append(.makeVassal)
+                        remainingWS -= vasCost
+                    }
+                }
+
                 // 1. Candidate provinces owned by loser that are occupied by winner's coalition (or all loser provs if total occupation)
                 var candidateProvs: [ProvinceID] = []
                 if case .conquerProvince(let goalProv) = war.warGoal,
@@ -347,6 +388,9 @@ public enum DiplomacyAISystem {
                         (fullyOccupied || (world.provinces.occupiedBy[pid.index].map { war.areEnemies($0, loser) } ?? false))
                     }
                     .sorted { a, b in
+                        let aGoal = winnerGoalProvs.contains(a)
+                        let bGoal = winnerGoalProvs.contains(b)
+                        if aGoal != bGoal { return aGoal }
                         let aClaim = world.provinces.cores[a.index].contains(winner) || world.provinces.claims[a.index].contains(winner)
                         let bClaim = world.provinces.cores[b.index].contains(winner) || world.provinces.claims[b.index].contains(winner)
                         if aClaim != bClaim { return aClaim }
@@ -410,18 +454,29 @@ public enum DiplomacyAISystem {
         _ world: inout World,
         country c: CountryID,
         landNeighbors: Set<CountryID>,
+        allNeighbors: [Set<CountryID>],
         ownedProvinces: [[ProvinceID]],
         date: GameDate,
         random: inout GameRandom
     ) {
-        // Break alliances with countries that deeply hate us
+        let isFree = AIGoalSystem.isFreeMode(for: c, in: world)
+        let histAllies = Set(AIGoalSystem.activeAllyTargets(for: c, date: date, in: world))
+        let peaceTargets = AIGoalSystem.activePeaceTargets(for: c, date: date, in: world)
+        let conquerOwners = Set(AIGoalSystem.activeConquerProvinces(for: c, date: date, in: world).compactMap {
+            world.provinces.owner[$0.index]
+        })
+        let vassalTargets = Set(AIGoalSystem.activeVassalizeTargets(for: c, date: date, in: world))
+        let traits = AIGoalSystem.traitProfile(for: c, in: world)
+
+        // Break alliances with countries that deeply hate us (be slightly more patient with historical allies)
         let allies = world.diplomacy.treaties
             .filter { $0.type == .alliance && ($0.first == c || $0.second == c) }
             .map { $0.first == c ? $0.second : $0.first }
             .sorted { $0.index < $1.index }
 
         for ally in allies {
-            if world.diplomacy.opinion(of: ally, by: c) < -45 || world.diplomacy.opinion(of: c, by: ally) < -45 {
+            let threshold = (!isFree && histAllies.contains(ally)) ? -70 : -45
+            if world.diplomacy.opinion(of: ally, by: c) < threshold || world.diplomacy.opinion(of: c, by: ally) < threshold {
                 world.diplomacy.removeTreaty(.alliance, between: c, and: ally)
             }
         }
@@ -430,14 +485,74 @@ public enum DiplomacyAISystem {
         let maxSlots = world.diplomacy.relationSlots(for: c, world: world)
         guard used < maxSlots else { return }
 
+        // Give the 30 May 1453 starting diplomatic map one month before goal-driven shifts.
+        let useGoalTreaties = date >= GameDate(year: 1453, month: 7, day: 1)
+
+        // Historical mode: pursue scripted ally_with targets first (even non-adjacent, e.g. PAP/NAP/POR/VEN)
+        if useGoalTreaties && !isFree {
+            var aiRng = world.beginAIRandom(random)
+            defer { world.endAIRandom(aiRng) }
+            for target in histAllies.sorted(by: { $0.index < $1.index }) {
+                guard !world.humanCountries.contains(target),
+                      !ownedProvinces[target.index].isEmpty,
+                      world.countries.overlord[target.index] == nil,
+                      !world.diplomacy.isAtWar(c, target),
+                      !world.diplomacy.areAllies(c, target),
+                      !world.diplomacy.hasTruce(c, target) else { continue }
+                let opMutual = min(world.diplomacy.opinion(of: target, by: c), world.diplomacy.opinion(of: c, by: target))
+                let sameFamily = world.countries.religion[c.index].family == world.countries.religion[target.index].family
+                let minOp = sameFamily ? -15 : 5
+                guard opMutual >= minOp else { continue }
+                let targetUsed = world.diplomacy.usedRelationSlots(for: target, world: world)
+                let targetMax = world.diplomacy.relationSlots(for: target, world: world)
+                guard targetUsed < targetMax else { continue }
+                let roll = Double.random(in: 0..<1, using: &aiRng)
+                if roll < 0.55 {
+                    world.diplomacy.addTreaty(Treaty(first: c, second: target, type: .alliance, note: "Historical Alliance \(date.year)"))
+                    return
+                }
+            }
+            for target in peaceTargets.sorted(by: { $0.index < $1.index }) {
+                guard !world.humanCountries.contains(target),
+                      !ownedProvinces[target.index].isEmpty,
+                      world.countries.overlord[target.index] == nil,
+                      !world.diplomacy.isAtWar(c, target),
+                      !world.diplomacy.areAllies(c, target),
+                      !world.diplomacy.hasTreaty(.nonAggression, between: c, and: target) else { continue }
+                let targetUsed = world.diplomacy.usedRelationSlots(for: target, world: world)
+                let targetMax = world.diplomacy.relationSlots(for: target, world: world)
+                guard targetUsed < targetMax else { continue }
+                let roll = Double.random(in: 0..<1, using: &aiRng)
+                if roll < 0.35 {
+                    world.diplomacy.addTreaty(Treaty(first: c, second: target, type: .nonAggression, note: "Historical Pact \(date.year)"))
+                    return
+                }
+            }
+        }
+
         // Look at neighbors with positive relations who have slots available
-        let candidates = landNeighbors.sorted { $0.index < $1.index }.filter { other in
+        var pool = landNeighbors
+        if useGoalTreaties && isFree {
+            // Free AI also checks 2-hop neighbors of hostile neighbors for balance-of-power alliances
+            for nb in landNeighbors where world.diplomacy.opinion(of: nb, by: c) < -15 {
+                for other in allNeighbors[nb.index] where other != c && other != nb && !ownedProvinces[other.index].isEmpty {
+                    if world.diplomacy.opinion(of: nb, by: other) < -25 {
+                        pool.insert(other)
+                    }
+                }
+            }
+        }
+
+        let candidates = pool.sorted { $0.index < $1.index }.filter { other in
             guard !world.humanCountries.contains(other),
                   !ownedProvinces[other.index].isEmpty,
                   world.countries.overlord[other.index] == nil,
                   !world.diplomacy.isAtWar(c, other),
                   !world.diplomacy.areAllies(c, other),
                   !world.diplomacy.hasTruce(c, other) else { return false }
+            if useGoalTreaties && !isFree && (conquerOwners.contains(other) || vassalTargets.contains(other)) {
+                return false
+            }
             let opMutual = min(world.diplomacy.opinion(of: other, by: c), world.diplomacy.opinion(of: c, by: other))
             return opMutual >= 15
         }
@@ -452,9 +567,11 @@ public enum DiplomacyAISystem {
 
         let sameFamily = world.countries.religion[c.index].family == world.countries.religion[target.index].family
         let roll = Double.random(in: 0..<1, using: &random)
-        if sameFamily && roll < 0.35 {
+        let allyChance = 0.35 * (useGoalTreaties && isFree ? traits.diplomacyWeight : 1.0)
+        let pactChance = 0.25 * (useGoalTreaties && isFree ? traits.diplomacyWeight : 1.0)
+        if sameFamily && roll < allyChance {
             world.diplomacy.addTreaty(Treaty(first: c, second: target, type: .alliance, note: "AI Alliance \(date.year)"))
-        } else if !world.diplomacy.hasTreaty(.nonAggression, between: c, and: target) && roll < 0.25 {
+        } else if !world.diplomacy.hasTreaty(.nonAggression, between: c, and: target) && roll < pactChance {
             world.diplomacy.addTreaty(Treaty(first: c, second: target, type: .nonAggression, note: "AI Pact \(date.year)"))
         }
     }
@@ -488,20 +605,81 @@ public enum DiplomacyAISystem {
         }
         if maxAE >= 35.0 { return }
 
-        // Evaluate CB targets among adjacent neighbors, prioritizing strongest CB + easiest target
+        // Evaluate CB targets among adjacent neighbors (plus overseas historical targets), prioritizing goals & strongest CB
         struct WarCandidate {
             var target: CountryID
             var cb: CasusBelliInstance
             var enemyStrength: Int
             var score: Int
+            var isGoalTarget: Bool
         }
         var candidates: [WarCandidate] = []
         let ourStrength = soldiersByCountry[attacker.index]
 
-        for target in landNeighbors.sorted(by: { $0.index < $1.index }) {
+        let isFree = AIGoalSystem.isFreeMode(for: attacker, in: world)
+        let traits = AIGoalSystem.traitProfile(for: attacker, in: world)
+        let peaceTargets = AIGoalSystem.activePeaceTargets(for: attacker, date: date, in: world)
+        let conquerProvs = isFree ? [] : AIGoalSystem.activeConquerProvinces(for: attacker, date: date, in: world)
+        let vassalTargets = isFree ? [] : AIGoalSystem.activeVassalizeTargets(for: attacker, date: date, in: world)
+        let hasDefendGoal = !isFree && !AIGoalSystem.activeDefendProvinces(for: attacker, date: date, in: world).isEmpty
+        let hasBuildGoal = !isFree && AIGoalSystem.activeBuildFocus(for: attacker, date: date, in: world) != nil
+
+        // In Historical mode, if an active conquer_province goal targets our own vassal/tributary
+        // (e.g. Ottomans vs Serbia/Morea after 1454/1458), end that overlordship so the claim can be pressed.
+        if !isFree {
+            for pid in conquerProvs {
+                if let owner = world.provinces.owner[pid.index],
+                   world.countries.overlord[owner.index] == attacker,
+                   world.countries.subjectType[owner.index] != .personalUnion,
+                   !world.diplomacy.hasTruce(attacker, owner) {
+                    world.countries.overlord[owner.index] = nil
+                    world.countries.subjectType[owner.index] = nil
+                    world.diplomacy.removeTreaty(.guarantee, between: attacker, and: owner)
+                    world.diplomacy.modifyOpinion(of: attacker, by: owner, delta: -40)
+                    world.diplomacy.modifyOpinion(of: owner, by: attacker, delta: -40)
+                    break
+                }
+            }
+        }
+
+        // Map goal provinces to owners for fast lookup and include reachable coastal goal targets
+        var goalProvinceByOwner: [CountryID: ProvinceID] = [:]
+        var targetPool = landNeighbors
+        let attackerHasSea = ownedProvinces[attacker.index].contains { world.hasSeaAccess($0) }
+        let attackerHasTransports = !world.navy.fleets(of: attacker).isEmpty
+        for pid in conquerProvs {
+            if let owner = world.provinces.owner[pid.index], owner != attacker {
+                if goalProvinceByOwner[owner] == nil {
+                    goalProvinceByOwner[owner] = pid
+                }
+                if !targetPool.contains(owner) && attackerHasSea && attackerHasTransports
+                    && ownedProvinces[owner.index].contains(where: { world.hasSeaAccess($0) }) {
+                    targetPool.insert(owner)
+                }
+            }
+        }
+        for vt in vassalTargets where vt != attacker {
+            if !targetPool.contains(vt) && attackerHasSea && attackerHasTransports
+                && ownedProvinces[vt.index].contains(where: { world.hasSeaAccess($0) }) {
+                targetPool.insert(vt)
+            }
+        }
+
+        // Precompute market-centre owners once for Free AI trade wealth valuation
+        var marketCentreOwners = Set<CountryID>()
+        if isFree {
+            for centre in world.economy.markets.centre {
+                if let owner = world.provinces.owner[centre.index] {
+                    marketCentreOwners.insert(owner)
+                }
+            }
+        }
+
+        for target in targetPool.sorted(by: { $0.index < $1.index }) {
             let defenderProvs = ownedProvinces[target.index]
             guard !defenderProvs.isEmpty,
                   world.countries.overlord[target.index] != attacker,
+                  !peaceTargets.contains(target),
                   !world.diplomacy.hasTruce(attacker, target),
                   !world.diplomacy.areAllies(attacker, target),
                   !world.diplomacy.hasTreaty(.nonAggression, between: attacker, and: target),
@@ -512,7 +690,11 @@ public enum DiplomacyAISystem {
                 continue
             }
 
-            guard let chosenCB = bestCasusBelliAI(
+            let goalProv = goalProvinceByOwner[target]
+            let isVassalGoal = vassalTargets.contains(target)
+            let isGoalTarget = (goalProv != nil) || isVassalGoal
+
+            var chosenCB = bestCasusBelliAI(
                 attacker: attacker,
                 defender: target,
                 defenderProvinces: cbOwned[target.index],
@@ -520,7 +702,31 @@ public enum DiplomacyAISystem {
                 attackerDev: devByCountry[attacker.index],
                 defenderDev: devByCountry[target.index],
                 in: world
-            ) else { continue }
+            )
+            // Historical conquer_province or vassalize goals grant a valid goal-driven claim/subjugation CB
+            if !isFree {
+                if isVassalGoal && defenderProvs.count <= 8 && world.countries.overlord[target.index] == nil,
+                   let cap = world.countries.capital[target.index] {
+                    chosenCB = CasusBelliInstance(
+                        type: .subjugation,
+                        target: target,
+                        warGoal: .conquerProvince(cap),
+                        targetProvince: cap,
+                        name: "Subjugation of \(world.countries.name[target.index])",
+                        description: "Historical subjugation goal."
+                    )
+                } else if let gp = goalProv, chosenCB == nil || (chosenCB?.type != .reconquest && chosenCB?.type != .claim) {
+                    chosenCB = CasusBelliInstance(
+                        type: .claim,
+                        target: target,
+                        warGoal: .conquerProvince(gp),
+                        targetProvince: gp,
+                        name: "Conquest of \(world.provinces.name[gp.index])",
+                        description: "Historical territorial goal."
+                    )
+                }
+            }
+            guard let chosenCB else { continue }
 
             let check = world.diplomacy.canDeclareWar(
                 attacker: attacker,
@@ -548,7 +754,15 @@ public enum DiplomacyAISystem {
                 enemyStrength += soldiersByCountry[ov.index]
             }
 
-            let ratioReq = (chosenCB.type == .subjugation || chosenCB.type == .tribute) ? 2.5 : 1.35
+            var ratioReq = (chosenCB.type == .subjugation || chosenCB.type == .tribute) ? 2.5 : 1.35
+            if isGoalTarget && chosenCB.type == .subjugation {
+                ratioReq = 1.65
+            }
+            if isFree {
+                ratioReq = max(1.15, ratioReq + traits.ratioDelta)
+            } else if !isGoalTarget && (hasDefendGoal || hasBuildGoal) {
+                ratioReq += 0.25
+            }
             guard Double(ourStrength) >= max(1000.0, Double(enemyStrength) * ratioReq) else { continue }
 
             let cbScore: Int = switch chosenCB.type {
@@ -561,8 +775,16 @@ public enum DiplomacyAISystem {
             case .succession: 100
             case .noCB: 0
             }
-            let ratioScore = (ourStrength - enemyStrength) / 100
-            candidates.append(WarCandidate(target: target, cb: chosenCB, enemyStrength: enemyStrength, score: cbScore + ratioScore))
+            let ratioScore = min(80, max(0, (ourStrength - enemyStrength) / 250))
+            var totalScore = cbScore + ratioScore
+            if isGoalTarget {
+                totalScore += 800
+            } else if isFree {
+                let wealthBonus = devByCountry[target.index] * 8 + (marketCentreOwners.contains(target) ? 120 : 0)
+                let hostilityBonus = max(0, -world.diplomacy.opinion(of: target, by: attacker) / 2)
+                totalScore += wealthBonus + hostilityBonus
+            }
+            candidates.append(WarCandidate(target: target, cb: chosenCB, enemyStrength: enemyStrength, score: totalScore, isGoalTarget: isGoalTarget))
         }
 
         guard let best = candidates.max(by: {
@@ -570,11 +792,18 @@ public enum DiplomacyAISystem {
             return $0.target.index > $1.target.index
         }) else { return }
 
-        let chance: Double = switch best.cb.type {
+        var chance: Double = switch best.cb.type {
         case .reconquest, .claim, .coalition: 0.22
         case .holyWar: 0.08
         case .subjugation, .tribute, .succession: 0.04
         case .noCB: 0.0
+        }
+        if best.isGoalTarget {
+            chance = max(chance, 0.45)
+        } else if isFree {
+            chance *= traits.warMultiplier
+        } else if (hasDefendGoal || hasBuildGoal) && best.cb.type != .reconquest && best.cb.type != .claim {
+            chance *= 0.55
         }
         guard Double.random(in: 0..<1, using: &random) < chance else { return }
 

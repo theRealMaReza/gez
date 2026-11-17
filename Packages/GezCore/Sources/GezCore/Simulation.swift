@@ -90,7 +90,7 @@ public final class Simulation {
             FinanceSystem.runMonthly(&world)
             FinanceSystem.runAI(&world)
             TradeSystem.runAI(&world, month: date.month)
-            BuildingSystem.runAI(&world, month: date.month)
+            BuildingSystem.runAI(&world, month: date.month, date: date)
             ArmySystem.runAI(&world, month: date.month, date: date)
             NavySystem.runAI(&world)
             PopulationSystem.runMonthly(&world)

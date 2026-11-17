@@ -468,12 +468,31 @@ public final class GezGodotController {
         ]
     }
 
+    public func aiSettingOptions() -> [[String: Any]] {
+        AIBehaviourSetting.allCases.map { opt in
+            [
+                "key": opt.rawValue,
+                "title": opt.displayName,
+                "description": opt.summaryDescription
+            ]
+        }
+    }
+
+    public var aiSettingKey: String {
+        session?.aiSetting.rawValue ?? AIBehaviourSetting.historical.rawValue
+    }
+
+    public var aiSettingDisplayName: String {
+        session?.aiSetting.displayName ?? AIBehaviourSetting.historical.displayName
+    }
+
     @discardableResult
-    public func startNewGame(tag: String) -> Bool {
+    public func startNewGame(tag: String, aiSettingKey: String = AIBehaviourSetting.historical.rawValue) -> Bool {
         guard let s = session else { return false }
         let normalized = tag.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
         guard s.world.countries.id(forTag: normalized) != nil else { return false }
-        s.startNewGame(tag: normalized)
+        let setting = AIBehaviourSetting(rawValue: aiSettingKey.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()) ?? .historical
+        s.startNewGame(tag: normalized, aiSetting: setting)
         townIconsRevision &+= 1
         return true
     }
@@ -3887,6 +3906,8 @@ public final class GezGodotController {
                 "colorB": Int(rgb.b),
                 "government": w.countries.government[ti].displayName,
                 "religion": w.countries.religion[ti].rawValue.capitalized,
+                "aiGoalText": s.aiGoalSummary(for: target),
+                "aiSetting": w.ai.setting.displayName,
                 "opinion": opinion,
                 "trust": trust,
                 "ae": ae,
@@ -5151,8 +5172,28 @@ public final class GezGodotBridge: RefCounted {
     }
 
     @Callable
+    public func getAISettingOptions() -> VariantArray {
+        Self.toVariantArray(controller.aiSettingOptions())
+    }
+
+    @Callable
+    public func getAISetting() -> String {
+        controller.aiSettingKey
+    }
+
+    @Callable
+    public func getAISettingDisplayName() -> String {
+        controller.aiSettingDisplayName
+    }
+
+    @Callable
     public func startNewGame(tag: String) -> Bool {
         controller.startNewGame(tag: tag)
+    }
+
+    @Callable
+    public func startNewGameWithAI(tag: String, aiSetting: String) -> Bool {
+        controller.startNewGame(tag: tag, aiSettingKey: aiSetting)
     }
 
     @Callable

@@ -159,22 +159,52 @@ public enum BuildingSystem {
     /// Each month a twelfth of the computer-run countries consider building
     /// one thing: the best yearly return for the cost, if it pays back
     /// within about 15 years and leaves a reserve.
-    public static func runAI(_ world: inout World, month: Int) {
-        let reserveMonths = 6.0
+    public static func runAI(_ world: inout World, month: Int, date: GameDate = Scenario1453.startDate) {
+        let baseReserveMonths = 6.0
         for c in world.countries.ids where c.index % 12 == month % 12 && !world.humanCountries.contains(c) {
+            let isFree = AIGoalSystem.isFreeMode(for: c, in: world)
+            let buildFocus = isFree ? nil : AIGoalSystem.activeBuildFocus(for: c, date: date, in: world)
+            let defendProvs = isFree ? [] : Set(AIGoalSystem.activeDefendProvinces(for: c, date: date, in: world))
+            let traits = AIGoalSystem.traitProfile(for: c, in: world)
+
+            var reserveMonths = baseReserveMonths
+            if buildFocus == .economy {
+                reserveMonths = 4.0
+            } else if isFree {
+                reserveMonths = max(3.5, baseReserveMonths / traits.economyWeight)
+            }
             let income = world.countries.lastMonthlyIncome[c.index]
             let reserve = max(30, income * reserveMonths)
             guard world.countries.treasury[c.index] > reserve else { continue }
             var best: (score: Double, p: ProvinceID, t: BuildingTypeID)?
+            let maxInspect = (buildFocus == .economy) ? 12 : 8
             let owned = world.provinces(ownedBy: c)
                 .sorted { world.provinces.production[$0.index] > world.provinces.production[$1.index] }
-                .prefix(8)
+                .prefix(maxInspect)
             for p in owned {
                 for t in world.economy.buildingTypes.indices.map(BuildingTypeID.init) {
                     guard refusal(world, c, p, t) == nil else { continue }
                     let cost = cost(world, p, t)
                     guard world.countries.treasury[c.index] - cost > reserve else { continue }
-                    let gain = yearlyGain(world, p, t)
+                    var gain = yearlyGain(world, p, t)
+                    let eff = world.economy.buildingTypes[t.index].effect
+                    if case .fort = eff, defendProvs.contains(p) {
+                        gain *= 2.5
+                    } else if buildFocus == .economy {
+                        switch eff {
+                        case .staple, .trade, .fish, .workshop, .crafts, .tax, .routes:
+                            gain *= 1.35
+                        default:
+                            break
+                        }
+                    } else if isFree && traits.economyWeight > 1.1 {
+                        switch eff {
+                        case .staple, .trade, .fish, .workshop, .crafts, .tax, .routes:
+                            gain *= traits.economyWeight
+                        default:
+                            break
+                        }
+                    }
                     let score = gain / cost
                     if score > 1.0 / 15, best == nil || score > best!.score {
                         best = (score, p, t)

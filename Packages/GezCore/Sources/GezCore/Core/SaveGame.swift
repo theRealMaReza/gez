@@ -265,6 +265,7 @@ public struct SaveSnapshot: Sendable, Codable {
     public var unrest: UnrestState?
     public var tech: TechState?
     public var events: EventsState?
+    public var ai: AIState?
 
     public init(capturing simulation: Simulation) {
         let w = simulation.world
@@ -417,6 +418,7 @@ public struct SaveSnapshot: Sendable, Codable {
         self.unrest = w.unrest
         self.tech = w.tech
         self.events = w.events
+        self.ai = w.ai
     }
 
     /// Rebuilds an identical `Simulation` using a freshly created static base `World`.
@@ -599,6 +601,16 @@ public struct SaveSnapshot: Sendable, Codable {
         if let events {
             w.events = events
             w.events.resize(countries: w.countries.count)
+        }
+        if let ai {
+            w.ai = ai
+            w.ai.resize(countries: w.countries.count)
+        } else {
+            // Old saves default to Historical AI and recompute initial goal state.
+            w.ai = AIState()
+            w.ai.setting = .historical
+            w.ai.resize(countries: w.countries.count)
+            AIGoalSystem.updateGoals(&w, date: date)
         }
 
         return Simulation(

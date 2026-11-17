@@ -1608,17 +1608,42 @@ public enum ArmySystem {
                 }
             }
 
-            // 4. Periodic recruitment of standing regiments (1/12th of countries per month).
-            guard c.index % 12 == month % 12 else { continue }
+            // 3b. Historical defend_province garrisoning: keep an idle standing army stationed in key defensive province
+            let isFree = AIGoalSystem.isFreeMode(for: c, in: world)
+            let defendProvs = isFree ? [] : AIGoalSystem.activeDefendProvinces(for: c, date: date, in: world)
+            if !atWarCountries.contains(c), let defProv = defendProvs.first(where: { world.provinces.owner[$0.index] == c }) {
+                if soldiersDirty { recountSoldiers() }
+                let alreadyDefending = crownArmies.contains {
+                    let i = Int($0.rawValue)
+                    return world.military.armies.alive[i] && world.military.armies.province[i] == defProv
+                }
+                if !alreadyDefending, let anchor = crownArmies.first(where: {
+                    let i = Int($0.rawValue)
+                    return world.military.armies.alive[i] && world.military.armies.path[i].isEmpty
+                }) {
+                    let myMen = world.military.armies.totalMen(of: anchor)
+                    if soldiersInProv[defProv.index] + myMen <= supplyLimit(world, in: defProv) {
+                        _ = orderMove(&world, army: anchor, to: defProv)
+                    }
+                }
+            }
+
+            // 4. Periodic recruitment of standing regiments (more frequent when building up army).
+            let buildFocus = isFree ? nil : AIGoalSystem.activeBuildFocus(for: c, date: date, in: world)
+            let traits = AIGoalSystem.traitProfile(for: c, in: world)
+            let wantFastRecruit = (buildFocus == .army) || !defendProvs.isEmpty || (isFree && traits.warMultiplier >= 1.15)
+            let recruitTurn = wantFastRecruit ? ((c.index + month) % 4 == 0) : (c.index % 12 == month % 12)
+            guard recruitTurn else { continue }
             let income = world.countries.lastMonthlyIncome[c.index]
             let expenses = world.countries.lastMonthlyExpenses[c.index]
             let surplus = income - expenses
-            let reserve = max(80.0, income * 8.0)
+            let reserve = max(80.0, income * (buildFocus == .army ? 6.0 : 8.0))
             guard surplus > 1.5,
                   world.countries.treasury[c.index] > reserve,
                   world.military.manpower[c.index] >= 2_000 else { continue }
 
-            let targetStanding = Int((world.military.maxManpower[c.index] * 0.55).rounded())
+            let standingRatio = (buildFocus == .army || !defendProvs.isEmpty) ? 0.65 : 0.55
+            let targetStanding = Int((world.military.maxManpower[c.index] * standingRatio).rounded())
             guard world.military.totalMen(of: c) < targetStanding,
                   let cap = world.countries.capital[c.index],
                   world.provinces.owner[cap.index] == c else { continue }

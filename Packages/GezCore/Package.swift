@@ -26,6 +26,7 @@ let package = Package(
                 .copy("Resources/calamity1453.json"),
                 .copy("Resources/technology1453.json"),
                 .copy("Resources/events1453.json"),
+                .copy("Resources/ai_goals1453.json"),
                 .copy("Resources/provinces1453.idmap"),
                 .copy("Resources/seas1453.idmap")
             ]

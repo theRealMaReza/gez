@@ -1582,4 +1582,31 @@ struct GezGodotTests {
         #expect(!((recent[0]["chosenLabel"] as? String) ?? "").isEmpty)
         #expect(!controller.recentEventsSignature.isEmpty)
     }
+
+    @Test("Phase 15: AI behaviour new-game setting and Country View goal line")
+    func phase15AISettingAndCountryViewGoal() {
+        let controller = GezGodotController()
+        #expect(controller.setup(dataDirectoryPath: "", tag: "TUR"))
+        #expect(controller.aiSettingKey == "historical")
+        #expect(controller.aiSettingDisplayName == "Historical")
+
+        let opts = controller.aiSettingOptions()
+        #expect(opts.count == 2)
+        #expect((opts[0]["key"] as? String) == "historical")
+        #expect((opts[1]["key"] as? String) == "free")
+
+        // Inspect Hungary in Historical mode -> shows Defend Belgrade goal in Country View.
+        let hunIdx = controller.session!.world.countries.id(forTag: "HUN")!.index
+        let dipHist = controller.diplomacyDetails(targetCountryIndex: hunIdx)
+        let targetHist = dipHist["target"] as? [String: Any] ?? [:]
+        #expect((targetHist["aiGoalText"] as? String) == "Defend Belgrade")
+
+        // Start a new game with Free AI and confirm setting & Country View update.
+        #expect(controller.startNewGame(tag: "TUR", aiSettingKey: "free"))
+        #expect(controller.aiSettingKey == "free")
+        #expect(controller.aiSettingDisplayName == "Free")
+        let dipFree = controller.diplomacyDetails(targetCountryIndex: hunIdx)
+        let targetFree = dipFree["target"] as? [String: Any] ?? [:]
+        #expect(((targetFree["aiGoalText"] as? String) ?? "").hasPrefix("Free AI:"))
+    }
 }

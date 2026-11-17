@@ -18,19 +18,17 @@ Last updated: 16 November 2026.
 - Alpha build name: **"Kayser"** (after Phase 20.5).
 
 ## Where things stand
-- Phases 0–14 done (map, economy, trade, characters, government, armies,
+- Phases 0–15 done (map, economy, trade, characters, government, armies,
   diplomacy and war, sieges, Godot screens, battle view, navies, religion
-  and culture, plague/famine/rebels, technology,
-  historical events: 70, merged 16 Nov 2026, PR #30).
+  and culture, plague/famine/rebels, technology, historical events: 70,
+  AI behaviour setting: Historical vs Free).
 - Gemini writes most code on `gemini/*` branches; Claude reviews
   (routine: HANDOFF "Working with Gemini" and "How Claude reviews").
 
 ## Next
-1. Owner play-test of Phase 14 on the Mac (`git pull`,
-   `./godot/build_mac.sh`, start a game; Hungary gets Belgrade in July
-   1456).
-2. **Phase 15: AI setting** (historical or free; historical AI uses a
-   simple goal list per country until the Phase 21 mission trees).
+1. Owner play-test of Phase 15 on the Mac (`git pull`,
+   `./godot/build_mac.sh`, Nation Picker AI behaviour selector + Country View `AI Goal:` line).
+2. **Phase 16: Sound effects and tooltips** (free CC0 sounds + math-breakdown tooltips everywhere).
 3. Then: 16 sound (free CC0) + tooltips, 17 3D (Claude;
    free CC0 models + models built in code), 18 chronicle, 20 art, 20.5
    balance and play-test (Claude), **alpha "Kayser"**, then 21 mission

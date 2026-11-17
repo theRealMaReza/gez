@@ -205,6 +205,11 @@ func _build_target_section(target: Dictionary) -> void:
 	id_row.add_child(id_col)
 	id_col.add_child(main.call("_make_label", "%s (%s)" % [t_name, t_tag], Color(0.97, 0.90, 0.68), 16))
 	id_col.add_child(main.call("_make_label", "%s · %s" % [str(target.get("government", "")), str(target.get("religion", ""))], Color(0.80, 0.75, 0.66), 12))
+	var ai_goal_txt: String = str(target.get("aiGoalText", ""))
+	if not ai_goal_txt.is_empty():
+		var goal_lbl: Label = main.call("_make_label", "AI Goal: %s" % ai_goal_txt, Color(0.70, 0.84, 0.94), 11)
+		goal_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		id_col.add_child(goal_lbl)
 
 	var at_war: bool = bool(target.get("atWar", false))
 	var in_coalition: bool = bool(target.get("inCoalition", false))
