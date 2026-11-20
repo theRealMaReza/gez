@@ -1,6 +1,7 @@
 extends Control
 
 const FIELD_MARGIN := 10.0
+const Battle3DScript := preload("res://scripts/BattleView3D.gd")
 
 var main_view: Control = null
 var bridge: Variant = null
@@ -41,7 +42,10 @@ var def_title_lbl: Label
 var def_stats_lbl: Label
 var def_morale_bar: ProgressBar
 
-var canvas: Control
+var canvas: Control          # 2D overlay (selection, bars, orders); takes the input
+var canvas_host: Control     # holds the 3D view and the overlay
+var view3d: SubViewportContainer = null   # Phase 17: the battlefield in 3D
+var use_3d: bool = false
 var bottom_bar: PanelContainer
 var sel_info_lbl: Label
 var status_hint_lbl: Label
@@ -227,15 +231,27 @@ func _build_ui() -> void:
 		main_view.call("bind_tip", def_morale_bar, "Defender Morale", "Average cohesion of defender regiments.")
 	def_box.add_child(def_morale_bar)
 
-	# 2. Central 2D Battlefield Canvas
+	# 2. Central battlefield: the 3D view (Phase 17) with the 2D overlay on top.
+	canvas_host = Control.new()
+	canvas_host.name = "BattleCanvasHost"
+	canvas_host.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	canvas_host.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	canvas_host.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	canvas_host.clip_contents = true
+	root_vbox.add_child(canvas_host)
+	view3d = Battle3DScript.new()
+	view3d.set_anchors_preset(Control.PRESET_FULL_RECT)
+	canvas_host.add_child(view3d)
+	use_3d = bool(view3d.call("ready_ok"))
+	view3d.visible = use_3d
 	canvas = Control.new()
 	canvas.name = "BattleCanvas"
-	canvas.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	canvas.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	canvas.set_anchors_preset(Control.PRESET_FULL_RECT)
 	canvas.mouse_filter = Control.MOUSE_FILTER_STOP
 	canvas.draw.connect(_on_canvas_draw)
 	canvas.gui_input.connect(_on_canvas_gui_input)
-	root_vbox.add_child(canvas)
+	canvas.resized.connect(_on_canvas_resized)
+	canvas_host.add_child(canvas)
 
 	# 3. Bottom Command Bar (124px high — large touch & Apple Pencil friendly controls, fits 1440x900)
 	bottom_bar = PanelContainer.new()
@@ -564,8 +580,18 @@ func refresh_state() -> void:
 	field_w = maxf(100.0, float(state.get("fieldW", 1200.0)))
 	field_h = maxf(100.0, float(state.get("fieldH", 800.0)))
 	_sync_ui_from_state()
+	_sync_3d()
 	if canvas != null:
 		canvas.queue_redraw()
+
+# Phase 17: rebuild the 3D soldiers, walls and engines from the battle state.
+func _sync_3d() -> void:
+	if use_3d and view3d != null and canvas != null and canvas.size.x > 1.0:
+		view3d.call("sync_state", state, canvas.size)
+
+func _on_canvas_resized() -> void:
+	_sync_3d()
+	canvas.queue_redraw()
 
 func _sync_tool_styles() -> void:
 	var ph: String = str(state.get("phase", "deployment"))
@@ -730,6 +756,10 @@ func _update_selected_info() -> void:
 	]
 
 func _compute_canvas_transform() -> void:
+	if use_3d:
+		canvas_origin = Vector2.ZERO
+		canvas_scale = float(view3d.call("scale_at", Vector2(field_w, field_h) * 0.5))
+		return
 	var c_size := canvas.size
 	var avail_w := maxf(100.0, c_size.x - FIELD_MARGIN * 2.0)
 	var avail_h := maxf(100.0, c_size.y - FIELD_MARGIN * 2.0)
@@ -739,9 +769,13 @@ func _compute_canvas_transform() -> void:
 	canvas_origin = Vector2((c_size.x - drawn_w) * 0.5, (c_size.y - drawn_h) * 0.5)
 
 func _field_to_canvas(pt: Vector2) -> Vector2:
+	if use_3d:
+		return view3d.call("field_to_screen", pt)
 	return canvas_origin + pt * canvas_scale
 
 func _canvas_to_field(pos: Vector2) -> Vector2:
+	if use_3d:
+		return view3d.call("screen_to_field", pos)
 	if canvas_scale <= 0.0001:
 		return Vector2.ZERO
 	return (pos - canvas_origin) / canvas_scale
@@ -763,6 +797,12 @@ func _on_canvas_draw() -> void:
 		return
 	_compute_canvas_transform()
 
+	# 1-4. Ground, hills, woods and river (drawn in 3D by BattleView3D when it runs).
+	if not use_3d:
+		_draw_ground_2d()
+	_draw_overlay()
+
+func _draw_ground_2d() -> void:
 	# 1. Ground fill
 	var field_rect := Rect2(canvas_origin, Vector2(field_w, field_h) * canvas_scale)
 	var ground_col := _terrain_ground_color(str(state.get("terrainKey", "plains")))
@@ -836,23 +876,16 @@ func _on_canvas_draw() -> void:
 				canvas.draw_rect(Rect2(f_tl, f_sz), Color(0.58, 0.54, 0.40, 0.84), true)
 				canvas.draw_rect(Rect2(f_tl, f_sz), Color(0.84, 0.78, 0.58, 0.75), false, 1.5)
 
+func _draw_overlay() -> void:
 	# 5. Deployment zones
 	if str(state.get("phase", "")) == "deployment":
 		var p_side: String = str(state.get("playerSide", "attacker"))
-		var att_r := Rect2(
-			_field_to_canvas(Vector2(float(state.get("attDeployX", 50.0)), float(state.get("attDeployY", 50.0)))),
-			Vector2(float(state.get("attDeployW", 350.0)), float(state.get("attDeployH", 700.0))) * canvas_scale
-		)
-		var def_r := Rect2(
-			_field_to_canvas(Vector2(float(state.get("defDeployX", 800.0)), float(state.get("defDeployY", 50.0)))),
-			Vector2(float(state.get("defDeployW", 350.0)), float(state.get("defDeployH", 700.0))) * canvas_scale
-		)
+		var att_r := Rect2(float(state.get("attDeployX", 50.0)), float(state.get("attDeployY", 50.0)), float(state.get("attDeployW", 350.0)), float(state.get("attDeployH", 700.0)))
+		var def_r := Rect2(float(state.get("defDeployX", 800.0)), float(state.get("defDeployY", 50.0)), float(state.get("defDeployW", 350.0)), float(state.get("defDeployH", 700.0)))
 		var att_border := Color(0.95, 0.78, 0.25, 0.85) if p_side == "attacker" else Color(0.80, 0.35, 0.30, 0.45)
 		var def_border := Color(0.95, 0.78, 0.25, 0.85) if p_side == "defender" else Color(0.35, 0.65, 0.90, 0.45)
-		canvas.draw_rect(att_r, Color(att_border.r, att_border.g, att_border.b, 0.08), true)
-		canvas.draw_rect(att_r, att_border, false, 2.0)
-		canvas.draw_rect(def_r, Color(def_border.r, def_border.g, def_border.b, 0.08), true)
-		canvas.draw_rect(def_r, def_border, false, 2.0)
+		_draw_field_rect(att_r, Color(att_border.r, att_border.g, att_border.b, 0.08), att_border, 2.0)
+		_draw_field_rect(def_r, Color(def_border.r, def_border.g, def_border.b, 0.08), def_border, 2.0)
 
 	# 5b. Fortification structures & Inner Keep Zone (Part C Assaults)
 	var font := ThemeDB.fallback_font
@@ -860,12 +893,8 @@ func _on_canvas_draw() -> void:
 	if not structures.is_empty():
 		var kz_dict: Dictionary = state.get("keepZone", {})
 		if not kz_dict.is_empty():
-			var kz_rect := Rect2(
-				_field_to_canvas(Vector2(float(kz_dict.get("x", 965.0)), float(kz_dict.get("y", 290.0)))),
-				Vector2(float(kz_dict.get("w", 165.0)), float(kz_dict.get("h", 220.0))) * canvas_scale
-			)
-			canvas.draw_rect(kz_rect, Color(0.75, 0.62, 0.25, 0.14), true)
-			canvas.draw_rect(kz_rect, Color(0.92, 0.78, 0.30, 0.65), false, 2.0)
+			var kz_field := Rect2(float(kz_dict.get("x", 965.0)), float(kz_dict.get("y", 290.0)), float(kz_dict.get("w", 165.0)), float(kz_dict.get("h", 220.0)))
+			var kz_rect := _draw_field_rect(kz_field, Color(0.75, 0.62, 0.25, 0.14), Color(0.92, 0.78, 0.30, 0.65), 2.0)
 			var k_prog := float(state.get("keepCaptureProgress", 0.0))
 			if k_prog > 0.005:
 				var arc_center := kz_rect.get_center()
@@ -886,12 +915,16 @@ func _on_canvas_draw() -> void:
 			var s_max := maxf(1.0, float(s_item.get("maxHp", 1.0)))
 			var tl := _field_to_canvas(Vector2(sx - sw * 0.5, sy - sh * 0.5))
 			var r_rect := Rect2(tl, Vector2(sw, sh) * canvas_scale)
+			if use_3d:
+				# Screen box of the 3D model (walls stand WALL_HEIGHT tall).
+				r_rect = _screen_box_of_field_rect(Rect2(sx - sw * 0.5, sy - sh * 0.5, sw, sh), Battle3DScript.WALL_HEIGHT)
 
 			if s_breached:
 				# Rubble / open breach passage
-				canvas.draw_rect(r_rect, Color(0.32, 0.27, 0.22, 0.45), true)
-				canvas.draw_line(r_rect.position, r_rect.position + Vector2(r_rect.size.x, 0.0), Color(0.55, 0.48, 0.38, 0.8), 2.0)
-				canvas.draw_line(r_rect.position + Vector2(0.0, r_rect.size.y), r_rect.end, Color(0.55, 0.48, 0.38, 0.8), 2.0)
+				if not use_3d:
+					canvas.draw_rect(r_rect, Color(0.32, 0.27, 0.22, 0.45), true)
+					canvas.draw_line(r_rect.position, r_rect.position + Vector2(r_rect.size.x, 0.0), Color(0.55, 0.48, 0.38, 0.8), 2.0)
+					canvas.draw_line(r_rect.position + Vector2(0.0, r_rect.size.y), r_rect.end, Color(0.55, 0.48, 0.38, 0.8), 2.0)
 				if font != null:
 					canvas.draw_string(font, r_rect.get_center() + Vector2(-22.0, 4.0), "BREACH", HORIZONTAL_ALIGNMENT_LEFT, -1, 10, Color(0.95, 0.65, 0.30))
 			else:
@@ -902,8 +935,9 @@ func _on_canvas_draw() -> void:
 					col = Color(0.62, 0.60, 0.56)
 				elif s_kind == "keep":
 					col = Color(0.48, 0.46, 0.44)
-				canvas.draw_rect(r_rect, col, true)
-				canvas.draw_rect(r_rect, Color(0.24, 0.22, 0.20), false, 2.2)
+				if not use_3d:
+					canvas.draw_rect(r_rect, col, true)
+					canvas.draw_rect(r_rect, Color(0.24, 0.22, 0.20), false, 2.2)
 				if s_kind == "gate" or s_kind == "keep":
 					if font != null:
 						var lbl_txt := "GATE" if s_kind == "gate" else "KEEP"
@@ -964,7 +998,8 @@ func _on_canvas_draw() -> void:
 		if men <= 0:
 			continue
 		var idx := int(u_item.get("index", -1))
-		var center := _field_to_canvas(Vector2(float(u_item.get("x", 0.0)), float(u_item.get("y", 0.0))))
+		var center_f := Vector2(float(u_item.get("x", 0.0)), float(u_item.get("y", 0.0)))
+		var center := _field_to_canvas(center_f)
 		var bw := maxf(18.0, float(u_item.get("w", 24.0)) * canvas_scale)
 		var bh := maxf(24.0, float(u_item.get("h", 44.0)) * canvas_scale)
 		var ang := float(u_item.get("facing", 0.0))
@@ -984,7 +1019,22 @@ func _on_canvas_draw() -> void:
 			col.a = 0.72
 
 		var poly := _unit_shape_polygon(center, bw, bh, ang, form)
-		canvas.draw_colored_polygon(poly, col)
+		if use_3d:
+			# Outline on the ground around the 3D soldiers, lightly filled.
+			poly = PackedVector2Array()
+			for fp in _unit_shape_polygon(center_f, maxf(float(u_item.get("w", 24.0)), 10.0) + 10.0, maxf(float(u_item.get("h", 44.0)), 10.0) + 10.0, ang, form):
+				poly.append(_field_to_canvas(fp))
+			var fill := col
+			fill.a = 0.10
+			canvas.draw_colored_polygon(poly, fill)
+			var pr := Rect2(poly[0], Vector2.ZERO)
+			for pp in poly:
+				pr = pr.expand(pp)
+			bw = maxf(pr.size.x, 18.0)
+			bh = maxf(pr.size.y, 18.0)
+			center = _field_to_canvas(center_f) + Vector2(0.0, -10.0 * canvas_scale)
+		else:
+			canvas.draw_colored_polygon(poly, col)
 		var border_col := Color(1.0, 0.90, 0.25, 1.0) if is_sel else (Color(0.95, 0.28, 0.24, 0.9) if routing else Color(0.95, 0.92, 0.82, 0.85))
 		var closed := poly.duplicate()
 		closed.append(poly[0])
@@ -1038,6 +1088,29 @@ func _on_canvas_draw() -> void:
 		for k in range(count_sel):
 			var frac := 0.5 if count_sel == 1 else (float(k) / float(count_sel - 1))
 			canvas.draw_circle(a.lerp(b, frac), 5.0, Color(1.0, 0.94, 0.55, 0.95))
+
+# A field rectangle drawn on the (possibly tilted) battlefield; returns its screen bounds.
+func _draw_field_rect(r: Rect2, fill: Color, border: Color, width: float) -> Rect2:
+	var pts := PackedVector2Array([
+		_field_to_canvas(r.position), _field_to_canvas(Vector2(r.end.x, r.position.y)),
+		_field_to_canvas(r.end), _field_to_canvas(Vector2(r.position.x, r.end.y)),
+	])
+	canvas.draw_colored_polygon(pts, fill)
+	var closed := pts.duplicate()
+	closed.append(pts[0])
+	canvas.draw_polyline(closed, border, width)
+	var out := Rect2(pts[0], Vector2.ZERO)
+	for p in pts:
+		out = out.expand(p)
+	return out
+
+# Screen bounds of a field rectangle standing `height` tall (walls, towers).
+func _screen_box_of_field_rect(r: Rect2, height: float) -> Rect2:
+	var out := Rect2(_field_to_canvas(r.position), Vector2.ZERO)
+	for c in [r.position, Vector2(r.end.x, r.position.y), r.end, Vector2(r.position.x, r.end.y)]:
+		out = out.expand(_field_to_canvas(c))
+		out = out.expand(view3d.call("field_to_screen", c, height))
+	return out
 
 func _unit_shape_polygon(center: Vector2, w: float, h: float, ang: float, form: String) -> PackedVector2Array:
 	var local_pts: Array[Vector2]
