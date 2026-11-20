@@ -130,3 +130,7 @@ truce (Galata surrendered on 1 June 1453, two days after the start).
   `gh api repos/yv28f5k922-dot/Gez/pulls -f title=... -f head=... -f base=main -f body=...`.
 - MultiMesh instances with models scaled by the shader need a big
   `custom_aabb`, or they are culled at the screen edges.
+- Packed arrays (`PackedFloat32Array`...) are copied on write: appending
+  to one kept inside a Dictionary changes a copy, and copying it out and
+  back copies the whole array every time. Keep a plain Array of small
+  packed arrays and join them once (`MapModels._commit`).

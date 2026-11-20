@@ -34,7 +34,7 @@ var static_mat: ShaderMaterial  # walls and towers: sized by their transform
 var field_size := Vector2(1200.0, 800.0)
 var hills: Array = []
 var _ground_sig: String = ""
-var _batches: Dictionary = {}   # mesh key -> {node, buf, n}
+var _batches: Dictionary = {}   # mesh key -> {node, items: [20 floats per instance]}
 var _fit_size := Vector2.ZERO
 
 # Camera frame (kept here so screen <-> field maths needs no rendering).
@@ -292,7 +292,7 @@ func _build_ground(state: Dictionary) -> void:
 
 func _begin() -> void:
 	for key in _batches:
-		_batches[key]["n"] = 0
+		(_batches[key]["items"] as Array).clear()
 
 func _add(mesh_name: String, origin: Vector3, yaw: float, color: Color = Color.WHITE, phase: float = 0.0, scale: Vector3 = Vector3.ONE, static_model: bool = false, tilt: float = 0.0) -> void:
 	var key := ("s|" if static_model else "u|") + mesh_name
@@ -310,45 +310,41 @@ func _add(mesh_name: String, origin: Vector3, yaw: float, color: Color = Color.W
 		node.material_override = static_mat if static_model else unit_mat
 		node.custom_aabb = AABB(Vector3(-400, -100, -400), Vector3(field_size.x + 800, 800, field_size.y + 800))
 		world.add_child(node)
-		_batches[key] = {"node": node, "buf": PackedFloat32Array(), "n": 0}
+		_batches[key] = {"node": node, "items": []}
 	var b: Dictionary = _batches[key]
 	var basis := Basis(Vector3.UP, yaw)
 	if tilt != 0.0:
 		basis = basis * Basis(Vector3.RIGHT, tilt)
 	basis = basis.scaled_local(scale)
-	var buf: PackedFloat32Array = b["buf"]
-	var n: int = b["n"]
-	var need := (n + 1) * 20
-	if buf.size() < need:
-		buf.resize(maxi(need, buf.size() * 2))
-	var o := n * 20
 	# MultiMesh buffer layout: 3x4 transform rows, colour, custom data.
-	buf[o] = basis.x.x; buf[o + 1] = basis.y.x; buf[o + 2] = basis.z.x; buf[o + 3] = origin.x
-	buf[o + 4] = basis.x.y; buf[o + 5] = basis.y.y; buf[o + 6] = basis.z.y; buf[o + 7] = origin.y
-	buf[o + 8] = basis.x.z; buf[o + 9] = basis.y.z; buf[o + 10] = basis.z.z; buf[o + 11] = origin.z
-	buf[o + 12] = color.r; buf[o + 13] = color.g; buf[o + 14] = color.b; buf[o + 15] = color.a
-	buf[o + 16] = origin.x; buf[o + 17] = origin.y; buf[o + 18] = origin.z; buf[o + 19] = phase
-	b["buf"] = buf
-	b["n"] = n + 1
+	(b["items"] as Array).append(PackedFloat32Array([
+		basis.x.x, basis.y.x, basis.z.x, origin.x,
+		basis.x.y, basis.y.y, basis.z.y, origin.y,
+		basis.x.z, basis.y.z, basis.z.z, origin.z,
+		color.r, color.g, color.b, color.a,
+		origin.x, origin.y, origin.z, phase]))
 
 func _commit() -> void:
 	for key in _batches:
 		var b: Dictionary = _batches[key]
 		var node: MultiMeshInstance3D = b["node"]
-		var n: int = b["n"]
+		var items: Array = b["items"]
+		var n := items.size()
 		var mm := node.multimesh
 		if mm.instance_count != n:
 			mm.instance_count = n
 		if n > 0:
-			var buf: PackedFloat32Array = b["buf"]
-			mm.buffer = buf.slice(0, n * 20)
+			var buf := PackedFloat32Array()
+			for it in items:
+				buf.append_array(it)
+			mm.buffer = buf
 		node.visible = n > 0
 
 func count_of(mesh_name: String) -> int:
 	var n := 0
 	for pre in ["u|", "s|"]:
 		if _batches.has(pre + mesh_name):
-			n += int(_batches[pre + mesh_name]["n"])
+			n += (_batches[pre + mesh_name]["items"] as Array).size()
 	return n
 
 # ---- Battle state -> 3D ------------------------------------------------------
