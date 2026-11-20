@@ -125,8 +125,9 @@ func _draw() -> void:
 		var aid: int = int(c_dict.get("armyId", -1))
 		if aid < 0:
 			continue
-		var mx: float = float(c_dict.get("x", 0.0))
-		var my: float = float(c_dict.get("y", 0.0))
+		# Phase 17: follow the marching 3D figure when there is one.
+		var mx: float = float(c_dict.get("drawX", c_dict.get("x", 0.0)))
+		var my: float = float(c_dict.get("drawY", c_dict.get("y", 0.0)))
 		var stack_idx: int = int(c_dict.get("stackIndex", 0))
 		var stack_cnt: int = int(c_dict.get("stackCount", 1))
 

@@ -2,6 +2,7 @@ extends Control
 
 const Map3DScript := preload("res://scripts/Map3D.gd")
 const MapProjectorScript := preload("res://scripts/MapProjector.gd")
+const MapModelsScript := preload("res://scripts/MapModels.gd")
 const IconsLayerScript := preload("res://scripts/MapIconsLayer.gd")
 const LabelsLayerScript := preload("res://scripts/MapLabelsLayer.gd")
 const ArmiesLayerScript := preload("res://scripts/MapArmiesLayer.gd")
@@ -42,6 +43,7 @@ var menu_fx_val_lbl: Label
 var menu_amb_val_lbl: Label
 
 var map3d: Node3D
+var map_models: Node3D  # 3D towns, forts, ports, armies and fleets (Phase 17 part 2)
 var projector: RefCounted = MapProjectorScript.new()
 var view_pitch: float = 90.0  # shown camera tilt (eases towards the zoom's pitch)
 var map_material: ShaderMaterial
@@ -282,6 +284,9 @@ func _build_scene_ui() -> void:
 	map3d = Map3DScript.new()
 	add_child(map3d)
 	map_material = map3d.terrain_material
+	map_models = MapModelsScript.new()
+	map_models.set("projector", projector)
+	map3d.add_child(map_models)
 
 	# 1b. Town icons layer (towns, capitals, forts, ports — redrawn only on camera or icon change)
 	icons_layer = Control.new()
@@ -1438,6 +1443,8 @@ func _init_bridge_and_map() -> void:
 	var id_bytes: PackedByteArray = _call_bridge("getProvinceIDBytes", [], PackedByteArray())
 	var id_img := Image.create_from_data(w, h, false, Image.FORMAT_RG8, id_bytes)
 	id_tex = ImageTexture.create_from_image(id_img)
+	map_models.set("id_image", id_img)
+	map_models.set("map_size", map_size)
 
 	var sea_bytes: PackedByteArray = _call_bridge("getSeaIDBytes", [], PackedByteArray())
 	var sea_img := Image.create_from_data(w, h, false, Image.FORMAT_RG8, sea_bytes)
@@ -1486,6 +1493,12 @@ func _refresh_town_icons() -> void:
 	last_town_icons_rev = rev
 	var packed: PackedFloat32Array = _call_bridge("getTownIconsData", [], PackedFloat32Array())
 	icons_layer.call("set_icons_data", packed, rev)
+	# Phase 17: 3D towns replace the 2D icons (the 2D layer stays as a fallback
+	# if the model library cannot be loaded).
+	if map_models != null and bool(map_models.call("ready_ok")):
+		icons_layer.visible = false
+		var model_data: PackedFloat32Array = _call_bridge("getTownModelData", [], PackedFloat32Array())
+		map_models.call("set_towns", packed, model_data)
 
 func _refresh_all_labels() -> void:
 	if bridge == null:
@@ -1939,8 +1952,24 @@ func _refresh_armies(force: bool = false) -> void:
 	if not force and sig == _last_armies_sig:
 		return
 	_last_armies_sig = sig
+	var armies_data: Variant = _call_bridge("getMapArmiesData", [], {})
+	if armies_data is Dictionary and map_models != null and bool(map_models.call("ready_ok")):
+		# Marching figures: where each army is walking and how far along it is.
+		var motion: Dictionary = {}
+		var mv: Variant = _call_bridge("getMapArmyMotion", [], {})
+		if mv is Dictionary:
+			for a in (mv as Dictionary).get("armies", []):
+				if a is Dictionary:
+					motion[int(a.get("armyId", -1))] = a
+		var counters: Array = (armies_data as Dictionary).get("counters", [])
+		for c in counters:
+			if c is Dictionary:
+				var dp: Vector2 = MapModelsScript.army_draw_point(c, motion.get(int(c.get("armyId", -1)), {}))
+				c["drawX"] = dp.x
+				c["drawY"] = dp.y
+		map_models.call("set_armies", counters, motion)
 	if armies_layer != null:
-		armies_layer.call("set_armies_data", _call_bridge("getMapArmiesData", [], {}))
+		armies_layer.call("set_armies_data", armies_data)
 	if army_ui != null:
 		army_ui.call("refresh_all")
 
@@ -1951,8 +1980,18 @@ func _refresh_fleets(force: bool = false) -> void:
 	if not force and sig == _last_fleets_sig:
 		return
 	_last_fleets_sig = sig
+	var fleets_data: Variant = _call_bridge("getMapFleetsData", [], {})
+	if fleets_data is Dictionary and map_models != null and bool(map_models.call("ready_ok")):
+		var styles: Dictionary = {}
+		var fs: Variant = _call_bridge("getMapFleetStyles", [], {})
+		if fs is Dictionary:
+			var ids: Array = (fs as Dictionary).get("fleetIds", [])
+			var sts: Array = (fs as Dictionary).get("styles", [])
+			for k in range(mini(ids.size(), sts.size())):
+				styles[int(ids[k])] = int(sts[k])
+		map_models.call("set_fleets", (fleets_data as Dictionary).get("counters", []), styles)
 	if fleets_layer != null:
-		fleets_layer.call("set_fleets_data", _call_bridge("getMapFleetsData", [], {}))
+		fleets_layer.call("set_fleets_data", fleets_data)
 	if fleet_ui != null:
 		fleet_ui.call("refresh_all")
 
@@ -3061,6 +3100,8 @@ func _sync_camera_uniforms() -> void:
 	map_material.set_shader_parameter("zoom", zoom)
 	projector.call("update", size, zoom, offset, view_pitch)
 	map3d.call("apply_projector", projector)
+	if map_models != null:
+		map_models.call("update_zoom", zoom)
 	var cam_rev: int = int(projector.get("revision"))
 	var default_tint := clampf(0.72 - 0.2 * zoom, 0.38, 0.66)
 	var tint: float = float(_call_bridge("getTintForZoom", [zoom], default_tint))

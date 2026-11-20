@@ -1713,4 +1713,40 @@ struct GezGodotTests {
             #expect(FileManager.default.fileExists(atPath: diskURL.path), "Missing audio asset referenced in AudioManager.gd: \(resPath)")
         }
     }
+
+    @Test("Phase 17: regional model styles for towns, armies and fleets")
+    func testPhase17ModelStyles() {
+        func g(_ lat: Double, _ lon: Double) -> GeoPoint { GeoPoint(latitude: lat, longitude: lon) }
+        #expect(MapModelStyle.of(religion: .catholic, terrain: .farmland, location: g(48.8, 2.3)) == .european)
+        #expect(MapModelStyle.of(religion: .orthodox, terrain: .hills, location: g(41.0, 29.0)) == .european)
+        #expect(MapModelStyle.of(religion: .sunni, terrain: .desert, location: g(30.0, 31.2)) == .islamic)
+        #expect(MapModelStyle.of(religion: .sunni, terrain: .plains, location: g(28.6, 77.2)) == .indian)
+        #expect(MapModelStyle.of(religion: .hindu, terrain: .farmland, location: g(15.3, 76.4)) == .indian)
+        #expect(MapModelStyle.of(religion: .tibetan, terrain: .mountains, location: g(29.6, 91.1)) == .eastAsian)
+        #expect(MapModelStyle.of(religion: .sunni, terrain: .steppe, location: g(47.0, 60.0)) == .steppe)
+        #expect(MapModelStyle.of(religion: .tengri, terrain: .steppe, location: g(48.0, 90.0)) == .steppe)
+
+        let controller = GezGodotController()
+        #expect(controller.setup(dataDirectoryPath: "", tag: "TUR"))
+        let metrics = controller.townIconMetrics()
+        let data = controller.townModelData()
+        #expect(!data.isEmpty)
+        #expect(data.count * 6 == metrics.count * 4)
+        // Every style used somewhere on the 1453 map.
+        let used = Set(stride(from: 0, to: data.count, by: 4).map { Int(data[$0]) })
+        for st in MapModelStyle.allCases {
+            #expect(used.contains(st.rawValue), "no town uses style \(st)")
+        }
+        let motion = controller.mapArmyMotion()
+        #expect(!motion.isEmpty)
+        for a in motion {
+            let st = a["style"] as? Int ?? -1
+            #expect(st >= 0 && st < MapModelStyle.allCases.count)
+            let frac = a["frac"] as? Double ?? -1
+            #expect(frac >= 0 && frac <= 1)
+        }
+        #expect(!controller.mapFleetStyles().isEmpty)
+        // No battle running: no battle styles.
+        #expect(controller.battleModelStyles().isEmpty)
+    }
 }

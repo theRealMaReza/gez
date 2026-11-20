@@ -1303,6 +1303,8 @@ public final class GezGodotController {
             hasher.combine(armies.path[i].count)
             hasher.combine(armies.totalMen(of: ArmyID(Int32(i))))
             hasher.combine(armies.isRetreating[i])
+            // Whole days walked towards the next stop: moves the 3D figures daily.
+            hasher.combine(Int(armies.moveProgressDays[i]))
         }
         return hasher.finalize()
     }
@@ -5940,7 +5942,10 @@ public final class GezGodotBridge: RefCounted {
 
     @Callable
     public func getBattleState() -> VariantDictionary {
-        Self.toVariantDictionary(controller.battleStateData())
+        var data = controller.battleStateData()
+        // Phase 17: regional styles for the 3D soldiers and walls.
+        data.merge(controller.battleModelStyles()) { old, _ in old }
+        return Self.toVariantDictionary(data)
     }
 
     @Callable
@@ -6119,6 +6124,30 @@ public final class GezGodotBridge: RefCounted {
     }
 
     // MARK: - Variant Conversion Helpers
+
+    // MARK: - Phase 17: 3D map models
+
+    /// Per town icon (same order as `getTownIconsData`), stride 4:
+    /// `[style, ownerR, ownerG, ownerB]`; style 0 European, 1 Islamic,
+    /// 2 Indian, 3 East Asian, 4 Steppe.
+    @Callable
+    public func getTownModelData() -> PackedFloat32Array {
+        PackedFloat32Array(controller.townModelData())
+    }
+
+    /// `{"armies": [{armyId, style, moving, nextX, nextY, frac}]}` for the 3D army figures.
+    @Callable
+    public func getMapArmyMotion() -> VariantDictionary {
+        Self.toVariantDictionary(["armies": controller.mapArmyMotion()])
+    }
+
+    /// `{"fleetIds": [...], "styles": [...]}`: regional style of each fleet's ships.
+    @Callable
+    public func getMapFleetStyles() -> VariantDictionary {
+        let styles = controller.mapFleetStyles()
+        let ids = styles.keys.sorted()
+        return Self.toVariantDictionary(["fleetIds": ids, "styles": ids.map { styles[$0] ?? 0 }])
+    }
 
     private static func toVariantDictionary(_ dict: [String: Any]) -> VariantDictionary {
         let out = VariantDictionary()

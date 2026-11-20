@@ -30,7 +30,7 @@ func _init() -> void:
 	e.background_color = SEA_COLOR
 	e.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 	e.ambient_light_color = Color(0.78, 0.76, 0.72)
-	e.ambient_light_energy = 0.75
+	e.ambient_light_energy = 1.0
 	e.tonemap_mode = Environment.TONE_MAPPER_LINEAR
 	env.environment = e
 	add_child(env)
