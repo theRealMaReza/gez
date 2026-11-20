@@ -10,12 +10,34 @@ var battles: Array = []
 var blockades: Array = []
 var counter_hit_boxes: Array = []
 
-func update_camera(new_zoom: float, new_offset: Vector2) -> void:
-	if is_equal_approx(map_zoom, new_zoom) and map_offset.is_equal_approx(new_offset):
+var projector: RefCounted = null
+var _cam_rev: int = -1
+
+func update_camera(new_zoom: float, new_offset: Vector2, proj: RefCounted = null, rev: int = -1) -> void:
+	if is_equal_approx(map_zoom, new_zoom) and map_offset.is_equal_approx(new_offset) and rev == _cam_rev:
 		return
 	map_zoom = new_zoom
 	map_offset = new_offset
+	if proj != null:
+		projector = proj
+	_cam_rev = rev
 	queue_redraw()
+
+# Map pixel -> screen point through the 3D camera (Phase 17), standing on the terrain.
+func _ms(wx: float, wy: float) -> Vector2:
+	if projector != null:
+		return projector.call("to_screen", Vector2(wx, wy))
+	return Vector2(map_offset.x + wx * map_zoom, map_offset.y + wy * map_zoom)
+
+func _msv(w: Vector2) -> Vector2:
+	return _ms(w.x, w.y)
+
+# Map-space box covering the screen (plus a margin in screen pixels), for culling.
+func _visible_map_rect(pad_px: float) -> Rect2:
+	if projector != null:
+		return projector.call("visible_rect", pad_px)
+	var inv_z := 1.0 / maxf(map_zoom, 0.0001)
+	return Rect2(Vector2((-map_offset.x - pad_px) * inv_z, (-map_offset.y - pad_px) * inv_z), Vector2((size.x + pad_px * 2.0) * inv_z, (size.y + pad_px * 2.0) * inv_z))
 
 func set_fleets_data(data: Dictionary) -> void:
 	selected_fleet_id = int(data.get("selectedFleetId", -1))
@@ -71,7 +93,7 @@ func _draw() -> void:
 		var screen_pts := PackedVector2Array()
 		var pair_count: int = int(pts.size() / 2)
 		for k in range(pair_count):
-			screen_pts.append(Vector2(map_offset.x + float(pts[k * 2]) * map_zoom, map_offset.y + float(pts[k * 2 + 1]) * map_zoom))
+			screen_pts.append(_ms(float(pts[k * 2]), float(pts[k * 2 + 1])))
 
 		for k in range(screen_pts.size() - 1):
 			draw_line(screen_pts[k], screen_pts[k + 1], ink, 3.6, true)
@@ -98,7 +120,7 @@ func _draw() -> void:
 		if not (bl_item is Dictionary):
 			continue
 		var bl: Dictionary = bl_item
-		var p := Vector2(map_offset.x + float(bl.get("x", 0.0)) * map_zoom, map_offset.y + float(bl.get("y", 0.0)) * map_zoom)
+		var p := _ms(float(bl.get("x", 0.0)), float(bl.get("y", 0.0)))
 		if not bounds.has_point(p):
 			continue
 		var bw := 26.0 * scale_factor
@@ -117,7 +139,7 @@ func _draw() -> void:
 		var fid: int = int(c.get("fleetId", -1))
 		if fid < 0:
 			continue
-		var p := Vector2(map_offset.x + float(c.get("x", 0.0)) * map_zoom, map_offset.y + float(c.get("y", 0.0)) * map_zoom)
+		var p := _ms(float(c.get("x", 0.0)), float(c.get("y", 0.0)))
 		if not bounds.has_point(p):
 			continue
 
@@ -166,7 +188,7 @@ func _draw() -> void:
 		if not (b_item is Dictionary):
 			continue
 		var b: Dictionary = b_item
-		var bp := Vector2(map_offset.x + float(b.get("x", 0.0)) * map_zoom, map_offset.y + float(b.get("y", 0.0)) * map_zoom)
+		var bp := _ms(float(b.get("x", 0.0)), float(b.get("y", 0.0)))
 		if not bounds.has_point(bp):
 			continue
 		var txt := "BAT %s v %s d%d" % [str(b.get("attackerTag", "")), str(b.get("defenderTag", "")), int(b.get("dayCount", 1))]

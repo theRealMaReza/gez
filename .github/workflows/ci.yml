@@ -266,6 +266,11 @@ jobs:
           timeout 300 godot/build/linux/Gez.x86_64 --headless --quit-after 30 2>&1 | tee /tmp/gez-run.log || true
           grep -q "1453 world loaded" /tmp/gez-run.log || { echo "::error::exported Linux game did not load the world"; exit 1; }
           tar -C godot/build/linux -czf godot/build/Gez-Linux-x86_64.tar.gz .
+      - name: Godot script tests (3D map, models, battle view)
+        run: |
+          GODOT_BIN="${RUNNER_TEMP}/godot/Godot_v${GODOT_VERSION}_linux.x86_64"
+          "$GODOT_BIN" --headless --path godot --script res://tests/run_tests.gd 2>&1 | tee /tmp/gd-tests.log
+          grep -q "GDScript tests: .* 0 failed" /tmp/gd-tests.log
       - name: Upload Linux export
         uses: actions/upload-artifact@v4
         with:
@@ -328,7 +333,7 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw "Godot Windows export failed with exit code $LASTEXITCODE" }
           New-Item -ItemType Directory -Force -Path S:\godot\build\windows\Resources\data, S:\godot\build\windows\Resources\Terrain, S:\godot\build\windows\Resources\Heraldry | Out-Null
           Copy-Item -Force S:\Packages\GezCore\Sources\GezCore\Resources\* S:\godot\build\windows\Resources\data\
-          Copy-Item -Force S:\App\Resources\Terrain\terrain.jpg S:\godot\build\windows\Resources\Terrain\
+          Copy-Item -Force S:\App\Resources\Terrain\terrain.jpg, S:\App\Resources\Terrain\height.png S:\godot\build\windows\Resources\Terrain\
           Copy-Item -Force S:\App\Resources\Heraldry\*.png S:\godot\build\windows\Resources\Heraldry\
           Get-ChildItem S:\godot\bin -Filter *.dll | Copy-Item -Force -Destination S:\godot\build\windows\
           # Start the exported game once and check the Swift part loads.

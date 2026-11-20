@@ -12,12 +12,34 @@ func _init() -> void:
 		var mult := 1.0 if (i % 2) == 0 else 0.42
 		_star_unit_pts.append(Vector2(cos(angle) * mult, sin(angle) * mult))
 
-func update_camera(new_zoom: float, new_offset: Vector2) -> void:
-	if is_equal_approx(map_zoom, new_zoom) and map_offset.is_equal_approx(new_offset):
+var projector: RefCounted = null
+var _cam_rev: int = -1
+
+func update_camera(new_zoom: float, new_offset: Vector2, proj: RefCounted = null, rev: int = -1) -> void:
+	if is_equal_approx(map_zoom, new_zoom) and map_offset.is_equal_approx(new_offset) and rev == _cam_rev:
 		return
 	map_zoom = new_zoom
 	map_offset = new_offset
+	if proj != null:
+		projector = proj
+	_cam_rev = rev
 	queue_redraw()
+
+# Map pixel -> screen point through the 3D camera (Phase 17), standing on the terrain.
+func _ms(wx: float, wy: float) -> Vector2:
+	if projector != null:
+		return projector.call("to_screen", Vector2(wx, wy))
+	return Vector2(map_offset.x + wx * map_zoom, map_offset.y + wy * map_zoom)
+
+func _msv(w: Vector2) -> Vector2:
+	return _ms(w.x, w.y)
+
+# Map-space box covering the screen (plus a margin in screen pixels), for culling.
+func _visible_map_rect(pad_px: float) -> Rect2:
+	if projector != null:
+		return projector.call("visible_rect", pad_px)
+	var inv_z := 1.0 / maxf(map_zoom, 0.0001)
+	return Rect2(Vector2((-map_offset.x - pad_px) * inv_z, (-map_offset.y - pad_px) * inv_z), Vector2((size.x + pad_px * 2.0) * inv_z, (size.y + pad_px * 2.0) * inv_z))
 
 func set_icons_data(new_metrics: PackedFloat32Array, new_revision: int) -> void:
 	if new_revision == icons_revision and new_metrics.size() == icon_metrics.size():
@@ -30,11 +52,11 @@ func _draw() -> void:
 	if map_zoom < 0.7 or icon_metrics.is_empty():
 		return
 
-	var inv_z := 1.0 / map_zoom
-	var wx_min := (-map_offset.x - 24.0) * inv_z
-	var wx_max := (-map_offset.x + size.x + 24.0) * inv_z
-	var wy_min := (-map_offset.y - 24.0) * inv_z
-	var wy_max := (-map_offset.y + size.y + 24.0) * inv_z
+	var vis := _visible_map_rect(24.0)
+	var wx_min := vis.position.x
+	var wx_max := vis.end.x
+	var wy_min := vis.position.y
+	var wy_max := vis.end.y
 
 	var ink := Color(0.16, 0.12, 0.08, 1.0)
 	var stone := Color(0.93, 0.88, 0.78, 1.0)
@@ -64,8 +86,9 @@ func _draw() -> void:
 		if dev < min_dev and not is_cap:
 			continue
 
-		var px := map_offset.x + wx * map_zoom
-		var py := map_offset.y + wy * map_zoom
+		var sp := _ms(wx, wy)
+		var px := sp.x
+		var py := sp.y
 		var r := 2.0 + float(dev) * 0.45
 
 		# Town stone base & double-peaked roof

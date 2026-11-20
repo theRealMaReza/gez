@@ -15,13 +15,34 @@ func set_active(active: bool) -> void:
 	if visible and has_data:
 		queue_redraw()
 
-func update_camera(new_zoom: float, new_offset: Vector2) -> void:
-	if is_equal_approx(map_zoom, new_zoom) and map_offset.is_equal_approx(new_offset):
+var projector: RefCounted = null
+var _cam_rev: int = -1
+
+func update_camera(new_zoom: float, new_offset: Vector2, proj: RefCounted = null, rev: int = -1) -> void:
+	if is_equal_approx(map_zoom, new_zoom) and map_offset.is_equal_approx(new_offset) and rev == _cam_rev:
 		return
 	map_zoom = new_zoom
 	map_offset = new_offset
-	if visible and has_data:
-		queue_redraw()
+	if proj != null:
+		projector = proj
+	_cam_rev = rev
+	queue_redraw()
+
+# Map pixel -> screen point through the 3D camera (Phase 17), standing on the terrain.
+func _ms(wx: float, wy: float) -> Vector2:
+	if projector != null:
+		return projector.call("to_screen", Vector2(wx, wy))
+	return Vector2(map_offset.x + wx * map_zoom, map_offset.y + wy * map_zoom)
+
+func _msv(w: Vector2) -> Vector2:
+	return _ms(w.x, w.y)
+
+# Map-space box covering the screen (plus a margin in screen pixels), for culling.
+func _visible_map_rect(pad_px: float) -> Rect2:
+	if projector != null:
+		return projector.call("visible_rect", pad_px)
+	var inv_z := 1.0 / maxf(map_zoom, 0.0001)
+	return Rect2(Vector2((-map_offset.x - pad_px) * inv_z, (-map_offset.y - pad_px) * inv_z), Vector2((size.x + pad_px * 2.0) * inv_z, (size.y + pad_px * 2.0) * inv_z))
 
 func set_routes_data(data: Dictionary) -> void:
 	var sig: String = str(data.get("signature", ""))
@@ -37,7 +58,7 @@ func set_routes_data(data: Dictionary) -> void:
 		queue_redraw()
 
 func _world_to_screen(wx: float, wy: float) -> Vector2:
-	return Vector2(map_offset.x + wx * map_zoom, map_offset.y + wy * map_zoom)
+	return _ms(wx, wy)
 
 func _draw() -> void:
 	if not visible or map_zoom <= 0.0:

@@ -21,12 +21,34 @@ var _cached_mode: String = ""
 var _cached_sea: Array = []
 var _cached_main: Array = []
 
-func update_camera(new_zoom: float, new_offset: Vector2) -> void:
-	if is_equal_approx(map_zoom, new_zoom) and map_offset.is_equal_approx(new_offset):
+var projector: RefCounted = null
+var _cam_rev: int = -1
+
+func update_camera(new_zoom: float, new_offset: Vector2, proj: RefCounted = null, rev: int = -1) -> void:
+	if is_equal_approx(map_zoom, new_zoom) and map_offset.is_equal_approx(new_offset) and rev == _cam_rev:
 		return
 	map_zoom = new_zoom
 	map_offset = new_offset
+	if proj != null:
+		projector = proj
+	_cam_rev = rev
 	queue_redraw()
+
+# Map pixel -> screen point through the 3D camera (Phase 17), standing on the terrain.
+func _ms(wx: float, wy: float) -> Vector2:
+	if projector != null:
+		return projector.call("to_screen", Vector2(wx, wy))
+	return Vector2(map_offset.x + wx * map_zoom, map_offset.y + wy * map_zoom)
+
+func _msv(w: Vector2) -> Vector2:
+	return _ms(w.x, w.y)
+
+# Map-space box covering the screen (plus a margin in screen pixels), for culling.
+func _visible_map_rect(pad_px: float) -> Rect2:
+	if projector != null:
+		return projector.call("visible_rect", pad_px)
+	var inv_z := 1.0 / maxf(map_zoom, 0.0001)
+	return Rect2(Vector2((-map_offset.x - pad_px) * inv_z, (-map_offset.y - pad_px) * inv_z), Vector2((size.x + pad_px * 2.0) * inv_z, (size.y + pad_px * 2.0) * inv_z))
 
 func set_map_mode(mode_key: String) -> void:
 	if map_mode == mode_key:
@@ -156,11 +178,7 @@ func _draw() -> void:
 
 	_rebuild_cache_if_needed()
 
-	var inv_z := 1.0 / map_zoom
-	var vis_world := Rect2(
-		Vector2((-map_offset.x - 160.0) * inv_z, (-map_offset.y - 60.0) * inv_z),
-		Vector2((size.x + 320.0) * inv_z, (size.y + 120.0) * inv_z)
-	)
+	var vis_world := _visible_map_rect(160.0)
 
 	var sea_col := Color(0.86, 0.93, 0.97, 0.82)
 	var sea_shadow := Color(0.10, 0.18, 0.24, 0.65)
@@ -168,8 +186,9 @@ func _draw() -> void:
 		var wr: Rect2 = entry[5]
 		if not vis_world.intersects(wr):
 			continue
-		var sx := map_offset.x + float(entry[0]) * map_zoom
-		var sy := map_offset.y + float(entry[1]) * map_zoom
+		var sp := _ms(float(entry[0]), float(entry[1]))
+		var sx := sp.x
+		var sy := sp.y
 		var w_scr: float = entry[2]
 		var fsize: int = entry[3]
 		var txt: String = entry[4]
@@ -183,8 +202,9 @@ func _draw() -> void:
 		var wr: Rect2 = entry[5]
 		if not vis_world.intersects(wr):
 			continue
-		var sx := map_offset.x + float(entry[0]) * map_zoom
-		var sy := map_offset.y + float(entry[1]) * map_zoom
+		var sp := _ms(float(entry[0]), float(entry[1]))
+		var sx := sp.x
+		var sy := sp.y
 		var w_scr: float = entry[2]
 		var fsize: int = entry[3]
 		var txt: String = entry[4]

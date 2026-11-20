@@ -1,26 +1,43 @@
-shader_type canvas_item;
+shader_type spatial;
+render_mode unshaded, cull_disabled, depth_draw_opaque;
 
-// Direct port of App/Shared/Map/Metal/MapShaders.metal to Godot 4.7 shading language.
-// Every screen pixel works out which map pixel it shows, then combines:
-//   terrain texture (baked: elevation shading, biomes, rivers, sea depth)
-//   + map-mode tint for the province's owner/state/religion/...
-//   + borders (province faint, state medium, country strong band)
-//   + animated water, selection glow, paper grain and vignette.
+// Phase 17: the 3D map. The same look as the old 2D map shader (terrain picture,
+// map-mode tint, borders, water, selection, paper grain), painted onto a
+// terrain mesh lifted by the elevation data. Borders are measured in screen
+// pixels through screen-space derivatives, so they keep the same width when
+// the camera tilts.
+//
+// Colours are worked out in sRGB like the 2D shader and converted to linear
+// at the very end when the renderer needs it, so the straight-down view looks
+// exactly as before.
 
-uniform vec2 view_size = vec2(1400.0, 860.0);
-uniform vec2 offset = vec2(0.0, 0.0);
+uniform vec2 map_size = vec2(3936.0, 2384.0);
 uniform float zoom = 1.0;
 uniform float time_sec = 0.0;
-uniform vec2 map_size = vec2(3936.0, 2384.0);
 uniform int selected = 0;
 uniform float tint = 0.65;
 uniform int mode = 0;
 uniform int selected_sea = 0;
+uniform float height_max = 34.0;
+uniform float relief_light = 0.0;   // 0 = flat look (top-down), up to ~0.5 tilted
 
 uniform sampler2D id_tex : filter_nearest, repeat_disable;
 uniform sampler2D terrain_tex : filter_linear, repeat_disable;
 uniform sampler2D sea_tex : filter_nearest, repeat_disable;
 uniform sampler2D style_tex : filter_nearest, repeat_disable;
+uniform sampler2D height_tex : filter_linear, repeat_disable;
+
+varying vec2 map_uv;
+
+float height_from_tex(vec2 uv) {
+	float v = textureLod(height_tex, uv, 0.0).r;
+	return v * v * height_max;
+}
+
+void vertex() {
+	map_uv = VERTEX.xz / map_size;
+	VERTEX.y = height_from_tex(clamp(map_uv, vec2(0.0), vec2(1.0)));
+}
 
 int id_at(sampler2D tex, vec2 m, vec2 size) {
 	if (m.x < 0.0 || m.y < 0.0 || m.x >= size.x || m.y >= size.y) {
@@ -67,15 +84,19 @@ float luminance(vec3 c) {
 	return dot(c, vec3(0.299, 0.587, 0.114));
 }
 
-void fragment() {
-	vec2 screen = UV * view_size;
-	vec2 m = (screen - offset) / zoom;
-	vec2 map_uv = m / map_size;
-	float px_per_screen = 1.0 / zoom;
+vec3 srgb_to_linear(vec3 c) {
+	return mix(c / 12.92, pow((c + 0.055) / 1.055, vec3(2.4)), step(vec3(0.04045), c));
+}
 
-	// Outside the map: deep sea.
+void fragment() {
+	vec2 screen = FRAGCOORD.xy;
+	vec2 m = map_uv * map_size;
+	// Map pixels per screen pixel here (bigger far away when tilted).
+	float px_per_screen = max(max(length(dFdx(m)), length(dFdy(m))), 0.02);
+
+	vec3 color;
 	if (m.x < 0.0 || m.y < 0.0 || m.x >= map_size.x || m.y >= map_size.y) {
-		COLOR = vec4(0.16, 0.25, 0.33, 1.0);
+		color = vec3(0.16, 0.25, 0.33);
 	} else {
 		int id = id_at(id_tex, m, map_size);
 		vec3 base = texture(terrain_tex, map_uv).rgb;
@@ -84,9 +105,7 @@ void fragment() {
 		int s_owner = s_keys.x;
 		int s_state = s_keys.y;
 
-		vec3 color;
 		if (id == 0) {
-			// Water: baked depth colour plus gentle moving waves and coast foam.
 			float t = time_sec;
 			float w = noise2(m * 0.08 + vec2(t * 0.15, t * 0.07)) * 0.6
 				+ noise2(m * 0.21 - vec2(t * 0.1, 0.0)) * 0.4;
@@ -101,7 +120,6 @@ void fragment() {
 			}
 			color = mix(color, vec3(0.82, 0.86, 0.80), coast * 0.35);
 
-			// Faint dotted lines between sea zones.
 			int zone = id_at(sea_tex, m, map_size);
 			if (zone != 0) {
 				float r = 1.2 * px_per_screen;
@@ -117,7 +135,6 @@ void fragment() {
 				}
 			}
 		} else {
-			// Land: terrain with the map-mode colour laid over it.
 			color = base;
 			if (s_color.a > 0.0) {
 				float lum = luminance(base);
@@ -125,13 +142,11 @@ void fragment() {
 				color = mix(base, tinted, tint * s_color.a);
 			}
 			if (s_owner == -3) {
-				// Wasteland: darker, faded, faint diagonal hatching.
 				color = mix(color, vec3(luminance(color)), 0.5) * 0.78;
 				float hatch = step(0.85, fract((m.x + m.y) * 0.12));
 				color *= 1.0 - hatch * 0.12;
 			}
 
-			// Borders. Distances are in screen pixels so lines stay the same width at every zoom.
 			float country_edge = 0.0;
 			float state_edge = 0.0;
 			float province_edge = 0.0;
@@ -161,8 +176,6 @@ void fragment() {
 			bool show_owners = (mode == 0) && (s_owner >= 0);
 			vec3 edge_color = vec3(0.12, 0.10, 0.08);
 			if (show_owners) {
-				// Coloured band just inside the country edge, and the edge line
-				// itself in a deep shade of the country's own colour.
 				vec3 band = s_color.rgb * (0.55 + 0.5 * luminance(base));
 				color = mix(color, band, smoothstep(0.1, 0.7, country_edge) * 0.5);
 				edge_color = s_color.rgb * 0.35;
@@ -172,6 +185,21 @@ void fragment() {
 			float province_alpha = clamp((zoom - 0.25) * 1.0, 0.0, 0.4);
 			color = mix(color, color * 0.75, province_edge * province_alpha);
 
+			// Relief light from the real slope (only when tilted; the baked
+			// terrain picture already has north-west hill shading).
+			if (relief_light > 0.0) {
+				vec2 texel = 1.0 / vec2(textureSize(height_tex, 0));
+				vec2 world_per_texel = map_size * texel;
+				float hl = height_from_tex(map_uv - vec2(texel.x, 0.0));
+				float hr = height_from_tex(map_uv + vec2(texel.x, 0.0));
+				float hu = height_from_tex(map_uv - vec2(0.0, texel.y));
+				float hd = height_from_tex(map_uv + vec2(0.0, texel.y));
+				vec3 n = normalize(vec3((hl - hr) / (2.0 * world_per_texel.x), 1.0, (hu - hd) / (2.0 * world_per_texel.y)));
+				vec3 light_dir = normalize(vec3(-0.55, 0.75, -0.45));
+				float lambert = dot(n, light_dir) / light_dir.y;
+				color *= mix(1.0, clamp(lambert, 0.45, 1.35), relief_light);
+			}
+
 			if (id == selected && selected != 0) {
 				float pulse = 0.5 + 0.5 * sin(time_sec * 3.0);
 				color = mix(color, vec3(1.0, 0.97, 0.85), 0.18 + 0.08 * pulse);
@@ -180,12 +208,14 @@ void fragment() {
 				}
 			}
 		}
-
-		// Paper grain and a soft vignette tie the look together.
-		float grain = hash2(floor(screen)) * 0.035 - 0.0175;
-		color += grain;
-		vec2 q = screen / view_size - 0.5;
-		color *= 1.0 - dot(q, q) * 0.35;
-		COLOR = vec4(clamp(color, 0.0, 1.0), 1.0);
 	}
+
+	float grain = hash2(floor(screen)) * 0.035 - 0.0175;
+	color += grain;
+	vec2 q = screen / VIEWPORT_SIZE - 0.5;
+	color *= 1.0 - dot(q, q) * 0.35;
+	color = clamp(color, 0.0, 1.0);
+	// Forward+ (Mac, Windows) works in linear light; Compatibility (CI
+	// screenshots, old GPUs) writes sRGB directly.
+	ALBEDO = OUTPUT_IS_SRGB ? color : srgb_to_linear(color);
 }

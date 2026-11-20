@@ -8,12 +8,34 @@ var counters: Array = []
 var routes: Array = []
 var counter_hit_boxes: Array = []
 
-func update_camera(new_zoom: float, new_offset: Vector2) -> void:
-	if is_equal_approx(map_zoom, new_zoom) and map_offset.is_equal_approx(new_offset):
+var projector: RefCounted = null
+var _cam_rev: int = -1
+
+func update_camera(new_zoom: float, new_offset: Vector2, proj: RefCounted = null, rev: int = -1) -> void:
+	if is_equal_approx(map_zoom, new_zoom) and map_offset.is_equal_approx(new_offset) and rev == _cam_rev:
 		return
 	map_zoom = new_zoom
 	map_offset = new_offset
+	if proj != null:
+		projector = proj
+	_cam_rev = rev
 	queue_redraw()
+
+# Map pixel -> screen point through the 3D camera (Phase 17), standing on the terrain.
+func _ms(wx: float, wy: float) -> Vector2:
+	if projector != null:
+		return projector.call("to_screen", Vector2(wx, wy))
+	return Vector2(map_offset.x + wx * map_zoom, map_offset.y + wy * map_zoom)
+
+func _msv(w: Vector2) -> Vector2:
+	return _ms(w.x, w.y)
+
+# Map-space box covering the screen (plus a margin in screen pixels), for culling.
+func _visible_map_rect(pad_px: float) -> Rect2:
+	if projector != null:
+		return projector.call("visible_rect", pad_px)
+	var inv_z := 1.0 / maxf(map_zoom, 0.0001)
+	return Rect2(Vector2((-map_offset.x - pad_px) * inv_z, (-map_offset.y - pad_px) * inv_z), Vector2((size.x + pad_px * 2.0) * inv_z, (size.y + pad_px * 2.0) * inv_z))
 
 func set_armies_data(data: Dictionary) -> void:
 	selected_army_id = int(data.get("selectedArmyId", -1))
@@ -70,7 +92,7 @@ func _draw() -> void:
 		for k in range(pair_count):
 			var px: float = float(pts[k * 2])
 			var py: float = float(pts[k * 2 + 1])
-			screen_pts.append(Vector2(map_offset.x + px * map_zoom, map_offset.y + py * map_zoom))
+			screen_pts.append(_ms(px, py))
 
 		for k in range(screen_pts.size() - 1):
 			var a: Vector2 = screen_pts[k]
@@ -108,7 +130,7 @@ func _draw() -> void:
 		var stack_idx: int = int(c_dict.get("stackIndex", 0))
 		var stack_cnt: int = int(c_dict.get("stackCount", 1))
 
-		var base_p := Vector2(map_offset.x + mx * map_zoom, map_offset.y + my * map_zoom)
+		var base_p := _ms(mx, my)
 		var spread_x: float = (float(stack_idx) - float(stack_cnt - 1) * 0.5) * (34.0 * scale_factor)
 		var spread_y: float = 12.0 * scale_factor + float(stack_idx % 2) * (5.0 * scale_factor)
 		var p := Vector2(base_p.x + spread_x, base_p.y + spread_y)

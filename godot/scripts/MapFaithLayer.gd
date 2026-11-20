@@ -5,13 +5,34 @@ var map_offset: Vector2 = Vector2.ZERO
 var current_mode: String = "political"
 var overlay_data: Dictionary = {}
 
-func update_camera(new_zoom: float, new_offset: Vector2) -> void:
-	if is_equal_approx(map_zoom, new_zoom) and map_offset.is_equal_approx(new_offset):
+var projector: RefCounted = null
+var _cam_rev: int = -1
+
+func update_camera(new_zoom: float, new_offset: Vector2, proj: RefCounted = null, rev: int = -1) -> void:
+	if is_equal_approx(map_zoom, new_zoom) and map_offset.is_equal_approx(new_offset) and rev == _cam_rev:
 		return
 	map_zoom = new_zoom
 	map_offset = new_offset
-	if visible:
-		queue_redraw()
+	if proj != null:
+		projector = proj
+	_cam_rev = rev
+	queue_redraw()
+
+# Map pixel -> screen point through the 3D camera (Phase 17), standing on the terrain.
+func _ms(wx: float, wy: float) -> Vector2:
+	if projector != null:
+		return projector.call("to_screen", Vector2(wx, wy))
+	return Vector2(map_offset.x + wx * map_zoom, map_offset.y + wy * map_zoom)
+
+func _msv(w: Vector2) -> Vector2:
+	return _ms(w.x, w.y)
+
+# Map-space box covering the screen (plus a margin in screen pixels), for culling.
+func _visible_map_rect(pad_px: float) -> Rect2:
+	if projector != null:
+		return projector.call("visible_rect", pad_px)
+	var inv_z := 1.0 / maxf(map_zoom, 0.0001)
+	return Rect2(Vector2((-map_offset.x - pad_px) * inv_z, (-map_offset.y - pad_px) * inv_z), Vector2((size.x + pad_px * 2.0) * inv_z, (size.y + pad_px * 2.0) * inv_z))
 
 func set_overlay_data(mode: String, data: Dictionary) -> void:
 	current_mode = mode
@@ -34,7 +55,7 @@ func _draw() -> void:
 		for hs_v in overlay_data.get("holySites", []):
 			if hs_v is Dictionary:
 				var hs: Dictionary = hs_v
-				var pt := map_offset + Vector2(float(hs.get("x", 0.0)), float(hs.get("y", 0.0))) * map_zoom
+				var pt := _msv(Vector2(float(hs.get("x", 0.0)), float(hs.get("y", 0.0))))
 				if pt.x < -30.0 or pt.x > size.x + 30.0 or pt.y < -30.0 or pt.y > size.y + 30.0:
 					continue
 				var is_held := bool(hs.get("isHeldByPlayer", false))
@@ -62,7 +83,7 @@ func _draw() -> void:
 		for m_v in overlay_data.get("missionaries", []):
 			if m_v is Dictionary:
 				var m: Dictionary = m_v
-				var pt := map_offset + Vector2(float(m.get("x", 0.0)), float(m.get("y", 0.0))) * map_zoom
+				var pt := _msv(Vector2(float(m.get("x", 0.0)), float(m.get("y", 0.0))))
 				if pt.x < -20.0 or pt.x > size.x + 20.0 or pt.y < -20.0 or pt.y > size.y + 20.0:
 					continue
 				var m_col := Color(0.35, 0.92, 0.98, 0.96) if bool(m.get("isPlayer", false)) else Color(0.95, 0.70, 0.35, 0.82)
@@ -75,7 +96,7 @@ func _draw() -> void:
 		for rc_v in overlay_data.get("centres", []):
 			if rc_v is Dictionary:
 				var rc: Dictionary = rc_v
-				var pt := map_offset + Vector2(float(rc.get("x", 0.0)), float(rc.get("y", 0.0))) * map_zoom
+				var pt := _msv(Vector2(float(rc.get("x", 0.0)), float(rc.get("y", 0.0))))
 				if pt.x < -40.0 or pt.x > size.x + 40.0 or pt.y < -40.0 or pt.y > size.y + 40.0:
 					continue
 				var rc_col := Color(
@@ -102,7 +123,7 @@ func _draw() -> void:
 					continue
 				if mig_drawn >= max_mig:
 					break
-				var pt := map_offset + Vector2(float(mig.get("x", 0.0)), float(mig.get("y", 0.0))) * map_zoom
+				var pt := _msv(Vector2(float(mig.get("x", 0.0)), float(mig.get("y", 0.0))))
 				if pt.x < -30.0 or pt.x > size.x + 30.0 or pt.y < -30.0 or pt.y > size.y + 30.0:
 					continue
 				mig_drawn += 1

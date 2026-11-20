@@ -1,6 +1,7 @@
 extends Control
 
-const MapShader := preload("res://shaders/map.gdshader")
+const Map3DScript := preload("res://scripts/Map3D.gd")
+const MapProjectorScript := preload("res://scripts/MapProjector.gd")
 const IconsLayerScript := preload("res://scripts/MapIconsLayer.gd")
 const LabelsLayerScript := preload("res://scripts/MapLabelsLayer.gd")
 const ArmiesLayerScript := preload("res://scripts/MapArmiesLayer.gd")
@@ -40,7 +41,9 @@ var menu_ui_val_lbl: Label
 var menu_fx_val_lbl: Label
 var menu_amb_val_lbl: Label
 
-var map_rect: ColorRect
+var map3d: Node3D
+var projector: RefCounted = MapProjectorScript.new()
+var view_pitch: float = 90.0  # shown camera tilt (eases towards the zoom's pitch)
 var map_material: ShaderMaterial
 var icons_layer: Control
 var labels_layer: Control
@@ -275,15 +278,10 @@ func bind_tip_data(ctrl: Control, data: Dictionary) -> void:
 	TooltipManagerScript.bind_data(ctrl, data)
 
 func _build_scene_ui() -> void:
-	# 1. Fullscreen shaded map ColorRect
-	map_rect = ColorRect.new()
-	map_rect.name = "MapRect"
-	map_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
-	map_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	map_material = ShaderMaterial.new()
-	map_material.shader = MapShader
-	map_rect.material = map_material
-	add_child(map_rect)
+	# 1. The 3D map (Phase 17): terrain mesh + camera; drawn under every 2D layer.
+	map3d = Map3DScript.new()
+	add_child(map3d)
+	map_material = map3d.terrain_material
 
 	# 1b. Town icons layer (towns, capitals, forts, ports — redrawn only on camera or icon change)
 	icons_layer = Control.new()
@@ -1455,6 +1453,15 @@ func _init_bridge_and_map() -> void:
 		if terrain_img != null:
 			terrain_tex = ImageTexture.create_from_image(terrain_img)
 
+	map3d.call("set_map_size", map_size)
+	projector.set("map_size", map_size)
+	var height_path := _find_asset_file("Terrain/height.png", "res://../App/Resources/Terrain/height.png")
+	if not height_path.is_empty():
+		var height_img := Image.load_from_file(height_path)
+		if height_img != null:
+			height_img.convert(Image.FORMAT_L8)
+			projector.call("set_height_image", height_img)
+			map3d.call("set_height_texture", ImageTexture.create_from_image(height_img))
 	map_material.set_shader_parameter("map_size", map_size)
 	map_material.set_shader_parameter("id_tex", id_tex)
 	map_material.set_shader_parameter("sea_tex", sea_tex)
@@ -1502,6 +1509,12 @@ func _refresh_all_labels() -> void:
 func _process(delta: float) -> void:
 	elapsed_time += delta
 	map_material.set_shader_parameter("time_sec", elapsed_time)
+	# Ease the camera tilt towards the pitch for the current zoom.
+	if zoom > 0.0:
+		var want_pitch := _target_pitch()
+		if absf(want_pitch - view_pitch) > 0.05:
+			view_pitch = lerpf(view_pitch, want_pitch, clampf(delta * 7.0, 0.0, 1.0))
+			_sync_camera_uniforms()
 	var cur_fps := int(Engine.get_frames_per_second())
 	if cur_fps != _last_fps:
 		_last_fps = cur_fps
@@ -2976,11 +2989,21 @@ func _reset_to_start_camera() -> void:
 	var x := size.x * 0.5 - focus.x * zoom
 	var y := size.y * 0.5 - focus.y * zoom
 	offset = _clamped_offset(Vector2(x, y), zoom)
+	view_pitch = _target_pitch()
 	_sync_camera_uniforms()
 
 func _show_whole_map() -> void:
 	zoom = _fit_zoom()
 	offset = _clamped_offset(Vector2.ZERO, zoom)
+	view_pitch = _target_pitch()
+	_sync_camera_uniforms()
+
+# Jump the camera to a map point at a zoom, with the tilt already settled
+# (screenshots and "go to" buttons).
+func focus_map_point(map_pt: Vector2, new_zoom: float) -> void:
+	zoom = clampf(new_zoom, _min_zoom(), _max_zoom())
+	offset = _clamped_offset(Vector2(size.x * 0.5 - map_pt.x * zoom, size.y * 0.5 - map_pt.y * zoom), zoom)
+	view_pitch = _target_pitch()
 	_sync_camera_uniforms()
 
 func _clamped_offset(o: Vector2, z: float) -> Vector2:
@@ -3008,16 +3031,37 @@ func _zoom_by(factor: float, anchor: Vector2) -> void:
 		anchor.x - (anchor.x - offset.x) * ratio,
 		anchor.y - (anchor.y - offset.y) * ratio
 	)
+	var before: Vector2 = screen_to_map(anchor)
 	zoom = new_zoom
 	offset = _clamped_offset(new_offset, new_zoom)
 	_sync_camera_uniforms()
+	# With the camera tilted, keep the map point under the cursor in place.
+	if view_pitch < 89.9:
+		var after: Vector2 = screen_to_map(anchor)
+		offset = _clamped_offset(offset + (after - before) * zoom, zoom)
+		_sync_camera_uniforms()
+
+# Tilt for the current zoom (straight down when zoomed out).
+func _target_pitch() -> float:
+	return float(MapProjectorScript.pitch_for_zoom(zoom, _fit_zoom(), _max_zoom()))
+
+# Screen point -> map pixel, through the 3D camera and the terrain.
+func screen_to_map(screen_pos: Vector2) -> Vector2:
+	if zoom <= 0.0:
+		return Vector2.ZERO
+	return projector.call("to_map", screen_pos)
+
+# Map pixel -> screen point, standing on the terrain.
+func map_to_screen(map_pt: Vector2) -> Vector2:
+	return projector.call("to_screen", map_pt)
 
 func _sync_camera_uniforms() -> void:
 	if map_material == null:
 		return
-	map_material.set_shader_parameter("view_size", size)
-	map_material.set_shader_parameter("offset", offset)
 	map_material.set_shader_parameter("zoom", zoom)
+	projector.call("update", size, zoom, offset, view_pitch)
+	map3d.call("apply_projector", projector)
+	var cam_rev: int = int(projector.get("revision"))
 	var default_tint := clampf(0.72 - 0.2 * zoom, 0.38, 0.66)
 	var tint: float = float(_call_bridge("getTintForZoom", [zoom], default_tint))
 	map_material.set_shader_parameter("tint", tint)
@@ -3035,21 +3079,21 @@ func _sync_camera_uniforms() -> void:
 					float(amb.get("windWeight", 0.45)),
 					float(amb.get("cityWeight", 0.0)))
 	if icons_layer != null:
-		icons_layer.call("update_camera", zoom, offset)
+		icons_layer.call("update_camera", zoom, offset, projector, cam_rev)
 	if labels_layer != null:
-		labels_layer.call("update_camera", zoom, offset)
+		labels_layer.call("update_camera", zoom, offset, projector, cam_rev)
 	if armies_layer != null:
-		armies_layer.call("update_camera", zoom, offset)
+		armies_layer.call("update_camera", zoom, offset, projector, cam_rev)
 	if fleets_layer != null:
-		fleets_layer.call("update_camera", zoom, offset)
+		fleets_layer.call("update_camera", zoom, offset, projector, cam_rev)
 	if routes_layer != null:
-		routes_layer.call("update_camera", zoom, offset)
+		routes_layer.call("update_camera", zoom, offset, projector, cam_rev)
 	if faith_layer != null:
-		faith_layer.call("update_camera", zoom, offset)
+		faith_layer.call("update_camera", zoom, offset, projector, cam_rev)
 	if calamity_layer != null:
-		calamity_layer.call("update_camera", zoom, offset)
+		calamity_layer.call("update_camera", zoom, offset, projector, cam_rev)
 	if tech_layer != null:
-		tech_layer.call("update_camera", zoom, offset)
+		tech_layer.call("update_camera", zoom, offset, projector, cam_rev)
 
 func _on_viewport_resized() -> void:
 	if zoom <= 0.0:
@@ -3168,8 +3212,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		if event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
 			var sel_army: int = int(_call_bridge("getSelectedArmyId", [], -1))
 			if sel_army >= 0 and zoom > 0.0:
-				var r_map_x := int(floor((event.position.x - offset.x) / zoom))
-				var r_map_y := int(floor((event.position.y - offset.y) / zoom))
+				var r_map: Vector2 = screen_to_map(event.position)
+				var r_map_x := int(floor(r_map.x))
+				var r_map_y := int(floor(r_map.y))
 				if bool(_call_bridge("orderArmyMoveAt", [sel_army, r_map_x, r_map_y], false)):
 					play_sfx("march_boots")
 					_after_army_action()
@@ -3219,8 +3264,9 @@ func _unhandled_input(event: InputEvent) -> void:
 func _handle_map_click(screen_pos: Vector2) -> void:
 	if bridge == null or zoom <= 0.0:
 		return
-	var map_x := int(floor((screen_pos.x - offset.x) / zoom))
-	var map_y := int(floor((screen_pos.y - offset.y) / zoom))
+	var click_map: Vector2 = screen_to_map(screen_pos)
+	var map_x := int(floor(click_map.x))
+	var map_y := int(floor(click_map.y))
 
 	# 1. If an army or fleet is in Move target-picking mode, clicking a province/sea orders a move there.
 	var move_army_id: int = int(_call_bridge("getMoveModeArmyId", [], -1))
@@ -3406,7 +3452,7 @@ func _refresh_calamity_overlay() -> void:
 			var data_v: Variant = _call_bridge("getCalamityOverlayData", [], {})
 			var data: Dictionary = data_v if data_v is Dictionary else {}
 			calamity_layer.call("set_overlay_data", current_map_mode, data)
-			calamity_layer.call("update_camera", zoom, offset)
+			calamity_layer.call("update_camera", zoom, offset, projector, int(projector.get("revision")))
 		else:
 			calamity_layer.call("set_overlay_data", current_map_mode, {})
 	if tech_layer != null and bridge != null:
@@ -3414,7 +3460,7 @@ func _refresh_calamity_overlay() -> void:
 			var td_v: Variant = _call_bridge("getTechOverlayData", [], {})
 			var td: Dictionary = td_v if td_v is Dictionary else {}
 			tech_layer.call("set_overlay_data", current_map_mode, td)
-			tech_layer.call("update_camera", zoom, offset)
+			tech_layer.call("update_camera", zoom, offset, projector, int(projector.get("revision")))
 		else:
 			tech_layer.call("set_overlay_data", current_map_mode, {})
 
@@ -3426,7 +3472,7 @@ func _refresh_faith_overlay() -> void:
 		var data_v: Variant = _call_bridge("getFaithOverlayData", [], {})
 		var data: Dictionary = data_v if data_v is Dictionary else {}
 		faith_layer.call("set_overlay_data", current_map_mode, data)
-		faith_layer.call("update_camera", zoom, offset)
+		faith_layer.call("update_camera", zoom, offset, projector, int(projector.get("revision")))
 	else:
 		faith_layer.call("set_overlay_data", current_map_mode, {})
 

@@ -107,6 +107,19 @@ func _run_captures() -> void:
 			(mode_btns[mode_key] as Button).emit_signal("pressed")
 			await _save_shot("godot_map_%s.png" % mode_key)
 
+	# Phase 17: the 3D map, tilted as you zoom in (political mode).
+	if mode_btns.has("political"):
+		(mode_btns["political"] as Button).emit_signal("pressed")
+	var bosporus: Vector2 = bridge.call("getFocusPoint", 41.0, 29.0)
+	root_node.call("focus_map_point", bosporus, 3.0)
+	await _save_shot("godot_map_3d_balkans.png")
+	var alps: Vector2 = bridge.call("getFocusPoint", 46.5, 9.5)
+	root_node.call("focus_map_point", alps, 6.5)
+	await _save_shot("godot_map_3d_alps.png")
+	var caucasus: Vector2 = bridge.call("getFocusPoint", 42.5, 44.0)
+	root_node.call("focus_map_point", caucasus, 4.0)
+	await _save_shot("godot_map_3d_caucasus.png")
+
 	# Phase 9 Battle & Siege Assault Snapshots:
 	# Start a fresh Ottoman game and march the Imperial Army to Kruje (660) to engage Albania.
 	bridge.call("startNewGame", "TUR")
