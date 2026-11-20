@@ -217,9 +217,12 @@ public enum FinanceSystem {
                 world.countries.debasing[c] = false
             }
             if world.countries.debasing[c] {
-                world.countries.treasury[c] += world.countries.lastMonthlyIncome[c] * Finance.debaseOngoingIncome
+                let debase = world.countries.lastMonthlyIncome[c] * Finance.debaseOngoingIncome
+                world.countries.treasury[c] += debase
+                world.countries.lastDebaseIncome[c] = debase
                 world.countries.inflation[c] += Finance.debaseOngoingInflation
             } else {
+                world.countries.lastDebaseIncome[c] = 0
                 let decay = Finance.inflationDecay + world.government.modifier(CountryID(c), .inflationDecay)
                 world.countries.inflation[c] = max(0, world.countries.inflation[c] - decay)
             }

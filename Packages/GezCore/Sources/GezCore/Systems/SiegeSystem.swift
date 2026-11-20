@@ -189,17 +189,23 @@ public enum SiegeSystem {
 
     // MARK: - Siege Phase Roll
 
-    private static func resolveSiegePhase(
-        _ world: inout World,
-        siege: inout Siege,
-        hostileArmies: [ArmyID],
-        fortLevel: Int,
-        random: inout GameRandom
-    ) {
-        let pid = siege.province
-        let p = pid.index
+    public struct PhaseModifiers: Sendable, Equatable {
+        public let artilleryBonus: Int
+        public let commanderBonus: Int
+        public let breachBonus: Int
+        public let coastalPenalty: Int
+        public let fortLevelPenalty: Int
+        public let clampDelta: Int
+        public let effectiveModifier: Int
+    }
 
-        // Compute modifiers
+    public static func phaseModifiers(
+        _ world: World,
+        siege: Siege,
+        hostileArmies: [ArmyID],
+        fortLevel: Int
+    ) -> PhaseModifiers {
+        let p = siege.province.index
         var artRegiments = 0
         var bestMartial = 0
         for aid in hostileArmies {
@@ -219,7 +225,32 @@ public enum SiegeSystem {
         let coastalPenalty = (world.provinces.isCoastal[p] && !siege.blockaded) ? -2 : 0
         let fortPenalty = -fortLevel
 
-        let modifier = max(-7, artBonus + cmdBonus + breachBonus + coastalPenalty + fortPenalty)
+        let raw = artBonus + cmdBonus + breachBonus + coastalPenalty + fortPenalty
+        let effective = max(-7, raw)
+        return PhaseModifiers(
+            artilleryBonus: artBonus,
+            commanderBonus: cmdBonus,
+            breachBonus: breachBonus,
+            coastalPenalty: coastalPenalty,
+            fortLevelPenalty: fortPenalty,
+            clampDelta: effective - raw,
+            effectiveModifier: effective
+        )
+    }
+
+    private static func resolveSiegePhase(
+        _ world: inout World,
+        siege: inout Siege,
+        hostileArmies: [ArmyID],
+        fortLevel: Int,
+        random: inout GameRandom
+    ) {
+        let pid = siege.province
+        let p = pid.index
+
+        let mods = phaseModifiers(world, siege: siege, hostileArmies: hostileArmies, fortLevel: fortLevel)
+        let artBonus = mods.artilleryBonus
+        let modifier = mods.effectiveModifier
         let roll = Int.random(in: 1...14, using: &random)
         siege.lastRoll = roll
         siege.lastModifier = modifier

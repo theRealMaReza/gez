@@ -66,9 +66,19 @@ public enum NavySystem {
 
     /// Computes national maximum sailors from owned coastal provinces' peasant
     /// and burgher populations plus Shipyard / Docks bonuses.
-    public static func calculateMaxSailors(_ world: World, _ country: CountryID) -> Double {
+    public struct SailorComponents: Sendable, Equatable {
+        public let hasCoast: Bool
+        public let coastalPopBase: Double
+        public let dockBonus: Double
+        public let floorDelta: Double
+        public let maxSailors: Double
+    }
+
+    public static func sailorComponents(_ world: World, _ country: CountryID) -> SailorComponents {
         let owned = world.provinces(ownedBy: country)
-        guard !owned.isEmpty else { return 0 }
+        guard !owned.isEmpty else {
+            return SailorComponents(hasCoast: false, coastalPopBase: 0, dockBonus: 0, floorDelta: 0, maxSailors: 0)
+        }
 
         var coastalWorkforce = 0.0
         var dockBonus = 0.0
@@ -83,18 +93,15 @@ public enum NavySystem {
                 continue
             }
             hasCoast = true
-            // Count coastal peasant & burgher pops directly from PopTable.
             let range = world.pops.range(for: pid)
             var provMaritimePop = 0.0
             for k in range {
                 let cls = world.pops.socialClass[k]
                 if cls == .peasants || cls == .burghers {
-                    // Coastal burghers provide slightly higher seafaring share.
                     let weight = (cls == .burghers) ? 1.5 : 1.0
                     provMaritimePop += world.pops.size[k] * weight
                 }
             }
-            // Fallback for synthetic test worlds that set province.population without PopTable entries.
             if range.isEmpty {
                 provMaritimePop = world.provinces.population[p]
             }
@@ -110,9 +117,23 @@ public enum NavySystem {
             }
         }
 
-        guard hasCoast else { return 0 }
-        let base = coastalWorkforce * NavyModel.sailorCoastalPopShare + dockBonus
-        return max(200.0, base.rounded())
+        guard hasCoast else {
+            return SailorComponents(hasCoast: false, coastalPopBase: 0, dockBonus: 0, floorDelta: 0, maxSailors: 0)
+        }
+        let popBase = coastalWorkforce * NavyModel.sailorCoastalPopShare
+        let raw = popBase + dockBonus
+        let total = max(200.0, raw.rounded())
+        return SailorComponents(
+            hasCoast: true,
+            coastalPopBase: popBase,
+            dockBonus: dockBonus,
+            floorDelta: total - raw,
+            maxSailors: total
+        )
+    }
+
+    public static func calculateMaxSailors(_ world: World, _ country: CountryID) -> Double {
+        sailorComponents(world, country).maxSailors
     }
 
     public static func monthlySailorGain(_ world: World, _ country: CountryID) -> Double {

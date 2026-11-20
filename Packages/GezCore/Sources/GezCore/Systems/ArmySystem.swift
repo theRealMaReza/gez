@@ -90,19 +90,41 @@ public enum ArmySystem {
         return Double(skill - 5) * 0.015
     }
 
-    public static func calculateMaxManpower(_ world: World, _ country: CountryID) -> Double {
-        calculateMaxManpower(world, country, owned: world.provinces(ownedBy: country))
+    public struct ManpowerComponents: Sendable, Equatable {
+        public let popBase: Double
+        public let barracksMen: Double
+        public let rawBase: Double
+        public let govMod: Double
+        public let marshalMod: Double
+        public let combinedFactor: Double
+        public let clampedFactor: Double
+        public let unroundedMax: Double
+        public let maxManpower: Double
+        public let excludedVassalProvinces: Int
     }
 
-    static func calculateMaxManpower(_ world: World, _ country: CountryID, owned: [ProvinceID]) -> Double {
-        guard !owned.isEmpty else { return 0 }
+    public static func manpowerComponents(
+        _ world: World,
+        _ country: CountryID,
+        owned passedOwned: [ProvinceID]? = nil
+    ) -> ManpowerComponents {
+        let owned = passedOwned ?? world.provinces(ownedBy: country)
+        guard !owned.isEmpty else {
+            return ManpowerComponents(
+                popBase: 0, barracksMen: 0, rawBase: 0, govMod: 0, marshalMod: 0,
+                combinedFactor: 1, clampedFactor: 1, unroundedMax: 0, maxManpower: 0,
+                excludedVassalProvinces: 0
+            )
+        }
         var popSum = 0.0
         var barracksMen = 0.0
+        var excluded = 0
         let T = world.economy.buildings.typeCount
         let standing = CultureStanding(world, only: country)
         for pid in owned {
             // Provinces held by a tax-refusing vassal do not contribute to crown manpower.
             if let h = world.provinces.holder[pid.index], world.people.refusing.contains(h) {
+                excluded += 1
                 continue
             }
             popSum += world.provinces.population[pid.index] * CultureSystem.provinceManpowerFactor(world, province: pid, owner: country, standing: standing)
@@ -115,9 +137,34 @@ public enum ArmySystem {
                 }
             }
         }
-        let base = popSum * ArmyModel.baseManpowerPopShare + barracksMen
-        let factor = max(0.25, 1.0 + world.government.modifier(country, .manpower) + marshalBonus(world, country))
-        return max(500.0, (base * factor).rounded())
+        let popBase = popSum * ArmyModel.baseManpowerPopShare
+        let rawBase = popBase + barracksMen
+        let govMod = world.government.modifier(country, .manpower)
+        let marshalMod = marshalBonus(world, country)
+        let combined = 1.0 + govMod + marshalMod
+        let clamped = max(0.25, combined)
+        let unrounded = rawBase * clamped
+        let total = max(500.0, unrounded.rounded())
+        return ManpowerComponents(
+            popBase: popBase,
+            barracksMen: barracksMen,
+            rawBase: rawBase,
+            govMod: govMod,
+            marshalMod: marshalMod,
+            combinedFactor: combined,
+            clampedFactor: clamped,
+            unroundedMax: unrounded,
+            maxManpower: total,
+            excludedVassalProvinces: excluded
+        )
+    }
+
+    public static func calculateMaxManpower(_ world: World, _ country: CountryID) -> Double {
+        calculateMaxManpower(world, country, owned: world.provinces(ownedBy: country))
+    }
+
+    static func calculateMaxManpower(_ world: World, _ country: CountryID, owned: [ProvinceID]) -> Double {
+        manpowerComponents(world, country, owned: owned).maxManpower
     }
 
     public static func monthlyManpowerGain(_ world: World, _ country: CountryID) -> Double {
@@ -1072,31 +1119,58 @@ public enum ArmySystem {
 
     /// Maximum number of soldiers `province` can feed and quarter without
     /// monthly starvation and camp disease attrition.
-    public static func supplyLimit(_ world: World, in province: ProvinceID) -> Int {
+    public struct SupplyLimitComponents: Sendable, Equatable {
+        public let base: Double
+        public let population: Double
+        public let terrain: Double
+        public let stapleFood: Double
+        public let coastal: Double
+        public let port: Double
+        public let caravanserai: Double
+        public let fort: Double
+        public let roundingDelta: Double
+        public let total: Int
+    }
+
+    public static func supplyLimitComponents(_ world: World, in province: ProvinceID) -> SupplyLimitComponents {
         let p = province.index
         let pop = world.provinces.population[p]
-        let terrain = world.provinces.terrain[p]
-        var limit = 3_000.0
-        limit += pop * 0.05
-        limit += MarketModel.terrainFood(terrain) * 4_000.0
-
-        // Local staple harvest output adds supply capacity.
+        let terrainKind = world.provinces.terrain[p]
+        let base = 3_000.0
+        let popPart = pop * 0.05
+        let terrainPart = MarketModel.terrainFood(terrainKind) * 4_000.0
+        var foodPart = 0.0
         for k in world.economy.producers.range(for: province) where world.economy.producers.isStaple[k] {
-            limit += world.economy.producers.output[k] * 250.0
+            foodPart += world.economy.producers.output[k] * 250.0
         }
-
-        if world.provinces.isCoastal[p] {
-            limit += 1_500.0
-        }
+        let coastalPart = world.provinces.isCoastal[p] ? 1_500.0 : 0.0
+        var portPart = 0.0
         if let port = world.economy.buildingType(key: "port") {
-            limit += Double(world.economy.buildings.level(province, port)) * 1_500.0
+            portPart = Double(world.economy.buildings.level(province, port)) * 1_500.0
         }
+        var caravanPart = 0.0
         if let caravan = world.economy.buildingType(key: "caravanserai") {
-            limit += Double(world.economy.buildings.level(province, caravan)) * 1_500.0
+            caravanPart = Double(world.economy.buildings.level(province, caravan)) * 1_500.0
         }
-        limit += Double(world.provinces.fortLevel[p]) * 1_000.0
+        let fortPart = Double(world.provinces.fortLevel[p]) * 1_000.0
+        let raw = base + popPart + terrainPart + foodPart + coastalPart + portPart + caravanPart + fortPart
+        let total = Int((raw / 100.0).rounded()) * 100
+        return SupplyLimitComponents(
+            base: base,
+            population: popPart,
+            terrain: terrainPart,
+            stapleFood: foodPart,
+            coastal: coastalPart,
+            port: portPart,
+            caravanserai: caravanPart,
+            fort: fortPart,
+            roundingDelta: Double(total) - raw,
+            total: total
+        )
+    }
 
-        return Int((limit / 100.0).rounded()) * 100
+    public static func supplyLimit(_ world: World, in province: ProvinceID) -> Int {
+        supplyLimitComponents(world, in: province).total
     }
 
     /// Total soldiers of all armies currently standing in `province`.

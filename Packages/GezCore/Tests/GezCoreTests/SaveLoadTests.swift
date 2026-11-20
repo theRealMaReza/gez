@@ -142,4 +142,37 @@ struct SaveLoadTests {
             #expect(error == .unsupportedFormatVersion(99))
         }
     }
+
+    @Test("Legacy saves without Phase 16 optional country fields still load and produce valid breakdowns")
+    func legacySaveWithoutPhase16FieldsLoads() throws {
+        let world = Scenario1453.makeWorld()
+        let sim = Simulation(world: world, startDate: Scenario1453.startDate, seed: 1453)
+        sim.advance(days: 35)
+
+        let tempDir = FileManager.default.temporaryDirectory
+            .appendingPathComponent("GezLegacySave-\(UUID().uuidString)", isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: tempDir) }
+
+        let saveURL = try SaveStorage.save(sim, name: "PrePhase16", playerTag: "TUR", in: tempDir)
+        let rawData = try Data(contentsOf: saveURL)
+        var obj = try JSONSerialization.jsonObject(with: rawData) as! [String: Any]
+        if var snapshot = obj["snapshot"] as? [String: Any],
+           var countries = snapshot["countries"] as? [String: Any] {
+            countries.removeValue(forKey: "lastDebaseIncome")
+            countries.removeValue(forKey: "lastWarRepsIn")
+            countries.removeValue(forKey: "lastWarRepsOut")
+            countries.removeValue(forKey: "lastSlotUpkeep")
+            snapshot["countries"] = countries
+            obj["snapshot"] = snapshot
+        }
+        let legacyData = try JSONSerialization.data(withJSONObject: obj)
+        let legacyURL = tempDir.appendingPathComponent("legacy.gezsave")
+        try legacyData.write(to: legacyURL)
+
+        let (loaded, _) = try SaveStorage.load(from: legacyURL)
+        let tur = loaded.world.countries.id(forTag: "TUR")!
+        let report = Breakdowns.monthlyIncome(loaded.world, for: tur)
+        let sum = report.entries.reduce(0.0) { $0 + $1.value }
+        #expect(abs(sum - report.total) <= 1e-4)
+    }
 }

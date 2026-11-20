@@ -243,6 +243,13 @@ public struct CountryTable: Sendable {
     public var lastTolls: [Double] = []
     /// Tax kept (or withheld) by vassals last month.
     public var lastVassalTax: [Double] = []
+    /// Ongoing debasement income minted last month.
+    public var lastDebaseIncome: [Double] = []
+    /// War reparations received and paid last month.
+    public var lastWarRepsIn: [Double] = []
+    public var lastWarRepsOut: [Double] = []
+    /// Diplomatic relation slot upkeep paid last month.
+    public var lastSlotUpkeep: [Double] = []
     /// State prestige (from held holy sites, etc.; -100 to 100).
     public var prestige: [Double] = []
     /// Primary culture of the country.
@@ -306,6 +313,10 @@ public struct CountryTable: Sendable {
         self.lastTrade.append(0)
         self.lastTolls.append(0)
         self.lastVassalTax.append(0)
+        self.lastDebaseIncome.append(0)
+        self.lastWarRepsIn.append(0)
+        self.lastWarRepsOut.append(0)
+        self.lastSlotUpkeep.append(0)
         self.prestige.append(0)
         self.primaryCulture.append(CultureID(0))
         self.acceptedCultures.append([])

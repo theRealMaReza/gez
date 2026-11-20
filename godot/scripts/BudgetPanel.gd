@@ -193,14 +193,31 @@ func _refresh_summary(d: Dictionary) -> void:
 		_add_kv_row(summary_box, "Debased coin", str(d.get("debaseOngoingIncomeText", "0.0")), Color(0.98, 0.85, 0.42))
 
 	_add_kv_row(summary_box, "Merchants", str(d.get("merchantsText", "+0.0")))
+	if main_view != null:
+		main_view.call("bind_tip", summary_box.get_child(summary_box.get_child_count() - 1), "Merchant Trade Income", "Profit collected from active national trade routes across markets.")
 	_add_kv_row(summary_box, "Tolls", str(d.get("tollsText", "0.0")))
+	if main_view != null:
+		main_view.call("bind_tip", summary_box.get_child(summary_box.get_child_count() - 1), "Trade Tolls", "Duties collected in your markets from foreign merchants.")
 	_add_kv_row(summary_box, "Building upkeep", str(d.get("buildingUpkeepText", "−0.0")))
+	if main_view != null:
+		main_view.call("bind_tip", summary_box.get_child(summary_box.get_child_count() - 1), "Building & Fort Maintenance", "Monthly maintenance for castles, workshops, markets, colleges and docks.")
 	_add_kv_row(summary_box, "Army upkeep", str(d.get("armyUpkeepText", "−0.0")))
+	if main_view != null:
+		main_view.call("bind_tip", summary_box.get_child(summary_box.get_child_count() - 1), "Army Wages", "Monthly pay for standing regiments and hired mercenary companies.")
+	var navy_up: float = float(d.get("navyUpkeep", 0.0))
+	if navy_up > 0.001:
+		_add_kv_row(summary_box, "Navy upkeep", str(d.get("navyUpkeepText", "−0.0")))
+		if main_view != null:
+			main_view.call("bind_tip", summary_box.get_child(summary_box.get_child_count() - 1), "Naval Maintenance", "Monthly pay and repairs for commissioned warships, galleys and transports.")
 	_add_kv_row(summary_box, "Interest", str(d.get("interestText", "−0.0")))
+	if main_view != null:
+		main_view.call("bind_tip", summary_box.get_child(summary_box.get_child_count() - 1), "Loan Interest", "Monthly interest paid to domestic estates or foreign banking houses.")
 
 	var net: float = float(d.get("monthlyNet", 0.0))
 	var bal_col := Color(0.55, 0.92, 0.58) if net >= 0.0 else Color(0.96, 0.45, 0.40)
 	_add_kv_row(summary_box, "Balance", str(d.get("balanceText", "+0.0 / month")), bal_col)
+	if main_view != null:
+		main_view.call("bind_breakdown", summary_box.get_child(summary_box.get_child_count() - 1), func() -> Variant: return _call_bridge("getMonthlyIncomeBreakdown", [], {}), "Monthly Treasury Balance")
 	_add_kv_row(summary_box, "Treasury", str(d.get("treasuryText", "0.0")), Color(0.96, 0.84, 0.36))
 
 func _tax_level_name(lvl: float) -> String:
@@ -334,7 +351,8 @@ func _refresh_coinage(d: Dictionary) -> void:
 	debase_btn.disabled = not bool(d.get("canDebaseOnce", false))
 	debase_btn.tooltip_text = deb_refusal if not deb_refusal.is_empty() else "Mint debased coin once for immediate ducats"
 	debase_btn.pressed.connect(func() -> void:
-		_call_bridge("debaseOnce", [], 0.0)
+		if float(_call_bridge("debaseOnce", [], 0.0)) > 0.0 and main_view != null:
+			main_view.call("play_sfx", "coin_clink")
 		if main_view != null:
 			main_view.call("_after_economy_action")
 	)

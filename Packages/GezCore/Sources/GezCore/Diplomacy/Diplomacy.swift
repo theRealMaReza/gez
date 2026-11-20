@@ -247,21 +247,82 @@ public struct Diplomacy: Sendable, Codable {
         }
     }
 
-    // MARK: - Diplomatic Relation Slots
+    // MARK: - Baseline Opinion Factors & Relation Slots
 
-    /// Diplomatic relation slots available to a country: base 4 + ruler Diplomacy skill / 5.
-    public func relationSlots(for country: CountryID, world: World) -> Int {
-        var slots = 4
+    /// Shared baseline opinion components (religion, government, overlord/subject)
+    /// used by `DiplomacyLoader` and UI relation breakdowns.
+    public static func baselineOpinionFactors(
+        of target: CountryID,
+        by observer: CountryID,
+        in world: World
+    ) -> [(label: String, value: Int)] {
+        guard observer != target,
+              observer.index < world.countries.count,
+              target.index < world.countries.count else {
+            return []
+        }
+        var out: [(label: String, value: Int)] = []
+        let relObs = world.countries.religion[observer.index]
+        let relTgt = world.countries.religion[target.index]
+        if relObs == relTgt {
+            out.append(("Same state religion (\(relTgt.displayName))", 10))
+        } else if relObs.family == relTgt.family {
+            out.append(("Same religious family (\(relTgt.displayName))", -10))
+        } else {
+            out.append(("Different religious family (\(relTgt.displayName))", -25))
+        }
+
+        let govObs = world.countries.government[observer.index]
+        let govTgt = world.countries.government[target.index]
+        if govObs == govTgt {
+            out.append(("Same government (\(govTgt.displayName))", 10))
+        } else {
+            out.append(("Different government (\(govTgt.displayName))", -5))
+        }
+
+        if world.countries.overlord[observer.index] == target {
+            let bonus = world.countries.subjectType[observer.index] == .vassal ? 30 : 15
+            out.append(("Overlord", bonus))
+        } else if world.countries.overlord[target.index] == observer {
+            let bonus = world.countries.subjectType[target.index] == .vassal ? 30 : 15
+            out.append(("Subject realm", bonus))
+        }
+        return out
+    }
+
+    public struct RelationSlotsComponents: Sendable, Equatable {
+        public let base: Int
+        public let rulerDiplomacy: Int
+        public let chancellorDiplomacy: Int
+        public let diplomaticTech: Int
+        public let total: Int
+    }
+
+    public func relationSlotsComponents(for country: CountryID, world: World) -> RelationSlotsComponents {
+        let base = 4
+        var rulerBonus = 0
         if let rulerID = world.countries.ruler[country.index] {
             let dipSkill = world.people.characters.skills[rulerID.index][Skill.diplomacy.rawValue]
-            slots += dipSkill / 5
+            rulerBonus = dipSkill / 5
         }
+        var chanBonus = 0
         if let chancellorID = world.countries.council[country.index][CouncilSeat.chancellor.rawValue] {
             let chanSkill = world.people.characters.skills[chancellorID.index][Skill.diplomacy.rawValue]
-            slots += chanSkill / 10
+            chanBonus = chanSkill / 10
         }
-        slots += world.techEffects(country, track: .diplomatic).relations
-        return slots
+        let techBonus = world.techEffects(country, track: .diplomatic).relations
+        return RelationSlotsComponents(
+            base: base,
+            rulerDiplomacy: rulerBonus,
+            chancellorDiplomacy: chanBonus,
+            diplomaticTech: techBonus,
+            total: base + rulerBonus + chanBonus + techBonus
+        )
+    }
+
+    /// Diplomatic relation slots available to a country: base 4 + ruler Diplomacy skill / 5 + Chancellor / 10 + Diplomatic Tech.
+    public func relationSlots(for country: CountryID, world: World) -> Int {
+        relationSlotsComponents(for: country, world: world).total
     }
 
     /// Number of diplomatic relation slots currently used:

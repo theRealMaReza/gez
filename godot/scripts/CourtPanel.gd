@@ -247,8 +247,13 @@ func _refresh_person(d: Dictionary) -> void:
 		if sk is Dictionary:
 			var sk_dict: Dictionary = sk
 			var col_box := VBoxContainer.new()
-			col_box.tooltip_text = str(sk_dict.get("name", ""))
-			var v_lbl := _make_label(str(int(sk_dict.get("value", 0))), Color(0.96, 0.92, 0.84), 14)
+			var sk_name := str(sk_dict.get("name", "Skill"))
+			var sk_val := int(sk_dict.get("value", 0))
+			if main_view != null:
+				main_view.call("bind_tip", col_box, "%s (%d)" % [sk_name, sk_val], "Character attribute affecting council bonuses, military leadership or research.")
+			else:
+				col_box.tooltip_text = sk_name
+			var v_lbl := _make_label(str(sk_val), Color(0.96, 0.92, 0.84), 14)
 			v_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 			col_box.add_child(v_lbl)
 			var k_lbl := _make_label(str(sk_dict.get("shortName", "")), Color(0.72, 0.68, 0.60), 10)

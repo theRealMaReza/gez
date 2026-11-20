@@ -195,7 +195,11 @@ func refresh_fleets_window() -> void:
 
 	_clear_children(fleets_window_box)
 	_add_kv_row(fleets_window_box, "Sailor Pool", "%d / %d (+%d/mo)" % [int(d.get("sailors", 0)), int(d.get("maxSailors", 0)), int(d.get("monthlySailors", 0))])
+	if main_view != null:
+		main_view.call("bind_breakdown", fleets_window_box.get_child(fleets_window_box.get_child_count() - 1), func() -> Variant: return _call_bridge("getSailorsBreakdown", [], {}), "Maximum Sailors Breakdown")
 	_add_kv_row(fleets_window_box, "Total Ships · Upkeep", "%d ships · %s" % [int(d.get("totalShips", 0)), str(d.get("upkeepText", "0 d/mo"))])
+	if main_view != null:
+		main_view.call("bind_breakdown", fleets_window_box.get_child(fleets_window_box.get_child_count() - 1), func() -> Variant: return _call_bridge("getMonthlyIncomeBreakdown", [], {}), "Monthly Treasury & Naval Upkeep")
 	fleets_window_box.add_child(HSeparator.new())
 
 	var fleets: Array = d.get("fleets", [])
@@ -311,8 +315,14 @@ func refresh_selected_fleet_panel() -> void:
 	sel_fleet_box.add_child(st_lbl)
 
 	_add_kv_row(sel_fleet_box, "Ships", "%d (%s)" % [int(d.get("shipCount", 0)), str(d.get("classSummaryText", ""))])
+	if main_view != null:
+		main_view.call("bind_tip", sel_fleet_box.get_child(sel_fleet_box.get_child_count() - 1), "Fleet Composition", "Warships, galleys, light ships and transports sailing together.")
 	_add_kv_row(sel_fleet_box, "Crew · Avg Hull", "%d / %d · %d%%" % [int(d.get("totalCrew", 0)), int(d.get("totalMaxCrew", 0)), int(d.get("avgHull", 100))])
+	if main_view != null:
+		main_view.call("bind_breakdown", sel_fleet_box.get_child(sel_fleet_box.get_child_count() - 1), func() -> Variant: return _call_bridge("getSailorsBreakdown", [], {}), "Crew & National Sailors")
 	_add_kv_row(sel_fleet_box, "Supply · Speed", "%d%% · %s%s" % [int(d.get("supply", 100)), str(d.get("speedText", "1.0x")), " (Inland)" if bool(d.get("isInlandSea", false)) else ""])
+	if main_view != null:
+		main_view.call("bind_tip", sel_fleet_box.get_child(sel_fleet_box.get_child_count() - 1), "Naval Supply & Speed", "Ships replenish supply in friendly ports. Galleys gain combat advantages in inland seas.")
 
 	# Admiral row
 	var adm_row := HBoxContainer.new()

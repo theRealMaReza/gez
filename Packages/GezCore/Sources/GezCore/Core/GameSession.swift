@@ -58,6 +58,21 @@ public final class GameSession {
     public private(set) var pendingBattlePrompt: PendingBattlePrompt?
     public var tacticalBattle: BattleEngine?
     public private(set) var lastTacticalBattleResult: TacticalBattleResult?
+    private var pendingAudioEvents: [String] = []
+
+    /// Drains simulation audio event cues accumulated during recent `advanceDays` ticks.
+    public func consumePendingAudioEvents() -> [String] {
+        guard !pendingAudioEvents.isEmpty else { return [] }
+        let out = pendingAudioEvents
+        pendingAudioEvents.removeAll()
+        return out
+    }
+
+    private func enqueueAudioEvent(_ key: String) {
+        if !pendingAudioEvents.contains(key) {
+            pendingAudioEvents.append(key)
+        }
+    }
 
     public struct AdvanceOutcome: Sendable {
         public let daysAdvanced: Int
@@ -141,6 +156,46 @@ public final class GameSession {
         simulation.interceptHumanBattles = interactiveBattlesEnabled
         let prevMonth = simulation.date.month
         let prevWars = simulation.world.diplomacy.wars.count
+
+        // Snapshot player state only when simulation advances so sound cues trigger from real events.
+        let player = playerCountry
+        var prevArmyProv: [Int: ProvinceID] = [:]
+        var prevPlayerBuildingSum = 0
+        var prevPlayerSiegeProvs: Set<ProvinceID> = []
+        var prevPlayerSiegeBreaches = 0
+        var prevPlayerBattleIDs: Set<String> = []
+        var prevPlayerNavalBattles = 0
+        var prevTreasury = 0.0
+        if let player {
+            let w = simulation.world
+            prevTreasury = w.countries.treasury[player.index]
+            let armies = w.military.armies
+            for i in 0..<armies.count where armies.alive[i] && armies.owner[i] == player && !armies.isRebel[i] {
+                prevArmyProv[i] = armies.province[i]
+            }
+            let T = w.economy.buildings.typeCount
+            for p in 0..<w.provinces.count where w.provinces.owner[p] == player {
+                let base = p * T
+                for t in 0..<T {
+                    prevPlayerBuildingSum += w.economy.buildings.level[base + t]
+                }
+            }
+            for s in w.military.sieges {
+                let provOwner = w.provinces.owner[s.province.index]
+                if s.besieger == player || provOwner == player {
+                    prevPlayerSiegeProvs.insert(s.province)
+                    if s.breached { prevPlayerSiegeBreaches += 1 }
+                }
+            }
+            for b in w.military.battles where b.attackerCountry == player || b.defenderCountry == player {
+                prevPlayerBattleIDs.insert(b.id)
+            }
+            for nb in w.navy.recentBattles where nb.attackerCountry == player || nb.defenderCountry == player {
+                _ = nb
+                prevPlayerNavalBattles += 1
+            }
+        }
+
         var didAutosave = false
         var actualDays = 0
         for _ in 0..<days {
@@ -171,6 +226,73 @@ public final class GameSession {
             }
         }
         date = simulation.date
+        let monthChanged = date.month != prevMonth
+
+        if let player {
+            let w = simulation.world
+            let armies = w.military.armies
+            for (i, oldProv) in prevArmyProv {
+                if i < armies.count && armies.alive[i] && armies.province[i] != oldProv {
+                    var totalMen = 0
+                    var cavMen = 0
+                    for reg in armies.regiments[i] where reg.men > 0 {
+                        totalMen += reg.men
+                        if w.military.unit(reg.type).category == .cavalry {
+                            cavMen += reg.men
+                        }
+                    }
+                    if totalMen > 0 && Double(cavMen) / Double(totalMen) >= 0.35 {
+                        enqueueAudioEvent("hoofbeats")
+                    } else {
+                        enqueueAudioEvent("march_boots")
+                    }
+                }
+            }
+            if monthChanged {
+                var newBuildingSum = 0
+                let T = w.economy.buildings.typeCount
+                for p in 0..<w.provinces.count where w.provinces.owner[p] == player {
+                    let base = p * T
+                    for t in 0..<T {
+                        newBuildingSum += w.economy.buildings.level[base + t]
+                    }
+                }
+                if newBuildingSum > prevPlayerBuildingSum {
+                    enqueueAudioEvent("building_finished")
+                }
+                if abs(w.countries.treasury[player.index] - prevTreasury) >= 0.5 {
+                    enqueueAudioEvent("coin_clink")
+                }
+            }
+            var newSiegeBreaches = 0
+            for s in w.military.sieges {
+                let provOwner = w.provinces.owner[s.province.index]
+                if s.besieger == player || provOwner == player {
+                    if !prevPlayerSiegeProvs.contains(s.province) {
+                        enqueueAudioEvent("siege_started")
+                    }
+                    if s.breached { newSiegeBreaches += 1 }
+                }
+            }
+            if newSiegeBreaches > prevPlayerSiegeBreaches {
+                enqueueAudioEvent("siege_cannon")
+            }
+            for b in w.military.battles where b.attackerCountry == player || b.defenderCountry == player {
+                if !prevPlayerBattleIDs.contains(b.id) {
+                    enqueueAudioEvent("battle_started")
+                    break
+                }
+            }
+            var newNavalBattles = 0
+            for nb in w.navy.recentBattles where nb.attackerCountry == player || nb.defenderCountry == player {
+                _ = nb
+                newNavalBattles += 1
+            }
+            if newNavalBattles > prevPlayerNavalBattles {
+                enqueueAudioEvent("siege_cannon")
+            }
+        }
+
         if didAutosave {
             lastSaveStatus = "Autosaved (\(date))"
             refreshSavedGames()
@@ -178,7 +300,7 @@ public final class GameSession {
         revision &+= 1
         return AdvanceOutcome(
             daysAdvanced: actualDays,
-            monthChanged: date.month != prevMonth,
+            monthChanged: monthChanged,
             warsCountChanged: simulation.world.diplomacy.wars.count != prevWars,
             didAutosave: didAutosave
         )
@@ -1107,7 +1229,7 @@ public final class GameSession {
         let c = w.countries
         let name = c.name[player.index]
         let treasury = c.treasury[player.index]
-        let net = c.lastMonthlyIncome[player.index] - c.lastMonthlyExpenses[player.index]
+        let net = Breakdowns.monthlyIncome(w, for: player).total
         let stability = w.government.stability[player.index]
         let armyMen = w.military.totalMen(of: player)
         let manpower = w.military.manpower[player.index]

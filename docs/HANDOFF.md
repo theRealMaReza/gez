@@ -6,7 +6,12 @@ judgment calls) and `CLAUDE.md` (rules). Lessons from past sessions and reviews 
 `docs/SESSION_LOG.md` (read only the part a task needs). This file says where the project
 stands, how to work on it, and what to do next.
 
-Last updated: Phase 15 (16 November 2026). Phases 0–15 are done; mission trees remain in Phase 21. Phase 15 implemented on branch `gemini/phase-15-ai-setting` (`AI/AIGoals.swift`, `Scenario/AIGoalsLoader.swift`, `Systems/AIGoalSystem.swift`, `data/ai/goals_1453.txt`, `tools/ai/aigen.py`, `DiplomacyAISystem.swift`, `SaveGame.swift`, `GameSession.swift`, `godot/scripts/{Main,DiplomacyPanel}.gd`, `GezGodotBridge.swift`). Next: Phase 16 (Sound effects and tooltips).
+Last updated: Phase 16 (17 November 2026). Phases 0–16 are done; mission trees remain in Phase 21. Phase 16 implemented on branch `gemini/phase-16-sound-tooltips` (`Breakdowns.swift`, `GameSession.swift` audio event queue, `SaveGame.swift` backward-compatible optional fields, `GezGodotPhase16Bridge.swift`, `tools/audio/make_sfx.py`, 27 CC0/procedural `.ogg` assets in `godot/assets/audio/`, `AudioManager.gd`, `TooltipManager.gd`, all `godot/scripts/*.gd` UI panels, `BreakdownTests.swift`, `SaveLoadTests.swift`, `GezGodotTests.swift`, `docs/CREDITS.md`). Next: Phase 17 (Going 3D).
+
+How to test Phase 16 by hand on Mac:
+1. Build the GDExtension library (`./godot/build_mac.sh`) and open the project in Godot 4 (`open /Applications/Godot.app` or launch `godot/project.godot`).
+2. Hover over top-bar stats (Treasury/income, Stability, Tech speed, Diplomacy slots, Armies/Manpower, Fleets/Sailors), Province View (Unrest, Supply, Sieges), Diplomacy (Relations, AI Goal), Wars (War Score), and Tech tracks -> parchment tooltip appears after ~0.3s showing itemized `+/-` breakdowns matching the displayed totals without going off-screen.
+3. Unpause (`Space`) -> UI parchment/wood clicks play whenever clicking tabs/buttons; army marches, construction, coin changes, sieges, battles, and zoom levels blend wind/sea/city ambience without voice pile-up; Esc -> Game Menu adjusts UI/Effects/Ambience sliders & Master Mute.
 
 ## The owner
 

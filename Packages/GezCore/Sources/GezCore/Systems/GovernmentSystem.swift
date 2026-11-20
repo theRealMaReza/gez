@@ -198,12 +198,38 @@ public enum GovernmentSystem {
         world.government.modifier(c, .noDebase) <= 0
     }
 
-    public static func stabilityCost(_ world: World, _ c: CountryID) -> Double {
+    public struct StabilityCostComponents: Sendable, Equatable {
+        public let base: Double
+        public let stabilityScaling: Double
+        public let lawMod: Double
+        public let holyDiscount: Double
+        public let holySiteCount: Int
+        public let costFactor: Double
+        public let total: Double
+    }
+
+    public static func stabilityCostComponents(_ world: World, _ c: CountryID) -> StabilityCostComponents {
         let s = world.government.stability[c.index]
         let base = max(25, world.countries.lastMonthlyIncome[c.index] * GovernmentModel.stabilityCostMonths)
+        let stabilityScaling = 1 + 0.5 * Double(max(0, s))
         let sites = c.index < world.faith.holySiteCountHeld.count ? world.faith.holySiteCountHeld[c.index] : 0
+        let lawMod = world.government.modifier(c, .stabilityCost)
         let holyDiscount = min(FaithModel.maxHolySiteStabilityDiscount, Double(sites) * FaithModel.holySiteStabilityDiscount)
-        return base * (1 + 0.5 * Double(max(0, s))) * max(0.3, 1 + world.government.modifier(c, .stabilityCost) - holyDiscount)
+        let costFactor = max(0.3, 1 + lawMod - holyDiscount)
+        let total = base * stabilityScaling * costFactor
+        return StabilityCostComponents(
+            base: base,
+            stabilityScaling: stabilityScaling,
+            lawMod: lawMod,
+            holyDiscount: holyDiscount,
+            holySiteCount: sites,
+            costFactor: costFactor,
+            total: total
+        )
+    }
+
+    public static func stabilityCost(_ world: World, _ c: CountryID) -> Double {
+        stabilityCostComponents(world, c).total
     }
 
     public static func lawChangeCost(_ world: World, _ c: CountryID) -> Double {
