@@ -4,7 +4,7 @@ The short version of `docs/HANDOFF.md` and `docs/ROADMAP.md`, mirrored to
 the claude.ai Project as `claude/STATUS.md`. Everything else lives in the
 repo (`yv28f5k922-dot/Gez`): read only the parts a task needs.
 
-Last updated: 16 November 2026.
+Last updated: 19 November 2026.
 
 ## The owner
 - Doesn't write code. Plain language, short replies (often on a phone).
@@ -18,21 +18,24 @@ Last updated: 16 November 2026.
 - Alpha build name: **"Kayser"** (after Phase 20.5).
 
 ## Where things stand
-- Phases 0–15 done (map, economy, trade, characters, government, armies,
+- Phases 0–16 done (map, economy, trade, characters, government, armies,
   diplomacy and war, sieges, Godot screens, battle view, navies, religion
   and culture, plague/famine/rebels, technology, historical events: 70,
-  AI behaviour setting: Historical vs Free).
+  AI behaviour setting: Historical vs Free; 16 sound effects + math
+  tooltips, PR #32 merged 19 Nov).
 - Gemini writes most code on `gemini/*` branches; Claude reviews
   (routine: HANDOFF "Working with Gemini" and "How Claude reviews").
 
 ## Next
-1. Owner play-test of Phase 15 on the Mac (`git pull`,
-   `./godot/build_mac.sh`, Nation Picker AI behaviour selector + Country View `AI Goal:` line).
-2. **Phase 16: Sound effects and tooltips** (free CC0 sounds + math-breakdown tooltips everywhere).
-3. Then: 16 sound (free CC0) + tooltips, 17 3D (Claude;
-   free CC0 models + models built in code), 18 chronicle, 20 art, 20.5
-   balance and play-test (Claude), **alpha "Kayser"**, then 21 mission
-   trees and 19 multiplayer (Epic Online Services, join codes). Who writes what: ROADMAP "Plan for the
+1. Owner play-test of Phases 15 and 16 on the Mac (`git pull`,
+   `./godot/build_mac.sh`): AI behaviour selector + `AI Goal:` line;
+   hover top-bar numbers for tooltips; unpause to hear sounds; Esc menu
+   volume sliders. Small known nits: coin sound plays almost every month;
+   sea-battle sound can stop once the recent-battles list is full.
+2. **Phase 17: Going 3D** (Claude; free CC0 models + models built in code).
+3. Then: 18 chronicle, 20 art, 20.5 balance and play-test (Claude),
+   **alpha "Kayser"**, then 21 mission trees and 19 multiplayer (Epic
+   Online Services, join codes). Who writes what: ROADMAP "Plan for the
    remaining phases". Art script: `tools/uiart/ui_art_concept.py`.
 
 ## Saving tokens (owner's choice, 16 Nov 2026)
