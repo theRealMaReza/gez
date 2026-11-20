@@ -111,3 +111,22 @@ truce (Galata surrendered on 1 June 1453, two days after the start).
   tested on its own; the full year must stay within 0.5%.
 - Temporary branches the owner can delete: `claude/diag-a`,
   `claude/diag-b`, `claude/fingerprint-base`, `claude/fingerprint-speedonly`.
+
+## Session 12: Phase 17, Going 3D (Claude)
+- Godot's Compatibility renderer (CI screenshots, `--rendering-driver
+  opengl3`) writes shader colours as sRGB, Forward+ (Mac, Windows) as
+  linear: shaders that work in sRGB must end with
+  `ALBEDO = OUTPUT_IS_SRGB ? c : srgb_to_linear(c)`, or one of the two
+  looks too dark.
+- A GDScript runtime error in a `--script` SceneTree script stops the
+  script but not Godot: the process hangs until killed. Always run with
+  `timeout`, and read the log file (not a `| grep | head` pipe, which
+  hides the error until the process ends).
+- Typed arrays (`Array[int]`) cannot be assigned a plain array from
+  another script; use `.assign()`.
+- KayKit's free kits are on GitHub (`KayKit-Game-Assets/...`) and can be
+  cloned from the workspace; Kenney and Quaternius need a CI job.
+- `gh pr create` is blocked (GraphQL); open PRs with
+  `gh api repos/yv28f5k922-dot/Gez/pulls -f title=... -f head=... -f base=main -f body=...`.
+- MultiMesh instances with models scaled by the shader need a big
+  `custom_aabb`, or they are culled at the screen edges.
