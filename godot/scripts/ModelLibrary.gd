@@ -18,15 +18,22 @@ static func ensure_loaded() -> bool:
 	if _loaded:
 		return not _meshes.is_empty()
 	_loaded = true
-	var packed := FileAccess.get_file_as_bytes(LIB_PATH)
+	_meshes = read_library(LIB_PATH)
+	return not _meshes.is_empty()
+
+## Read a model file made by tools/models/build_models.py: name -> ArrayMesh.
+## (Also used by godot/tools/render_building_icons.gd for the icon scenes.)
+static func read_library(path: String) -> Dictionary:
+	var out := {}
+	var packed := FileAccess.get_file_as_bytes(path)
 	if packed.size() < 8 or packed.slice(0, 4).get_string_from_ascii() != "GZMZ":
-		push_error("ModelLibrary: missing or bad " + LIB_PATH)
-		return false
+		push_error("ModelLibrary: missing or bad " + path)
+		return out
 	var raw_size := packed.decode_u32(4)
 	var raw := packed.slice(8).decompress(raw_size, FileAccess.COMPRESSION_GZIP)
 	if raw.size() != raw_size:
-		push_error("ModelLibrary: could not unpack " + LIB_PATH)
-		return false
+		push_error("ModelLibrary: could not unpack " + path)
+		return out
 	var pos := 8
 	var count := raw.decode_u32(4)
 	for _i in range(count):
@@ -53,8 +60,8 @@ static func ensure_loaded() -> bool:
 		arrays[Mesh.ARRAY_INDEX] = indices
 		var mesh := ArrayMesh.new()
 		mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
-		_meshes[mesh_name] = mesh
-	return true
+		out[mesh_name] = mesh
+	return out
 
 static func get_mesh(mesh_name: String) -> ArrayMesh:
 	ensure_loaded()

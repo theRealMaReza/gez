@@ -252,6 +252,8 @@ of them are reproducible (same input, byte-identical output).
 | `data/events/` | `python3 tools/events/eventgen.py` (validates tags, provinces, characters, conditions & effects) | `events1453.json` |
 | `data/ai/goals_1453.txt` | `python3 tools/ai/aigen.py` (validates tags, provinces, goal types, dates & priorities) | `ai_goals1453.json` |
 | `data/heraldry/choices.txt` | push it; the Heraldry workflow downloads and converts | `App/Resources/Heraldry/arms_<TAG>.png`, `data/heraldry/credits.json` |
+| interface art (Phase 20: frames, medallions, seals, goods icons) | `python3 tools/uiart/ui_art_concept.py --kit godot/assets/ui`, then (after changing `godot/scripts/GezTheme.gd`) `godot --headless --path godot --import` and `godot --headless --path godot --script res://tools/build_theme.gd` | `godot/assets/ui/`, `godot/assets/ui/gez_theme.tres` |
+| building icons (Phase 20) | `python3 tools/models/build_models.py --icons`; `GEZ_ICON_MODELS=$PWD/tools/models/icon_models.bin GEZ_ICON_OUT=/tmp/bicons xvfb-run godot --rendering-driver opengl3 --path godot --script res://tools/render_building_icons.gd`; `python3 tools/uiart/ui_art_concept.py --buildings /tmp/bicons godot/assets/ui` (after `--kit`: workshops carry their good's icon) | `godot/assets/ui/buildings/` |
 | app icon (portolan chart, drawn from the province map) | `python3 tools/icon/make_icon.py` | `App/Resources/Assets.xcassets/AppIcon.appiconset/`, `docs/icon_preview.png` |
 
 Run order after a map change: mapgen → bake_terrain → econgen → chargen →

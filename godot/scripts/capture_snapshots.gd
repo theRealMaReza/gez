@@ -63,6 +63,14 @@ func _run_captures() -> void:
 			root_node.call("_open_market_panel", mkt_idx)
 	await _save_shot("godot_screen_main.png")
 
+	# Phase 20 part 2: the province's buildings and build menu (building and goods icons).
+	root_node.set("current_prov_tab", "economy")
+	root_node.set("prov_show_build", true)
+	root_node.call("_refresh_province_panel")
+	await _save_shot("godot_province_build.png")
+	root_node.set("prov_show_build", false)
+	root_node.set("current_prov_tab", "overview")
+
 	# Close province/market panels for clean per-window captures.
 	var pp = root_node.get("province_panel")
 	if pp is Control:

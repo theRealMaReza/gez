@@ -848,6 +848,90 @@ def write_library(lib, path):
     return os.path.getsize(path)
 
 
+# --------------------------------------------------------------------------
+# Building icons (Phase 20 part 2): one small scene per building of
+# data/economy/buildings.txt, made of the KayKit pieces and the models above.
+# Written to tools/models/icon_models.bin (not committed; only for rendering the icons with
+# godot/tools/render_building_icons.gd; the game does not load it).
+
+ICON_OUT = os.path.join(ROOT, "tools/models/icon_models.bin")
+
+
+def _k(name, x=0.0, z=0.0, scale=1.0, rot=0.0, style="european"):
+    return kaykit(name, style, scale=scale, rot_y=rot, offset=(x, 0.0, z))
+
+
+def _scene(*parts):
+    m = Mesh()
+    for p in parts:
+        m.extend(p)
+    return normalise_base(m, 1.0)
+
+
+def _chimney(x, z, h=1.1):
+    m = Mesh()
+    m.frustum((x, 0.0, z), 0.12, 0.09, h, 8, (0.55, 0.42, 0.34), top_col=(0.2, 0.18, 0.16))
+    return m
+
+
+def _ship_with_sails(width, x, z, rot):
+    return normalise_base(ship("european").extend(ship_sails("european")), width).transformed(offset=(x, 0, z), rot_y=rot)
+
+
+def building_icon_models():
+    isl = "islamic"
+    P = 1.8   # props drawn larger than life so they read at icon size
+    lib = {}
+    lib["farm_estate"] = _scene(_k("building_grain", 0.0, 0.2), _k("building_home_A_blue", -0.45, -0.3, 0.6))
+    lib["mine"] = _scene(_k("building_mine_blue"))
+    lib["plantation"] = _scene(_k("building_grain", 0.0, 0.25), _k("building_home_B_blue", -0.45, -0.35, 0.55, style=isl),
+                               _k("tree_single_A", 0.5, -0.4, 0.8))
+    lib["pasture"] = _scene(_k("fence_wood_straight", 0.0, 0.45), _k("fence_wood_straight", 0.45, 0.0, rot=math.pi / 2),
+                            _k("building_home_B_blue", -0.3, -0.3, 0.55), _k("sack", 0.25, 0.15, 3.0))
+    lib["vineyard"] = _scene(_k("trees_A_small", -0.3, 0.1, 0.7), _k("trees_A_small", 0.35, 0.1, 0.7),
+                             _k("fence_wood_straight", 0.0, 0.55), _k("barrel", 0.35, -0.4, P))
+    lib["forestry"] = _scene(_k("building_lumbermill_blue"))
+    lib["fishery"] = _scene(normalise_base(pier(), 1.0), _ship_with_sails(0.75, 0.3, 0.2, 0.6))
+    lib["brewery"] = _scene(_k("building_tavern_blue"), _k("barrel", 0.7, 0.5, P))
+    for key, house, prop, ps, st in [("weaver", "building_home_B_blue", "crate_open", 1.4, "european"),
+                                     ("linen_weaver", "building_home_A_blue", "sack", 3.0, "european"),
+                                     ("bookmakers", "building_home_A_blue", "crate_A_big", 1.2, "european"),
+                                     ("potters", "building_home_A_blue", "barrel", P, "european"),
+                                     ("goldsmiths", "building_home_B_blue", "crate_A_big", 1.2, "european"),
+                                     ("tannery", "building_home_A_blue", "resource_lumber", 1.0, "european"),
+                                     ("cotton_weaver", "building_home_B_blue", "sack", 3.0, isl),
+                                     ("silk_weaver", "building_home_B_blue", "crate_open", 1.4, "eastasian"),
+                                     ("carpet_maker", "building_home_A_blue", "crate_open", 1.4, isl),
+                                     ("glassworks", "building_home_B_blue", "barrel", P, "european")]:
+        lib[key] = _scene(_k(house, style=st), _k(prop, 0.55, 0.45, ps))
+    lib["glassworks"].extend(normalise_base(_chimney(0, 0), None, 0.9).transformed(offset=(-0.35, 0, -0.3)))
+    lib["smithy"] = _scene(_k("building_blacksmith_blue"))
+    lib["armourer"] = _scene(_k("building_blacksmith_blue"), _k("weaponrack", 0.7, 0.55, 1.2))
+    lib["powder_mill"] = _scene(_k("building_windmill_blue"), _k("barrel", 0.55, 0.5, P))
+    lib["foundry"] = _scene(_k("building_blacksmith_blue"), normalise_base(cannon(), 0.6).transformed(offset=(0.7, 0, 0.6)))
+    lib["paper_mill"] = _scene(_k("building_watermill_blue"))
+    lib["ropewalk"] = _scene(_k("barrel", -0.25, 0.0, P), _k("barrel", 0.2, 0.15, P), _k("resource_lumber", 0.0, -0.4))
+    lib["market_hall"] = _scene(_k("building_market_blue"))
+    lib["guild_hall"] = _scene(_k("building_home_B_blue", 0.0, 0.0, 1.2), normalise_base(flag_pole(), None, 1.2).transformed(offset=(0.55, 0, 0.35)),
+                               normalise_base(flag_cloth(), None, 1.2).transformed(offset=(0.55, 0, 0.35)))
+    lib["port"] = _scene(normalise_base(pier(), 1.0), _ship_with_sails(0.8, 0.25, 0.25, 0.4), _k("crate_A_big", -0.35, -0.3, 1.2))
+    lib["road"] = _scene(_k("fence_stone_straight", 0.0, -0.3), _k("wheelbarrow", -0.2, 0.25, 1.5), _k("resource_stone", 0.35, 0.2))
+    lib["caravanserai"] = _scene(_k("building_home_B_blue", -0.3, -0.2, 1.0, style=isl), _k("building_home_A_blue", 0.45, -0.25, 0.8, style=isl),
+                                 _k("tent", 0.4, 0.5, 0.8))
+    lib["temple"] = _scene(_k("building_church_blue"))
+    lib["college"] = _scene(_k("building_church_blue", 0.2, 0.0, 0.9), _k("building_home_A_blue", -0.5, 0.3, 0.6))
+    lib["fort"] = _scene(_k("building_castle_blue"))
+    lib["barracks"] = _scene(_k("building_barracks_blue"))
+    lib["shipyard"] = _scene(_k("building_scaffolding"), _ship_with_sails(0.7, 0.1, 0.35, 0.0))
+    return lib
+
+
+def write_icon_models():
+    lib = building_icon_models()
+    size = write_library(lib, ICON_OUT)
+    print(f"wrote {ICON_OUT}: {len(lib)} building scenes, {size / 1e6:.2f} MB")
+
+
 def main():
     lib = build_library()
     size = write_library(lib, OUT)
@@ -856,4 +940,8 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    import sys
+    if "--icons" in sys.argv:
+        write_icon_models()
+    else:
+        main()

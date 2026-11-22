@@ -2431,7 +2431,16 @@ func _build_province_overview_tab(d: Dictionary) -> void:
 				var title_txt := "%s Lv %d/%d" % [bname, blvl, bmax]
 				if not bup.is_empty():
 					title_txt += " · upkeep %s" % bup
-				prov_content_box.add_child(_make_label(title_txt, Color(0.94, 0.90, 0.80), 12))
+				var b_row := HBoxContainer.new()
+				b_row.add_theme_constant_override("separation", 6)
+				prov_content_box.add_child(b_row)
+				var b_icon := GezStyle.building_icon(bname)
+				if b_icon != null:
+					b_row.add_child(GezStyle.icon_rect(b_icon, 34.0))
+				var b_title := _make_label(title_txt, Color(0.94, 0.90, 0.80), 12)
+				b_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+				b_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+				b_row.add_child(b_title)
 				var beff: String = str(bdict.get("effectText", ""))
 				if not beff.is_empty():
 					var eff_lbl := _make_label("  " + beff, Color(0.76, 0.72, 0.64), 11)
@@ -2527,6 +2536,12 @@ func _build_province_overview_tab(d: Dictionary) -> void:
 
 				var lvl_str := "Lv %d/%d" % [cur_lvl, max_lvl] if cur_lvl >= max_lvl else "Lv %d → %d/%d" % [cur_lvl, next_lvl, max_lvl]
 				var title_col := Color(0.95, 0.92, 0.84) if (can_build or is_applicable) else Color(0.62, 0.58, 0.52)
+				var opt_icon := GezStyle.building_icon(base_name)
+				if opt_icon != null:
+					var oi := GezStyle.icon_rect(opt_icon, 40.0)
+					if not (can_build or is_applicable):
+						oi.modulate = Color(1, 1, 1, 0.5)
+					hdr.add_child(oi)
 				var title_lbl := _make_label("%s (%s)" % [base_name, lvl_str], title_col, 12)
 				title_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 				hdr.add_child(title_lbl)
@@ -2586,14 +2601,18 @@ func _build_province_economy_tab(d: Dictionary) -> void:
 		row.add_theme_constant_override("separation", 6)
 		prov_content_box.add_child(row)
 
-		var swatch := ColorRect.new()
-		swatch.custom_minimum_size = Vector2(10.0, 10.0)
-		swatch.color = Color(
-			float(int(g.get("colorR", 180))) / 255.0,
-			float(int(g.get("colorG", 180))) / 255.0,
-			float(int(g.get("colorB", 180))) / 255.0
-		)
-		row.add_child(swatch)
+		var g_icon := GezStyle.good_icon(str(g.get("name", "")))
+		if g_icon != null:
+			row.add_child(GezStyle.icon_rect(g_icon, 24.0))
+		else:
+			var swatch := ColorRect.new()
+			swatch.custom_minimum_size = Vector2(10.0, 10.0)
+			swatch.color = Color(
+				float(int(g.get("colorR", 180))) / 255.0,
+				float(int(g.get("colorG", 180))) / 255.0,
+				float(int(g.get("colorB", 180))) / 255.0
+			)
+			row.add_child(swatch)
 
 		var g_name := str(g.get("name", "")) + (" [Workshop]" if bool(g.get("isWorkshop", false)) else "")
 		var n_lbl := _make_label(g_name, Color(0.94, 0.90, 0.82), 12)
@@ -3042,14 +3061,18 @@ func _refresh_market_panel() -> void:
 		row.add_theme_constant_override("separation", 6)
 		market_goods_box.add_child(row)
 
-		var swatch := ColorRect.new()
-		swatch.custom_minimum_size = Vector2(10.0, 10.0)
-		swatch.color = Color(
-			float(int(g.get("colorR", 180))) / 255.0,
-			float(int(g.get("colorG", 180))) / 255.0,
-			float(int(g.get("colorB", 180))) / 255.0
-		)
-		row.add_child(swatch)
+		var g_icon := GezStyle.good_icon(str(g.get("name", "")))
+		if g_icon != null:
+			row.add_child(GezStyle.icon_rect(g_icon, 24.0))
+		else:
+			var swatch := ColorRect.new()
+			swatch.custom_minimum_size = Vector2(10.0, 10.0)
+			swatch.color = Color(
+				float(int(g.get("colorR", 180))) / 255.0,
+				float(int(g.get("colorG", 180))) / 255.0,
+				float(int(g.get("colorB", 180))) / 255.0
+			)
+			row.add_child(swatch)
 
 		var g_idx: int = int(g.get("goodIndex", -1))
 		var g_btn := Button.new()

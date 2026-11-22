@@ -36,7 +36,13 @@
     `building_windmill`, `building_tower_catapult` (blue variants),
     `fence_wood_straight`, `fence_stone_straight`,
     `fence_stone_straight_gate`, `tent`, `flag_blue`, `ladder`, and the
-    palette texture `hexagons_medieval.png`.
+    palette texture `hexagons_medieval.png`. Added for the building icons
+    (Phase 20 part 2): `building_barracks`, `building_blacksmith`,
+    `building_lumbermill`, `building_mine`, `building_tavern`,
+    `building_watermill` (blue variants), `building_grain`,
+    `building_scaffolding`, `barrel`, `crate_A_big`, `crate_open`, `sack`,
+    `resource_lumber`, `resource_stone`, `wheelbarrow`, `weaponrack`,
+    `tree_single_A`, `trees_A_small`.
   - **KayKit Adventurers Character Pack 1.0** by Kay Lousberg
     (`https://github.com/KayKit-Game-Assets/KayKit-Character-Pack-Adventures-1.0`),
     CC0 1.0 Public Domain: `shield_round`, `shield_square`,
@@ -48,3 +54,16 @@
     their sails, piers, flags, soldiers, archers, riders and horses,
     trebuchets, rams, cannons, siege towers, walls, wall towers, gates,
     keeps, rubble and trees.
+- **Fonts (Phase 20):** in `godot/assets/fonts/`, each with its licence file:
+  - **Cinzel** by Natanael Gama and the Cinzel Project Authors
+    (`https://github.com/NDISCOVER/Cinzel`), SIL Open Font License 1.1
+    (`OFL-Cinzel.txt`): titles, banners, the top bar.
+  - **EB Garamond** by Georg Duffner, Octavio Pardo and the EB Garamond
+    Project Authors (`https://github.com/octaviopardo/EBGaramond12`), SIL
+    Open Font License 1.1 (`OFL-EBGaramond.txt`): all other text.
+- **Interface art (Phase 20):** frames, leather, parchment, banners,
+  buttons, medallions and their engraved icons, wax seals and the 62 goods
+  icons are drawn in code by `tools/uiart/ui_art_concept.py` and
+  `tools/uiart/goods_art.py` (project work). Building icons are rendered
+  from our 3D models (KayKit pieces above) by
+  `godot/tools/render_building_icons.gd`.

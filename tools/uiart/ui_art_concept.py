@@ -736,7 +736,7 @@ def seal_with_letter(path, size, base, letter):
     c = (S - 1) / 2
     ang = np.arctan2(y - c, x - c)
     r = np.hypot(x - c, y - c) / (S / 2)
-    edge = 0.92 + 0.05 * np.sin(ang * 9 + hash(letter) % 7) + 0.025 * np.sin(ang * 23 + 1)
+    edge = 0.92 + 0.05 * np.sin(ang * 9 + (ord(letter) % 7 if letter else 0)) + 0.025 * np.sin(ang * 23 + 1)
     a = np.clip((edge - r) * S / 3, 0, 1)
     hm = np.where(r < edge, np.sqrt(np.clip(1 - (r / edge) ** 2, 0, 1)), 0)
     ring = (r > 0.62) & (r < 0.7)
@@ -832,11 +832,162 @@ def trait_kind(key):
     return 'virtue'
 
 
+
+# ---------------------------------------------------------------- Phase 20 part 2: goods icons
+def _fill_mask(path, S, stroke=0.0, fill=True):
+    attrs = (f'fill="#fff" stroke="#fff" stroke-width="{max(stroke, 0.6)}"' if fill else
+             f'fill="none" stroke="#fff" stroke-width="{stroke}"')
+    svg = (f'<svg xmlns="http://www.w3.org/2000/svg" width="{S}" height="{S}" viewBox="0 0 24 24">'
+           f'<path d="{path}" {attrs} stroke-linejoin="round" stroke-linecap="round"/></svg>')
+    im = Image.open(io.BytesIO(cairosvg.svg2png(bytestring=svg.encode()))).convert('RGBA')
+    return np.asarray(im, float)[..., 3] / 255
+
+
+def painted_object(layers, S):
+    """Colour drawing lit like a low relief, with a thin dark outline."""
+    rgb = np.zeros((S, S, 3)); a = np.zeros((S, S))
+    for path, col, kind in layers:
+        if kind == 'f':
+            m = _fill_mask(path, S)
+            h = ndimage.gaussian_filter(m, S * 0.03)
+            lit = shade_matte(h * S * 0.12, col, strength=1.0, spec=0.25)
+            # outline each shape so overlapping parts read
+            edge = np.clip(ndimage.maximum_filter(m, 3) - ndimage.minimum_filter(m, 3), 0, 1) * 0.6
+            rgb = rgb * (1 - m[..., None]) + lit * m[..., None]
+            rgb = rgb * (1 - edge[..., None]) + np.array([46, 28, 14]) * edge[..., None]
+            a = np.maximum(a, m)
+        else:
+            m = _fill_mask(path, S, stroke=1.3 if kind == 'l' else 1.0, fill=False)
+            rgb = rgb * (1 - m[..., None]) + np.array(col, float) * m[..., None]
+            a = np.maximum(a, m)
+    out = np.clip(ndimage.maximum_filter(a, 3) - a, 0, 1)
+    rgb = rgb * (1 - out[..., None]) + np.array([46, 28, 14]) * out[..., None]
+    return rgb, np.maximum(a, out)
+
+
+def goods_icon(path, layers, size=32):
+    """Owner's choice C: the good in colour on a small gold-rimmed parchment roundel."""
+    S = size * 4    # drawn at 4x, saved at 2x of the display size
+    y, x = np.mgrid[0:S, 0:S].astype(float)
+    c = (S - 1) / 2
+    r = np.hypot(x - c, y - c) / (S / 2)
+    alpha = np.clip((1 - r) * S / 3, 0, 1)
+    rim = 0.13
+    h = np.where(r > 1 - rim, np.sin(np.clip((1 - r) / rim, 0, 1) * math.pi) ** 0.7, 0.0)
+    ang = np.arctan2(y - c, x - c)
+    beads = (r > 1 - rim * .75) & (r < 1 - rim * .25)
+    h[beads] *= 0.75 + 0.25 * np.abs(np.cos(ang[beads] * 12))
+    metal = shade_metal(h * S * 0.06, GOLD, strength=1.0)
+    dish = r <= 1 - rim
+    page = np.array([238, 224, 190], float) * (1 - 0.28 * (r / (1 - rim)) ** 3)[..., None]
+    rgb = np.where(dish[..., None], page, metal)
+    inner = int(S * 0.72)
+    orgb, oa = painted_object(layers, inner)
+    o = (S - inner) // 2
+    # soft shadow under the object
+    sh = np.zeros((S, S)); sh[o:o + inner, o:o + inner] = oa
+    sh = ndimage.shift(ndimage.gaussian_filter(sh, S * 0.02), (S * 0.02, S * 0.015))
+    rgb = np.where(dish[..., None], rgb * (1 - 0.35 * sh[..., None]), rgb)
+    sub = rgb[o:o + inner, o:o + inner]
+    rgb[o:o + inner, o:o + inner] = sub * (1 - oa[..., None]) + orgb * oa[..., None]
+    im = Image.fromarray(np.dstack([np.clip(rgb, 0, 255), alpha * 255]).astype('uint8'), 'RGBA')
+    im = im.resize((size * 2, size * 2), Image.LANCZOS)
+    im.save(path, optimize=True)
+
+
+def build_goods(out_dir):
+    import os
+    from goods_art import GOODS
+    os.makedirs(out_dir, exist_ok=True)
+    names = {}
+    for line in open('data/economy/goods.txt', encoding='utf-8'):
+        if line.strip() and not line.startswith('#') and '|' in line:
+            key, name = [p.strip() for p in line.split('|')[:2]]
+            names[key] = name
+    missing = [k for k in names if k not in GOODS]
+    if missing:
+        raise SystemExit('goods without a drawing: ' + ', '.join(missing))
+    for key in names:
+        goods_icon(os.path.join(out_dir, f'{key}.png'), GOODS[key])
+    _write_index(out_dir, names)
+    return names
+
+
+def _write_index(out_dir, names):
+    """index.json: display name -> file key, so the game can find the icon
+    of a good or building from the name the simulation reports."""
+    import json, os
+    with open(os.path.join(out_dir, 'index.json'), 'w', encoding='utf-8') as f:
+        json.dump({v: k for k, v in names.items()}, f, ensure_ascii=False, indent=0, sort_keys=True)
+
+
+# ---------------------------------------------------------------- Phase 20 part 2: building icons
+def building_plaque(path, render_png, badge_png=None, size=48):
+    """A 3D render of the building (godot/tools/render_building_icons.gd)
+    on a parchment plaque with a thin gold frame; workshops carry their
+    good as a small roundel in the corner."""
+    S = size * 4
+    y, x = np.mgrid[0:S, 0:S].astype(float)
+    d = np.minimum.reduce([x, y, S - 1 - x, S - 1 - y])
+    B = S * 0.06
+    h = np.where(d < B, np.sin(np.clip(d / B, 0, 1) * math.pi), 0)
+    metal = shade_metal(h * S * 0.05, GOLD, strength=1.0)
+    yy = y / S
+    page = np.array([240, 228, 196], float)[None, None, :] * (0.92 + 0.08 * (1 - yy))[..., None]
+    page *= (1 - 0.25 * np.exp(-(d - B) / (S * 0.05)))[..., None]
+    rgb = np.where((d < B)[..., None], metal, page)
+    r = S * 0.07
+    cx = np.clip(x, r, S - 1 - r); cy = np.clip(y, r, S - 1 - r)
+    alpha = np.clip(r + 0.5 - np.hypot(x - cx, y - cy), 0, 1)
+    im = Image.fromarray(np.dstack([np.clip(rgb, 0, 255), alpha * 255]).astype('uint8'), 'RGBA')
+    art = Image.open(render_png).convert('RGBA')
+    bb = art.getbbox()
+    if bb:
+        art = art.crop(bb)
+    inner = int(S * 0.80)
+    k = inner / max(art.width, art.height)
+    art = art.resize((max(1, int(art.width * k)), max(1, int(art.height * k))), Image.LANCZOS)
+    im.alpha_composite(art, ((S - art.width) // 2, (S - art.height) // 2 + int(S * 0.02)))
+    if badge_png:
+        b = Image.open(badge_png).convert('RGBA').resize((int(S * 0.42), int(S * 0.42)), Image.LANCZOS)
+        im.alpha_composite(b, (S - b.width - int(S * 0.03), S - b.height - int(S * 0.03)))
+    im.resize((size * 2, size * 2), Image.LANCZOS).save(path, optimize=True)
+
+
+def build_buildings(render_dir, out_dir, goods_dir):
+    import os
+    os.makedirs(out_dir, exist_ok=True)
+    done = []
+    names = {}
+    for line in open('data/economy/buildings.txt', encoding='utf-8'):
+        if not line.strip() or line.startswith('#') or '|' not in line:
+            continue
+        cols = [p.strip() for p in line.split('|')]
+        key, effect = cols[0], cols[6]
+        badge = None
+        if effect.startswith('workshop '):
+            badge = os.path.join(goods_dir, effect.split()[1] + '.png')
+        src = os.path.join(render_dir, key + '.png')
+        if not os.path.exists(src):
+            raise SystemExit('no render for building ' + key)
+        building_plaque(os.path.join(out_dir, key + '.png'), src, badge)
+        done.append(key)
+        names[key] = cols[1]
+    _write_index(out_dir, names)
+    return done
+
+
 if __name__ == '__main__':
-    import sys
+    import sys, os
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
     if len(sys.argv) > 2 and sys.argv[1] == '--kit':
         m = build_kit(sys.argv[2])
+        build_goods(os.path.join(sys.argv[2], 'goods'))
         print('kit margins:', m)
+    elif len(sys.argv) > 3 and sys.argv[1] == '--buildings':
+        # ui_art_concept.py --buildings <renders folder> godot/assets/ui
+        n = build_buildings(sys.argv[2], os.path.join(sys.argv[3], 'buildings'), os.path.join(sys.argv[3], 'goods'))
+        print(len(n), 'building icons')
     else:
         build_concept()
         print('done')
