@@ -51,6 +51,9 @@ Last updated: 22 November 2026 (session 13, Phase 20).
   (routine: HANDOFF "Working with Gemini" and "How Claude reviews"). New
   screens: plain controls, `add_window`, `add_side_button` (HANDOFF "New
   screens and the Phase 20 look").
+- **Map and flavour research** (owner, 22 Nov 2026): PR #13 adds
+  `docs/MAP_EXPANSION_RESEARCH.md` (1453 border fixes, Afro-Eurasia
+  expansion, regional governance, formables) with Claude's review notes.
 
 ## Next
 1. **Phase 18 Chronicle** (Gemini, in progress): its screens get the
