@@ -66,4 +66,8 @@
   icons are drawn in code by `tools/uiart/ui_art_concept.py` and
   `tools/uiart/goods_art.py` (project work). Building icons are rendered
   from our 3D models (KayKit pieces above) by
-  `godot/tools/render_building_icons.gd`.
+  `godot/tools/render_building_icons.gd`. The shields
+  (`godot/assets/ui/shields/`) put each country's coat of arms (sources and
+  licences in `data/heraldry/credits.json`) into a gold-rimmed shield of its
+  region's shape. Portraits are made from parts drawn by
+  `tools/uiart/portrait_art.py` (project work).
