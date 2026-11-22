@@ -45,13 +45,25 @@ static func medallion_button(key: String, size := 40.0) -> TextureButton:
 	b.pivot_offset = Vector2(size, size) * 0.5
 	b.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	b.set_meta("gez_medallion", key)
-	b.mouse_entered.connect(func() -> void: b.self_modulate = Color(1.22, 1.16, 1.02))
+	# Phase 20 part 7: light up and swell a little on hover, press in on click.
+	b.mouse_entered.connect(func() -> void:
+		b.self_modulate = Color(1.25, 1.18, 1.02)
+		_ease_scale(b, 1.06))
 	b.mouse_exited.connect(func() -> void:
 		b.self_modulate = Color(1, 1, 1)
-		b.scale = Vector2.ONE)
-	b.button_down.connect(func() -> void: b.scale = Vector2(0.92, 0.92))
-	b.button_up.connect(func() -> void: b.scale = Vector2.ONE)
+		_ease_scale(b, 1.0))
+	b.button_down.connect(func() -> void: _ease_scale(b, 0.9, 0.05))
+	b.button_up.connect(func() -> void: _ease_scale(b, 1.06 if b.is_hovered() else 1.0, 0.09))
 	return b
+
+static func _ease_scale(c: Control, to: float, time := 0.08) -> void:
+	if c.has_meta("gez_scale_tween"):
+		var old: Tween = c.get_meta("gez_scale_tween")
+		if old != null and old.is_valid():
+			old.kill()
+	var t := c.create_tween().set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	t.tween_property(c, "scale", Vector2(to, to), time)
+	c.set_meta("gez_scale_tween", t)
 
 ## Show a medallion button as active (red enamel), e.g. the open screen or
 ## the current map mode.

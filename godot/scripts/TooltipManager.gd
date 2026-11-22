@@ -41,6 +41,7 @@ func _build_panel() -> void:
 	_italic_font = GezTheme.italic_font()
 	tooltip_panel = PanelContainer.new()
 	tooltip_panel.name = "SharedParchmentTooltip"
+	tooltip_panel.set_meta("no_motion", true)   # tooltips appear at once (Phase 20 part 7)
 	tooltip_panel.visible = false
 	tooltip_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	tooltip_panel.custom_minimum_size = Vector2(210.0, 0.0)

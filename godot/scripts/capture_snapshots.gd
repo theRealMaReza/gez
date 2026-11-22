@@ -18,6 +18,9 @@ func _initialize() -> void:
 	root.size = Vector2i(1440, 900)
 	DisplayServer.window_set_size(Vector2i(1440, 900))
 
+	var motion := root.get_node_or_null("Motion")
+	if motion != null:
+		motion.set("enabled", false)   # windows open at once for screenshots (Phase 20 part 7)
 	root_node = main_scene.instantiate()
 	root.add_child(root_node)
 	call_deferred("_run_captures")

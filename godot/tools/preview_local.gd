@@ -5,6 +5,9 @@ var main_node: Control
 func _initialize() -> void:
 	root.size = Vector2i(1440, 900)
 	DisplayServer.window_set_size(Vector2i(1440, 900))
+	var motion := root.get_node_or_null("Motion")
+	if motion != null:
+		motion.set("enabled", false)   # windows open at once for screenshots (Phase 20 part 7)
 	main_node = (load("res://scenes/Main.tscn") as PackedScene).instantiate()
 	root.add_child(main_node)
 	call_deferred("_run")
