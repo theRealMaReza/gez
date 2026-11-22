@@ -101,3 +101,11 @@ func test_shields_by_culture() -> void:
 	for tag in shapes.keys():
 		if not ResourceLoader.exists("res://assets/ui/shields/%s.png" % tag):
 			runner.check(false, "shield picture for %s" % tag)
+
+func test_alert_medallions() -> void:
+	# Phase 20 part 5: one medallion per alert kind, plus the glow.
+	for k in ["peaceOffer", "breach", "underSiege", "coalition", "lowStability", "disloyalEstate", "refusingVassal",
+			"bankrupt", "highInflation", "navalBattle", "blockadedPort", "plague", "famine", "earthquake", "rebels",
+			"techLevel", "institution", "event"]:
+		runner.check(GezStyle.medallion("alert_" + k) != null, "alert medallion %s" % k)
+	runner.check(ResourceLoader.exists("res://assets/ui/glow.png"), "alert glow")

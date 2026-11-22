@@ -119,6 +119,12 @@ func _initialize() -> void:
 		if k == "map_political":
 			GezStyle.set_medallion_on(b3, true)
 		mm.add_child(b3)
+	# Alerts row (Phase 20 part 5)
+	var row: HBoxContainer = load("res://scripts/AlertsRow.gd").new()
+	row.call("setup", null)
+	row.position = Vector2(990, 260)
+	root.add_child(row)
+	row.call("show_alerts", [{"kind": "underSiege"}, {"kind": "peaceOffer"}, {"kind": "plague"}, {"kind": "navalBattle"}, {"kind": "techLevel"}, {"kind": "rebels"}])
 	call_deferred("_shoot")
 
 func _shoot() -> void:
