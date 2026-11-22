@@ -19,7 +19,7 @@ LOR | Lorraine | 220 200 90 | monarchy | catholic
 STB | Strasbourg | 180 120 150 | republic | catholic
 MTZ | Metz | 150 90 120 | republic | catholic
 BES | Besancon | 170 110 90 | republic | catholic
-BAS | Basel | 130 60 60 | republic | catholic
+BAS | Basel | 70 70 80 | republic | catholic
 FUR | Further Austria | 230 220 150 | monarchy | catholic | Freiburg
 
 # British Isles
@@ -91,7 +91,7 @@ GOR | Gorizia | 120 160 140 | monarchy | catholic
 TIR | Tyrol | 200 130 100 | monarchy | catholic
 SWI | Swiss Confederation | 200 40 40 | republic | catholic
 SGA | Saint Gall | 225 210 80 | theocracy | catholic
-VAL | Valais | 200 80 50 | theocracy | catholic
+VAL | Valais | 110 40 70 | theocracy | catholic
 GRI | Grisons | 80 100 140 | republic | catholic
 SAV | Savoy | 150 70 70 | monarchy | catholic | Chambery
 SLZ | Saluzzo | 220 160 160 | monarchy | catholic
