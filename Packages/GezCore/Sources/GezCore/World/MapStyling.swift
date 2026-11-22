@@ -128,13 +128,91 @@ public struct MapLabelInfo: Identifiable, Sendable, Equatable {
     public let y: Double
     /// Rough size of the thing being labelled, in map pixels.
     public let pixelArea: Double
+    /// Curved country names (Phase 20): direction of the label's long axis in
+    /// radians (0 = left to right, kept within ±40° so names read easily),
+    /// its length along that axis in map pixels, and how far the ends sit off
+    /// the middle at right angles (map pixels; positive = ends lower).
+    public let angle: Double
+    public let length: Double
+    public let bend: Double
 
-    public init(id: Int, text: String, x: Double, y: Double, pixelArea: Double) {
+    public init(id: Int, text: String, x: Double, y: Double, pixelArea: Double,
+                angle: Double = 0, length: Double = 0, bend: Double = 0) {
         self.id = id
         self.text = text
         self.x = x
         self.y = y
         self.pixelArea = pixelArea
+        self.angle = angle
+        self.length = length
+        self.bend = bend
+    }
+
+    /// Fits the curve of a country name through the centres of its provinces
+    /// (weighted by size): the long axis by principal components, the length
+    /// from the spread along it, the bend from a parabola across it.
+    public static func curve(points: [(x: Double, y: Double, w: Double)]) -> (angle: Double, length: Double, bend: Double) {
+        let total = points.reduce(0) { $0 + $1.w }
+        guard points.count >= 2, total > 0 else {
+            return (0, sqrt(max(total, 1)), 0)
+        }
+        let mx = points.reduce(0) { $0 + $1.x * $1.w } / total
+        let my = points.reduce(0) { $0 + $1.y * $1.w } / total
+        var sxx = 0.0, syy = 0.0, sxy = 0.0
+        for p in points {
+            let dx = p.x - mx, dy = p.y - my
+            sxx += p.w * dx * dx; syy += p.w * dy * dy; sxy += p.w * dx * dy
+        }
+        var angle = 0.5 * atan2(2 * sxy, sxx - syy)
+        if angle > Double.pi / 2 { angle -= Double.pi }
+        if angle < -Double.pi / 2 { angle += Double.pi }
+        // roundish countries keep a level name; long ones follow their shape
+        let mean = (sxx + syy) / 2
+        let spread = sqrt(((sxx - syy) / 2) * ((sxx - syy) / 2) + sxy * sxy)
+        let ratio = sqrt((mean + spread) / max(mean - spread, 1e-9))
+        angle *= min(max((ratio - 1.2) / 0.5, 0), 1)
+        // keep text readable: within ±40° of level
+        let limit = Double.pi * 2 / 9
+        angle = min(max(angle, -limit), limit)
+        let ux = cos(angle), uy = sin(angle)
+        let vx = -uy, vy = ux
+        // spread along the axis: weighted 10th to 90th percentile
+        let along = points.map { (u: ($0.x - mx) * ux + ($0.y - my) * uy, v: ($0.x - mx) * vx + ($0.y - my) * vy, w: $0.w) }
+            .sorted { $0.u < $1.u }
+        func percentile(_ q: Double) -> Double {
+            var acc = 0.0
+            for a in along {
+                acc += a.w
+                if acc >= q * total { return a.u }
+            }
+            return along.last?.u ?? 0
+        }
+        let lo = percentile(0.08), hi = percentile(0.92)
+        let size = sqrt(total)
+        let length = max(hi - lo + size * 0.25, size * 0.6)
+        // parabola v = a*u^2 + b*u + c (weighted least squares)
+        var s0 = 0.0, s1 = 0.0, s2 = 0.0, s3 = 0.0, s4 = 0.0, t0 = 0.0, t1 = 0.0, t2 = 0.0
+        for a in along {
+            let u = a.u, u2 = u * u
+            s0 += a.w; s1 += a.w * u; s2 += a.w * u2; s3 += a.w * u2 * u; s4 += a.w * u2 * u2
+            t0 += a.w * a.v; t1 += a.w * a.v * u; t2 += a.w * a.v * u2
+        }
+        // solve the 3x3 normal equations by Cramer's rule
+        func det3(_ m: [[Double]]) -> Double {
+            m[0][0] * (m[1][1] * m[2][2] - m[1][2] * m[2][1])
+            - m[0][1] * (m[1][0] * m[2][2] - m[1][2] * m[2][0])
+            + m[0][2] * (m[1][0] * m[2][1] - m[1][1] * m[2][0])
+        }
+        let mat = [[s4, s3, s2], [s3, s2, s1], [s2, s1, s0]]
+        let d = det3(mat)
+        var bend = 0.0
+        if abs(d) > 1e-9, points.count >= 3 {
+            let da = det3([[t2, s3, s2], [t1, s2, s1], [t0, s1, s0]])
+            let a = da / d
+            bend = a * (length / 2) * (length / 2)
+            bend = min(max(bend, -length * 0.22), length * 0.22)
+        }
+        return (angle, length, bend)
     }
 }
 
@@ -507,7 +585,12 @@ public enum MapStyling {
                     }
                 }
             }
-            countryLabels.append(MapLabelInfo(id: k, text: c.name[k], x: bestX, y: bestY, pixelArea: bestArea[k]))
+            let pts = bestBlock[k].map { i in
+                (x: Double(p.labelPoint[i].x), y: Double(p.labelPoint[i].y), w: Double(geometry.pixelCount[i]))
+            }
+            let curve = MapLabelInfo.curve(points: pts)
+            countryLabels.append(MapLabelInfo(id: k, text: c.name[k], x: bestX, y: bestY, pixelArea: bestArea[k],
+                                              angle: curve.angle, length: curve.length, bend: curve.bend))
         }
 
         var sx = [Double](repeating: 0, count: world.seaZones.count)

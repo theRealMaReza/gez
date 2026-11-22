@@ -6,6 +6,9 @@ var map_mode: String = "political"
 
 var country_texts: PackedStringArray = PackedStringArray()
 var country_metrics: PackedFloat32Array = PackedFloat32Array()
+# Phase 20 part 8: [angle, length, bend] per country label (curved names).
+var country_curves: PackedFloat32Array = PackedFloat32Array()
+var _name_font: Font = null
 
 var province_texts: PackedStringArray = PackedStringArray()
 var province_metrics: PackedFloat32Array = PackedFloat32Array()
@@ -63,6 +66,11 @@ func set_country_labels(texts: PackedStringArray, metrics: PackedFloat32Array) -
 	_cache_dirty = true
 	queue_redraw()
 
+func set_country_curves(curves: PackedFloat32Array) -> void:
+	country_curves = curves
+	_cache_dirty = true
+	queue_redraw()
+
 func set_province_labels(texts: PackedStringArray, metrics: PackedFloat32Array) -> void:
 	province_texts = texts
 	province_metrics = metrics
@@ -115,6 +123,24 @@ func _place_labels_world(texts: PackedStringArray, metrics: PackedFloat32Array, 
 		var w_world := w_screen * inv_z
 		var h_world := h_screen * inv_z
 		var rect_world := Rect2(wx - w_world * 0.5, wy - h_world * 0.5, w_world, h_world)
+		var curve := Vector3.ZERO   # angle, length, bend (map pixels); zero = straight
+		if not is_sea and not show_provinces and country_curves.size() >= base_idx + 3:
+			curve = Vector3(country_curves[base_idx], country_curves[base_idx + 1], country_curves[base_idx + 2])
+			if curve.y > 0.0:
+				# letter-spaced capitals along the country's own curve (old maps)
+				var span := curve.y * z * 0.86
+				font_size = int(clampf(span / maxf(float(label_text.length()), 1.0) / 1.05, 10.0, 44.0))
+				if span < float(label_text.length()) * 7.0:
+					curve = Vector3.ZERO
+				else:
+					w_screen = span
+					var dir := Vector2(cos(curve.x), sin(curve.x))
+					var perp := Vector2(-dir.y, dir.x)
+					var half := dir * curve.y * 0.5
+					var pad := float(font_size) * 0.8 * inv_z
+					var a := Vector2(wx, wy) - half + perp * curve.z
+					var b := Vector2(wx, wy) + half + perp * curve.z
+					rect_world = Rect2(Vector2(wx, wy), Vector2.ZERO).expand(a).expand(b).grow(pad)
 
 		var x0 := int(floor(rect_world.position.x / cell_size))
 		var y0 := int(floor(rect_world.position.y / cell_size))
@@ -150,7 +176,8 @@ func _place_labels_world(texts: PackedStringArray, metrics: PackedFloat32Array, 
 			w_screen,
 			font_size,
 			label_text,
-			rect_world
+			rect_world,
+			curve
 		])
 	return out
 
@@ -198,9 +225,15 @@ func _draw() -> void:
 
 	var ink := Color(0.14, 0.10, 0.07, 0.88)
 	var halo := Color(0.97, 0.94, 0.88, 0.82)
+	if _name_font == null:
+		_name_font = GezTheme.title_font()
 	for entry in _cached_main:
 		var wr: Rect2 = entry[5]
 		if not vis_world.intersects(wr):
+			continue
+		var cv: Vector3 = entry[6]
+		if cv.y > 0.0:
+			_draw_curved_name(str(entry[4]), Vector2(float(entry[0]), float(entry[1])), cv, int(entry[3]), ink, halo)
 			continue
 		var sp := _ms(float(entry[0]), float(entry[1]))
 		var sx := sp.x
@@ -211,3 +244,50 @@ func _draw() -> void:
 		var baseline := Vector2(sx - w_scr * 0.5, sy + float(fsize) * 0.35)
 		draw_string_outline(font, baseline, txt, HORIZONTAL_ALIGNMENT_CENTER, w_scr, fsize, 3, halo)
 		draw_string(font, baseline, txt, HORIZONTAL_ALIGNMENT_CENTER, w_scr, fsize, ink)
+
+# Phase 20 part 8: a country name in letter-spaced capitals along the curve
+# C + dir*t*L/2 + perp*bend*t^2 (t from -1 to 1, map pixels), projected
+# through the 3D camera so it lies on the tilted map too.
+func _draw_curved_name(txt: String, c: Vector2, cv: Vector3, fsize: int, ink: Color, halo: Color) -> void:
+	var font := _name_font
+	var dir := Vector2(cos(cv.x), sin(cv.x))
+	var perp := Vector2(-dir.y, dir.x)
+	const N := 24
+	var pts: Array[Vector2] = []
+	var acc: Array[float] = [0.0]
+	for k in range(N + 1):
+		var t := -1.0 + 2.0 * float(k) / float(N)
+		var mp := c + dir * (t * cv.y * 0.5) + perp * (cv.z * t * t)
+		pts.append(_msv(mp))
+		if k > 0:
+			acc.append(acc[k - 1] + pts[k].distance_to(pts[k - 1]))
+	var arc := acc[N]
+	if arc < 4.0:
+		return
+	var n := txt.length()
+	var widths: Array[float] = []
+	var text_w := 0.0
+	for i in range(n):
+		var w := font.get_string_size(txt[i], HORIZONTAL_ALIGNMENT_LEFT, -1, fsize).x
+		widths.append(w)
+		text_w += w
+	var gap := 0.0
+	if n > 1:
+		gap = clampf((arc * 0.86 - text_w) / float(n - 1), 0.0, float(fsize) * 0.9)
+	var d := (arc - (text_w + gap * float(n - 1))) * 0.5
+	var seg := 0
+	for i in range(n):
+		var mid := d + widths[i] * 0.5
+		while seg < N - 1 and acc[seg + 1] < mid:
+			seg += 1
+		var seg_len := maxf(acc[seg + 1] - acc[seg], 0.0001)
+		var f := clampf((mid - acc[seg]) / seg_len, 0.0, 1.0)
+		var p := pts[seg].lerp(pts[seg + 1], f)
+		var tang := (pts[seg + 1] - pts[seg]).angle()
+		draw_set_transform(p, tang, Vector2.ONE)
+		var at := Vector2(-widths[i] * 0.5, float(fsize) * 0.36)
+		draw_string_outline(font, at, txt[i], HORIZONTAL_ALIGNMENT_LEFT, -1, fsize, 4, halo)
+		draw_string(font, at, txt[i], HORIZONTAL_ALIGNMENT_LEFT, -1, fsize, ink)
+		d += widths[i] + gap
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+

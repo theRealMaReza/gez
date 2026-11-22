@@ -20,6 +20,10 @@ uniform int mode = 0;
 uniform int selected_sea = 0;
 uniform float height_max = 34.0;
 uniform float relief_light = 0.0;   // 0 = flat look (top-down), up to ~0.5 tilted
+// Phase 20 part 8: the painted-chart look when zoomed out (0 = off, 1 = full):
+// parchment land washed with the map colours, drawn mountains, a pale sea
+// with ripple lines along the coasts, blank parchment for unknown lands.
+uniform float chart = 0.0;
 
 uniform sampler2D id_tex : filter_nearest, repeat_disable;
 uniform sampler2D terrain_tex : filter_linear, repeat_disable;
@@ -80,6 +84,46 @@ float noise2(vec2 p) {
 	return mix(mix(a, b, u.x), mix(c, d, u.x), u.y);
 }
 
+vec3 paper(vec2 m) {
+	float n = noise2(m * 0.012) * 0.6 + noise2(m * 0.05) * 0.3 + noise2(m * 0.21) * 0.1;
+	return vec3(0.94, 0.88, 0.73) * (0.90 + 0.12 * n);
+}
+
+// Old-map mountains: little ink peaks on high ground, staggered in rows,
+// shaded on the right-hand side. Returns ink strength 0..1.
+float mountain_ink(vec2 m, float px) {
+	float cell = 42.0;
+	vec2 g = m / cell;
+	float row = floor(g.y);
+	float shift = mod(row, 2.0) * 0.5;
+	g.x += shift;
+	vec2 cid = floor(g);
+	vec2 f = fract(g) - 0.5;
+	vec2 centre = (vec2(cid.x - shift, cid.y) + 0.5) * cell;
+	float h = textureLod(height_tex, centre / map_size, 0.0).r;
+	if (h < 0.48) {
+		return 0.0;
+	}
+	float j = hash2(cid);
+	f -= vec2(j - 0.5, hash2(cid + 7.1) - 0.5) * 0.18;
+	float s = clamp((h - 0.40) * 1.1, 0.18, 0.44) * (0.85 + 0.3 * j);
+	// peak at (0, -s), base from (-s, 0.55 s) to (s, 0.55 s)
+	float base_y = s * 0.55;
+	if (f.y > base_y || f.y < -s) {
+		return 0.0;
+	}
+	float hw = (f.y + s) / (s + base_y) * s;      // half width at this height
+	float line_w = 1.3 * px / cell;
+	float edge = abs(abs(f.x) - hw);
+	float ink = 1.0 - smoothstep(line_w * 0.5, line_w * 1.4, edge);
+	if (abs(f.x) < hw && f.x > 0.0) {
+		// hatch the shaded side
+		float hatch = step(0.55, fract((f.x - f.y * 0.6) / (line_w * 3.2)));
+		ink = max(ink, hatch * 0.55);
+	}
+	return ink;
+}
+
 float luminance(vec3 c) {
 	return dot(c, vec3(0.299, 0.587, 0.114));
 }
@@ -121,6 +165,26 @@ void fragment() {
 			color = mix(color, vec3(0.82, 0.86, 0.80), coast * 0.35);
 
 			int zone = id_at(sea_tex, m, map_size);
+			if (zone == 0) {
+				// land outside the map's provinces: blank parchment (terra incognita)
+				color = mix(color, paper(m) * 0.97, max(chart, 0.85));
+			} else if (chart > 0.01) {
+				// a pale painted sea with ripple lines following the coasts
+				vec3 sea_wash = vec3(0.64, 0.75, 0.74) * (0.94 + 0.10 * noise2(m * 0.02));
+				int first = 6;
+				for (int ring = 1; ring <= 5; ring++) {
+					float rr = float(ring) * 3.5 * px_per_screen;
+					if (id_at(id_tex, m + vec2(rr, 0.0), map_size) != 0 || id_at(id_tex, m - vec2(rr, 0.0), map_size) != 0
+						|| id_at(id_tex, m + vec2(0.0, rr), map_size) != 0 || id_at(id_tex, m - vec2(0.0, rr), map_size) != 0) {
+						first = ring;
+						break;
+					}
+				}
+				if (first == 2 || first == 4) {
+					sea_wash *= 0.80;
+				}
+				color = mix(color, sea_wash, chart * 0.9);
+			}
 			if (zone != 0) {
 				float r = 1.2 * px_per_screen;
 				int e = id_at(sea_tex, m + vec2(r, 0.0), map_size);
@@ -135,6 +199,11 @@ void fragment() {
 				}
 			}
 		} else {
+			if (chart > 0.01) {
+				// hand-coloured chart: the terrain fades into parchment, the map
+				// colours are washed over it (below)
+				base = mix(base, paper(m) * (0.80 + 0.28 * luminance(base)), chart * 0.85);
+			}
 			color = base;
 			if (s_color.a > 0.0) {
 				float lum = luminance(base);
@@ -198,6 +267,10 @@ void fragment() {
 				vec3 light_dir = normalize(vec3(-0.55, 0.75, -0.45));
 				float lambert = dot(n, light_dir) / light_dir.y;
 				color *= mix(1.0, clamp(lambert, 0.45, 1.35), relief_light);
+			}
+
+			if (chart > 0.01) {
+				color = mix(color, vec3(0.24, 0.16, 0.09), mountain_ink(m, px_per_screen) * chart * 0.85);
 			}
 
 			if (id == selected && selected != 0) {
