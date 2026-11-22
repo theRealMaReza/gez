@@ -22,6 +22,7 @@ func _initialize() -> void:
 	if motion != null:
 		motion.set("enabled", false)   # windows open at once for screenshots (Phase 20 part 7)
 	root_node = main_scene.instantiate()
+	root_node.set("show_main_menu_at_start", false)   # Phase 20 part 9: shot separately
 	root.add_child(root_node)
 	call_deferred("_run_captures")
 
@@ -45,6 +46,11 @@ func _save_shot(filename: String) -> void:
 
 func _run_captures() -> void:
 	await _settle(6)
+	# the world is built a couple of frames after the loading screen (Phase 20 part 9)
+	for _i in range(120):
+		if root_node.get("bridge") != null and bool(root_node.get("title_screens") != null and not root_node.get("title_screens").visible):
+			break
+		await process_frame
 
 	var bridge = root_node.get("bridge")
 	if bridge == null:
@@ -107,6 +113,14 @@ func _run_captures() -> void:
 	root_node.call("_toggle_game_menu")
 	await _save_shot("godot_game_menu.png")
 	root_node.call("_toggle_game_menu")
+
+	# Phase 20 part 9: main menu and loading screen (stand-ins until the paintings arrive).
+	root_node.call("open_main_menu")
+	await _save_shot("godot_main_menu.png")
+	var ts: Control = root_node.get("title_screens")
+	ts.call("show_loading")
+	await _save_shot("godot_loading.png")
+	ts.call("hide_screens")
 
 	# Whole-world map & sample map modes.
 	root_node.call("_show_whole_map")

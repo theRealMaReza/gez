@@ -1322,6 +1322,40 @@ def build_chart(out_dir):
         chart_drawing(os.path.join(out_dir, f'{name}.png'), w, h, fills, lines)
     compass_rose(os.path.join(out_dir, 'compass.png'))
 
+
+# ---------------------------------------------------------------- Phase 20 part 9: stand-ins for the paintings
+def build_placeholders(out_dir, terrain='App/Resources/Terrain/terrain.jpg'):
+    """Stand-ins shown until the owner's paintings arrive (docs/ART_PROMPTS.md):
+    a sepia map around Constantinople for the main menu and loading screen,
+    and a plain parchment card for event pictures."""
+    import os
+    from PIL import ImageOps, ImageFilter
+    t = Image.open(terrain).convert('RGB')
+    w, h = t.size
+    cx, cy = w * 2150 / 3936, h * 820 / 2384          # Constantinople on the map
+    cw, ch = w * 0.42, w * 0.42 * 900 / 1440
+    box = (int(cx - cw * 0.62), int(cy - ch * 0.5), int(cx + cw * 0.38), int(cy + ch * 0.5))
+    crop = t.crop(box).resize((1440, 900), Image.LANCZOS)
+    sep = ImageOps.colorize(ImageOps.grayscale(crop), (64, 44, 26), (238, 218, 176)).filter(ImageFilter.GaussianBlur(0.8))
+    a = np.asarray(sep, float)
+    y, x = np.mgrid[0:900, 0:1440].astype(float)
+    q = ((x / 1440 - 0.5) ** 2 + (y / 900 - 0.5) ** 2)
+    a *= (1 - 0.75 * q)[..., None]
+    Image.fromarray(np.clip(a, 0, 255).astype('uint8')).save(os.path.join(out_dir, 'menu_placeholder.jpg'), quality=86)
+    # event picture stand-in: parchment, an ink rule and a faint compass rose
+    W, H = 1040, 520
+    pg = parchment_tile(H, W, 57)
+    yy, xx = np.mgrid[0:H, 0:W].astype(float)
+    d = np.minimum.reduce([xx, yy, W - 1 - xx, H - 1 - yy])
+    pg *= (1 - 0.25 * np.exp(-d / 40))[..., None]
+    rule = (np.abs(d - 14) < 1.2) | (np.abs(d - 19) < 0.7)
+    pg[rule] = pg[rule] * 0.35 + np.array([90, 60, 30]) * 0.65
+    im = Image.fromarray(np.clip(pg, 0, 255).astype('uint8')).convert('RGBA')
+    rose = Image.open(os.path.join(out_dir, 'chart', 'compass.png')).convert('RGBA').resize((300, 300), Image.LANCZOS)
+    ra = np.asarray(rose, float); ra[..., 3] *= 0.16
+    im.alpha_composite(Image.fromarray(ra.astype('uint8'), 'RGBA'), ((W - 300) // 2, (H - 300) // 2))
+    im.convert('RGB').save(os.path.join(out_dir, 'event_placeholder.jpg'), quality=88)
+
 if __name__ == '__main__':
     import sys, os
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -1332,6 +1366,7 @@ if __name__ == '__main__':
         build_shields(os.path.join(sys.argv[2], 'shields'))
         build_alerts(sys.argv[2])
         build_chart(os.path.join(sys.argv[2], 'chart'))
+        build_placeholders(sys.argv[2])
         print('kit margins:', m)
     elif len(sys.argv) > 3 and sys.argv[1] == '--buildings':
         # ui_art_concept.py --buildings <renders folder> godot/assets/ui

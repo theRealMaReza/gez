@@ -362,35 +362,34 @@ covers Mac, iPad and a possible Windows version.
    free local Wi-Fi play between nearby devices as a bonus.
 Note: the iPad version still needs Apple's paid account to install at all.
 
-### Phase 20: Interface and art (the EU look)
-Decided by the owner in session 6: the very last phase, once everything
-else is done. Until then, keep panels functional and don't style them.
-Reference: the owner's concept canvas on claude.ai ("Gez interface
-concept": today vs. after, main screen and court panel). Its art pieces
-were made in code (height maps lit as metal, leather and enamel) by a
-script now in `tools/uiart/ui_art_concept.py`. Never use Paradox art.
-1. **Style kit**: tooled leather top bar between gold mouldings, gold
-   frames with rope moulding and corner rosettes (nine-slice), parchment
-   panels, red cloth title banners, bevelled gold buttons, domed gold
-   medallions with engraved icons for every button and indicator, wax
-   seals for traits, period fonts (Cinzel titles, EB Garamond text; both
-   free to ship).
-2. **Painted goods and building icons** (Gemini, an art pack or an
-   artist; owner to decide then).
-3. **Portraits**: painted ones for the real people of 1453, plus a
-   layered generator (face, beard, headwear, clothing by culture, age,
-   rank) for everyone else.
-4. **Shields by culture**: heater shields for Latin Europe, round for the
-   Islamic world, other shapes for India and the steppe, all in gold frames.
-5. **Alerts row**: glowing medallions under the top bar (unhappy vassal,
-   stability can be raised, building finished...).
-6. **Rich tooltips**: framed parchment cards that break down every number.
-7. **Motion**: panels unroll like scrolls, medallions press in, hover glow.
-8. **Map polish**: curved country names; a painted-chart look when zoomed
-   out (drawn mountains, sea creatures, blank parchment for unknown lands);
-   forests, towns and animated water where Phase 17 has not already done it.
-9. **Main menu and loading screen** with a painted Constantinople, 1453,
-   and paintings for the event pop-ups from Phase 14.
+### Phase 20: Interface and art (the EU look) ✅ (session 13, PRs #4–#11 and part 9, written by Claude)
+Owner's choices (session 13, from mock-ups): leather-bordered windows with
+a parchment page; top bar of medallion + number with the screens in a
+column of medallions down the left edge; goods in colour on gold roundels;
+manuscript-style generated portraits; all seven shield shapes; compact
+tooltip cards; main menu on a parchment panel at the left.
+- [x] 1. **Style kit** (#4): one shared Theme (`godot/scripts/GezTheme.gd`
+   → `godot/assets/ui/gez_theme.tres`, the project's default theme) and
+   helpers (`GezStyle.gd`); gold rope frames with rosettes, tooled leather
+   bar and side column, parchment pages, red cloth banners, gold buttons,
+   leather tabs, medallions with engraved icons, wax seals for traits;
+   Cinzel and EB Garamond. All art by `tools/uiart/ui_art_concept.py --kit`.
+- [x] 2. **Goods and building icons** (#5): 62 goods drawn by the art script;
+   34 buildings rendered from our 3D models (`render_building_icons.gd`).
+- [x] 3. **Portraits** (#6): layered manuscript-style generator
+   (`Portrait.gd`, parts from `tools/uiart/portrait_art.py`); the owner's
+   paintings in `godot/assets/paintings/portraits/<id>.png` replace them.
+- [x] 4. **Shields by culture** (#7): heater, round, lobed, tall oval, kite,
+   leaf, rounded square, each in a gold rim.
+- [x] 5. **Alerts row** (#8): glowing medallions under the top bar.
+- [x] 6. **Rich tooltips** (#9): compact parchment cards.
+- [x] 7. **Motion** (#10): windows unroll, medallions swell and press in.
+- [x] 8. **Map polish** (#11): curved country names, painted-chart look when
+   zoomed out (parchment, ink mountains, coast ripples, terra incognita,
+   sea creatures, compass rose), forests.
+- [x] 9. **Main menu, loading screen, event paintings**: stand-ins until the
+   owner's paintings arrive; prompts in `docs/ART_PROMPTS.md`, pictures go
+   in `godot/assets/paintings/{menu,events,portraits}/`.
 
 After Phase 20: the **alpha build "Kayser"** (see "Build names" above).
 

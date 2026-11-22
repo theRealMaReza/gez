@@ -134,3 +134,29 @@ truce (Galata surrendered on 1 June 1453, two days after the start).
   to one kept inside a Dictionary changes a copy, and copying it out and
   back copies the whole array every time. Keep a plain Array of small
   packed arrays and join them once (`MapModels._commit`).
+
+## Session 13: Phase 20, Interface and art (Claude)
+- The owner wants to guide the interface: show a mock-up (PIL with the
+  real art pieces and fonts) and ask one multiple-choice question per part
+  before building it.
+- Godot 4.7.2 runs in the workspace: download the Linux build from GitHub
+  releases into /tmp and use `xvfb-run ... --rendering-driver opengl3` to
+  render test scenes (theme gallery, portraits, the Main scene without the
+  Swift extension). Much faster than waiting for CI screenshots.
+- `StyleBoxTexture` has no scale: nine-slice art is drawn at 1x. Tiling
+  (`AXIS_STRETCH_MODE_TILE*`) bleeds neighbouring pixels at tile seams, so
+  windows stretch a large page instead; only the leather bars tile (their
+  texture is seamless as a whole).
+- Godot's default theme only applies where code has no overrides; most
+  panels set colours through one `_make_label` helper per script, so a
+  mechanical wrap (`GezStyle.ink(...)`, `GezStyle.fs(...)`) restyled them.
+- A script error inside `capture_snapshots.gd` hung the CI job for hours
+  (see session 12): the screenshot step now runs under `timeout` and the
+  job has `timeout-minutes`.
+- Art scripts share one random generator: adding a new piece before old
+  ones changes every later picture. Make new pieces last (or reseed), and
+  check `git status` shows only new files after a rebuild. `hash()` of a
+  string differs per Python run; use `ord()` or fixed seeds.
+- Long simulation tests take ~85 minutes; several CI runs at once queue
+  for Mac runners. Stack dependent parts on one branch chain and run CI on
+  the last one.
