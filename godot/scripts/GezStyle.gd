@@ -120,6 +120,39 @@ static func as_heading(l: Label) -> Label:
 	l.theme_type_variation = "Heading"
 	return l
 
+static var _indexes: Dictionary = {}
+
+static func _index(folder: String) -> Dictionary:
+	if not _indexes.has(folder):
+		var d: Variant = {}
+		var path := "res://assets/ui/%s/index.json" % folder
+		if FileAccess.file_exists(path):
+			d = JSON.parse_string(FileAccess.get_file_as_string(path))
+		_indexes[folder] = d if d is Dictionary else {}
+	return _indexes[folder]
+
+## Icon of a trade good by its name as the game shows it ("Olive Oil"):
+## the good in colour on a small gold roundel (Phase 20 part 2).
+static func good_icon(good_name: String) -> Texture2D:
+	var key: String = _index("goods").get(good_name, "")
+	return null if key.is_empty() else tex("res://assets/ui/goods/%s.png" % key)
+
+## Icon of a building by its name ("Cloth Weavers"): rendered from our 3D
+## models on a gold-edged plaque (Phase 20 part 2).
+static func building_icon(building_name: String) -> Texture2D:
+	var key: String = _index("buildings").get(building_name, "")
+	return null if key.is_empty() else tex("res://assets/ui/buildings/%s.png" % key)
+
+## A small TextureRect showing `t` at `size` pixels (null-safe: empty box).
+static func icon_rect(t: Texture2D, size := 24.0) -> TextureRect:
+	var r := TextureRect.new()
+	r.texture = t
+	r.custom_minimum_size = Vector2(size, size)
+	r.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	r.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	r.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	return r
+
 ## Font size for text on parchment: EB Garamond looks smaller than the old
 ## sans-serif at the same size, so small sizes get a little bigger.
 static func fs(n: int) -> int:

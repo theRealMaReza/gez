@@ -344,7 +344,13 @@ func _refresh_new_route(d: Dictionary) -> void:
 			if not draft_category_key.is_empty() and g_cat != draft_category_key:
 				continue
 			good_ids.append(int((g as Dictionary).get("goodIndex", -1)))
-			good_popup.add_item(str((g as Dictionary).get("name", "")))
+			var gname := str((g as Dictionary).get("name", ""))
+			var gtex := GezStyle.good_icon(gname)
+			if gtex != null:
+				good_popup.add_icon_item(gtex, gname)
+				good_popup.set_item_icon_max_width(good_popup.item_count - 1, 22)
+			else:
+				good_popup.add_item(gname)
 	good_popup.index_pressed.connect(func(idx: int) -> void:
 		if idx >= 0 and idx < good_ids.size():
 			draft_good_index = good_ids[idx]

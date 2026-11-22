@@ -28,3 +28,4 @@ godot/build/
 godot/snapshots/
 *.import
 *.uid
+tools/models/icon_models.bin

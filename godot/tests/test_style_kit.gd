@@ -50,3 +50,17 @@ func test_ink_keeps_text_readable_on_parchment() -> void:
 	runner.check(g.g > g.r and g.g > g.b, "green stays green")
 	var r := GezStyle.ink(Color(0.98, 0.55, 0.50))
 	runner.check(r.r > r.g and r.r > r.b, "red stays red")
+
+func test_every_good_and_building_has_an_icon() -> void:
+	# Phase 20 part 2: index.json maps names to icons; one icon per good and building.
+	for pair in [["goods", 62], ["buildings", 34]]:
+		var path := "res://assets/ui/%s/index.json" % pair[0]
+		var idx: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
+		runner.check(idx is Dictionary and (idx as Dictionary).size() == pair[1], "%s index has %d entries" % pair)
+		if idx is Dictionary:
+			for n in (idx as Dictionary).keys():
+				var key: String = idx[n]
+				runner.check(ResourceLoader.exists("res://assets/ui/%s/%s.png" % [pair[0], key]), "%s icon for %s" % [pair[0], n])
+	runner.check(GezStyle.good_icon("Olive Oil") != null, "good_icon finds Olive Oil")
+	runner.check(GezStyle.building_icon("Cloth Weavers") != null, "building_icon finds Cloth Weavers")
+	runner.check(GezStyle.good_icon("No Such Good") == null, "unknown good gives no icon")
