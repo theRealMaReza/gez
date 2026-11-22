@@ -364,7 +364,8 @@ Note: the iPad version still needs Apple's paid account to install at all.
 
 ### Phase 20: Interface and art (the EU look)
 Decided by the owner in session 6: the very last phase, once everything
-else is done. Until then, keep panels functional and don't style them.
+else is done. Changed on 22 Nov 2026: Claude starts it (style kit first)
+while Gemini writes Phase 18. Until then, keep panels functional and don't style them.
 Reference: the owner's concept canvas on claude.ai ("Gez interface
 concept": today vs. after, main screen and court panel). Its art pieces
 were made in code (height maps lit as metal, leather and enamel) by a

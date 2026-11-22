@@ -48,8 +48,14 @@ Last updated: 22 November 2026.
    Report the frame rate on the M1 if it feels slow. Small known nits:
    coin sound plays almost every month; sea-battle sound can stop once
    the recent-battles list is full.
-2. **Phase 18: Chronicle** (Gemini).
-3. Then: 20 art, 20.5 balance and play-test (Claude), **alpha "Kayser"**,
+2. **In parallel (owner, 22 Nov 2026):** Phase 18 Chronicle (Gemini) and
+   **Phase 20 art (Claude)**, starting with part 1, the style kit: a Godot
+   Theme with gold frames, leather top bar, parchment panels, gold buttons,
+   medallions and Cinzel / EB Garamond fonts, made by
+   `tools/uiart/ui_art_concept.py`, so Gemini's new Chronicle screens get
+   the look for free. Stay out of Gemini's Chronicle files; the owner
+   skips the play-test for now.
+3. Then: 20.5 balance and play-test (Claude), **alpha "Kayser"**,
    then 21 mission trees and 19 multiplayer (Epic Online Services, join
    codes). Who writes what: ROADMAP "Plan for the remaining phases". Art
    script: `tools/uiart/ui_art_concept.py`; 3D models:
