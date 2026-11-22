@@ -4569,6 +4569,26 @@ public final class GezGodotController {
         return packLabels(s.countryLabels)
     }
 
+    /// Phase 20 part 8: curve of each country name, in the order of
+    /// countryLabelData(): [angle (radians), length, bend (map pixels)] per label.
+    public func countryLabelCurves() -> [Float] {
+        guard let s = session else { return [] }
+        var out: [Float] = []
+        out.reserveCapacity(s.countryLabels.count * 3)
+        for l in s.countryLabels {
+            out.append(Float(l.angle))
+            out.append(Float(l.length))
+            out.append(Float(l.bend))
+        }
+        return out
+    }
+
+    /// Phase 20 part 8: each province's terrain ("forest", "hills"...), by province index.
+    public func provinceTerrainKeys() -> [String] {
+        guard let s = session else { return [] }
+        return s.world.provinces.terrain.map { $0.rawValue }
+    }
+
     public func provinceLabelData() -> (texts: [String], metrics: [Float]) {
         guard let s = session else { return ([], []) }
         return packLabels(s.provinceLabels)
@@ -5080,6 +5100,16 @@ public final class GezGodotBridge: RefCounted {
     @Callable
     public func getCountryLabelMetrics() -> PackedFloat32Array {
         PackedFloat32Array(controller.countryLabelData().metrics)
+    }
+
+    @Callable
+    public func getCountryLabelCurves() -> PackedFloat32Array {
+        PackedFloat32Array(controller.countryLabelCurves())
+    }
+
+    @Callable
+    public func getProvinceTerrainKeys() -> PackedStringArray {
+        PackedStringArray(controller.provinceTerrainKeys())
     }
 
     @Callable

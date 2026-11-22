@@ -65,6 +65,7 @@ func update_zoom(z: float) -> void:
 	if tier != _town_tier:
 		_town_tier = tier
 		_rebuild_towns()
+	_set_layer_visible("forest", z >= FOREST_MIN_ZOOM)
 	_set_layer_visible("army", z >= UNIT_MIN_ZOOM)
 	_set_layer_visible("fleet", z >= UNIT_MIN_ZOOM)
 
@@ -198,6 +199,39 @@ func coast_point(m: Vector2) -> Variant:
 			break
 	_coast_cache[key] = found
 	return found
+
+# ---- Forests (Phase 20 part 8) ----------------------------------------------
+
+const FOREST_MIN_ZOOM := 0.9
+
+# Little trees scattered over forest provinces (pines in the north, broad
+# leaves further south), only on the province's own ground. terrain: key per
+# province index; label_metrics: stride 3 [x, y, pixel area] per province.
+func set_forests(terrain: PackedStringArray, label_metrics: PackedFloat32Array) -> void:
+	_begin("forest")
+	var n := mini(terrain.size(), label_metrics.size() / 3)
+	for i in range(n):
+		if terrain[i] != "forest":
+			continue
+		var c := Vector2(label_metrics[i * 3], label_metrics[i * 3 + 1])
+		var area := label_metrics[i * 3 + 2]
+		var want := clampi(int(area / 420.0), 3, 16)
+		var radius := sqrt(area) * 0.55
+		var placed := 0
+		for k in range(want * 3):
+			if placed >= want:
+				break
+			var a := TAU * _hash01(i, k * 2)
+			var r := radius * sqrt(_hash01(i, k * 2 + 1))
+			var p := c + Vector2(cos(a), sin(a)) * r
+			if _id_at(int(p.x), int(p.y)) != i + 2:
+				continue
+			var mesh := "tree_pine" if (p.y < map_size.y * 0.33 or _hash01(i, k + 99) < 0.3) else "tree_leaf"
+			var anchor := Vector3(p.x, _ground(p), p.y)
+			_place("forest", mesh, anchor, Vector2.ZERO, TAU * _hash01(k, i), Color.WHITE, 0.0, 0.7 + 0.4 * _hash01(i + 7, k))
+			placed += 1
+	_commit("forest")
+	_set_layer_visible("forest", _zoom >= FOREST_MIN_ZOOM)
 
 # ---- Towns -----------------------------------------------------------------
 

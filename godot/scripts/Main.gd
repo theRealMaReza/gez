@@ -26,6 +26,7 @@ const BattleViewScript := preload("res://scripts/BattleView.gd")
 const EventPopupScript := preload("res://scripts/EventPopup.gd")
 const TooltipManagerScript := preload("res://scripts/TooltipManager.gd")
 const AlertsRowScript := preload("res://scripts/AlertsRow.gd")
+const ChartLayerScript := preload("res://scripts/MapChartLayer.gd")
 
 var bridge: RefCounted = null
 var warned_missing_methods: Dictionary = {}
@@ -50,6 +51,7 @@ var view_pitch: float = 90.0  # shown camera tilt (eases towards the zoom's pitc
 var map_material: ShaderMaterial
 var icons_layer: Control
 var labels_layer: Control
+var chart_layer: Control   # Phase 20 part 8: sea creatures, ships, compass rose
 var last_town_icons_rev: int = -1
 var _last_fps: int = -1
 var _last_top_country_str: String = ""
@@ -312,6 +314,15 @@ func _build_scene_ui() -> void:
 	add_child(icons_layer)
 
 	# 2. Country / Sea / Province labels overlay
+	# 1c. Painted-chart decorations (Phase 20 part 8), under the labels
+	chart_layer = Control.new()
+	chart_layer.name = "ChartLayer"
+	chart_layer.set_script(ChartLayerScript)
+	chart_layer.set_anchors_preset(Control.PRESET_FULL_RECT)
+	chart_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	chart_layer.visible = false
+	add_child(chart_layer)
+
 	labels_layer = Control.new()
 	labels_layer.name = "LabelsLayer"
 	labels_layer.set_script(LabelsLayerScript)
@@ -1565,6 +1576,12 @@ func _init_bridge_and_map() -> void:
 
 	_refresh_all_labels()
 	_refresh_town_icons()
+	# Phase 20 part 8: forests, and the chart decorations' places
+	if map_models != null and bool(map_models.call("ready_ok")):
+		map_models.call("set_forests", _call_bridge("getProvinceTerrainKeys", [], PackedStringArray()),
+			_call_bridge("getProvinceLabelMetrics", [], PackedFloat32Array()))
+	if chart_layer != null:
+		chart_layer.call("setup", bridge)
 	_populate_autosave_options()
 	if battle_view != null:
 		battle_view.call("set_bridge", bridge)
@@ -1590,6 +1607,7 @@ func _refresh_town_icons() -> void:
 func _refresh_all_labels() -> void:
 	if bridge == null:
 		return
+	labels_layer.call("set_country_curves", _call_bridge("getCountryLabelCurves", [], PackedFloat32Array()))
 	labels_layer.call(
 		"set_country_labels",
 		_call_bridge("getCountryLabelTexts", [], PackedStringArray()),
@@ -1715,6 +1733,7 @@ func _refresh_styles_and_country_labels() -> void:
 		else:
 			_style_img.set_data(style_tex_width, 2, false, Image.FORMAT_RGBA8, style_bytes)
 		style_tex.update(_style_img)
+	labels_layer.call("set_country_curves", _call_bridge("getCountryLabelCurves", [], PackedFloat32Array()))
 	labels_layer.call(
 		"set_country_labels",
 		_call_bridge("getCountryLabelTexts", [], PackedStringArray()),
@@ -3220,6 +3239,11 @@ func _sync_camera_uniforms() -> void:
 	var default_tint := clampf(0.72 - 0.2 * zoom, 0.38, 0.66)
 	var tint: float = float(_call_bridge("getTintForZoom", [zoom], default_tint))
 	map_material.set_shader_parameter("tint", tint)
+	# Phase 20 part 8: the painted-chart look fades in as the map is zoomed out
+	var chart_k := smoothstep(0.0, 1.0, clampf((0.78 - zoom) / 0.32, 0.0, 1.0))
+	map_material.set_shader_parameter("chart", chart_k)
+	if chart_layer != null:
+		chart_layer.call("update_view", chart_k, projector)
 
 	if bridge != null and zoom > 0.0:
 		var center_map_x := int(round((size.x * 0.5 - offset.x) / zoom))

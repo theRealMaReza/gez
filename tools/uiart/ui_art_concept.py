@@ -1241,6 +1241,87 @@ def build_alerts(out_dir):
             icon_medallion(os.path.join(out_dir, 'medallions', f'{key}.png'), 48, ICONS[icon])
             icon_medallion(os.path.join(out_dir, 'medallions', f'{key}_on.png'), 48, ICONS[icon], enamel=(140, 30, 22))
 
+
+# ---------------------------------------------------------------- Phase 20 part 8: chart decorations
+# Ink-and-wash drawings for the painted-chart look of the zoomed-out map
+# (sea creatures, a ship and a compass rose). Grid 128 x 96 (rose 128 x 128).
+CHART_ART = {
+    'whale': (128, 96, [
+        ('M14 58C24 38 62 32 92 42C106 47 114 56 120 58C114 60 106 64 94 66C66 74 26 74 14 58Z', (150, 168, 176)),
+        ('M15 58L3 46L8 58L3 70Z', (150, 168, 176)),
+        ('M100 54a2 2 0 1 0 4 0a2 2 0 1 0-4 0z', (40, 30, 20)),
+    ], 'M108 60Q100 63 92 61M60 66Q70 70 80 67M84 36Q86 24 80 16M84 36Q88 24 96 18M84 36Q84 26 88 12M8 82Q24 78 40 82T72 82T104 82T128 82'),
+    'serpent': (128, 96, [
+        ('M6 70Q14 40 26 66Q30 74 34 66Q44 36 56 66Q60 74 64 66Q74 40 84 64Q88 70 92 62Q96 40 110 36Q122 34 124 44Q116 44 112 50Q104 62 98 70Z', (96, 132, 96)),
+        ('M110 36L106 24L114 32L116 20L120 34Z', (180, 70, 50)),
+        ('M115 40a1.6 1.6 0 1 0 3.2 0a1.6 1.6 0 1 0-3.2 0z', (40, 30, 20)),
+    ], 'M20 58Q22 54 24 58M50 58Q52 54 54 58M78 58Q80 54 82 58M2 80Q18 76 34 80T66 80T98 80T128 80M124 44L128 47'),
+    'ship': (128, 96, [
+        ('M20 60H108L96 76H34Z', (130, 88, 54)),
+        ('M62 14V60', (90, 60, 36)),
+        ('M40 20Q62 16 84 20Q88 36 84 52Q62 48 40 52Q36 36 40 20Z', (236, 226, 200)),
+        ('M62 6L78 10L62 14Z', (170, 40, 40)),
+        ('M56 30h12v4H56zM60 26h4v12h-4z', (170, 40, 40)),
+    ], 'M24 62H104M36 68H100M10 84Q26 80 42 84T74 84T106 84T128 84'),
+}
+
+
+def chart_drawing(path, w, h, fills, lines, scale=3):
+    W, H = w * scale, h * scale
+    def msk(d, stroke=0.0):
+        attrs = f'fill="none" stroke="#fff" stroke-width="{stroke}" stroke-linecap="round" stroke-linejoin="round"' if stroke else 'fill="#fff"'
+        svg = f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {w} {h}"><path d="{d}" {attrs}/></svg>'
+        return np.asarray(Image.open(io.BytesIO(cairosvg.svg2png(bytestring=svg.encode()))).convert('RGBA'), float)[..., 3] / 255
+    rgb = np.zeros((H, W, 3)); a = np.zeros((H, W))
+    for d, col in fills:
+        m = msk(d) if not d.startswith('M62 14V60') else msk(d, 2.2)
+        shade = (0.88 + 0.12 * periodic_noise(H, W, 2.0, 91))[..., None]
+        rgb = rgb * (1 - m[..., None]) + np.array(col, float) * shade * m[..., None]
+        a = np.maximum(a, m * 0.85)
+        ol = np.clip(ndimage.maximum_filter(m, 3) - ndimage.minimum_filter(m, 3), 0, 1)
+        rgb = rgb * (1 - ol[..., None]) + np.array([60, 40, 24]) * ol[..., None]
+        a = np.maximum(a, ol)
+    if lines:
+        lm = msk(lines, 1.3)
+        rgb = rgb * (1 - lm[..., None]) + np.array([60, 40, 24]) * lm[..., None]
+        a = np.maximum(a, lm * 0.9)
+    im = Image.fromarray(np.dstack([np.clip(rgb, 0, 255), np.clip(a, 0, 1) * 255]).astype('uint8'), 'RGBA')
+    im.resize((w * 2, h * 2), Image.LANCZOS).save(path, optimize=True)
+
+
+def compass_rose(path, size=128, scale=3):
+    S = size * scale
+    y, x = np.mgrid[0:S, 0:S].astype(float)
+    c = (S - 1) / 2
+    r = np.hypot(x - c, y - c) / (S / 2)
+    ang = np.arctan2(y - c, x - c)
+    rgb = np.zeros((S, S, 3)) + np.array([236, 226, 200], float); a = np.zeros((S, S))
+    ring = (np.abs(r - 0.9) < 0.012) | (np.abs(r - 0.84) < 0.008)
+    a[ring] = 1; rgb[ring] = (60, 40, 24)
+    for k in range(16):
+        th = k * math.pi / 8
+        length = 0.86 if k % 4 == 0 else (0.62 if k % 2 == 0 else 0.42)
+        width = 0.30 if k % 4 == 0 else 0.20
+        d = ang - th
+        d = (d + math.pi) % (2 * math.pi) - math.pi
+        inside = (r < length) & (np.abs(d) < width * (1 - r / length))
+        left = inside & (d < 0)
+        col = np.array([170, 40, 40]) if k % 4 == 0 else np.array([60, 40, 24])
+        rgb[inside] = np.where(left[inside][:, None], col * 0.75, np.array([236, 226, 200]))
+        a[inside] = 1
+    edge = np.clip(ndimage.maximum_filter(a, 3) - ndimage.minimum_filter(a, 3), 0, 1)
+    rgb = rgb * (1 - edge[..., None]) + np.array([60, 40, 24]) * edge[..., None]
+    im = Image.fromarray(np.dstack([rgb, a * 255]).astype('uint8'), 'RGBA')
+    im.resize((size * 2, size * 2), Image.LANCZOS).save(path, optimize=True)
+
+
+def build_chart(out_dir):
+    import os
+    os.makedirs(out_dir, exist_ok=True)
+    for name, (w, h, fills, lines) in CHART_ART.items():
+        chart_drawing(os.path.join(out_dir, f'{name}.png'), w, h, fills, lines)
+    compass_rose(os.path.join(out_dir, 'compass.png'))
+
 if __name__ == '__main__':
     import sys, os
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -1250,6 +1331,7 @@ if __name__ == '__main__':
         build_portraits(os.path.join(sys.argv[2], 'portrait'))
         build_shields(os.path.join(sys.argv[2], 'shields'))
         build_alerts(sys.argv[2])
+        build_chart(os.path.join(sys.argv[2], 'chart'))
         print('kit margins:', m)
     elif len(sys.argv) > 3 and sys.argv[1] == '--buildings':
         # ui_art_concept.py --buildings <renders folder> godot/assets/ui
