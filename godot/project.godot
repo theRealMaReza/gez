@@ -28,6 +28,10 @@ window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 window/dpi/allow_hidpi=true
 
+[gui]
+
+theme/custom="res://assets/ui/gez_theme.tres"
+
 [rendering]
 
 renderer/rendering_method="forward_plus"

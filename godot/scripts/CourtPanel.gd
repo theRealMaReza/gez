@@ -34,8 +34,8 @@ func _get_arms(tag: String, r: int, g: int, b: int) -> Texture2D:
 func _make_label(txt: String, col: Color, fsize: int) -> Label:
 	var lbl := Label.new()
 	lbl.text = txt
-	lbl.add_theme_color_override("font_color", col)
-	lbl.add_theme_font_size_override("font_size", fsize)
+	lbl.add_theme_color_override("font_color", GezStyle.ink(col))
+	lbl.add_theme_font_size_override("font_size", GezStyle.fs(fsize))
 	return lbl
 
 func _clear_children(node: Node) -> void:
@@ -51,7 +51,7 @@ func _build_court_panel() -> void:
 	court_panel.visible = false
 	court_panel.custom_minimum_size = Vector2(430.0, 0.0)
 	if main_view != null and main_view.has_method("_make_panel_style"):
-		var st: StyleBoxFlat = main_view.call("_make_panel_style")
+		var st: StyleBox = main_view.call("_make_panel_style")
 		court_panel.add_theme_stylebox_override("panel", st)
 	add_child(court_panel)
 
@@ -70,11 +70,11 @@ func _build_court_panel() -> void:
 	header.add_child(header_arms)
 
 	var title := _make_label("Court", Color(0.97, 0.90, 0.68), 18)
+	GezStyle.as_title(title)
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	header.add_child(title)
 
-	var close_btn := Button.new()
-	close_btn.text = "X"
+	var close_btn := GezStyle.medallion_button("close", 30.0)
 	close_btn.tooltip_text = "Close Court window"
 	close_btn.pressed.connect(close_window)
 	header.add_child(close_btn)
@@ -270,18 +270,16 @@ func _refresh_person(d: Dictionary) -> void:
 		t_flow.add_theme_constant_override("v_separation", 3)
 		person_box.add_child(t_flow)
 		for t in traits_arr:
-			var badge := PanelContainer.new()
-			var bs := StyleBoxFlat.new()
-			bs.bg_color = Color(0.24, 0.20, 0.15, 0.95)
-			bs.border_color = Color(0.55, 0.45, 0.26, 0.7)
-			bs.set_border_width_all(1)
-			bs.set_corner_radius_all(4)
-			bs.content_margin_left = 5
-			bs.content_margin_right = 5
-			bs.content_margin_top = 1
-			bs.content_margin_bottom = 1
-			badge.add_theme_stylebox_override("panel", bs)
-			badge.add_child(_make_label(str(t), Color(0.92, 0.86, 0.72), 11))
+			# Phase 20: each trait is a wax seal stamped with its initial.
+			var badge := HBoxContainer.new()
+			badge.add_theme_constant_override("separation", 3)
+			var seal := TextureRect.new()
+			seal.texture = GezStyle.trait_seal(str(t).to_lower().replace(" ", "_"))
+			seal.custom_minimum_size = Vector2(22.0, 22.0)
+			seal.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+			seal.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			badge.add_child(seal)
+			badge.add_child(_make_label(str(t), Color(0.92, 0.86, 0.72), 13))
 			t_flow.add_child(badge)
 
 	if bool(ch.get("isRuler", false)):
@@ -344,8 +342,8 @@ func _add_family_links(label_txt: String, items_var: Variant) -> void:
 			var btn := Button.new()
 			btn.text = str(it.get("label", ""))
 			btn.flat = true
-			btn.add_theme_color_override("font_color", Color(0.95, 0.86, 0.62))
-			btn.add_theme_font_size_override("font_size", 12)
+			btn.add_theme_color_override("font_color", GezStyle.ink(Color(0.95, 0.86, 0.62)))
+			btn.add_theme_font_size_override("font_size", GezStyle.fs(12))
 			btn.pressed.connect(func() -> void: _view_character(idx))
 			flow.add_child(btn)
 
@@ -406,8 +404,8 @@ func _refresh_council(d: Dictionary) -> void:
 				h_btn.text = str(s.get("holderName", ""))
 				h_btn.flat = true
 				h_btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
-				h_btn.add_theme_color_override("font_color", Color(0.96, 0.88, 0.65))
-				h_btn.add_theme_font_size_override("font_size", 12)
+				h_btn.add_theme_color_override("font_color", GezStyle.ink(Color(0.96, 0.88, 0.65)))
+				h_btn.add_theme_font_size_override("font_size", GezStyle.fs(12))
 				h_btn.pressed.connect(func() -> void: _view_character(holder_idx))
 				left.add_child(h_btn)
 			else:
@@ -487,8 +485,8 @@ func _refresh_vassals(d: Dictionary) -> void:
 				v_btn.text = str(v.get("name", ""))
 				v_btn.flat = true
 				v_btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
-				v_btn.add_theme_color_override("font_color", Color(0.96, 0.88, 0.65))
-				v_btn.add_theme_font_size_override("font_size", 12)
+				v_btn.add_theme_color_override("font_color", GezStyle.ink(Color(0.96, 0.88, 0.65)))
+				v_btn.add_theme_font_size_override("font_size", GezStyle.fs(12))
 				v_btn.pressed.connect(func() -> void: _view_character(v_idx))
 				left.add_child(v_btn)
 
@@ -632,8 +630,8 @@ func _refresh_marriages(d: Dictionary) -> void:
 					m_btn.text = str(m.get("fullName", ""))
 					m_btn.flat = true
 					m_btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
-					m_btn.add_theme_color_override("font_color", Color(0.96, 0.88, 0.65))
-					m_btn.add_theme_font_size_override("font_size", 12)
+					m_btn.add_theme_color_override("font_color", GezStyle.ink(Color(0.96, 0.88, 0.65)))
+					m_btn.add_theme_font_size_override("font_size", GezStyle.fs(12))
 					m_btn.pressed.connect(func() -> void: _view_character(m_idx))
 					info.add_child(m_btn)
 

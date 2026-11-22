@@ -32,8 +32,8 @@ func _call_bridge(method_name: String, args: Array = [], fallback: Variant = nul
 func _make_label(txt: String, col: Color, fsize: int) -> Label:
 	var lbl := Label.new()
 	lbl.text = txt
-	lbl.add_theme_color_override("font_color", col)
-	lbl.add_theme_font_size_override("font_size", fsize)
+	lbl.add_theme_color_override("font_color", GezStyle.ink(col))
+	lbl.add_theme_font_size_override("font_size", GezStyle.fs(fsize))
 	return lbl
 
 func _make_wrapped(txt: String, col: Color, fsize: int) -> Label:
@@ -55,7 +55,7 @@ func _build_panel() -> void:
 	tech_panel.visible = false
 	tech_panel.custom_minimum_size = Vector2(820.0, 0.0)
 	if main_view != null and main_view.has_method("_make_panel_style"):
-		var st: StyleBoxFlat = main_view.call("_make_panel_style")
+		var st: StyleBox = main_view.call("_make_panel_style")
 		tech_panel.add_theme_stylebox_override("panel", st)
 	add_child(tech_panel)
 
@@ -66,10 +66,10 @@ func _build_panel() -> void:
 	var header := HBoxContainer.new()
 	outer.add_child(header)
 	var title := _make_label("Technology & Institutions", Color(0.97, 0.90, 0.68), 18)
+	GezStyle.as_title(title)
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	header.add_child(title)
-	var close_btn := Button.new()
-	close_btn.text = "X"
+	var close_btn := GezStyle.medallion_button("close", 30.0)
 	close_btn.tooltip_text = "Close Technology window"
 	close_btn.pressed.connect(close_window)
 	header.add_child(close_btn)
@@ -220,11 +220,7 @@ func refresh(force: bool = false) -> void:
 			continue
 		var tr: Dictionary = tr_v
 		var card := PanelContainer.new()
-		var card_style := StyleBoxFlat.new()
-		card_style.bg_color = Color(0.18, 0.15, 0.11, 0.86)
-		card_style.set_content_margin_all(8.0)
-		card_style.set_corner_radius_all(4)
-		card.add_theme_stylebox_override("panel", card_style)
+		card.theme_type_variation = "Card"
 		left_box.add_child(card)
 
 		var box := VBoxContainer.new()
@@ -297,11 +293,9 @@ func refresh(force: bool = false) -> void:
 		var origin_idx: int = int(inst.get("originProvinceIndex", -1))
 
 		var icard := PanelContainer.new()
-		var istyle := StyleBoxFlat.new()
-		istyle.bg_color = Color(0.14, 0.21, 0.14, 0.86) if embraced else Color(0.18, 0.15, 0.11, 0.86)
-		istyle.set_content_margin_all(7.0)
-		istyle.set_corner_radius_all(4)
-		icard.add_theme_stylebox_override("panel", istyle)
+		icard.theme_type_variation = "Card"
+		if embraced:
+			icard.self_modulate = Color(0.80, 1.0, 0.80)
 		right_box.add_child(icard)
 
 		var ibox := VBoxContainer.new()
@@ -334,7 +328,7 @@ func refresh(force: bool = false) -> void:
 			o_btn.flat = true
 			o_btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
 			o_btn.tooltip_text = "Show origin province on map"
-			o_btn.add_theme_color_override("font_color", Color(0.78, 0.86, 0.94))
+			o_btn.add_theme_color_override("font_color", GezStyle.ink(Color(0.78, 0.86, 0.94)))
 			o_btn.pressed.connect(func() -> void: _focus_province(origin_idx))
 			ibox.add_child(o_btn)
 		else:

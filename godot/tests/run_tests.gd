@@ -14,7 +14,7 @@ func _initialize() -> void:
 	var suites: Array = [
 		preload("res://tests/test_map_projector.gd"),
 	]
-	for extra in ["res://tests/test_map_models.gd", "res://tests/test_battle3d.gd"]:
+	for extra in ["res://tests/test_map_models.gd", "res://tests/test_battle3d.gd", "res://tests/test_style_kit.gd"]:
 		if ResourceLoader.exists(extra):
 			suites.append(load(extra))
 	for suite_script in suites:

@@ -33,8 +33,8 @@ func _call_bridge(method_name: String, args: Array = [], fallback: Variant = nul
 func _make_label(txt: String, col: Color, fsize: int) -> Label:
 	var lbl := Label.new()
 	lbl.text = txt
-	lbl.add_theme_color_override("font_color", col)
-	lbl.add_theme_font_size_override("font_size", fsize)
+	lbl.add_theme_color_override("font_color", GezStyle.ink(col))
+	lbl.add_theme_font_size_override("font_size", GezStyle.fs(fsize))
 	return lbl
 
 func _clear_children(node: Node) -> void:
@@ -59,7 +59,7 @@ func _build_budget_panel() -> void:
 	budget_panel.visible = false
 	budget_panel.custom_minimum_size = Vector2(416.0, 0.0)
 	if main_view != null and main_view.has_method("_make_panel_style"):
-		var st: StyleBoxFlat = main_view.call("_make_panel_style")
+		var st: StyleBox = main_view.call("_make_panel_style")
 		budget_panel.add_theme_stylebox_override("panel", st)
 	add_child(budget_panel)
 
@@ -70,10 +70,10 @@ func _build_budget_panel() -> void:
 	var header := HBoxContainer.new()
 	outer.add_child(header)
 	var title := _make_label("Budget", Color(0.97, 0.90, 0.68), 18)
+	GezStyle.as_title(title)
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	header.add_child(title)
-	var close_btn := Button.new()
-	close_btn.text = "X"
+	var close_btn := GezStyle.medallion_button("close", 30.0)
 	close_btn.tooltip_text = "Close Budget window"
 	close_btn.pressed.connect(close_window)
 	header.add_child(close_btn)

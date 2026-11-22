@@ -46,6 +46,7 @@ func _build_wars_panel() -> void:
 	var header := HBoxContainer.new()
 	vbox.add_child(header)
 	var title := main.call("_make_label", "Wars & Peace", Color(0.97, 0.90, 0.68), 18) as Label
+	GezStyle.as_title(title)
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	header.add_child(title)
 
@@ -58,8 +59,7 @@ func _build_wars_panel() -> void:
 	)
 	header.add_child(toggle_scope_btn)
 
-	var close_btn := Button.new()
-	close_btn.text = "X"
+	var close_btn := GezStyle.medallion_button("close", 30.0)
 	close_btn.pressed.connect(close_window)
 	header.add_child(close_btn)
 
@@ -169,6 +169,7 @@ func refresh() -> void:
 
 func _add_pending_offer_card(offer: Dictionary) -> void:
 	var card := PanelContainer.new()
+	card.theme_type_variation = "Card"
 	content_box.add_child(card)
 	var v := VBoxContainer.new()
 	v.add_theme_constant_override("separation", 4)
@@ -433,11 +434,11 @@ func _refresh_peace_modal() -> void:
 	header.add_child(l_arms)
 
 	var title := main.call("_make_label", "Peace Negotiation — %s (WS %+d%%)" % [str(d.get("loserName", "")), int(d.get("warScorePct", 0))], Color(0.97, 0.90, 0.68), 16) as Label
+	GezStyle.as_title(title)
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	header.add_child(title)
 
-	var close_btn := Button.new()
-	close_btn.text = "X"
+	var close_btn := GezStyle.medallion_button("close", 30.0)
 	close_btn.pressed.connect(func() -> void:
 		peace_modal.visible = false
 		active_peace_war_id = ""

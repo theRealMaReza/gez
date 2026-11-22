@@ -76,6 +76,11 @@ var faith_layer: Control
 var calamity_layer: Control
 var tech_layer: Control
 var army_ui: Control
+var windows_layer: Control   # every window lives here (right of the side column)
+var side_bar: PanelContainer
+var side_bar_buttons: Dictionary = {}   # screen key -> medallion TextureButton
+const SIDEBAR_WIDTH := 70.0
+const WINDOWS_TOP_SHIFT := 6.0
 var fleet_ui: Control
 var budget_ui: Control
 var trade_ui: Control
@@ -101,7 +106,7 @@ var tech_btn: Button
 var _last_rebels_btn_str: String = ""
 var _last_rel_btn_str: String = ""
 var _last_tech_btn_str: String = ""
-var inflation_label: Label
+var inflation_label: Button
 var diplomacy_btn: Button
 var wars_btn: Button
 var armies_btn: Button
@@ -118,9 +123,9 @@ var selection_label: Label
 var fps_label: Label
 var top_bar_hbox: HBoxContainer
 var top_bar_panel: PanelContainer
-var pause_btn: Button
+var pause_btn: TextureButton
 var play_as_btn: Button
-var menu_btn: Button
+var menu_btn: TextureButton
 var speed_buttons: Array[Button] = []
 
 # Map mode bar widgets
@@ -258,12 +263,20 @@ func play_ui_sfx(cue: String = "ui_wood") -> void:
 	if a != null:
 		a.call("play_ui", cue)
 
+# A top-bar number and its medallion show the same tooltip.
+func _share_tip(ctrl: Control) -> void:
+	if ctrl.has_meta("gez_medallion_node"):
+		var med: Control = ctrl.get_meta("gez_medallion_node")
+		med.set_meta("gez_tip", ctrl.get_meta("gez_tip"))
+		med.mouse_filter = Control.MOUSE_FILTER_PASS
+
 func bind_tip(ctrl: Control, title: String, summary: String = "") -> void:
 	if ctrl == null:
 		return
 	if ctrl.mouse_filter == Control.MOUSE_FILTER_IGNORE:
 		ctrl.mouse_filter = Control.MOUSE_FILTER_PASS
 	TooltipManagerScript.bind_text(ctrl, title, summary)
+	_share_tip(ctrl)
 
 func bind_breakdown(ctrl: Control, callback: Callable, fallback_title: String = "") -> void:
 	if ctrl == null:
@@ -271,6 +284,7 @@ func bind_breakdown(ctrl: Control, callback: Callable, fallback_title: String = 
 	if ctrl.mouse_filter == Control.MOUSE_FILTER_IGNORE:
 		ctrl.mouse_filter = Control.MOUSE_FILTER_PASS
 	TooltipManagerScript.bind_breakdown(ctrl, callback, fallback_title)
+	_share_tip(ctrl)
 
 func bind_tip_data(ctrl: Control, data: Dictionary) -> void:
 	if ctrl == null:
@@ -278,6 +292,7 @@ func bind_tip_data(ctrl: Control, data: Dictionary) -> void:
 	if ctrl.mouse_filter == Control.MOUSE_FILTER_IGNORE:
 		ctrl.mouse_filter = Control.MOUSE_FILTER_PASS
 	TooltipManagerScript.bind_data(ctrl, data)
+	_share_tip(ctrl)
 
 func _build_scene_ui() -> void:
 	# 1. The 3D map (Phase 17): terrain mesh + camera; drawn under every 2D layer.
@@ -355,6 +370,16 @@ func _build_scene_ui() -> void:
 	tech_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(tech_layer)
 
+	# 2g. Windows sit right of the side column and just under the top bar
+	# (Phase 20). New screens: add them with add_window(node).
+	windows_layer = Control.new()
+	windows_layer.name = "Windows"
+	windows_layer.set_anchors_preset(Control.PRESET_FULL_RECT)
+	windows_layer.offset_left = SIDEBAR_WIDTH
+	windows_layer.offset_top = WINDOWS_TOP_SHIFT
+	windows_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(windows_layer)
+
 	# 3. Top bar panel & alerts row
 	_build_top_bar()
 	_build_alerts_bar()
@@ -376,7 +401,7 @@ func _build_scene_ui() -> void:
 	army_ui.set_script(ArmyPanelScript)
 	army_ui.set_anchors_preset(Control.PRESET_FULL_RECT)
 	army_ui.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(army_ui)
+	windows_layer.add_child(army_ui)
 	army_ui.call("setup", self)
 
 	fleet_ui = Control.new()
@@ -384,7 +409,7 @@ func _build_scene_ui() -> void:
 	fleet_ui.set_script(FleetPanelScript)
 	fleet_ui.set_anchors_preset(Control.PRESET_FULL_RECT)
 	fleet_ui.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(fleet_ui)
+	windows_layer.add_child(fleet_ui)
 	fleet_ui.call("setup", self)
 
 	# 6c. Economy windows (Budget & Trade)
@@ -393,7 +418,7 @@ func _build_scene_ui() -> void:
 	budget_ui.set_script(BudgetPanelScript)
 	budget_ui.set_anchors_preset(Control.PRESET_FULL_RECT)
 	budget_ui.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(budget_ui)
+	windows_layer.add_child(budget_ui)
 	budget_ui.call("setup", self)
 
 	trade_ui = Control.new()
@@ -401,7 +426,7 @@ func _build_scene_ui() -> void:
 	trade_ui.set_script(TradePanelScript)
 	trade_ui.set_anchors_preset(Control.PRESET_FULL_RECT)
 	trade_ui.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(trade_ui)
+	windows_layer.add_child(trade_ui)
 	trade_ui.call("setup", self)
 
 	# 6d. Court & Government windows
@@ -410,7 +435,7 @@ func _build_scene_ui() -> void:
 	court_ui.set_script(CourtPanelScript)
 	court_ui.set_anchors_preset(Control.PRESET_FULL_RECT)
 	court_ui.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(court_ui)
+	windows_layer.add_child(court_ui)
 	court_ui.call("setup", self)
 
 	gov_ui = Control.new()
@@ -418,7 +443,7 @@ func _build_scene_ui() -> void:
 	gov_ui.set_script(GovernmentPanelScript)
 	gov_ui.set_anchors_preset(Control.PRESET_FULL_RECT)
 	gov_ui.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(gov_ui)
+	windows_layer.add_child(gov_ui)
 	gov_ui.call("setup", self)
 
 	religion_ui = Control.new()
@@ -426,7 +451,7 @@ func _build_scene_ui() -> void:
 	religion_ui.set_script(ReligionPanelScript)
 	religion_ui.set_anchors_preset(Control.PRESET_FULL_RECT)
 	religion_ui.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(religion_ui)
+	windows_layer.add_child(religion_ui)
 	religion_ui.call("setup", self)
 
 	rebels_ui = Control.new()
@@ -434,7 +459,7 @@ func _build_scene_ui() -> void:
 	rebels_ui.set_script(RebelsPanelScript)
 	rebels_ui.set_anchors_preset(Control.PRESET_FULL_RECT)
 	rebels_ui.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(rebels_ui)
+	windows_layer.add_child(rebels_ui)
 	rebels_ui.call("setup", self)
 
 	tech_ui = Control.new()
@@ -442,20 +467,20 @@ func _build_scene_ui() -> void:
 	tech_ui.set_script(TechnologyPanelScript)
 	tech_ui.set_anchors_preset(Control.PRESET_FULL_RECT)
 	tech_ui.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(tech_ui)
+	windows_layer.add_child(tech_ui)
 	tech_ui.call("setup", self)
 
 	# 6e. Diplomacy & Wars/Peace windows
 	diplomacy_ui = PanelContainer.new()
 	diplomacy_ui.name = "DiplomacyUI"
 	diplomacy_ui.set_script(DiplomacyPanelScript)
-	add_child(diplomacy_ui)
+	windows_layer.add_child(diplomacy_ui)
 	diplomacy_ui.call("setup", self)
 
 	wars_ui = Control.new()
 	wars_ui.name = "WarsUI"
 	wars_ui.set_script(WarsPanelScript)
-	add_child(wars_ui)
+	windows_layer.add_child(wars_ui)
 	wars_ui.call("setup", self)
 
 	# 7. Market panel (bottom-right, left of zoom buttons)
@@ -481,39 +506,23 @@ func _build_scene_ui() -> void:
 	add_child(event_popup)
 	event_popup.call("setup", self)
 
-func _make_panel_style(bg := Color(0.14, 0.11, 0.08, 0.96)) -> StyleBoxFlat:
-	var s := StyleBoxFlat.new()
-	s.bg_color = bg
-	s.border_color = Color(0.68, 0.55, 0.28, 0.85)
-	s.set_border_width_all(1)
-	s.set_corner_radius_all(8)
-	s.content_margin_left = 14.0
-	s.content_margin_right = 14.0
-	s.content_margin_top = 12.0
-	s.content_margin_bottom = 12.0
-	return s
+# Every window uses the shared Phase 20 window style (gold frame, leather
+# band, parchment page). `bg` is kept so older callers still work.
+func _make_panel_style(_bg := Color(0.14, 0.11, 0.08, 0.96)) -> StyleBox:
+	return GezTheme.window_style()
 
 func _build_top_bar() -> void:
+	# Phase 20: tooled leather bar between gold mouldings; each figure is a
+	# gold medallion plus its number (names and breakdowns on hover).
 	var top_bar := PanelContainer.new()
 	top_bar.name = "TopBar"
+	top_bar.theme_type_variation = "TopBar"
 	top_bar.set_anchors_preset(Control.PRESET_TOP_WIDE)
-	top_bar.custom_minimum_size = Vector2(0.0, 48.0)
-	var bar_style := StyleBoxFlat.new()
-	bar_style.bg_color = Color(0.15, 0.12, 0.09, 0.94)
-	bar_style.border_color = Color(0.68, 0.55, 0.28, 0.85)
-	bar_style.border_width_bottom = 2
-	bar_style.content_margin_left = 16.0
-	bar_style.content_margin_right = 16.0
-	bar_style.content_margin_top = 8.0
-	bar_style.content_margin_bottom = 8.0
-	top_bar.add_theme_stylebox_override("panel", bar_style)
+	top_bar.custom_minimum_size = Vector2(0.0, 56.0)
 	add_child(top_bar)
 
 	var hbox := HBoxContainer.new()
-	# Tight spacing so everything (down to the speed buttons) fits a
-	# 1440-pixel window; long texts below shorten with "…" instead of
-	# pushing the time controls off the screen.
-	hbox.add_theme_constant_override("separation", 5)
+	hbox.add_theme_constant_override("separation", 4)
 	top_bar.add_child(hbox)
 	top_bar_hbox = hbox
 	top_bar_panel = top_bar
@@ -521,7 +530,7 @@ func _build_top_bar() -> void:
 	get_viewport().size_changed.connect(_fit_top_bar)
 
 	top_arms_rect = TextureRect.new()
-	top_arms_rect.custom_minimum_size = Vector2(28.0, 24.0)
+	top_arms_rect.custom_minimum_size = Vector2(34.0, 30.0)
 	top_arms_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	top_arms_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	bind_tip(top_arms_rect, "National Coat of Arms", "Your realm banner on 30 May 1453 and beyond.")
@@ -529,119 +538,43 @@ func _build_top_bar() -> void:
 
 	top_country_btn = Button.new()
 	top_country_btn.text = "Ottoman Empire"
-	top_country_btn.flat = true
+	top_country_btn.theme_type_variation = "BarButton"
 	bind_tip(top_country_btn, "Active Realm", "Click to open the Nation Picker or start a new campaign.")
-	top_country_btn.add_theme_color_override("font_color", Color(0.97, 0.88, 0.62))
-	top_country_btn.add_theme_font_size_override("font_size", 16)
 	top_country_btn.pressed.connect(_toggle_nation_picker)
 	top_country_btn.clip_text = true
+	top_country_btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
 	top_country_btn.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-	top_country_btn.custom_minimum_size = Vector2(150.0, 30.0)
+	top_country_btn.custom_minimum_size = Vector2(190.0, 34.0)
 	hbox.add_child(top_country_btn)
 
-	hbox.add_child(_make_separator())
-
-	treasury_btn = Button.new()
-	treasury_btn.text = "0 (+0.0/mo)"
-	treasury_btn.custom_minimum_size = Vector2(150.0, 30.0)
+	treasury_btn = _add_bar_indicator(hbox, "treasury", 130.0, _toggle_budget_window)
 	bind_breakdown(treasury_btn, func() -> Variant: return _call_bridge("getMonthlyIncomeBreakdown", [], {}), "Treasury & Monthly Net")
-	treasury_btn.pressed.connect(_toggle_budget_window)
-	hbox.add_child(treasury_btn)
 
-	hbox.add_child(_make_separator())
-
-	trade_btn = Button.new()
-	trade_btn.text = "Trade"
-	trade_btn.custom_minimum_size = Vector2(60.0, 30.0)
-	bind_tip(trade_btn, "Trade & Markets", "Manage trade routes, merchant capacity, tolls and embargoes across regional markets.")
-	trade_btn.pressed.connect(_toggle_trade_window)
-	hbox.add_child(trade_btn)
-
-	hbox.add_child(_make_separator())
-
-	court_btn = Button.new()
-	court_btn.text = "Court"
-	court_btn.custom_minimum_size = Vector2(60.0, 30.0)
-	bind_tip(court_btn, "Royal Court & Family", "Inspect the ruler, heir, dynasty, royal council seats, vassals and court chronicle.")
-	court_btn.pressed.connect(_toggle_court_window)
-	hbox.add_child(court_btn)
-
-	hbox.add_child(_make_separator())
-
-	stability_btn = Button.new()
-	stability_btn.text = "Stability +0"
-	stability_btn.custom_minimum_size = Vector2(92.0, 30.0)
-	bind_breakdown(stability_btn, func() -> Variant: return _call_bridge("getStabilityBreakdown", [], {}), "Realm Stability & Government")
-	stability_btn.pressed.connect(_toggle_government_window)
-	hbox.add_child(stability_btn)
-
-	religion_btn = Button.new()
-	religion_btn.text = "Religion"
-	religion_btn.custom_minimum_size = Vector2(82.0, 30.0)
-	bind_tip(religion_btn, "Religion & Cultures", "Direct missionaries, guard holy sites, watch historical movements and manage accepted cultures.")
-	religion_btn.pressed.connect(_toggle_religion_window)
-	hbox.add_child(religion_btn)
-
-	rebels_btn = Button.new()
-	rebels_btn.text = "Rebels"
-	rebels_btn.custom_minimum_size = Vector2(72.0, 30.0)
-	bind_tip(rebels_btn, "Unrest & Rebel Factions", "Inspect province unrest causes, active rebel factions, uprising progress and countermeasures.")
-	rebels_btn.pressed.connect(_toggle_rebels_window)
-	hbox.add_child(rebels_btn)
-
-	tech_btn = Button.new()
-	tech_btn.text = "Tech"
-	tech_btn.custom_minimum_size = Vector2(76.0, 30.0)
-	bind_breakdown(tech_btn, func() -> Variant: return _call_bridge("getResearchSpeedBreakdown", ["administrative"], {}), "Technology & Research Speed")
-	tech_btn.pressed.connect(_toggle_tech_window)
-	hbox.add_child(tech_btn)
-
-	hbox.add_child(_make_separator())
-
-	diplomacy_btn = Button.new()
-	diplomacy_btn.text = "Diplomacy"
-	diplomacy_btn.custom_minimum_size = Vector2(82.0, 30.0)
-	bind_breakdown(diplomacy_btn, func() -> Variant: return _call_bridge("getRelationSlotsBreakdown", [], {}), "Diplomacy & Relation Slots")
-	diplomacy_btn.pressed.connect(_toggle_diplomacy_window)
-	hbox.add_child(diplomacy_btn)
-
-	wars_btn = Button.new()
-	wars_btn.text = "Wars"
-	wars_btn.visible = false
-	wars_btn.custom_minimum_size = Vector2(72.0, 30.0)
-	bind_tip(wars_btn, "Active Wars", "Inspect ongoing wars, war score breakdowns, allies and peace offers.")
-	wars_btn.pressed.connect(_toggle_wars_window)
-	hbox.add_child(wars_btn)
-
-	inflation_label = _make_label("Inflation 0%", Color(0.92, 0.42, 0.38), 12)
+	inflation_label = _add_bar_indicator(hbox, "inflation", 54.0, _toggle_budget_window)
 	bind_tip(inflation_label, "Currency Inflation", "Each 1% of inflation increases building, unit, technology and stability costs. Reduce it over time or through laws.")
-	inflation_label.visible = false
-	hbox.add_child(inflation_label)
+	inflation_label.get_parent().visible = false
 
-	hbox.add_child(_make_separator())
+	stability_btn = _add_bar_indicator(hbox, "stability", 48.0, _toggle_government_window)
+	bind_breakdown(stability_btn, func() -> Variant: return _call_bridge("getStabilityBreakdown", [], {}), "Realm Stability & Government")
 
-	armies_btn = Button.new()
-	armies_btn.text = "Armies 0 · MP 0"
-	armies_btn.custom_minimum_size = Vector2(140.0, 30.0)
+	religion_btn = _add_bar_indicator(hbox, "faith", 70.0, _toggle_religion_window)
+	bind_tip(religion_btn, "State Religion & Missionaries", "Your state faith and missionaries in use / available. Click for Religion & Cultures.")
+
+	armies_btn = _add_bar_indicator(hbox, "manpower", 62.0, _toggle_armies_window)
 	bind_breakdown(armies_btn, func() -> Variant: return _call_bridge("getManpowerBreakdown", [], {}), "Armies & Maximum Manpower")
-	armies_btn.pressed.connect(_toggle_armies_window)
-	hbox.add_child(armies_btn)
 
-	fleets_btn = Button.new()
-	fleets_btn.text = "Fleets 0"
-	fleets_btn.custom_minimum_size = Vector2(115.0, 30.0)
+	fleets_btn = _add_bar_indicator(hbox, "sailors", 66.0, _toggle_fleets_window)
 	bind_breakdown(fleets_btn, func() -> Variant: return _call_bridge("getSailorsBreakdown", [], {}), "Fleets & Maximum Sailors")
-	fleets_btn.pressed.connect(_toggle_fleets_window)
-	hbox.add_child(fleets_btn)
 
-	hbox.add_child(_make_separator())
-
-	selection_label = _make_label("Click a province to inspect", Color(0.86, 0.83, 0.76), 13)
+	selection_label = Label.new()
+	selection_label.text = "Click a province to inspect"
+	selection_label.theme_type_variation = "BarLabel"
+	selection_label.add_theme_font_size_override("font_size", 15)
 	selection_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	selection_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	# May shrink (with "…") so the date, pause and speed buttons always fit.
 	selection_label.clip_text = true
 	selection_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-	selection_label.custom_minimum_size = Vector2(0.0, 0.0)
 	bind_tip(selection_label, "Selected Map Tile", "Click any province or sea zone on the map to inspect its owner, population, terrain and garrison.")
 	hbox.add_child(selection_label)
 
@@ -651,35 +584,35 @@ func _build_top_bar() -> void:
 	play_as_btn.pressed.connect(_on_play_as_pressed)
 	hbox.add_child(play_as_btn)
 
-	menu_btn = Button.new()
-	menu_btn.text = "Menu"
-	menu_btn.custom_minimum_size = Vector2(68.0, 30.0)
+	menu_btn = GezStyle.medallion_button("menu", 36.0)
 	bind_tip(menu_btn, "Game Menu (Esc)", "Save/load campaigns, configure autosaves, toggle event pausing, adjust sound effects and quit.")
 	menu_btn.pressed.connect(_toggle_game_menu)
 	hbox.add_child(menu_btn)
 
-	date_label = _make_label("30 May 1453", Color(0.96, 0.93, 0.86), 15)
-	date_label.custom_minimum_size = Vector2(104.0, 0.0)
-	date_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	date_label = Label.new()
+	date_label.text = "30 May 1453"
+	date_label.theme_type_variation = "BarTitle"
+	date_label.custom_minimum_size = Vector2(150.0, 0.0)
+	date_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	bind_tip(date_label, "Campaign Date", "Current calendar date (campaign begins 30 May 1453). Economy, manpower, unrest and sieges tick daily and settle each 1st of the month.")
 	hbox.add_child(date_label)
 
-	pause_btn = Button.new()
-	pause_btn.text = "PAUSED"
-	pause_btn.custom_minimum_size = Vector2(72.0, 30.0)
-	bind_tip(pause_btn, "Pause / Resume (Space)", "Pause keeps the simulation and ambient map sound effects silent while still letting you issue orders.")
+	pause_btn = GezStyle.medallion_button("pause", 38.0)
+	bind_tip(pause_btn, "Pause / Resume (Space)", "Red: the game is paused. Pause keeps the simulation and ambient map sound effects silent while still letting you issue orders.")
 	pause_btn.pressed.connect(_on_pause_pressed)
 	hbox.add_child(pause_btn)
 
 	var speed_box := HBoxContainer.new()
-	speed_box.add_theme_constant_override("separation", 2)
+	speed_box.add_theme_constant_override("separation", 0)
 	hbox.add_child(speed_box)
 
 	speed_buttons.clear()
 	for s in range(1, 6):
 		var b := Button.new()
-		b.text = str(s)
-		b.custom_minimum_size = Vector2(24.0, 30.0)
+		b.text = "›"
+		b.theme_type_variation = "BarButton"
+		b.add_theme_font_size_override("font_size", 26)
+		b.custom_minimum_size = Vector2(13.0, 34.0)
 		bind_tip(b, "Game Speed %d (Key %d)" % [s, s], "Advance time at speed %d. Higher speeds step more days per real second." % s)
 		var spd := s
 		b.pressed.connect(func() -> void: _on_speed_selected(spd))
@@ -692,14 +625,158 @@ func _build_top_bar() -> void:
 	add_child(fps_label)
 	fps_label.set_anchors_and_offsets_preset(Control.PRESET_CENTER_BOTTOM, Control.PRESET_MODE_MINSIZE, 6)
 
+	_build_side_bar()
+
+## One top-bar figure: a medallion and its number. Clicking either opens the
+## matching screen. Returns the number (a flat bar button).
+func _add_bar_indicator(parent: Control, key: String, min_w: float, on_press: Callable) -> Button:
+	var box := HBoxContainer.new()
+	box.add_theme_constant_override("separation", 2)
+	parent.add_child(box)
+	var med := GezStyle.medallion_button(key, 36.0)
+	med.pressed.connect(on_press)
+	box.add_child(med)
+	var b := Button.new()
+	b.theme_type_variation = "BarButton"
+	b.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	b.custom_minimum_size = Vector2(min_w, 34.0)
+	b.clip_text = true
+	b.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	b.pressed.connect(on_press)
+	box.add_child(b)
+	# the medallion shows the same tooltip as the number
+	b.set_meta("gez_medallion_node", med)
+	return b
+
+# The side column of screens (Phase 20, owner's choice): big gold medallions
+# down the left edge. Gemini's Phase 18 screens: add_side_button(...).
+const SIDE_SCREENS := [
+	["budget", "Budget & Treasury", "Income, expenses, loans and the monthly balance."],
+	["trade", "Trade & Markets", "Manage trade routes, merchant capacity, tolls and embargoes across regional markets."],
+	["court", "Royal Court & Family", "Inspect the ruler, heir, dynasty, royal council seats, vassals and court chronicle."],
+	["government", "Government & Estates", "Laws, reforms, estates and realm stability."],
+	["religion", "Religion & Cultures", "Direct missionaries, guard holy sites, watch historical movements and manage accepted cultures."],
+	["rebels", "Unrest & Rebel Factions", "Inspect province unrest causes, active rebel factions, uprising progress and countermeasures."],
+	["technology", "Technology & Institutions", "Research administrative, diplomatic and military technology; embrace institutions."],
+	["diplomacy", "Diplomacy", "Relations, alliances, marriages, rivals and declarations of war."],
+	["wars", "Wars & Peace", "Inspect ongoing wars, war score breakdowns, allies and peace offers."],
+	["armies", "Armies", "All your armies, regiments, generals and recruitment."],
+	["fleets", "Fleets", "All your fleets, ships, admirals and shipbuilding."],
+]
+
+func _build_side_bar() -> void:
+	side_bar = PanelContainer.new()
+	side_bar.name = "SideBar"
+	side_bar.theme_type_variation = "SideBar"
+	side_bar.anchor_top = 0.0
+	side_bar.anchor_bottom = 1.0
+	side_bar.offset_left = 0.0
+	side_bar.offset_top = 50.0
+	side_bar.offset_right = SIDEBAR_WIDTH
+	side_bar.offset_bottom = 0.0
+	add_child(side_bar)
+	move_child(side_bar, top_bar_panel.get_index())   # under the top bar's gold moulding
+	var col := VBoxContainer.new()
+	col.name = "SideButtons"
+	col.add_theme_constant_override("separation", 4)
+	side_bar.add_child(col)
+	var gap := Control.new()
+	gap.custom_minimum_size = Vector2(0.0, 6.0)
+	col.add_child(gap)
+	var toggles := {
+		"budget": _toggle_budget_window, "trade": _toggle_trade_window, "court": _toggle_court_window,
+		"government": _toggle_government_window, "religion": _toggle_religion_window,
+		"rebels": _toggle_rebels_window, "technology": _toggle_tech_window,
+		"diplomacy": _toggle_diplomacy_window, "wars": _toggle_wars_window,
+		"armies": _toggle_armies_window, "fleets": _toggle_fleets_window,
+	}
+	for spec in SIDE_SCREENS:
+		add_side_button(spec[0], spec[1], spec[2], toggles[spec[0]])
+	# old names, still used by the refresh code
+	trade_btn = null
+	court_btn = null
+	diplomacy_btn = null
+	tech_btn = null
+	rebels_btn = null
+	wars_btn = null
+
+## Add a screen to the side column: `key` picks the medallion picture
+## (see GezStyle / tools/uiart MEDALLIONS, e.g. "chronicle", "ledger",
+## "timelapse"); on_press opens or closes the screen.
+func add_side_button(key: String, title: String, summary: String, on_press: Callable) -> TextureButton:
+	var col: Control = side_bar.get_node("SideButtons")
+	var holder := Control.new()
+	holder.custom_minimum_size = Vector2(52.0, 52.0)
+	col.add_child(holder)
+	var b := GezStyle.medallion_button(key, 50.0)
+	b.position = Vector2(1.0, 1.0)
+	holder.add_child(b)
+	bind_tip(b, title, summary)
+	b.pressed.connect(func() -> void:
+		on_press.call()
+		call_deferred("_sync_side_bar")
+	)
+	var badge := Label.new()
+	badge.name = "Badge"
+	badge.visible = false
+	badge.add_theme_font_size_override("font_size", 12)
+	badge.add_theme_color_override("font_color", Color(1, 0.95, 0.85))
+	var bs := StyleBoxFlat.new()
+	bs.bg_color = Color(0.62, 0.10, 0.07)
+	bs.border_color = Color(0.95, 0.80, 0.45)
+	bs.set_border_width_all(1)
+	bs.set_corner_radius_all(9)
+	bs.content_margin_left = 5.0
+	bs.content_margin_right = 5.0
+	badge.add_theme_stylebox_override("normal", bs)
+	badge.position = Vector2(34.0, -2.0)
+	badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	holder.add_child(badge)
+	side_bar_buttons[key] = b
+	return b
+
+## Small red count on a side-column medallion ("" hides it).
+func set_side_badge(key: String, text: String) -> void:
+	var b: TextureButton = side_bar_buttons.get(key, null)
+	if b == null:
+		return
+	var badge: Label = b.get_parent().get_node("Badge")
+	badge.text = text
+	badge.visible = not text.is_empty()
+
+var _last_side_sig: String = ""
+
+## Red enamel on the medallion of every open screen.
+func _sync_side_bar() -> void:
+	var open := {
+		"budget": _window_open(budget_ui, "budget_panel"), "trade": _window_open(trade_ui, "trade_panel"),
+		"court": _window_open(court_ui, "court_panel"), "government": _window_open(gov_ui, "gov_panel"),
+		"religion": _window_open(religion_ui, "rel_panel"), "rebels": _window_open(rebels_ui, "rebels_panel"),
+		"technology": _window_open(tech_ui, "tech_panel"), "diplomacy": diplomacy_ui != null and diplomacy_ui.visible,
+		"wars": _window_open(wars_ui, "wars_panel"), "armies": _window_open(army_ui, "armies_window_panel"),
+		"fleets": _window_open(fleet_ui, "fleets_window_panel"),
+	}
+	var sig := str(open)
+	if sig == _last_side_sig:
+		return
+	_last_side_sig = sig
+	for k in open.keys():
+		GezStyle.set_medallion_on(side_bar_buttons.get(k, null), bool(open[k]))
+
+func _window_open(host: Node, panel_prop: String) -> bool:
+	if host == null:
+		return false
+	var p: Variant = host.get(panel_prop)
+	return p is Control and (p as Control).visible
+
 func _build_map_mode_bar() -> void:
 	var mode_panel := PanelContainer.new()
 	mode_panel.name = "MapModeBar"
-	mode_panel.add_theme_stylebox_override("panel", _make_panel_style(Color(0.15, 0.12, 0.09, 0.92)))
+	mode_panel.theme_type_variation = "Bare"
 	add_child(mode_panel)
 
 	var hbox := HBoxContainer.new()
-	hbox.add_theme_constant_override("separation", 2)
+	hbox.add_theme_constant_override("separation", 1)
 	mode_panel.add_child(hbox)
 
 	var modes_spec := [
@@ -721,45 +798,35 @@ func _build_map_mode_bar() -> void:
 		var k: String = m["key"]
 		var title: String = m["title"]
 		var sc: String = m["shortcut"]
-		var btn := Button.new()
-		# Compact buttons keep the 12-mode bar clear of the alerts row on a 1440-wide window.
-		btn.text = title
-		btn.tooltip_text = "%s Map Mode (Key %s)" % [title, sc]
-		btn.add_theme_font_size_override("font_size", 12)
-		btn.custom_minimum_size = Vector2(0.0, 26.0)
+		var btn := GezStyle.medallion_button("map_" + k, 36.0)
+		bind_tip(btn, "%s Map Mode" % title, "Key %s" % sc)
 		var mode_key := k
 		btn.pressed.connect(func() -> void: _select_map_mode(mode_key))
 		hbox.add_child(btn)
 		map_mode_buttons[k] = btn
 
 	mode_panel.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT, Control.PRESET_MODE_MINSIZE, 12)
-	mode_panel.offset_top = 60.0
+	mode_panel.offset_top = 58.0
 	_update_map_mode_button_styles()
 
 func _build_zoom_buttons() -> void:
 	var zoom_box := VBoxContainer.new()
 	zoom_box.name = "ZoomButtons"
-	zoom_box.add_theme_constant_override("separation", 6)
+	zoom_box.add_theme_constant_override("separation", 4)
 	add_child(zoom_box)
 
-	var btn_in := Button.new()
-	btn_in.text = "+"
-	btn_in.custom_minimum_size = Vector2(38.0, 38.0)
-	btn_in.tooltip_text = "Zoom In"
+	var btn_in := GezStyle.medallion_button("zoom_in", 40.0)
+	bind_tip(btn_in, "Zoom In", "Mouse wheel or pinch also zoom.")
 	btn_in.pressed.connect(func() -> void: _zoom_by(1.5, size * 0.5))
 	zoom_box.add_child(btn_in)
 
-	var btn_out := Button.new()
-	btn_out.text = "−"
-	btn_out.custom_minimum_size = Vector2(38.0, 38.0)
-	btn_out.tooltip_text = "Zoom Out"
+	var btn_out := GezStyle.medallion_button("zoom_out", 40.0)
+	bind_tip(btn_out, "Zoom Out", "Mouse wheel or pinch also zoom.")
 	btn_out.pressed.connect(func() -> void: _zoom_by(1.0 / 1.5, size * 0.5))
 	zoom_box.add_child(btn_out)
 
-	var btn_fit := Button.new()
-	btn_fit.text = "Fit"
-	btn_fit.custom_minimum_size = Vector2(38.0, 38.0)
-	btn_fit.tooltip_text = "Show Whole Map (F)"
+	var btn_fit := GezStyle.medallion_button("zoom_fit", 40.0)
+	bind_tip(btn_fit, "Show Whole Map (F)", "")
 	btn_fit.pressed.connect(_show_whole_map)
 	zoom_box.add_child(btn_fit)
 	zoom_box.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT, Control.PRESET_MODE_MINSIZE, 16)
@@ -770,7 +837,7 @@ func _build_province_panel() -> void:
 	province_panel.visible = false
 	province_panel.custom_minimum_size = Vector2(330.0, 0.0)
 	province_panel.add_theme_stylebox_override("panel", _make_panel_style())
-	add_child(province_panel)
+	windows_layer.add_child(province_panel)
 
 	var vbox := VBoxContainer.new()
 	vbox.add_theme_constant_override("separation", 6)
@@ -780,10 +847,10 @@ func _build_province_panel() -> void:
 	var header := HBoxContainer.new()
 	vbox.add_child(header)
 	prov_title_label = _make_label("Province", Color(0.97, 0.90, 0.68), 18)
+	GezStyle.as_title(prov_title_label)
 	prov_title_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	header.add_child(prov_title_label)
-	var close_btn := Button.new()
-	close_btn.text = "X"
+	var close_btn := GezStyle.medallion_button("close", 30.0)
 	close_btn.tooltip_text = "Close province panel"
 	close_btn.pressed.connect(_clear_selection)
 	header.add_child(close_btn)
@@ -864,7 +931,7 @@ func _build_sea_panel() -> void:
 	sea_panel.visible = false
 	sea_panel.custom_minimum_size = Vector2(300.0, 0.0)
 	sea_panel.add_theme_stylebox_override("panel", _make_panel_style())
-	add_child(sea_panel)
+	windows_layer.add_child(sea_panel)
 
 	var vbox := VBoxContainer.new()
 	vbox.add_theme_constant_override("separation", 6)
@@ -876,8 +943,7 @@ func _build_sea_panel() -> void:
 	sea_title_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	bind_tip(sea_title_label, "Sea Zone", "Maritime region navigable by fleets. Blockading enemy coasts disrupts trade and fort sieges.")
 	header.add_child(sea_title_label)
-	var close_btn := Button.new()
-	close_btn.text = "X"
+	var close_btn := GezStyle.medallion_button("close", 30.0)
 	bind_tip(close_btn, "Close Sea Panel")
 	close_btn.pressed.connect(_clear_selection)
 	header.add_child(close_btn)
@@ -905,7 +971,7 @@ func _build_market_panel() -> void:
 	market_panel.visible = false
 	market_panel.custom_minimum_size = Vector2(390.0, 0.0)
 	market_panel.add_theme_stylebox_override("panel", _make_panel_style())
-	add_child(market_panel)
+	windows_layer.add_child(market_panel)
 
 	var vbox := VBoxContainer.new()
 	vbox.add_theme_constant_override("separation", 6)
@@ -914,11 +980,11 @@ func _build_market_panel() -> void:
 	var header := HBoxContainer.new()
 	vbox.add_child(header)
 	market_title_label = _make_label("Market", Color(0.97, 0.90, 0.68), 17)
+	GezStyle.as_title(market_title_label)
 	market_title_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	bind_tip(market_title_label, "Regional Market", "Regional trading hub setting supply, demand and monthly prices for all goods in member provinces.")
 	header.add_child(market_title_label)
-	var close_btn := Button.new()
-	close_btn.text = "X"
+	var close_btn := GezStyle.medallion_button("close", 30.0)
 	bind_tip(close_btn, "Close Market Panel")
 	close_btn.pressed.connect(func() -> void:
 		open_market_index = -1
@@ -972,6 +1038,9 @@ func _build_market_panel() -> void:
 	market_panel.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT, Control.PRESET_MODE_MINSIZE, 12)
 	market_panel.offset_right = -68.0
 	market_panel.offset_left = -458.0
+	# grow to the left when its contents are wider (Phase 20 fonts and frames)
+	market_panel.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	market_panel.grow_vertical = Control.GROW_DIRECTION_BEGIN
 
 func _build_nation_picker_panel() -> void:
 	nation_picker_panel = PanelContainer.new()
@@ -979,7 +1048,7 @@ func _build_nation_picker_panel() -> void:
 	nation_picker_panel.visible = false
 	nation_picker_panel.custom_minimum_size = Vector2(470.0, 0.0)
 	nation_picker_panel.add_theme_stylebox_override("panel", _make_panel_style())
-	add_child(nation_picker_panel)
+	windows_layer.add_child(nation_picker_panel)
 
 	var vbox := VBoxContainer.new()
 	vbox.add_theme_constant_override("separation", 8)
@@ -988,10 +1057,10 @@ func _build_nation_picker_panel() -> void:
 	var header := HBoxContainer.new()
 	vbox.add_child(header)
 	var title := _make_label("Choose Nation (1453)", Color(0.97, 0.90, 0.68), 18)
+	GezStyle.as_title(title)
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	header.add_child(title)
-	var close_btn := Button.new()
-	close_btn.text = "X"
+	var close_btn := GezStyle.medallion_button("close", 30.0)
 	close_btn.pressed.connect(func() -> void: nation_picker_panel.visible = false)
 	header.add_child(close_btn)
 
@@ -1113,10 +1182,10 @@ func _build_game_menu_panel() -> void:
 	var header := HBoxContainer.new()
 	vbox.add_child(header)
 	var title := _make_label("Game Menu", Color(0.97, 0.90, 0.68), 18)
+	GezStyle.as_title(title)
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	header.add_child(title)
-	var close_btn := Button.new()
-	close_btn.text = "X"
+	var close_btn := GezStyle.medallion_button("close", 30.0)
 	close_btn.pressed.connect(func() -> void: game_menu_panel.visible = false)
 	header.add_child(close_btn)
 
@@ -1316,11 +1385,16 @@ func _build_game_menu_panel() -> void:
 
 	game_menu_panel.set_anchors_and_offsets_preset(Control.PRESET_CENTER, Control.PRESET_MODE_MINSIZE)
 
+## Add a window (a new screen) next to the others: right of the side
+## column, under the top bar. Use this for new screens.
+func add_window(node: Control) -> void:
+	windows_layer.add_child(node)
+
 func _make_label(txt: String, col: Color, fsize: int) -> Label:
 	var lbl := Label.new()
 	lbl.text = txt
-	lbl.add_theme_color_override("font_color", col)
-	lbl.add_theme_font_size_override("font_size", fsize)
+	lbl.add_theme_color_override("font_color", GezStyle.ink(col))
+	lbl.add_theme_font_size_override("font_size", GezStyle.fs(fsize))
 	return lbl
 
 func _make_separator() -> VSeparator:
@@ -1677,62 +1751,64 @@ func _refresh_top_bar() -> void:
 		var duc_str := str(top.get("ducatsText", "0 (+0.0/mo)"))
 		if duc_str != _last_ducats_str:
 			_last_ducats_str = duc_str
-			treasury_btn.text = duc_str
+			# "417 (+14.0/mo)" -> "417  +14.0"
+			treasury_btn.text = duc_str.replace(" (", "  ").replace("/mo)", "")
 	if inflation_label != null:
 		var infl: int = int(top.get("inflationPercent", 0))
-		inflation_label.visible = infl >= 1
-		inflation_label.text = "Inflation %d%%" % infl
+		inflation_label.get_parent().visible = infl >= 1
+		inflation_label.text = "%d%%" % infl
 	if stability_btn != null:
 		var stab: int = int(top.get("stability", 0))
 		var stab_str: String = str(top.get("stabilityText", "Stability +0"))
 		if stab_str != _last_stab_str:
 			_last_stab_str = stab_str
-			stability_btn.text = stab_str
+			stability_btn.text = stab_str.replace("Stability", "").strip_edges()
 		var stab_neg := 1 if stab < 0 else 0
 		if stab_neg != _last_stab_neg:
 			_last_stab_neg = stab_neg
-			stability_btn.modulate = Color(0.98, 0.55, 0.50) if stab < 0 else Color(0.95, 0.92, 0.85)
+			stability_btn.modulate = Color(1.0, 0.55, 0.48) if stab < 0 else Color(1, 1, 1)
 	if religion_btn != null:
 		var r_str: String = str(top.get("religionButtonText", "Religion"))
 		if r_str != _last_rel_btn_str:
 			_last_rel_btn_str = r_str
-			religion_btn.text = r_str
-	if rebels_btn != null:
-		var rb_str: String = str(top.get("rebelsButtonText", "Rebels"))
-		if rb_str != _last_rebels_btn_str:
-			_last_rebels_btn_str = rb_str
-			rebels_btn.text = rb_str
-			rebels_btn.modulate = Color(1.0, 0.50, 0.44) if rb_str.ends_with("!") else (Color(1.0, 0.82, 0.48) if rb_str != "Rebels" else Color(1.0, 1.0, 1.0))
-	if tech_btn != null:
-		var t_str: String = str(top.get("techButtonText", "Tech"))
-		if t_str != _last_tech_btn_str:
-			_last_tech_btn_str = t_str
-			tech_btn.text = t_str
-	if wars_btn != null:
-		var wars_cnt: int = int(top.get("activeWarsCount", 0))
-		var pending_cnt: int = int(top.get("pendingPeaceOffersCount", 0))
-		var vis := 1 if ((wars_cnt > 0) or (pending_cnt > 0)) else 0
-		if vis != _last_wars_vis:
-			_last_wars_vis = vis
-			wars_btn.visible = (vis == 1)
-		var wars_str := "Wars (%d) · %d Offer" % [wars_cnt, pending_cnt] if pending_cnt > 0 else "Wars (%d)" % wars_cnt
-		if wars_str != _last_wars_str:
-			_last_wars_str = wars_str
-			wars_btn.text = wars_str
-		var has_offer := 1 if pending_cnt > 0 else 0
-		if has_offer != _last_wars_offer:
-			_last_wars_offer = has_offer
-			wars_btn.modulate = Color(1.0, 0.62, 0.35) if pending_cnt > 0 else Color(1.0, 0.68, 0.65)
+			# "Sunni · 0/1": the faith's name; missionaries in the tooltip
+			religion_btn.text = r_str.get_slice(" · ", 0)
+			bind_tip(religion_btn, "State Religion: %s" % r_str.get_slice(" · ", 0), "Missionaries in use / available: %s. Click for Religion & Cultures." % (r_str.get_slice(" · ", 1) if r_str.contains(" · ") else "—"))
+	var rb_str: String = str(top.get("rebelsButtonText", "Rebels"))
+	if rb_str != _last_rebels_btn_str:
+		_last_rebels_btn_str = rb_str
+		# "Rebels", "Rebels 2" or "Rebels 2!" -> a badge on the side column
+		set_side_badge("rebels", rb_str.replace("Rebels", "").strip_edges())
+	var t_str: String = str(top.get("techButtonText", "Tech"))
+	if t_str != _last_tech_btn_str:
+		_last_tech_btn_str = t_str
+		var tb: Control = side_bar_buttons.get("technology", null)
+		if tb != null:
+			bind_breakdown(tb, func() -> Variant: return _call_bridge("getResearchSpeedBreakdown", ["administrative"], {}), "Technology %s" % t_str.replace("Tech", "").strip_edges())
+	var wars_cnt: int = int(top.get("activeWarsCount", 0))
+	var pending_cnt: int = int(top.get("pendingPeaceOffersCount", 0))
+	var wars_str := "%d!" % wars_cnt if pending_cnt > 0 else ("%d" % wars_cnt if wars_cnt > 0 else "")
+	if wars_str != _last_wars_str:
+		_last_wars_str = wars_str
+		set_side_badge("wars", wars_str)
 	if armies_btn != null:
 		var a_str: String = str(top.get("armiesText", "Armies 0 · MP 0"))
 		if a_str != _last_armies_btn_str:
 			_last_armies_btn_str = a_str
-			armies_btn.text = a_str
+			# "Armies 24k · MP 39k" -> manpower "39k" (army size on hover)
+			armies_btn.text = a_str.get_slice("MP ", 1) if a_str.contains("MP ") else a_str
+			var ab: Control = side_bar_buttons.get("armies", null)
+			if ab != null:
+				bind_tip(ab, "Armies (%s)" % a_str.get_slice(" · ", 0).replace("Armies ", ""), "All your armies, regiments, generals and recruitment.")
 	if fleets_btn != null:
 		var f_str: String = str(top.get("fleetsText", "Fleets 0"))
 		if f_str != _last_fleets_btn_str:
 			_last_fleets_btn_str = f_str
-			fleets_btn.text = f_str
+			# "Fleets 24 · Sailors 18.7k" -> sailors "18.7k"
+			fleets_btn.text = f_str.get_slice("Sailors ", 1) if f_str.contains("Sailors ") else f_str
+			var fb: Control = side_bar_buttons.get("fleets", null)
+			if fb != null:
+				bind_tip(fb, "Fleets (%s ships)" % f_str.get_slice(" · ", 0).replace("Fleets ", ""), "All your fleets, ships, admirals and shipbuilding.")
 
 	var d_str: String = str(top.get("dateText", "30 May 1453"))
 	if d_str != _last_date_str:
@@ -1748,11 +1824,12 @@ func _refresh_top_bar() -> void:
 		var a := _audio()
 		if a != null:
 			a.call("set_game_paused", paused)
-		pause_btn.text = "PAUSED" if paused else "RUNNING"
-		pause_btn.modulate = Color(1.0, 0.78, 0.45) if paused else Color(0.75, 1.0, 0.78)
+		GezStyle.set_medallion_on(pause_btn, paused)
 		for i in range(speed_buttons.size()):
-			var active := (not paused) and (spd == i + 1)
-			speed_buttons[i].modulate = Color(1.0, 0.88, 0.40) if active else Color(0.85, 0.85, 0.85)
+			# lit chevrons up to the current speed (dim while paused)
+			var lit := i < spd
+			speed_buttons[i].modulate = (Color(1, 1, 1) if not paused else Color(0.85, 0.72, 0.52)) if lit else Color(0.62, 0.50, 0.38)
+	_sync_side_bar()
 
 	var alerts_sig: String = str(top.get("alertsSignature", ""))
 	if alerts_sig != _last_alerts_sig:
@@ -1784,9 +1861,7 @@ func _select_map_mode(mode_key: String) -> void:
 
 func _update_map_mode_button_styles() -> void:
 	for k in map_mode_buttons.keys():
-		var btn: Button = map_mode_buttons[k]
-		var active: bool = (str(k) == current_map_mode)
-		btn.modulate = Color(1.0, 0.88, 0.40) if active else Color(0.86, 0.84, 0.78)
+		GezStyle.set_medallion_on(map_mode_buttons[k], str(k) == current_map_mode)
 
 # MARK: - Game Menu (Esc & Top-Bar Button)
 
@@ -2285,8 +2360,8 @@ func _build_province_overview_tab(d: Dictionary) -> void:
 		h_btn.flat = true
 		h_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		h_btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		h_btn.add_theme_color_override("font_color", Color(0.97, 0.88, 0.62))
-		h_btn.add_theme_font_size_override("font_size", 13)
+		h_btn.add_theme_color_override("font_color", GezStyle.ink(Color(0.97, 0.88, 0.62)))
+		h_btn.add_theme_font_size_override("font_size", GezStyle.fs(13))
 		h_btn.pressed.connect(func() -> void:
 			if court_ui != null:
 				_close_top_left_windows("court")
@@ -2786,7 +2861,7 @@ func _append_province_calamity_section(p_idx: int) -> void:
 			r_btn.text = str((r_v as Dictionary).get("text", "Rebels"))
 			r_btn.flat = true
 			r_btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
-			r_btn.add_theme_color_override("font_color", Color(0.98, 0.62, 0.50))
+			r_btn.add_theme_color_override("font_color", GezStyle.ink(Color(0.98, 0.62, 0.50)))
 			r_btn.tooltip_text = "Open the Unrest & Rebels window"
 			r_btn.pressed.connect(_open_rebels_window)
 			prov_content_box.add_child(r_btn)
@@ -3558,7 +3633,7 @@ func _build_alerts_bar() -> void:
 	alerts_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	alerts_scroll.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	alerts_scroll.visible = false
-	add_child(alerts_scroll)
+	windows_layer.add_child(alerts_scroll)
 
 	alerts_hbox = HBoxContainer.new()
 	alerts_hbox.add_theme_constant_override("separation", 6)
@@ -3621,7 +3696,7 @@ func _build_recent_events_bar() -> void:
 	st.content_margin_bottom = 4.0
 	recent_events_panel.add_theme_stylebox_override("panel", st)
 	recent_events_panel.visible = false
-	add_child(recent_events_panel)
+	windows_layer.add_child(recent_events_panel)
 
 	var vbox := VBoxContainer.new()
 	vbox.add_theme_constant_override("separation", 4)

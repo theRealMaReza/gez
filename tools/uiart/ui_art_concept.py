@@ -370,10 +370,8 @@ def portrait_frame(name, w, h):
     return save(rgb, a, name)
 
 
-# ---------------------------------------------------------------- build all pieces
-if __name__ == '__main__':
-    import os; os.makedirs(OUT, exist_ok=True)
-    I = {
+# ---------------------------------------------------------------- icons
+ICONS = {
      'coin':'M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18M12 6.5v11M15 9h-4.5a2 2 0 0 0 0 4h3a2 2 0 0 1 0 4H9',
      'bag':'M8 7l2-3h4l2 3M5 21l2-14h10l2 14z',
      'crown':'M3 8l4 4 5-7 5 7 4-4-2 11H5z',
@@ -399,7 +397,38 @@ if __name__ == '__main__':
      'book':'M4 5h7a1 1 0 0 1 1 1v14a1 1 0 0 0-1-1H4zM20 5h-7a1 1 0 0 0-1 1v14a1 1 0 0 1 1-1h7z',
      'close':'M6 6l12 12M18 6L6 18',
      'pause':'M9 5v14M15 5v14',
+
+     # Added for the Phase 20 style kit (our own drawings on a 24-unit grid).
+     'scales':'M12 3v18M7 21h10M4 7h16M6 7l-3 7a3 3 0 0 0 6 0zM18 7l-3 7a3 3 0 0 0 6 0z',
+     'torch':'M10 21l1-9h2l1 9zM9 12h6M12 3c2 2 3 3 3 5a3 3 0 0 1-6 0c0-1 1-2 1-3 1 1 1 2 2 2 0-2-1-3 0-4z',
+     'astrolabe':'M12 5a8 8 0 1 0 0 16a8 8 0 1 0 0-16M12 9a4 4 0 1 0 0 8a4 4 0 1 0 0-8M4 13h16M12 2v3M6 19l12-12',
+     'scroll':'M7 4h11a2 2 0 0 1 0 4h-1v10a2 2 0 0 1-2 2H6a2 2 0 0 1 0-4h1zM7 16V4M10 8h4M10 11h4',
+     'swords':'M4 4l12 12M13 19l6-6M16 16l4 4M20 4L8 16M5 13l6 6M8 16l-4 4',
+     'helmet':'M4 15a8 8 0 0 1 16 0v4H4zM12 7V3M10 3h4M4 15h16M12 15v4',
+     'menu':'M5 7h14M5 12h14M5 17h14',
+     'play':'M8 5l11 7-11 7z',
+     'rings':'M9 8a5 5 0 1 0 0 10a5 5 0 1 0 0-10M15 6a5 5 0 1 0 0 10a5 5 0 1 0 0-10',
+     'skull':'M12 3a7 7 0 0 0-7 7c0 3 2 4 2 6v2h10v-2c0-2 2-3 2-6a7 7 0 0 0-7-7zM9 10.5a1.2 1.2 0 1 0 0 .1M15 10.5a1.2 1.2 0 1 0 0 .1M10 18v3M14 18v3',
+     'quill':'M20 3c-7 1-12 6-13 14l-2 4M20 3c-1 5-5 9-10 10M10 13h4',
+     'hourglass':'M6 3h12M6 21h12M7 3v2c0 4 10 5 10 9v7M17 3v2c0 4-10 5-10 9v7',
+     'plus':'M12 5v14M5 12h14',
+     'minus':'M5 12h14',
+     'fit':'M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5',
+     'hammer':'M14 3l7 7-3 3-7-7zM12 8l-8 8 3 3 8-8',
+     'coin_down':'M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18M12 7v8M8.5 11.5l3.5 3.5 3.5-3.5',
+     'globe':'M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18M3 12h18M12 3c3.5 3 3.5 15 0 18M12 3c-3.5 3-3.5 15 0 18',
+     'bell':'M6 17v-6a6 6 0 0 1 12 0v6l2 2H4zM10 21h4',
+     'star':'M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6-5.3-3-5.3 3 1.2-6-4.5-4.1 6-.7z',
+     'check':'M5 12l5 5 9-10',
+     'sword':'M18 3h3v3L9 18l-3-3zM5 14l5 5M7 17l-4 4',
+     'eye':'M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12zM12 9a3 3 0 1 0 0 6a3 3 0 1 0 0-6',
+     'gavel':'M13 4l5 5M11 6l5 5M12 5l-4 4 3 3 4-4M9.5 10.5L3 17l2 2 6.5-6.5M14 20h7',
     }
+
+# ---------------------------------------------------------------- concept pieces
+def build_concept():
+    """The original concept pieces (out/), as shown on the concept canvas."""
+    import os; os.makedirs(OUT, exist_ok=True)
     nine_frame('frame_gold.png', 240, 26)
     nine_frame('frame_small.png', 80, 9, corner=False)
     top_bar('topbar.png', 2880, 172)
@@ -410,18 +439,18 @@ if __name__ == '__main__':
     leather('leather.png', 512, 512)
     portrait_frame('portrait_frame.png', 260, 320)
     for k in ['flag','grid','mountain','dome','people','bars','box','bag']:
-        medallion(f'mode_{k}.png', 104, I[k])
-    medallion('mode_flag_on.png', 104, I['flag'], enamel=(140,30,22))
+        medallion(f'mode_{k}.png', 104, ICONS[k])
+    medallion('mode_flag_on.png', 104, ICONS['flag'], enamel=(140,30,22))
     for k in ['coin','bag','crown']:
-        medallion(f'chip_{k}.png', 88, I[k], enamel=(30,40,52))
+        medallion(f'chip_{k}.png', 88, ICONS[k], enamel=(30,40,52))
     for k in ['ledger','ship','crown','column']:
-        medallion(f'nav_{k}.png', 92, I[k], stops=BRONZE, enamel=(36,26,18))
-    medallion('btn_close.png', 60, I['close'], icon_scale=.5)
-    medallion('btn_pause.png', 64, I['pause'], icon_scale=.5, enamel=(140,30,22))
+        medallion(f'nav_{k}.png', 92, ICONS[k], stops=BRONZE, enamel=(36,26,18))
+    medallion('btn_close.png', 60, ICONS['close'], icon_scale=.5)
+    medallion('btn_pause.png', 64, ICONS['pause'], icon_scale=.5, enamel=(140,30,22))
     for k in ['bars','tower','wheat','area']:
-        medallion(f'stat_{k}.png', 68, I[k], stops=BRONZE, enamel=(84,52,28))
+        medallion(f'stat_{k}.png', 68, ICONS[k], stops=BRONZE, enamel=(84,52,28))
     for k in ['spool','shield','hide','stall','anchor','church','book','tower','ship']:
-        plaque(f'bld_{k}.png', 104, 104, I[k], enamel=(44,30,20))
+        plaque(f'bld_{k}.png', 104, 104, ICONS[k], enamel=(44,30,20))
     for k,c in {'gold':(176,120,40),'red':(150,34,26),'blue':(40,76,112),'black':(52,36,36),'green':(70,100,50)}.items():
         wax_seal(f'seal_{k}.png', 56, c)
     # gold button (nine-slice)
@@ -431,4 +460,383 @@ if __name__ == '__main__':
         rgb=shade_metal(ndimage.gaussian_filter(hm,1)*h*0.08,stops,strength=1.0,wear=0.15)
         return save(rgb,np.ones((h,w)),name)
     button('button_gold.png',240,72,GOLD)
-    print('done')
+
+
+# ---------------------------------------------------------------- Phase 20 style kit
+# Production pieces for the Godot Theme (godot/assets/ui/). Everything is
+# drawn at 2x and halved (crisp edges), except tiling textures, which are
+# made periodic so they repeat without seams.
+
+def periodic_noise(h, w, beta=2.2, seed=0):
+    """Seamless 0..1 noise (filtered white noise via FFT, so it tiles)."""
+    g = np.random.default_rng(seed)
+    white = g.standard_normal((h, w))
+    fy = np.fft.fftfreq(h)[:, None]; fx = np.fft.fftfreq(w)[None, :]
+    f = np.sqrt(fx ** 2 + fy ** 2); f[0, 0] = 1
+    spec = np.fft.fft2(white) / f ** (beta / 2)
+    spec[0, 0] = 0
+    n = np.real(np.fft.ifft2(spec))
+    n = (n - n.min()) / (n.max() - n.min())
+    return n
+
+
+PARCH = np.array([236, 220, 184]); PARCH_DARK = np.array([196, 164, 114])
+INK = (58, 36, 20)
+
+
+def parchment_tile(h, w, seed=11):
+    """Seamless parchment (no burnt edges): the page inside every panel."""
+    n = periodic_noise(h, w, 2.4, seed) * 0.7 + periodic_noise(h, w, 1.2, seed + 1) * 0.3
+    stains = periodic_noise(h, w, 3.0, seed + 2)
+    t = (n - 0.5) * 0.5 + 0.25 + np.clip(stains - 0.62, 0, 1) * 1.4
+    rgb = PARCH * (1 - t[..., None] * 0.5) + PARCH_DARK * (t[..., None] * 0.5)
+    fib = periodic_noise(h, w, 0.2, seed + 3)
+    rgb += (fib[..., None] - .5) * 10
+    return np.clip(rgb, 0, 255)
+
+
+def leather_tile(h, w, base=(62, 37, 25), seed=21):
+    n = periodic_noise(h, w, 1.6, seed) * 0.5 + periodic_noise(h, w, 0.6, seed + 1) * 0.5
+    hm = n
+    rgb = shade_matte(hm * 9, base, strength=1.0, spec=0.06)
+    rgb *= (0.86 + 0.28 * periodic_noise(h, w, 3.0, seed + 2))[..., None]
+    return np.clip(rgb, 0, 255)
+
+
+def _save_rgba(rgb, alpha, path):
+    im = Image.fromarray(np.dstack([np.clip(rgb, 0, 255), np.clip(alpha, 0, 1) * 255]).astype('uint8'), 'RGBA')
+    im.save(path, optimize=True)
+    return im
+
+
+def _half(rgb, alpha):
+    im = Image.fromarray(np.dstack([np.clip(rgb, 0, 255), np.clip(alpha, 0, 1) * 255]).astype('uint8'), 'RGBA')
+    im = im.resize((im.width // 2, im.height // 2), Image.LANCZOS)
+    a = np.asarray(im, float)
+    return a[..., :3], a[..., 3] / 255
+
+
+def gold_rope(d, along, B, period):
+    """Height of a gold moulding of width B (2x px) at distance d from its
+    outer edge; the twist repeats every `period` px along the edge."""
+    h = frame_profile(d, B)
+    bead = d < 0.22 * B
+    h[bead] *= 0.55 + 0.45 * np.abs(np.sin(along[bead] / (period / 2) * math.pi))
+    roll = (d >= 0.3 * B) & (d < 0.82 * B)
+    h[roll] += 0.14 * np.sin((along[roll] + d[roll] * 0.9) / (period / 2) * math.pi * 2)
+    return h
+
+
+def framed_box(path, center, gold, leather_w=0, bead=0, rosettes=True, page='parchment',
+               page_alpha=1.0, seed=31):
+    """Nine-slice box: gold rope frame (+ optional leather band and inner
+    gold bead) around a seamless page. Sizes in 1x px; returns the margin.
+    The middle of each edge is a whole number of twist periods, so Godot
+    can tile it (axis stretch TILE_FIT)."""
+    M = gold + leather_w + bead
+    S = 2 * M + center
+    S2 = S * 2; G2 = gold * 2; L2 = leather_w * 2; D2 = bead * 2
+    y, x = np.mgrid[0:S2, 0:S2].astype(float)
+    d = np.minimum.reduce([x, y, S2 - 1 - x, S2 - 1 - y])
+    along = np.where(np.minimum(y, S2 - 1 - y) < np.minimum(x, S2 - 1 - x), x, y) - 2 * M
+    period = center * 2 / max(1, round(center * 2 / (G2 * 0.9)))
+    h = np.zeros((S2, S2))
+    gm = d < G2
+    h[gm] = gold_rope(d[gm], along[gm], G2, period)
+    alpha = np.zeros((S2, S2))
+    alpha[d < 2 * M] = 1
+    if rosettes:
+        R = G2 * 1.25
+        for cx, cy in [(G2 * .62, G2 * .62), (S2 - 1 - G2 * .62, G2 * .62), (G2 * .62, S2 - 1 - G2 * .62), (S2 - 1 - G2 * .62, S2 - 1 - G2 * .62)]:
+            r = np.hypot(x - cx, y - cy)
+            ang = np.arctan2(y - cy, x - cx)
+            petals = 0.5 + 0.5 * np.cos(ang * 8)
+            rose = np.where(r < R * 0.32, 1.25 - (r / (R * 0.32)) ** 2 * 0.35,
+                    np.where(r < R * 0.42, 0.75, 0.55 + 0.55 * petals * (1 - (r - R * .42) / (R * .58))))
+            edge = np.clip((R - r) / 2.0, 0, 1)
+            h = np.where(r < R, np.maximum(h * (1 - edge), rose * edge + h * (1 - edge) * 0.3), h)
+            gm = gm | (r < R)
+    bm = (d >= G2 + L2) & (d < 2 * M)
+    if bead:
+        db = d[bm] - (G2 + L2)
+        h[bm] = np.sin(np.clip(db / D2, 0, 1) * math.pi) * 0.8 * (0.7 + 0.3 * np.abs(np.sin(along[bm] / (period / 4) * math.pi)))
+    metal = gm | bm
+    h = ndimage.gaussian_filter(h, 0.8)
+    gold_rgb = shade_metal(h * G2 * 0.12, GOLD, strength=1.0)
+    rgb = np.zeros((S2, S2, 3))
+    if leather_w:
+        lt = leather_tile(S2, S2, seed=seed)
+        lt = np.roll(lt, (2 * M, 2 * M), axis=(0, 1))
+        lm = (d >= G2) & (d < G2 + L2)
+        # leather sinks below the frame: shade near both mouldings
+        dl = d - G2
+        shade = 1 - 0.45 * np.exp(-dl / 5) - 0.35 * np.exp(-(G2 + L2 - d) / 4)
+        rgb[lm] = lt[lm] * shade[lm][:, None]
+    rgb[metal] = gold_rgb[metal]
+    rgb2, a2 = _half(rgb, alpha)
+    # page (1x, seamless), pasted into the centre and under the border
+    if page == 'parchment':
+        tile = parchment_tile(center, center, seed)
+        pg = np.zeros((S, S, 3))
+        pg[M:M + center, M:M + center] = tile
+        # a soft shadow cast by the frame onto the page
+        yy, xx = np.mgrid[0:S, 0:S].astype(float)
+        dd = np.minimum.reduce([xx, yy, S - 1 - xx, S - 1 - yy]) - M
+        # (only inside the border, so the centre tile stays seamless)
+        rgb2 = np.where((dd < 0)[..., None], rgb2, pg)
+        a2 = np.where(dd < 0, a2, page_alpha)
+    _save_rgba(rgb2, a2, path)
+    return M
+
+
+def strip(path, length, thick, moulding='bottom', base=(64, 40, 28), seed=41, lozenge=True):
+    """Tooled leather strip (top bar or side column) with gold mouldings,
+    seamless along its length. Drawn horizontally; rotated for 'right'."""
+    W2, H2 = length * 2, thick * 2
+    y = np.arange(H2)[:, None].repeat(W2, 1).astype(float)
+    x = np.arange(W2)[None, :].repeat(H2, 0).astype(float)
+    Mb = int(H2 * 0.2); Mt = int(H2 * 0.07)
+    n = periodic_noise(H2, W2, 1.4, seed) * 0.6 + periodic_noise(H2, W2, 0.5, seed + 1) * 0.4
+    hm = ndimage.gaussian_filter(n, 1.0) * 0.6
+    top_line = Mt + H2 * 0.1; bot_line = H2 - Mb - H2 * 0.1
+    for yy in [top_line, top_line + 5, bot_line - 5, bot_line]:
+        hm -= 0.35 * np.exp(-((y - yy) / 1.2) ** 2)
+    if lozenge:
+        mid = (top_line + bot_line) / 2
+        band = (y > top_line + 9) & (y < bot_line - 9)
+        per = W2 / round(W2 / 64)
+        u = (x % per) / per - 0.5
+        v = (y - mid) / max(1, (bot_line - top_line) / 2 - 9)
+        loz = np.abs(np.abs(u) * 2 + np.abs(v) - 0.9) < 0.05
+        hm -= 0.25 * (loz & band)
+    col = shade_matte(hm * 8, base, strength=1.0, spec=0.06)
+    col = col * (1.0 - 0.25 * (y / H2))[..., None]
+    gh = np.zeros((H2, W2))
+    db = (H2 - 1 - y)
+    mb = db < Mb
+    per = W2 / round(W2 / (Mb * 0.9))
+    gh[mb] = gold_rope(db[mb], x[mb], Mb, per)
+    mt = y < Mt
+    gh[mt] = np.sin(np.clip(y[mt] / Mt, 0, 1) * math.pi) * 0.8
+    gold = shade_metal(ndimage.gaussian_filter(gh, .8) * Mb * 0.12, GOLD, strength=1.0)
+    m = (mb | mt)[..., None]
+    rgb = np.where(m, gold, col)
+    sh = np.clip(1 - (y - Mt) / (H2 * 0.2), 0, 1) * (y >= Mt)
+    sh2 = np.clip(1 - (H2 - Mb - y) / (H2 * 0.12), 0, 1) * (y < H2 - Mb)
+    rgb = rgb * (1 - 0.5 * np.maximum(sh, sh2)[..., None] * (~m))
+    rgb, a = _half(rgb, np.ones((H2, W2)))
+    if moulding == 'right':
+        rgb = np.rot90(rgb, 1); a = np.rot90(a, 1)   # bottom edge becomes the right edge
+    _save_rgba(rgb, a, path)
+
+
+def gold_button(path, w, h, state='normal'):
+    W2, H2 = w * 2, h * 2
+    y, x = np.mgrid[0:H2, 0:W2].astype(float)
+    d = np.minimum.reduce([x, y, W2 - 1 - x, H2 - 1 - y]); B = H2 * 0.2
+    dome = (1 - ((y - H2 / 2) / (H2 / 2)) ** 2) * 0.25
+    if state == 'pressed':
+        dome = -dome
+    hm = np.where(d < B, np.sin(np.clip(d / B, 0, 1) * math.pi / 2), 1.0) + dome
+    stops = GOLD
+    if state == 'hover':
+        stops = [(p, tuple(min(255, c * 1.12 + 8) for c in col)) for p, col in GOLD]
+    if state == 'pressed':
+        stops = [(p, tuple(c * 0.86 for c in col)) for p, col in GOLD]
+    if state == 'disabled':
+        stops = [(p, tuple((sum(col) / 3) * 0.75 + col[0] * 0.1 for _ in col)) for p, col in GOLD]
+    rgb = shade_metal(ndimage.gaussian_filter(hm, 1) * H2 * 0.08, stops, strength=1.0, wear=0.15)
+    # rounded corners
+    r = 6.0
+    cx = np.clip(x, r, W2 - 1 - r); cy = np.clip(y, r, H2 - 1 - r)
+    a = np.clip(r + 0.5 - np.hypot(x - cx, y - cy), 0, 1)
+    rgb2, a2 = _half(rgb, a)
+    _save_rgba(rgb2, a2, path)
+
+
+def leather_button(path, w, h, state='normal'):
+    """Dark tooled-leather tab with a thin gold edge (tabs, toggles)."""
+    W2, H2 = w * 2, h * 2
+    y, x = np.mgrid[0:H2, 0:W2].astype(float)
+    d = np.minimum.reduce([x, y, W2 - 1 - x, H2 - 1 - y])
+    base = {'normal': (70, 44, 30), 'hover': (92, 58, 38), 'pressed': (126, 30, 22), 'disabled': (70, 62, 56)}[state]
+    lt = leather_tile(H2, W2, base, seed=51)
+    ring = d < 4
+    gh = np.where(ring, np.sin(np.clip(d / 4, 0, 1) * math.pi), 0)
+    gold = shade_metal(gh * 3, GOLD, strength=1.0)
+    rgb = np.where(ring[..., None], gold, lt * (1 - 0.35 * np.exp(-(d - 4) / 5))[..., None])
+    r = 6.0
+    cx = np.clip(x, r, W2 - 1 - r); cy = np.clip(y, r, H2 - 1 - r)
+    a = np.clip(r + 0.5 - np.hypot(x - cx, y - cy), 0, 1)
+    rgb2, a2 = _half(rgb, a)
+    _save_rgba(rgb2, a2, path)
+
+
+def title_banner(path, w, h):
+    """Red cloth ribbon with swallow-tail ends (nine-slice horizontally)."""
+    W2, H2 = w * 2, h * 2
+    y, x = np.mgrid[0:H2, 0:W2].astype(float)
+    tail = H2 * 0.55
+    cy = H2 / 2
+    notch = tail * 0.55 * (1 - np.abs(y - cy) / cy)
+    a = ((x > notch) & (x < W2 - notch)).astype(float)
+    a = ndimage.gaussian_filter(a, 0.8)
+    mid = (x > tail * 1.4) & (x < W2 - tail * 1.4)
+    hm = (1 - ((y - cy) / cy) ** 2) * 0.6
+    hm = ndimage.gaussian_filter(hm, 2)
+    weave = noise(H2, W2, [(1, 1)]) * 0.05
+    rgb = shade_matte((hm + weave) * H2 * 0.25, (132, 28, 22), strength=1.0, spec=0.16)
+    end = ~mid
+    rgb[end] *= 0.72
+    for yy in [H2 * 0.13, H2 * 0.87]:
+        m = np.abs(y - yy) < 1.3
+        rgb[m & mid] = rgb[m & mid] * 0.3 + np.array([230, 190, 110]) * 0.7
+    rgb2, a2 = _half(rgb, a)
+    _save_rgba(rgb2, a2, path)
+
+
+def plain_medallion(path, size, enamel=(46, 30, 20), stops=GOLD):
+    """Empty domed medallion (slider grabber, check box)."""
+    global OUT
+    keep = OUT; OUT = ''
+    medallion(path, size * 2, None, enamel=enamel, stops=stops)
+    OUT = keep
+
+
+def icon_medallion(path, size, icon, enamel=(46, 30, 20), stops=GOLD, icon_scale=0.6):
+    global OUT
+    keep = OUT; OUT = ''
+    medallion(path, size * 2, icon, enamel=enamel, stops=stops, icon_scale=icon_scale)
+    OUT = keep
+
+
+def check_box(path, size, checked):
+    S2 = size * 2
+    y, x = np.mgrid[0:S2, 0:S2].astype(float)
+    d = np.minimum.reduce([x, y, S2 - 1 - x, S2 - 1 - y])
+    B = S2 * 0.16
+    h = np.where(d < B, np.sin(np.clip(d / B, 0, 1) * math.pi), 0)
+    gold = shade_metal(h * S2 * 0.06, GOLD, strength=1.0)
+    en = np.zeros((S2, S2, 3)) + np.array([238, 224, 190]) * 0.9
+    en *= (1 - 0.3 * np.exp(-(d - B) / 3))[..., None]
+    rgb = np.where((d < B)[..., None], gold, en)
+    if checked:
+        m = svg_mask(ICONS['check'], S2, stroke=3.4)
+        ih = ndimage.gaussian_filter(m, 1)
+        col = shade_matte(ih * 6, (128, 26, 20), strength=1.0, spec=0.3)
+        rgb = rgb * (1 - m[..., None]) + col * m[..., None]
+    rgb2, a2 = _half(rgb, np.ones((S2, S2)))
+    _save_rgba(rgb2, a2, path)
+
+
+def seal_with_letter(path, size, base, letter):
+    """Wax seal with an embossed initial (trait seals)."""
+    S = size * 2
+    y, x = np.mgrid[0:S, 0:S].astype(float)
+    c = (S - 1) / 2
+    ang = np.arctan2(y - c, x - c)
+    r = np.hypot(x - c, y - c) / (S / 2)
+    edge = 0.92 + 0.05 * np.sin(ang * 9 + hash(letter) % 7) + 0.025 * np.sin(ang * 23 + 1)
+    a = np.clip((edge - r) * S / 3, 0, 1)
+    hm = np.where(r < edge, np.sqrt(np.clip(1 - (r / edge) ** 2, 0, 1)), 0)
+    ring = (r > 0.62) & (r < 0.7)
+    hm[ring] -= 0.16
+    if letter:
+        from PIL import ImageFont
+        fnt = ImageFont.truetype(CINZEL, int(S * 0.5))
+        try:
+            fnt.set_variation_by_axes([800])
+        except Exception:
+            pass
+        im = Image.new('L', (S, S), 0)
+        ImageDraw.Draw(im).text((S / 2, S / 2 + S * 0.02), letter, font=fnt, fill=255, anchor='mm')
+        lm = ndimage.gaussian_filter(np.asarray(im, float) / 255, 1.2)
+        hm = hm + lm * 0.22
+    rgb = shade_matte(ndimage.gaussian_filter(hm, 1) * S * 0.25, base, strength=1.0, spec=0.45)
+    rgb2, a2 = _half(rgb, a)
+    _save_rgba(rgb2, a2, path)
+
+
+CINZEL = 'godot/assets/fonts/Cinzel.ttf'
+
+# What each screen button and indicator shows (also read by GezStyle.gd).
+MEDALLIONS = {
+    # top bar indicators
+    'treasury': 'coin', 'stability': 'scales', 'faith': 'dome', 'manpower': 'people',
+    'sailors': 'anchor', 'inflation': 'coin_down', 'menu': 'menu', 'pause': 'pause',
+    'play': 'play', 'close': 'close',
+    # side column screens
+    'budget': 'ledger', 'trade': 'stall', 'court': 'crown', 'government': 'column',
+    'religion': 'dome', 'rebels': 'torch', 'technology': 'astrolabe', 'diplomacy': 'scroll',
+    'wars': 'swords', 'armies': 'helmet', 'fleets': 'ship',
+    # Phase 18 screens (Gemini can use these names)
+    'chronicle': 'quill', 'ledger': 'bars', 'timelapse': 'hourglass',
+    # map modes
+    'map_political': 'flag', 'map_diplomatic': 'rings', 'map_states': 'grid', 'map_terrain': 'mountain',
+    'map_religion': 'dome', 'map_culture': 'people', 'map_development': 'bars', 'map_goods': 'box',
+    'map_markets': 'stall', 'map_plague': 'skull', 'map_unrest': 'torch', 'map_institutions': 'book',
+    # zoom and misc
+    'zoom_in': 'plus', 'zoom_out': 'minus', 'zoom_fit': 'fit', 'alerts': 'bell', 'build': 'hammer',
+    'capital': 'star', 'globe': 'globe', 'law': 'gavel', 'army': 'sword', 'watch': 'eye',
+}
+
+TRAIT_SEALS = {   # seal colour by kind of trait
+    'virtue': (176, 120, 40), 'vice': (150, 34, 26), 'skill': (40, 76, 112),
+    'health': (52, 36, 36), 'temper': (70, 100, 50),
+}
+
+
+def build_kit(out_dir):
+    """Every piece the Godot Theme uses, written to godot/assets/ui/."""
+    import os
+    for sub in ['', 'medallions', 'seals']:
+        os.makedirs(os.path.join(out_dir, sub), exist_ok=True)
+    j = lambda *p: os.path.join(out_dir, *p)
+    margins = {}
+    margins['window'] = framed_box(j('window.png'), 360, gold=13, leather_w=9, bead=4, rosettes=True)
+    margins['card'] = framed_box(j('card.png'), 120, gold=3, rosettes=False, page_alpha=0.0, seed=33)
+    margins['tooltip'] = framed_box(j('tooltip.png'), 200, gold=6, rosettes=False, seed=35)
+    strip(j('topbar.png'), 256, 52, seed=41)
+    strip(j('sidebar.png'), 256, 64, moulding='right', seed=43)
+    title_banner(j('banner.png'), 220, 36)
+    for st in ['normal', 'hover', 'pressed', 'disabled']:
+        gold_button(j(f'button_{st}.png'), 96, 32, st)
+        leather_button(j(f'tab_{st}.png'), 80, 28, st)
+    check_box(j('check_off.png'), 20, False)
+    check_box(j('check_on.png'), 20, True)
+    plain_medallion(j('grabber.png'), 20)
+    plain_medallion(j('grabber_hover.png'), 20, enamel=(140, 30, 22))
+    for key, icon in MEDALLIONS.items():
+        icon_medallion(j('medallions', f'{key}.png'), 48, ICONS[icon])
+        icon_medallion(j('medallions', f'{key}_on.png'), 48, ICONS[icon], enamel=(140, 30, 22))
+    for kind, colour in TRAIT_SEALS.items():
+        seal_with_letter(j('seals', f'{kind}.png'), 28, colour, '')
+    # one seal per trait, stamped with its initial, coloured by kind
+    for line in open('data/characters/traits.txt', encoding='utf-8'):
+        if not line.strip() or line.startswith('#'):
+            continue
+        key, name = [p.strip() for p in line.split('|')[:2]]
+        seal_with_letter(j('seals', f'trait_{key}.png'), 28, TRAIT_SEALS[trait_kind(key)], name[0])
+    return margins
+
+
+def trait_kind(key):
+    if key in ('scholar', 'strategist', 'administrator', 'diplomat', 'schemer'):
+        return 'skill'
+    if key in ('sickly', 'blind', 'infirm', 'wounded', 'maimed', 'ill', 'mad', 'lunatic'):
+        return 'health'
+    if key in ('craven', 'arbitrary', 'cruel', 'cynical', 'lazy', 'greedy', 'deceitful', 'wrathful'):
+        return 'vice'
+    if key in ('ambitious', 'zealous', 'content'):
+        return 'temper'
+    return 'virtue'
+
+
+if __name__ == '__main__':
+    import sys
+    if len(sys.argv) > 2 and sys.argv[1] == '--kit':
+        m = build_kit(sys.argv[2])
+        print('kit margins:', m)
+    else:
+        build_concept()
+        print('done')

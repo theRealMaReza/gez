@@ -104,12 +104,12 @@ func _run_captures() -> void:
 	var mode_btns: Dictionary = root_node.get("map_mode_buttons")
 	for mode_key in ["terrain", "religion", "diplomatic"]:
 		if mode_btns.has(mode_key):
-			(mode_btns[mode_key] as Button).emit_signal("pressed")
+			(mode_btns[mode_key] as BaseButton).emit_signal("pressed")
 			await _save_shot("godot_map_%s.png" % mode_key)
 
 	# Phase 17: the 3D map, tilted as you zoom in (political mode).
 	if mode_btns.has("political"):
-		(mode_btns["political"] as Button).emit_signal("pressed")
+		(mode_btns["political"] as BaseButton).emit_signal("pressed")
 	var bosporus: Vector2 = bridge.call("getFocusPoint", 41.0, 29.0)
 	root_node.call("focus_map_point", bosporus, 3.0)
 	await _save_shot("godot_map_3d_balkans.png")
@@ -263,7 +263,7 @@ func _run_captures() -> void:
 	root_node.call("_after_world_replaced")
 	await _settle(2)
 	if mode_btns.has("political"):
-		(mode_btns["political"] as Button).emit_signal("pressed")
+		(mode_btns["political"] as BaseButton).emit_signal("pressed")
 	var med_fp: Vector2 = bridge.call("getFocusPoint", 41.2, 19.5)
 	var fleet_zoom := 2.8
 	root_node.set("zoom", fleet_zoom)
@@ -367,7 +367,7 @@ func _run_captures() -> void:
 		yr = int(top_info.get("year", 1453))
 	root_node.call("_after_world_replaced")
 	if mode_btns.has("religion"):
-		(mode_btns["religion"] as Button).emit_signal("pressed")
+		(mode_btns["religion"] as BaseButton).emit_signal("pressed")
 	else:
 		root_node.call("_select_map_mode", "religion")
 	root_node.call("_show_whole_map")

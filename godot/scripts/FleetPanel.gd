@@ -30,8 +30,8 @@ func _call_bridge(method_name: String, args: Array = [], fallback: Variant = nul
 func _make_label(txt: String, col: Color, fsize: int) -> Label:
 	var lbl := Label.new()
 	lbl.text = txt
-	lbl.add_theme_color_override("font_color", col)
-	lbl.add_theme_font_size_override("font_size", fsize)
+	lbl.add_theme_color_override("font_color", GezStyle.ink(col))
+	lbl.add_theme_font_size_override("font_size", GezStyle.fs(fsize))
 	return lbl
 
 func _clear_children(node: Node) -> void:
@@ -75,10 +75,10 @@ func _build_fleets_window_panel() -> void:
 	fleets_window_arms.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	header.add_child(fleets_window_arms)
 	var title := _make_label("Navies & Dockyards", Color(0.97, 0.90, 0.68), 18)
+	GezStyle.as_title(title)
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	header.add_child(title)
-	var close_btn := Button.new()
-	close_btn.text = "X"
+	var close_btn := GezStyle.medallion_button("close", 30.0)
 	close_btn.tooltip_text = "Close Navies window"
 	close_btn.pressed.connect(func() -> void:
 		fleets_window_panel.visible = false
@@ -119,10 +119,10 @@ func _build_selected_fleet_panel() -> void:
 	var header := HBoxContainer.new()
 	outer.add_child(header)
 	sel_fleet_title_label = _make_label("Fleet", Color(0.97, 0.90, 0.68), 17)
+	GezStyle.as_title(sel_fleet_title_label)
 	sel_fleet_title_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	header.add_child(sel_fleet_title_label)
-	var close_btn := Button.new()
-	close_btn.text = "X"
+	var close_btn := GezStyle.medallion_button("close", 30.0)
 	close_btn.tooltip_text = "Deselect fleet"
 	close_btn.pressed.connect(func() -> void:
 		_call_bridge("clearSelectedFleet")

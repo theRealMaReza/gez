@@ -34,13 +34,12 @@ func setup(p_main: Node) -> void:
 	title_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	header.add_child(title_box)
 
-	title_box.add_child(main.call("_make_label", "Diplomacy", Color(0.97, 0.90, 0.68), 18))
+	title_box.add_child(GezStyle.as_title(main.call("_make_label", "Diplomacy", Color(0.97, 0.90, 0.68), 18)))
 	slots_label = main.call("_make_label", "Relation Slots: 0 / 0", Color(0.84, 0.80, 0.72), 12)
 	main.call("bind_breakdown", slots_label, func() -> Variant: return main.call("_call_bridge", "getRelationSlotsBreakdown", [], {}), "Diplomatic Relation Slots")
 	title_box.add_child(slots_label)
 
-	var close_btn := Button.new()
-	close_btn.text = "X"
+	var close_btn := GezStyle.medallion_button("close", 30.0)
 	close_btn.tooltip_text = "Close Diplomacy window"
 	close_btn.pressed.connect(close_window)
 	header.add_child(close_btn)
@@ -130,7 +129,7 @@ func refresh() -> void:
 	var cap: int = int(d.get("relationSlotsCap", 0))
 	var over: bool = bool(d.get("overSlotLimit", false))
 	slots_label.text = "Relation Slots: %d / %d%s" % [used, cap, " (Over limit)" if over else ""]
-	slots_label.add_theme_color_override("font_color", Color(0.95, 0.42, 0.38) if over else Color(0.84, 0.80, 0.72))
+	slots_label.add_theme_color_override("font_color", GezStyle.ink(Color(0.95, 0.42, 0.38) if over else Color(0.84, 0.80, 0.72)))
 
 	var coal_count: int = int(d.get("coalitionCount", 0))
 	if coal_count > 0:
@@ -204,7 +203,7 @@ func _build_target_section(target: Dictionary) -> void:
 	var id_col := VBoxContainer.new()
 	id_col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	id_row.add_child(id_col)
-	id_col.add_child(main.call("_make_label", "%s (%s)" % [t_name, t_tag], Color(0.97, 0.90, 0.68), 16))
+	id_col.add_child(GezStyle.as_heading(main.call("_make_label", "%s (%s)" % [t_name, t_tag], Color(0.97, 0.90, 0.68), 16)))
 	id_col.add_child(main.call("_make_label", "%s · %s" % [str(target.get("government", "")), str(target.get("religion", ""))], Color(0.80, 0.75, 0.66), 12))
 	var ai_goal_txt: String = str(target.get("aiGoalText", ""))
 	if not ai_goal_txt.is_empty():
@@ -373,6 +372,7 @@ func _build_war_declaration_section(target: Dictionary, target_index: int) -> vo
 
 func _make_stat_box(title: String, val_text: String, val_color: Color) -> PanelContainer:
 	var box := PanelContainer.new()
+	box.theme_type_variation = "Card"
 	box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var v := VBoxContainer.new()
 	v.add_theme_constant_override("separation", 2)
