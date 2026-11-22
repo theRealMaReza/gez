@@ -5767,6 +5767,13 @@ public final class GezGodotBridge: RefCounted {
         Self.toVariantDictionary(controller.techOverlayData())
     }
 
+    // MARK: - Phase 18: Chronicle, Ledger & Timelapse Callables
+
+    @Callable
+    public func getChronicleDetails(countryIndex: Int) -> VariantDictionary {
+        Self.toVariantDictionary(controller.chronicleDetails(countryIndex: countryIndex))
+    }
+
     // MARK: - Step 3d2: Diplomacy, Wars, Peace & Alerts Callables
 
     @Callable

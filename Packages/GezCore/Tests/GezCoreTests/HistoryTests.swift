@@ -171,4 +171,46 @@ struct HistoryTests {
         print("400-year save size: \(sizeBytes) bytes (\(String(format: "%.2f", Double(sizeBytes) / 1048576.0)) MB)")
         #expect(sizeBytes < limitBytes, "Save size \(sizeBytes) bytes exceeded 5 MB limit (\(limitBytes))")
     }
+
+    @Test("Chronicle templates load from JSON and render varied regnal chapters")
+    func chronicleTemplatesAndChapters() {
+        let templates = ChronicleTemplateSet.shared
+        #expect(templates.templates.count == ChronicleEventKind.allCases.count)
+        for kind in ChronicleEventKind.allCases {
+            let key = ChronicleTemplateSet.kindKey(for: kind)
+            let variants = templates.templates[key] ?? []
+            #expect(variants.count >= 3, "Expected at least 3 templates for \(key)")
+        }
+
+        let sim = makeTestSimulation()
+        HistorySystem.ensureInitialized(&sim.world, date: sim.date)
+        let tur = sim.world.countries.id(forTag: "TUR")!
+        let hun = sim.world.countries.id(forTag: "HUN")!
+        let prov = sim.world.provinces(ownedBy: tur).first!
+        let ruler = sim.world.countries.ruler[tur.index]!
+
+        for i in 0..<6 {
+            HistorySystem.recordEvent(
+                &sim.world,
+                date: GameDate(year: 1454, month: 1 + i, day: 10),
+                kind: .majorBattle,
+                primary: tur,
+                secondary: hun,
+                province: prov,
+                character: ruler,
+                valueA: 3400,
+                valueB: 4
+            )
+        }
+
+        let chapters = templates.chapters(for: tur, in: sim.world)
+        #expect(chapters.count == 1)
+        #expect(chapters[0].entries.count == 6)
+        let proses = Set(chapters[0].entries.map(\.prose))
+        #expect(proses.count >= 2, "Expected varied phrasing across multiple battle entries")
+        for entry in chapters[0].entries {
+            #expect(!entry.prose.contains("{"))
+            #expect(!entry.prose.contains("}"))
+        }
+    }
 }

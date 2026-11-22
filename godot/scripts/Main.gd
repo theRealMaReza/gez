@@ -20,6 +20,7 @@ const GovernmentPanelScript := preload("res://scripts/GovernmentPanel.gd")
 const ReligionPanelScript := preload("res://scripts/ReligionPanel.gd")
 const RebelsPanelScript := preload("res://scripts/RebelsPanel.gd")
 const TechnologyPanelScript := preload("res://scripts/TechnologyPanel.gd")
+const ChroniclePanelScript := preload("res://scripts/ChroniclePanel.gd")
 const DiplomacyPanelScript := preload("res://scripts/DiplomacyPanel.gd")
 const WarsPanelScript := preload("res://scripts/WarsPanel.gd")
 const BattleViewScript := preload("res://scripts/BattleView.gd")
@@ -84,6 +85,7 @@ var gov_ui: Control
 var religion_ui: Control
 var rebels_ui: Control
 var tech_ui: Control
+var chronicle_ui: Control
 var diplomacy_ui: Control
 var wars_ui: Control
 
@@ -98,6 +100,7 @@ var stability_btn: Button
 var religion_btn: Button
 var rebels_btn: Button
 var tech_btn: Button
+var chronicle_btn: Button
 var _last_rebels_btn_str: String = ""
 var _last_rel_btn_str: String = ""
 var _last_tech_btn_str: String = ""
@@ -445,6 +448,14 @@ func _build_scene_ui() -> void:
 	add_child(tech_ui)
 	tech_ui.call("setup", self)
 
+	chronicle_ui = Control.new()
+	chronicle_ui.name = "ChronicleUI"
+	chronicle_ui.set_script(ChroniclePanelScript)
+	chronicle_ui.set_anchors_preset(Control.PRESET_FULL_RECT)
+	chronicle_ui.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(chronicle_ui)
+	chronicle_ui.call("setup", self)
+
 	# 6e. Diplomacy & Wars/Peace windows
 	diplomacy_ui = PanelContainer.new()
 	diplomacy_ui.name = "DiplomacyUI"
@@ -633,6 +644,12 @@ func _build_top_bar() -> void:
 	bind_breakdown(fleets_btn, func() -> Variant: return _call_bridge("getSailorsBreakdown", [], {}), "Fleets & Maximum Sailors")
 	fleets_btn.pressed.connect(_toggle_fleets_window)
 	hbox.add_child(fleets_btn)
+
+	chronicle_btn = Button.new()
+	chronicle_btn.text = "Chronicle"
+	chronicle_btn.custom_minimum_size = Vector2(84.0, 30.0)
+	chronicle_btn.pressed.connect(_toggle_chronicle_window)
+	hbox.add_child(chronicle_btn)
 
 	hbox.add_child(_make_separator())
 
@@ -3408,6 +3425,8 @@ func _close_top_left_windows(except_key: String = "") -> void:
 		rebels_ui.call("close_window")
 	if except_key != "tech" and tech_ui != null:
 		tech_ui.call("close_window")
+	if except_key != "chronicle" and chronicle_ui != null:
+		chronicle_ui.call("close_window")
 	if except_key != "diplomacy" and diplomacy_ui != null:
 		diplomacy_ui.call("close_window")
 	if except_key != "wars" and wars_ui != null:
@@ -3488,6 +3507,14 @@ func _open_tech_window() -> void:
 		return
 	_close_top_left_windows("tech")
 	tech_ui.call("open_window")
+
+func _toggle_chronicle_window() -> void:
+	if chronicle_ui == null:
+		return
+	var opening: bool = not bool(chronicle_ui.call("is_open"))
+	if opening:
+		_close_top_left_windows("chronicle")
+	chronicle_ui.call("toggle_window")
 
 # Markers for the Plague, Unrest and Institutions map modes (called with the faith overlay).
 func _refresh_calamity_overlay() -> void:
