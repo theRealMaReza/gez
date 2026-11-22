@@ -2802,9 +2802,23 @@ public final class GezGodotController {
                 ? ""
                 : "Holds \(held.map { w.provinces.name[$0.index] }.joined(separator: ", ")) · \(Int(ch.gold[x.index])) ducats"
 
+            // Phase 20 part 3: what the portrait generator needs.
+            let cultureIdx = ch.culture[x.index].index
+            let cultureFamily = cultureIdx >= 0 && cultureIdx < w.cultures.count ? w.cultures.family[cultureIdx] : ""
+            let courtTag = ch.court[x.index].map { w.countries.tag[$0.index] } ?? ""
+            let rulesSomewhere = w.countries.ids.contains { w.countries.ruler[$0.index] == x }
+            let isHeirAnywhere = w.countries.ids.contains { w.countries.heir[$0.index] == x }
+            let portraitRank = rulesSomewhere ? "ruler" : (isHeirAnywhere ? "heir" : (ch.court[x.index] != nil ? "court" : "common"))
+
             characterDict = [
                 "valid": true,
                 "characterIndex": x.index,
+                "key": ch.key[x.index],
+                "cultureFamily": cultureFamily,
+                "religion": ch.religion[x.index].rawValue,
+                "religionFamily": ch.religion[x.index].family.rawValue,
+                "courtTag": courtTag,
+                "portraitRank": portraitRank,
                 "name": ch.name[x.index],
                 "fullName": ch.fullName(x),
                 "initial": String(ch.name[x.index].prefix(1)),

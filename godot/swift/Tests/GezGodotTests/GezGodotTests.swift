@@ -739,6 +739,12 @@ struct GezGodotTests {
         #expect(!(charDict["fullName"] as? String ?? "").isEmpty)
         let skills = charDict["skills"] as? [[String: Any]] ?? []
         #expect(skills.count == 5)
+        // Phase 20 part 3: what the portrait generator and painted portraits need.
+        #expect(charDict["key"] as? String == "mehmed2")
+        #expect(charDict["cultureFamily"] as? String == "turkic")
+        #expect(charDict["religionFamily"] as? String == "muslim")
+        #expect(charDict["portraitRank"] as? String == "ruler")
+        #expect(charDict["courtTag"] as? String == "TUR")
         let familyTree = court["familyTree"] as? [[String: Any]] ?? []
         #expect(!familyTree.isEmpty)
 
