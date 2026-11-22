@@ -84,7 +84,7 @@ Reval | 59.44 24.75 | LVO f 4
 Narva | 59.38 28.19 | LVO w 2
 Dorpat | 58.38 26.72 | DOR w 3
 Pernau | 58.39 24.50 | LVO w 2
-Osel | 58.25 22.48 | LVO w 1
+Osel | 58.25 22.48 | OES w 1
 
 # Poland and Lithuania
 @ Lesser Poland
@@ -128,7 +128,7 @@ Smolensk | 54.78 32.05 | LIT w 4
 Vyazma | 55.21 34.29 | LIT w 2
 Toropets | 56.50 31.63 | LIT w 1
 Velikiye Luki | 56.34 30.53 | LIT w 2
-Kozelsk | 54.03 35.79 | LIT w 2
+Kozelsk | 54.03 35.79 | OKA w 2
 @ Severia
 Chernigov | 51.49 31.29 | LIT w 3
 Novgorod-Seversky | 52.00 33.27 | LIT w 2
@@ -163,7 +163,7 @@ Nizhny Novgorod | 56.33 44.00 | MOS w 3
 Murom | 55.58 42.05 | MOS w 2
 Kostroma | 57.77 40.93 | MOS w 2
 Galich | 58.38 42.35 | MOS w 2
-Rostov | 57.18 39.41 | MOS w 3
+Rostov | 57.18 39.41 | ROS w 3
 Yaroslavl | 57.63 39.87 | YAR w 3
 @ Northern Muscovy
 Vologda | 59.22 39.89 | MOS w 2

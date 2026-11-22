@@ -18,7 +18,7 @@
    "name": "Printing Press",
    "origin": {
     "kind": "province",
-    "provinceIndex": 260,
+    "provinceIndex": 262,
     "value": "Mainz"
    },
    "spawnYear": 1462,
@@ -67,7 +67,7 @@
   "neighbour_bonus_cap": 0.25,
   "neighbour_bonus_per_level": 0.05
  },
- "provinceCount": 1373,
+ "provinceCount": 1378,
  "startingLevels": {
   "countries": {
    "BOH": [

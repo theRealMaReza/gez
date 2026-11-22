@@ -71,11 +71,12 @@ Sur | 22.57 59.53 | HOR d 1
 Julfar | 25.79 55.94 | HOR d 1
 @ Yemen
 Aden | 12.79 45.03 | TAH d 4
-Taizz | 13.58 44.02 | TAH m 3
-Zabid | 14.20 43.32 | TAH d 3
+Lahij | 13.06 44.88 | TAH d 2
+Taizz | 13.58 44.02 | RAS m 3
+Zabid | 14.20 43.32 | RAS d 3
 Sanaa | 15.35 44.20 | ZAY m 3
 Sadah | 16.94 43.76 | ZAY m 2
-Jizan | 16.89 42.55 | TAH d 1
+Jizan | 16.89 42.55 | RAS d 1
 Najran | 17.49 44.13 | YAM d 1
 Asir | 18.22 42.50 | ASR m 1
 Marib | 15.46 45.33 | ZAY d 1

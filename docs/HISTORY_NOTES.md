@@ -10,14 +10,19 @@ decide differently.
 1. **Holy Roman Empire.** Hundreds of small counties, abbeys, imperial
    knights and free cities are merged into about 45 states. Examples:
    Anhalt is part of Magdeburg; Osnabrück and Paderborn are part of Münster;
-   Fulda is part of Hesse; Konstanz is grouped with Ulm; Basel, St Gallen
-   and Valais are counted as Swiss.
+   Fulda is part of Hesse; Konstanz is grouped with Ulm. (Since Phase 20.5
+   Basel, Metz and Besançon are free cities, St Gallen and Valais are Swiss
+   allies, and Further Austria is Albert VI's.)
 2. **French great vassals.** Anjou, Maine, Bourbon, Orléans, Alençon,
    Armagnac and Albret are inside France. Only Brittany, Burgundy, Provence
-   and Foix-Béarn are separate.
-3. **Ireland.** Gaelic and Anglo-Irish lordships are reduced to nine
-   (Kildare, Leinster, Ormond, Desmond, Thomond, Clanricarde, Tyrconnell,
-   Tyrone, plus English Dublin, Meath, Waterford and Ulster towns).
+   and Foix-Béarn are separate. (Since Phase 20.5 René of Anjou's Provence
+   also holds Anjou (Angers) and Bar.)
+3. **Ireland.** Gaelic and Anglo-Irish lordships are reduced to fourteen
+   (Kildare, Leinster, Ormond, Desmond, Thomond, Clanricarde, Mac William
+   Íochtar, O'Conor Don, O'Connor Faly, East Breifne, Fermanagh,
+   Tyrconnell, Tyrone, plus English Dublin, Meath, Wexford, Waterford and
+   Ulster towns). Smaller ones (MacMahon of Oriel, O'Rourke, O'Kelly and
+   others) are still merged.
 4. **Rajput, Gond and Himalayan states.** Only the larger ones are
    separate. Smaller chiefdoms (Sirohi, Dungarpur, Jammu, Jumla and others)
    are unclaimed or merged.
@@ -416,8 +421,8 @@ Review fixes (Claude, session 6), and points still open for the owner:
   figures are known (Venetian condottieri such as Gentile da Leonessa;
   Abul-Qasim Babur ruled Herat; Fez was run by Wattasid viziers). Replace
   them with real people when those characters are added.
-- Open: Albert VI is placed at Graz, but in 1453 he held Further Austria
-  (Freiburg); Graz was Frederick III's. Jean Bureau's artillery stands at
+- **Fixed (Phase 20.5):** Albert VI now rules Further Austria; the guard
+  at Graz starts without a commander. Jean Bureau's artillery stands at
   Rouen, though by spring 1453 he was preparing the Guyenne campaign.
 - Open: army sizes are game-scaled; Mehmed's host at Constantinople was
   far larger than 16,500 historically.
@@ -519,3 +524,54 @@ Alvise Loredan (Alvise held the post in other years). The data keeps
   - **Exact-date vs MTTH trade-off**: events tied to sharply dated historical shocks (`hist_belgrade_1456_hun` 1456-07-21, `hist_ladislaus_death_1457` 1457-11-23, `hist_vasco_da_gama_calicut` 1498-05-20) use `exact_date`, whereas structural developments use `mtth = 6..36` months; exact MTTH weights and AI option weights are initial balance estimates?
 
 
+
+## 1453 border fixes (Phase 20.5, 22 Nov 2026)
+
+From `docs/MAP_EXPANSION_RESEARCH.md` Part I and the owner's locked
+choices. New provinces: Frauenfeld (Thurgau), Cesena, Lahij, Carlow,
+Enniskillen.
+
+- **Yemen (owner's choice):** Tahirids hold Aden and Lahij, Rasulids hold
+  Zabid, Taizz and Jizan. Strictly, Lahij was Tahirid from 1443 but Aden
+  fell only in 1454, and al-Mas'ud Abu al-Qasim still used it as a refuge.
+  Rasulid ruler: al-Mas'ud, with al-Mu'ayyad Husayn as rival claimant;
+  their birth years are unknown.
+- **Pomerania:** three duchies. Wolgast (Wartislaw IX, with Stralsund),
+  Stettin (Otto III, a boy of nine) and Stolp (Eric of Pomerania, the old
+  Kalmar king). Kolberg was really the Bishop of Cammin's town; it is
+  given to Stolp.
+- **Schleswig:** its own country, ruled by Adolf VIII of Holstein (the
+  same man as Holstein), as a Danish vassal. Christian I is heir to both.
+- **Thurgau:** Habsburg, under Sigismund of Tyrol, until the Swiss took it
+  in 1460.
+- **Saint Gall and Valais:** shown as church states allied to the Swiss
+  (associates, not members). Saint Gall's town and abbey were separate;
+  the abbot (Kaspar von Breitenlandenberg) stands for both. Valais is
+  shown under its bishop (Heinrich Asperlin), though its seven districts
+  (Zenden) governed with him.
+- **Metz, Besançon, Basel:** free cities with invented leaders (the
+  city councils changed every year). Basel's prince-bishop is not modelled.
+- **Malatesta:** Sigismondo (Rimini, Fano) and his brother Malatesta
+  Novello (Cesena) as two papal vassals.
+- **Ireland:** Wexford is English (the Talbot liberty). Roscommon is
+  O'Conor Don under Aedh (King of Connacht, d. 1461); the O'Conor Roe
+  branch is not modelled. Carlow is the new seat of the MacMurrough
+  Kavanaghs (Leinster). Birth years of the Irish lords are estimates.
+- **Rostov:** a Muscovite vassal. Who exactly ruled the two halves of
+  Rostov in 1453 is unclear; Vladimir Andreyevich and Ivan Ivanovich
+  Dolgiy are the princes who sold the last half in 1474.
+- **Upper Oka princes:** one Lithuanian vassal at Kozelsk, led by Fyodor
+  Lvovich Vorotynsky. Odoyev, Belyov, Novosil and Vorotynsk are not
+  separate provinces.
+- **Ösel-Wiek:** a prince-bishopric of its own (Bishop Ludolf Grove), not
+  the Livonian Order's.
+- **Alaiye:** Karaman's vassal under Lütfi Bey. Alaiye was sold to the
+  Mamluks in 1427 and retaken with Karaman's help in 1448; who was its
+  overlord in 1453 is debatable.
+- **Great vassals added:** Charles I of Nevers (Burgundy), Thomas Stanley,
+  King of Mann (England), Pir Budaq in Shiraz and Isfahan (Qara Qoyunlu).
+- **Not done yet (Phase 20.7 or later):** Tournai, Cambrai, East Frisia,
+  Olivenza, the Canaries, Navarre's civil war, Silesian duchies, Lower
+  Lusatia, Saxe-Lauenburg, Anhalt and the other merged HRE states, Italian
+  minor lords, Hasankeyf, Bohtan, Medina, Medri Bahri, Dahlak, Gilan's two
+  halves, Rustamdar, and the Indian feudatories.

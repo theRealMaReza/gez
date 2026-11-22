@@ -19,6 +19,8 @@ VEN | NAP | alliance | - | Venetian-Neapolitan Alliance against Milan
 VEN | MFA | alliance | - | Venetian Alliance with Montferrat
 POL | LIT | alliance | - | Dynastic union and mutual defence under Casimir IV
 TEU | LVO | alliance | - | Confederation of Prussian and Livonian Teutonic Orders
+SWI | SGA | alliance | - | Abbey of Saint Gall, associate of the Confederation (1451)
+SWI | VAL | alliance | - | Valais, allied associate of the Confederation
 
 ## Truces
 TUR | HUN | truce | 1454-06-01 | Truce of Adrianople (1451, 3-year truce expiring 1454)

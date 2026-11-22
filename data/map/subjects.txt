@@ -38,3 +38,15 @@ ETH DAW tributary
 ETH IFT tributary
 ETH ENN tributary
 ETH DAM tributary
+
+# Added for Phase 20.5 (1453 border fixes)
+# Malatesta papal vicars
+PAP RIM vassal
+PAP CES vassal
+# Duchy of Schleswig: Danish fief held by Adolf VIII of Holstein
+DAN SLE vassal
+# Rostov princes under Moscow; Upper Oka princes under Lithuania
+MOS ROS vassal
+LIT OKA vassal
+# Alaiye under Karaman
+KAR ALA vassal

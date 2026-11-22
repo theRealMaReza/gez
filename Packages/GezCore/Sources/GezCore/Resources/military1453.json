@@ -636,7 +636,7 @@
     {
       "country": "TUR",
       "name": "Imperial Army of Constantinople",
-      "province": 680,
+      "province": 684,
       "commander": "mehmed2",
       "regiments": [
         {
@@ -734,7 +734,7 @@
     {
       "country": "TUR",
       "name": "Army of Rumelia",
-      "province": 681,
+      "province": 685,
       "commander": "zaganos",
       "regiments": [
         {
@@ -954,7 +954,7 @@
     {
       "country": "MAM",
       "name": "Royal Mamluks of Cairo",
-      "province": 807,
+      "province": 811,
       "commander": "inal",
       "regiments": [
         {
@@ -1007,7 +1007,7 @@
     {
       "country": "MAM",
       "name": "Army of Damascus",
-      "province": 798,
+      "province": 802,
       "commander": "khushqadam",
       "regiments": [
         {
@@ -1045,7 +1045,7 @@
     {
       "country": "HUN",
       "name": "Royal Banderium",
-      "province": 608,
+      "province": 612,
       "commander": "hunyadi",
       "regiments": [
         {
@@ -1093,7 +1093,7 @@
     {
       "country": "BOH",
       "name": "Landfrieden Host",
-      "province": 323,
+      "province": 325,
       "commander": "podebrady",
       "regiments": [
         {
@@ -1131,7 +1131,7 @@
     {
       "country": "JIS",
       "name": "Black Brethren",
-      "province": 605,
+      "province": 609,
       "commander": "jiskra",
       "regiments": [
         {
@@ -1149,7 +1149,7 @@
     {
       "country": "POL",
       "name": "Royal Guard",
-      "province": 505,
+      "province": 509,
       "commander": "casimir4",
       "regiments": [
         {
@@ -1182,7 +1182,7 @@
     {
       "country": "LIT",
       "name": "Grand Ducal Retinue",
-      "province": 522,
+      "province": 526,
       "commander": "gostautas",
       "regiments": [
         {
@@ -1215,7 +1215,7 @@
     {
       "country": "MOS",
       "name": "Grand Princely Druzhina",
-      "province": 556,
+      "province": 560,
       "commander": "vasily_serpukhov",
       "regiments": [
         {
@@ -1253,7 +1253,7 @@
     {
       "country": "ALB",
       "name": "League of Lezhë",
-      "province": 660,
+      "province": 664,
       "commander": "skanderbeg",
       "regiments": [
         {
@@ -1276,8 +1276,8 @@
     {
       "country": "HAB",
       "name": "Archducal Guard",
-      "province": 341,
-      "commander": "albert6",
+      "province": 343,
+      "commander": null,
       "regiments": [
         {
           "type": "infantry",
@@ -1304,7 +1304,7 @@
     {
       "country": "SWI",
       "name": "Confederate Eidgenossen",
-      "province": 352,
+      "province": 354,
       "commander": "inv_swi_marshal",
       "regiments": [
         {
@@ -1327,7 +1327,7 @@
     {
       "country": "BUR",
       "name": "Ducal Host",
-      "province": 229,
+      "province": 231,
       "commander": "philip_good",
       "regiments": [
         {
@@ -1375,7 +1375,7 @@
     {
       "country": "VEN",
       "name": "Condotta of Saint Mark",
-      "province": 387,
+      "province": 390,
       "commander": null,
       "regiments": [
         {
@@ -1403,7 +1403,7 @@
     {
       "country": "MLO",
       "name": "Sforza Condotta",
-      "province": 372,
+      "province": 375,
       "commander": "f_sforza",
       "regiments": [
         {
@@ -1436,7 +1436,7 @@
     {
       "country": "PAP",
       "name": "Papal Guard",
-      "province": 407,
+      "province": 411,
       "commander": null,
       "regiments": [
         {
@@ -1459,7 +1459,7 @@
     {
       "country": "NAP",
       "name": "Royal Army of Naples",
-      "province": 413,
+      "province": 417,
       "commander": "ferrante",
       "regiments": [
         {
@@ -1591,7 +1591,7 @@
     {
       "country": "QAR",
       "name": "Black Sheep Host",
-      "province": 868,
+      "province": 873,
       "commander": "jahan_shah",
       "regiments": [
         {
@@ -1639,7 +1639,7 @@
     {
       "country": "AKK",
       "name": "White Sheep Host",
-      "province": 752,
+      "province": 756,
       "commander": "uzun_hasan",
       "regiments": [
         {
@@ -1672,7 +1672,7 @@
     {
       "country": "TIM",
       "name": "Gurkani Host",
-      "province": 1051,
+      "province": 1056,
       "commander": "abu_said",
       "regiments": [
         {
@@ -1710,7 +1710,7 @@
     {
       "country": "HRT",
       "name": "Khorasan Host",
-      "province": 905,
+      "province": 910,
       "commander": "inv_hrt_marshal",
       "regiments": [
         {
@@ -1743,7 +1743,7 @@
     {
       "country": "MOR",
       "name": "Marinid Guard",
-      "province": 923,
+      "province": 928,
       "commander": "inv_mor_marshal",
       "regiments": [
         {
@@ -1771,7 +1771,7 @@
     {
       "country": "TUN",
       "name": "Hafsid Guard",
-      "province": 953,
+      "province": 958,
       "commander": "uthman_h",
       "regiments": [
         {
@@ -1799,7 +1799,7 @@
     {
       "country": "ETH",
       "name": "Chewa Regiments",
-      "province": 985,
+      "province": 990,
       "commander": "zara_yaqob",
       "regiments": [
         {
@@ -1832,7 +1832,7 @@
     {
       "country": "DEL",
       "name": "Lodi Afghan Host",
-      "province": 1109,
+      "province": 1114,
       "commander": "bahlul",
       "regiments": [
         {
@@ -1870,7 +1870,7 @@
     {
       "country": "VIJ",
       "name": "Raya's Standing Host",
-      "province": 1323,
+      "province": 1328,
       "commander": "saluva_n",
       "regiments": [
         {
@@ -1928,7 +1928,7 @@
     {
       "country": "ORI",
       "name": "Gajapati Elephant Host",
-      "province": 1279,
+      "province": 1284,
       "commander": "kapilendra",
       "regiments": [
         {
@@ -1971,7 +1971,7 @@
     {
       "country": "MEW",
       "name": "Sisodia Rajput Host",
-      "province": 1176,
+      "province": 1181,
       "commander": "kumbha",
       "regiments": [
         {
@@ -2009,7 +2009,7 @@
     {
       "country": "BAH",
       "name": "Deccani Royal Host",
-      "province": 1290,
+      "province": 1295,
       "commander": "humayun_b",
       "regiments": [
         {
@@ -2052,7 +2052,7 @@
     {
       "country": "BNG",
       "name": "Shah's Paik Host",
-      "province": 1247,
+      "province": 1252,
       "commander": "nasiruddin",
       "regiments": [
         {
@@ -2090,7 +2090,7 @@
     {
       "country": "GUJ",
       "name": "Sultanate Guard",
-      "province": 1200,
+      "province": 1205,
       "commander": "qutb_ahmad",
       "regiments": [
         {

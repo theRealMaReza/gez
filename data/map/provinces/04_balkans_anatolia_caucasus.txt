@@ -170,7 +170,7 @@ Aksaray | 38.37 34.03 | KAR s 2
 Nigde | 37.97 34.68 | KAR m 2
 Kayseri | 38.73 35.48 | DUL s 3
 Kirsehir | 39.15 34.16 | KAR s 2
-Alanya | 36.54 32.00 | KAR m 2
+Alanya | 36.54 32.00 | ALA m 2
 Silifke | 36.38 33.93 | KAR m 2
 @ Cilicia
 Adana | 37.00 35.32 | RAM f 3
