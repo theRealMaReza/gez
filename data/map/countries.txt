@@ -32,8 +32,8 @@ ORM | Ormond | 230 170 90 | monarchy | catholic
 DES | Desmond | 170 120 80 | monarchy | catholic
 TMN | Thomond | 60 130 90 | monarchy | catholic
 CLA | Clanricarde | 160 100 140 | monarchy | catholic
-MWI | Mac William Iochtar | 120 80 130 | monarchy | catholic
-OCN | O'Conor Don | 200 140 60 | monarchy | catholic
+MWI | Mac William Iochtar | 60 90 170 | monarchy | catholic
+OCN | O'Conor Don | 215 95 70 | monarchy | catholic
 OFL | O'Connor Faly | 140 110 50 | monarchy | catholic
 TYC | Tyrconnell | 90 150 70 | monarchy | catholic
 TYR | Tyrone | 180 200 100 | monarchy | catholic
