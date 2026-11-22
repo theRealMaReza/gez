@@ -1,22 +1,13 @@
 # TAG | Name | articles | searches | files
-MTZ | Metz | Metz | Blason Metz ; Metz coat of arms | File:Blason Metz.svg
-BES | Besancon | Besançon | Blason Besançon ; Besançon coat of arms |
-BAS | Basel | Basel | Wappen Basel-Stadt ; Basel coat of arms |
-FUR | Further Austria | Further Austria | Vorderösterreich Wappen ; Austria arms Habsburg 15th century |
-SGA | Saint Gall | Abbey of Saint Gall | Fürstabtei St. Gallen Wappen ; Abbey of Saint Gall coat of arms |
-VAL | Valais | Prince-Bishopric of Sion | Bistum Sitten Wappen ; Valais coat of arms |
-RIM | Rimini | Malatesta | Malatesta coat of arms ; Stemma Malatesta |
-CES | Cesena | Malatesta Novello | Stemma Malatesta ; Cesena stemma |
-OES | Osel-Wiek | Bishopric of Ösel–Wiek | Ösel-Wiek coat of arms ; Bistum Ösel-Wiek Wappen |
-ROS | Rostov | Principality of Rostov | Rostov coat of arms ; Rostov Veliky gerb |
-OKA | Upper Oka | Vorotynsky | Vorotynsky coat of arms ; Odoyev coat of arms |
-ALA | Alaiye | Alaiye | Alaiye flag ; Karamanid flag |
-RAS | Rasulid | Rasulid dynasty | Rasulid flag | File:Flag of the Rasulid Dynasty.png
-TAH | Tahirid | Tahirid Sultanate | Tahirid flag ; Yemen Catalan Atlas flag |
-SLE | Schleswig | Duchy of Schleswig | Schleswig Arms ; Wappen Herzogtum Schleswig | File:Schleswig Arms.svg
-PST | Pomerania-Stettin | Duchy of Pomerania | Pomerania arms griffin | File:COA Pomerania-Stettin Iberian style shield white.svg
-MWI | Mac William Iochtar | Mac William Íochtar | Arms of Bourke ; Burke coat of arms |
-OCN | O'Conor Don | O'Conor dynasty | O'Conor coat of arms ; O'Connor arms |
-OFL | O'Connor Faly | O'Connor Faly | O'Connor Faly arms |
-EBR | East Breifne | East Breifne | O'Reilly coat of arms |
-FMN | Fermanagh | Maguire | Maguire coat of arms |
+KIR | Kirat | Limbuwan | Kirat flag ; Limbu flag ; Kirati flag
+KBD | Kabarda | | Kabardian banner ; Kabarda flag 17th century | File:Байрак–знамя–Уорка 1-й ст. Кожохова.png ; File:Kabardia Banner.png ; File:Flag of Kabardia.svg ; File:Kabardian Flag.svg
+YAM | Yam | | | File:علم قبيلة يام في فترة حكم إمارة آل يزيد.jpg
+SHM | Shammar | | | File:Flag of the Emirate of Ha'il.svg
+ASR | Asir | | | File:Flag of the Emirate of Asir.svg
+CYR | Cyrenaica | | | File:Flag of Cyrenaica.svg
+PSH | Pashtun | | | File:1839 Pashtun banner captured at Ghazni.png
+OIR | Oirats | | | File:Banner of the Dzungar Khanate.png
+JAT | Jats | | | File:Flag of Bharatpur.svg
+SMI | Sami | | | File:Sami flag.svg
+ALN | Alania | | | File:Flag of North Ossetia.svg
+VNK | Vainakh | | | File:Flag of Chechen Republic since 2004.svg ; File:Flag of Ingushetia.svg
