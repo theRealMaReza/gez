@@ -33,7 +33,7 @@ func _make_label(txt: String, col: Color, fsize: int) -> Label:
 	var lbl := Label.new()
 	lbl.text = txt
 	lbl.add_theme_color_override("font_color", GezStyle.ink(col))
-	lbl.add_theme_font_size_override("font_size", fsize)
+	lbl.add_theme_font_size_override("font_size", GezStyle.fs(fsize))
 	return lbl
 
 func _clear_children(node: Node) -> void:
@@ -161,6 +161,8 @@ func _build_selected_army_panel() -> void:
 	selected_army_panel.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT, Control.PRESET_MODE_MINSIZE, 12)
 	selected_army_panel.offset_right = -68.0
 	selected_army_panel.offset_left = -428.0
+	selected_army_panel.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	selected_army_panel.grow_vertical = Control.GROW_DIRECTION_BEGIN
 
 func toggle_armies_window() -> void:
 	if armies_window_panel.visible:

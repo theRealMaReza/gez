@@ -26,7 +26,7 @@ func _make_label(txt: String, col: Color, fsize: int) -> Label:
 	var lbl := Label.new()
 	lbl.text = txt
 	lbl.add_theme_color_override("font_color", GezStyle.ink(col))
-	lbl.add_theme_font_size_override("font_size", fsize)
+	lbl.add_theme_font_size_override("font_size", GezStyle.fs(fsize))
 	return lbl
 
 func _clear_children(node: Node) -> void:

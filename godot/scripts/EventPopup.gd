@@ -22,7 +22,8 @@ var _last_opened_instance_id: int = -1
 
 func setup(host: Control) -> void:
 	main_view = host
-	set_anchors_preset(Control.PRESET_FULL_RECT)
+	# fill the screen so the pop-up is centred (it sat in the top-left corner before)
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	visible = false
 	_build_ui()
@@ -36,7 +37,7 @@ func _make_label(txt: String, col: Color, fsize: int) -> Label:
 	var lbl := Label.new()
 	lbl.text = txt
 	lbl.add_theme_color_override("font_color", GezStyle.ink(col))
-	lbl.add_theme_font_size_override("font_size", fsize)
+	lbl.add_theme_font_size_override("font_size", GezStyle.fs(fsize))
 	return lbl
 
 func _make_wrapped(txt: String, col: Color, fsize: int) -> Label:

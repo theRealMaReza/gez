@@ -128,7 +128,7 @@ func _make_label(txt: String, col := Color(0.95, 0.92, 0.84), font_size := 13) -
 	var l := Label.new()
 	l.text = txt
 	l.add_theme_color_override("font_color", GezStyle.ink(col))
-	l.add_theme_font_size_override("font_size", font_size)
+	l.add_theme_font_size_override("font_size", GezStyle.fs(font_size))
 	return l
 
 func _build_ui() -> void:

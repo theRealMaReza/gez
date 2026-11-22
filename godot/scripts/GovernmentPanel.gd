@@ -29,7 +29,7 @@ func _make_label(txt: String, col: Color, fsize: int) -> Label:
 	var lbl := Label.new()
 	lbl.text = txt
 	lbl.add_theme_color_override("font_color", GezStyle.ink(col))
-	lbl.add_theme_font_size_override("font_size", fsize)
+	lbl.add_theme_font_size_override("font_size", GezStyle.fs(fsize))
 	return lbl
 
 func _clear_children(node: Node) -> void:
@@ -210,7 +210,7 @@ func _add_power_bar_row(label_txt: String, share: float, has_loyalty: bool, loya
 		btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		btn.custom_minimum_size = Vector2(108.0, 0.0)
 		btn.add_theme_color_override("font_color", GezStyle.ink(Color(0.96, 0.88, 0.65)))
-		btn.add_theme_font_size_override("font_size", 12)
+		btn.add_theme_font_size_override("font_size", GezStyle.fs(12))
 		btn.pressed.connect(on_click)
 		row.add_child(btn)
 	else:

@@ -119,3 +119,8 @@ static func as_heading(l: Label) -> Label:
 	l.remove_theme_font_size_override("font_size")
 	l.theme_type_variation = "Heading"
 	return l
+
+## Font size for text on parchment: EB Garamond looks smaller than the old
+## sans-serif at the same size, so small sizes get a little bigger.
+static func fs(n: int) -> int:
+	return n + 2 if n <= 13 else n + 1

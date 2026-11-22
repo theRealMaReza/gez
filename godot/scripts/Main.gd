@@ -1038,6 +1038,9 @@ func _build_market_panel() -> void:
 	market_panel.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT, Control.PRESET_MODE_MINSIZE, 12)
 	market_panel.offset_right = -68.0
 	market_panel.offset_left = -458.0
+	# grow to the left when its contents are wider (Phase 20 fonts and frames)
+	market_panel.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	market_panel.grow_vertical = Control.GROW_DIRECTION_BEGIN
 
 func _build_nation_picker_panel() -> void:
 	nation_picker_panel = PanelContainer.new()
@@ -1391,7 +1394,7 @@ func _make_label(txt: String, col: Color, fsize: int) -> Label:
 	var lbl := Label.new()
 	lbl.text = txt
 	lbl.add_theme_color_override("font_color", GezStyle.ink(col))
-	lbl.add_theme_font_size_override("font_size", fsize)
+	lbl.add_theme_font_size_override("font_size", GezStyle.fs(fsize))
 	return lbl
 
 func _make_separator() -> VSeparator:
@@ -1825,7 +1828,7 @@ func _refresh_top_bar() -> void:
 		for i in range(speed_buttons.size()):
 			# lit chevrons up to the current speed (dim while paused)
 			var lit := i < spd
-			speed_buttons[i].modulate = (Color(1, 1, 1) if not paused else Color(0.75, 0.62, 0.45)) if lit else Color(0.45, 0.36, 0.28)
+			speed_buttons[i].modulate = (Color(1, 1, 1) if not paused else Color(0.85, 0.72, 0.52)) if lit else Color(0.62, 0.50, 0.38)
 	_sync_side_bar()
 
 	var alerts_sig: String = str(top.get("alertsSignature", ""))
@@ -2358,7 +2361,7 @@ func _build_province_overview_tab(d: Dictionary) -> void:
 		h_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		h_btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		h_btn.add_theme_color_override("font_color", GezStyle.ink(Color(0.97, 0.88, 0.62)))
-		h_btn.add_theme_font_size_override("font_size", 13)
+		h_btn.add_theme_font_size_override("font_size", GezStyle.fs(13))
 		h_btn.pressed.connect(func() -> void:
 			if court_ui != null:
 				_close_top_left_windows("court")

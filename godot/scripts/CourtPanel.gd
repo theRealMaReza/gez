@@ -35,7 +35,7 @@ func _make_label(txt: String, col: Color, fsize: int) -> Label:
 	var lbl := Label.new()
 	lbl.text = txt
 	lbl.add_theme_color_override("font_color", GezStyle.ink(col))
-	lbl.add_theme_font_size_override("font_size", fsize)
+	lbl.add_theme_font_size_override("font_size", GezStyle.fs(fsize))
 	return lbl
 
 func _clear_children(node: Node) -> void:
@@ -343,7 +343,7 @@ func _add_family_links(label_txt: String, items_var: Variant) -> void:
 			btn.text = str(it.get("label", ""))
 			btn.flat = true
 			btn.add_theme_color_override("font_color", GezStyle.ink(Color(0.95, 0.86, 0.62)))
-			btn.add_theme_font_size_override("font_size", 12)
+			btn.add_theme_font_size_override("font_size", GezStyle.fs(12))
 			btn.pressed.connect(func() -> void: _view_character(idx))
 			flow.add_child(btn)
 
@@ -405,7 +405,7 @@ func _refresh_council(d: Dictionary) -> void:
 				h_btn.flat = true
 				h_btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
 				h_btn.add_theme_color_override("font_color", GezStyle.ink(Color(0.96, 0.88, 0.65)))
-				h_btn.add_theme_font_size_override("font_size", 12)
+				h_btn.add_theme_font_size_override("font_size", GezStyle.fs(12))
 				h_btn.pressed.connect(func() -> void: _view_character(holder_idx))
 				left.add_child(h_btn)
 			else:
@@ -486,7 +486,7 @@ func _refresh_vassals(d: Dictionary) -> void:
 				v_btn.flat = true
 				v_btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
 				v_btn.add_theme_color_override("font_color", GezStyle.ink(Color(0.96, 0.88, 0.65)))
-				v_btn.add_theme_font_size_override("font_size", 12)
+				v_btn.add_theme_font_size_override("font_size", GezStyle.fs(12))
 				v_btn.pressed.connect(func() -> void: _view_character(v_idx))
 				left.add_child(v_btn)
 
@@ -631,7 +631,7 @@ func _refresh_marriages(d: Dictionary) -> void:
 					m_btn.flat = true
 					m_btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
 					m_btn.add_theme_color_override("font_color", GezStyle.ink(Color(0.96, 0.88, 0.65)))
-					m_btn.add_theme_font_size_override("font_size", 12)
+					m_btn.add_theme_font_size_override("font_size", GezStyle.fs(12))
 					m_btn.pressed.connect(func() -> void: _view_character(m_idx))
 					info.add_child(m_btn)
 
