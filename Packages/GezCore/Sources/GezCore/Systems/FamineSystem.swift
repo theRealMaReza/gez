@@ -129,6 +129,13 @@ public enum FamineSystem {
                 world.calamity.addNote(CalamityNote(date: date, province: ProvinceID(p), kind: "famine", text: text))
                 if let owner = world.provinces.owner[p], world.countries.capital[owner.index] == ProvinceID(p) {
                     world.people.record(date, owner, "Famine reaches the capital, \(world.provinces.name[p]).")
+                    HistorySystem.recordEvent(
+                        &world,
+                        date: date,
+                        kind: .famine,
+                        primary: owner,
+                        province: ProvinceID(p)
+                    )
                 }
             }
         }

@@ -203,6 +203,7 @@ public enum CharacterSystem {
             world.countries.council[c.index][s.rawValue] = nil
         }
         world.countries.heir[c.index] = heir(world, c, date: date)
+        HistorySystem.recordSuccession(&world, country: c, oldRuler: old, newRuler: ruler, date: date)
         if !suppressEvent, let old, world.provinces.owner.contains(c) {
             EventSystem.trigger(
                 &world,
@@ -346,6 +347,21 @@ public enum CharacterSystem {
         world.people.characters.mother[id.index] = mother
         world.people.characters.children[father.index].append(id)
         world.people.characters.children[mother.index].append(id)
+
+        if let court = world.people.characters.court[id.index] {
+            let ruler = world.countries.ruler[court.index]
+            let heir = world.countries.heir[court.index]
+            if ruler == father || ruler == mother || heir == father || heir == mother {
+                HistorySystem.recordEvent(
+                    &world,
+                    date: date,
+                    kind: .heirBorn,
+                    primary: court,
+                    character: id,
+                    secondaryCharacter: father
+                )
+            }
+        }
     }
 
     /// Candidates for a council seat: adults of the court, not the ruler,
@@ -459,11 +475,28 @@ public enum CharacterSystem {
     }
 
     /// Marries the two; the wife joins the husband's court unless she rules.
-    public static func marry(_ world: inout World, _ a: CharacterID, _ b: CharacterID) {
+    public static func marry(_ world: inout World, _ a: CharacterID, _ b: CharacterID, date: GameDate? = nil) {
+        let courtA = world.people.characters.court[a.index]
+        let courtB = world.people.characters.court[b.index]
         world.people.characters.marry(a, b)
         let (wife, husband) = world.people.characters.female[a.index] ? (a, b) : (b, a)
-        if let wc = world.people.characters.court[wife.index], world.countries.ruler[wc.index] == wife { return }
-        world.people.characters.court[wife.index] = world.people.characters.court[husband.index]
+        if let wc = world.people.characters.court[wife.index], world.countries.ruler[wc.index] == wife {
+            // Ruler stays in her own court.
+        } else {
+            world.people.characters.court[wife.index] = world.people.characters.court[husband.index]
+        }
+        if let date, let primary = courtA ?? courtB {
+            let secondary = (courtB != nil && courtB != primary) ? courtB : nil
+            HistorySystem.recordEvent(
+                &world,
+                date: date,
+                kind: .marriage,
+                primary: primary,
+                secondary: secondary,
+                character: a,
+                secondaryCharacter: b
+            )
+        }
     }
 
     /// Unmarried members of a ruler's close family (spouses' children,
@@ -508,13 +541,13 @@ public enum CharacterSystem {
                         return p0 < p1
                     }
                 if let match = best, random.unit() < 0.6 {
-                    marry(&world, x, match)
+                    marry(&world, x, match, date: date)
                 } else if random.unit() < 0.3 {
                     // A local noble match.
                     let spouse = invent(&world, court: c, date: date, random: &random,
                                         dynasty: firstProvByCountry[c.index].map { "of \(world.provinces.name[$0.index])" },
                                         female: !ch.female[x.index], age: max(16, age - 3))
-                    marry(&world, x, spouse)
+                    marry(&world, x, spouse, date: date)
                 }
             }
         }

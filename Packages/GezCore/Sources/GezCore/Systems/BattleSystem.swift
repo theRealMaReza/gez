@@ -571,6 +571,19 @@ public enum BattleSystem {
         let summary = "\(winName) wins the Battle of \(pName) (\(battle.dayCount) days; \(battle.attackerLosses) attacker / \(battle.defenderLosses) defender casualties)."
         world.people.record(date, winnerCountry, summary)
         world.people.record(date, loseCountry, summary)
+
+        if battle.attackerInitialMen + battle.defenderInitialMen >= 2000 || battle.attackerLosses + battle.defenderLosses >= 500 {
+            HistorySystem.recordEvent(
+                &world,
+                date: date,
+                kind: .majorBattle,
+                primary: winnerCountry,
+                secondary: loseCountry,
+                province: battle.province,
+                valueA: battle.attackerLosses + battle.defenderLosses,
+                valueB: battle.dayCount
+            )
+        }
     }
 
     @discardableResult

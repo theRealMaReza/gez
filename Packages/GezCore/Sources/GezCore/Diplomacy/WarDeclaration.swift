@@ -537,6 +537,14 @@ extension World {
             note: "Declared with \(casusBelli.rawValue)"
         )
         diplomacy.addWar(war)
+        HistorySystem.recordEvent(
+            &self,
+            date: date,
+            kind: .warDeclared,
+            primary: attacker,
+            secondary: defender,
+            valueA: CasusBelli.allCases.firstIndex(of: casusBelli) ?? 0
+        )
         return .success(war)
     }
 
