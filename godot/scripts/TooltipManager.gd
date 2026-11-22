@@ -18,6 +18,8 @@ var total_row: HBoxContainer
 var total_name_label: Label
 var total_val_label: Label
 var notes_box: VBoxContainer
+var _bold_font: Font
+var _italic_font: Font
 
 var _hovered_target: Control = null
 var _hover_elapsed: float = 0.0
@@ -35,6 +37,8 @@ func _ready() -> void:
 	_build_panel()
 
 func _build_panel() -> void:
+	_bold_font = GezTheme.bold_font()
+	_italic_font = GezTheme.italic_font()
 	tooltip_panel = PanelContainer.new()
 	tooltip_panel.name = "SharedParchmentTooltip"
 	tooltip_panel.visible = false
@@ -42,18 +46,14 @@ func _build_panel() -> void:
 	tooltip_panel.custom_minimum_size = Vector2(210.0, 0.0)
 	tooltip_panel.z_index = 100
 
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.95, 0.90, 0.78, 0.98)
-	style.border_color = Color(0.55, 0.41, 0.20, 0.96)
-	style.set_border_width_all(2)
-	style.set_corner_radius_all(6)
-	style.shadow_color = Color(0.0, 0.0, 0.0, 0.42)
-	style.shadow_size = 6
-	style.shadow_offset = Vector2(2.0, 3.0)
-	style.content_margin_left = 12.0
-	style.content_margin_right = 12.0
-	style.content_margin_top = 9.0
-	style.content_margin_bottom = 9.0
+	# Phase 20 part 6 (owner's choice "A"): a compact parchment card in a
+	# thin gold frame; red Cinzel heading, gains green, costs red, a double
+	# rule above the total.
+	var style: StyleBox = GezTheme.tooltip_style()
+	style.content_margin_left = 14.0
+	style.content_margin_right = 14.0
+	style.content_margin_top = 10.0
+	style.content_margin_bottom = 10.0
 	tooltip_panel.add_theme_stylebox_override("panel", style)
 	add_child(tooltip_panel)
 
@@ -62,7 +62,8 @@ func _build_panel() -> void:
 	content_vbox.add_theme_constant_override("separation", 4)
 	tooltip_panel.add_child(content_vbox)
 
-	title_label = _make_ink_label("", Color(0.16, 0.10, 0.05), 14, true)
+	title_label = _make_ink_label("", GezTheme.ACCENT, 16, true)
+	title_label.add_theme_font_override("font", GezTheme.caps_font())
 	content_vbox.add_child(title_label)
 
 	summary_label = _make_ink_label("", Color(0.25, 0.18, 0.11), 12, true)
@@ -77,18 +78,25 @@ func _build_panel() -> void:
 	content_vbox.add_child(entries_box)
 
 	total_sep = _make_sep()
+	total_sep.add_theme_constant_override("separation", 3)
 	content_vbox.add_child(total_sep)
+	var second_rule := _make_sep()
+	second_rule.add_theme_constant_override("separation", 1)
+	total_sep.set_meta("second_rule", second_rule)
+	content_vbox.add_child(second_rule)
 
 	total_row = HBoxContainer.new()
 	total_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	total_row.add_theme_constant_override("separation", 12)
 	content_vbox.add_child(total_row)
 
-	total_name_label = _make_ink_label("Total", Color(0.14, 0.09, 0.04), 13, false)
+	total_name_label = _make_ink_label("Total", Color(0.14, 0.09, 0.04), 14, false)
+	total_name_label.add_theme_font_override("font", GezTheme.caps_font())
 	total_name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	total_row.add_child(total_name_label)
 
-	total_val_label = _make_ink_label("", Color(0.14, 0.09, 0.04), 13, false)
+	total_val_label = _make_ink_label("", Color(0.14, 0.09, 0.04), 14, false)
+	total_val_label.add_theme_font_override("font", GezTheme.caps_font())
 	total_val_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	total_row.add_child(total_val_label)
 
@@ -100,7 +108,7 @@ func _build_panel() -> void:
 func _make_sep() -> HSeparator:
 	var sep := HSeparator.new()
 	sep.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	sep.modulate = Color(0.55, 0.41, 0.20, 0.55)
+	sep.modulate = Color(1, 1, 1, 0.9)
 	return sep
 
 func _make_ink_label(txt: String, col: Color, fsize: int, wrap: bool) -> Label:
@@ -108,7 +116,7 @@ func _make_ink_label(txt: String, col: Color, fsize: int, wrap: bool) -> Label:
 	lbl.text = txt
 	lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	lbl.add_theme_color_override("font_color", col)
-	lbl.add_theme_font_size_override("font_size", fsize)
+	lbl.add_theme_font_size_override("font_size", GezStyle.fs(fsize))
 	if wrap:
 		lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		lbl.custom_minimum_size = Vector2(280.0, 0.0)
@@ -294,12 +302,14 @@ func _populate_panel(data: Dictionary) -> void:
 		elif val_txt.begins_with("-") or val_txt.begins_with("−") or val_num < -0.0005:
 			v_col = Color(0.65, 0.15, 0.11)
 		var v := _make_ink_label(val_txt, v_col, 12, false)
+		v.add_theme_font_override("font", _bold_font)
 		v.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 		row.add_child(v)
 
 	var total_txt := str(data.get("totalText", ""))
 	var has_total := (not total_txt.is_empty()) and (not entries.is_empty())
 	total_sep.visible = has_total
+	(total_sep.get_meta("second_rule") as Control).visible = has_total
 	total_row.visible = has_total
 	if has_total:
 		total_name_label.text = str(data.get("totalLabel", "Total"))
@@ -318,7 +328,9 @@ func _populate_panel(data: Dictionary) -> void:
 		var n_txt := str(n_v)
 		if n_txt.is_empty():
 			continue
-		notes_box.add_child(_make_ink_label(n_txt, Color(0.36, 0.27, 0.17), 11, true))
+		var note := _make_ink_label(n_txt, Color(0.36, 0.27, 0.17), 11, true)
+		note.add_theme_font_override("font", _italic_font)
+		notes_box.add_child(note)
 
 	tooltip_panel.reset_size()
 	tooltip_panel.visible = true
