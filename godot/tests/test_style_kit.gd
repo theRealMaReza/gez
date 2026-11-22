@@ -64,3 +64,29 @@ func test_every_good_and_building_has_an_icon() -> void:
 	runner.check(GezStyle.good_icon("Olive Oil") != null, "good_icon finds Olive Oil")
 	runner.check(GezStyle.building_icon("Cloth Weavers") != null, "building_icon finds Cloth Weavers")
 	runner.check(GezStyle.good_icon("No Such Good") == null, "unknown good gives no icon")
+
+func test_portraits_use_existing_parts_and_are_stable() -> void:
+	# Phase 20 part 3: every part the generator picks exists, for every
+	# region, both sexes and all ages; the same person always looks the same.
+	var parts: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://assets/ui/portrait/parts.json"))
+	var families := ["french", "german", "italian", "west_slavic", "magyar", "east_slavic", "hellenic", "turkic", "iranian",
+		"arab", "indo_aryan", "dravidian", "ethiopian", "bantu", "mongolic", "tibeto_burman"]
+	var n := 0
+	for fam in families:
+		for rel in ["christian", "muslim", "dharmic"]:
+			for rank in ["ruler", "heir", "court", "common"]:
+				for female in [false, true]:
+					for age in [6, 25, 50, 70]:
+						var ch := {"key": "%s_%s_%s_%d" % [fam, rel, rank, age], "cultureFamily": fam, "religionFamily": rel,
+							"portraitRank": rank, "female": female, "age": age, "courtTag": "PAP" if fam == "italian" else ""}
+						for layer in Portrait.layers_for(ch):
+							var part: String = layer[0]
+							if part != "bg" and not parts.has(part):
+								runner.check(false, "portrait part %s exists (for %s)" % [part, ch])
+							n += 1
+	runner.check(n > 1000, "portrait layers checked (%d)" % n)
+	var a := Portrait.layers_for({"key": "mehmed2", "cultureFamily": "turkic", "religionFamily": "muslim", "age": 21, "portraitRank": "ruler"})
+	var b := Portrait.layers_for({"key": "mehmed2", "cultureFamily": "turkic", "religionFamily": "muslim", "age": 21, "portraitRank": "ruler"})
+	runner.check(str(a) == str(b), "same person, same portrait")
+	runner.check(ResourceLoader.exists("res://assets/ui/portrait/frame.png") and ResourceLoader.exists("res://assets/ui/portrait/mask.png"), "portrait frame and mask")
+	runner.check(GezStyle.painting("portraits", "no_such_person") == null, "no painting gives the generated portrait")

@@ -387,6 +387,8 @@ jobs:
           # Phase 20 style kit: every themed control on one screen.
           timeout 300 xvfb-run -a -s "-screen 0 1440x900x24" \
             "$GODOT_BIN" --rendering-driver opengl3 --path godot --script res://tools/theme_gallery.gd
+          timeout 300 xvfb-run -a -s "-screen 0 1440x900x24" \
+            "$GODOT_BIN" --rendering-driver opengl3 --path godot --script res://tools/portrait_gallery.gd
       - name: Upload Godot screenshots
         if: always()
         uses: actions/upload-artifact@v4

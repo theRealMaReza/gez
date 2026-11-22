@@ -1,0 +1,323 @@
+{
+"agal": [
+"color"
+],
+"aigrette": [
+"color"
+],
+"beard_forked": [
+"fill",
+"ink"
+],
+"beard_full": [
+"fill",
+"ink"
+],
+"beard_long": [
+"fill",
+"ink"
+],
+"beard_short": [
+"fill",
+"ink"
+],
+"bonnet": [
+"fill",
+"ink"
+],
+"brows_a": [
+"fill",
+"ink"
+],
+"brows_b": [
+"fill",
+"ink"
+],
+"brows_c": [
+"fill",
+"ink"
+],
+"chain": [
+"color",
+"ink"
+],
+"chaperon": [
+"fill",
+"ink"
+],
+"cheeks": [
+"color"
+],
+"circlet": [
+"color"
+],
+"crown_east": [
+"color",
+"ink"
+],
+"crown_eth": [
+"color",
+"ink"
+],
+"crown_india": [
+"color",
+"ink"
+],
+"crown_queen": [
+"color"
+],
+"crown_west": [
+"color",
+"ink"
+],
+"ears": [
+"fill",
+"ink"
+],
+"east_hat": [
+"fill",
+"color",
+"ink"
+],
+"eyes_a": [
+"color",
+"ink"
+],
+"eyes_b": [
+"color",
+"ink"
+],
+"eyes_c": [
+"color",
+"ink"
+],
+"eyes_closed": [
+"ink"
+],
+"face_long": [
+"fill",
+"ink"
+],
+"face_oval": [
+"fill",
+"ink"
+],
+"face_round": [
+"fill",
+"ink"
+],
+"face_square": [
+"fill",
+"ink"
+],
+"feather": [
+"color"
+],
+"hair_bald": [
+"fill",
+"ink"
+],
+"hair_bowl": [
+"fill",
+"ink"
+],
+"hair_curly": [
+"fill",
+"ink"
+],
+"hair_f": [
+"fill",
+"ink"
+],
+"hair_f_back": [
+"fill",
+"ink"
+],
+"hair_long": [
+"fill",
+"ink"
+],
+"hair_long_back": [
+"fill",
+"ink"
+],
+"hair_short": [
+"fill",
+"ink"
+],
+"headwrap": [
+"fill",
+"ink"
+],
+"kalpak": [
+"fill",
+"ink"
+],
+"kalpak_band": [
+"fill",
+"ink"
+],
+"kavuk": [
+"color"
+],
+"keffiyeh": [
+"fill",
+"ink"
+],
+"liripipe": [
+"fill",
+"ink"
+],
+"mamluk_horns": [
+"color"
+],
+"monomakh_cap": [
+"color",
+"ink"
+],
+"monomakh_fur": [
+"fill",
+"ink"
+],
+"moust_curled": [
+"fill",
+"ink"
+],
+"moust_thick": [
+"fill",
+"ink"
+],
+"moust_thin": [
+"fill",
+"ink"
+],
+"mouth_a": [
+"color",
+"ink"
+],
+"mouth_b": [
+"color",
+"ink"
+],
+"mouth_c": [
+"color",
+"ink"
+],
+"neck": [
+"fill",
+"ink"
+],
+"nose_a": [
+"ink"
+],
+"nose_b": [
+"ink"
+],
+"nose_c": [
+"ink"
+],
+"nose_d": [
+"ink"
+],
+"pearls": [
+"color"
+],
+"robe_jama": [
+"fill",
+"ink"
+],
+"robe_kaftan": [
+"fill",
+"ink"
+],
+"robe_shamma": [
+"fill",
+"ink"
+],
+"robe_steppe": [
+"fill",
+"ink"
+],
+"robe_west": [
+"fill",
+"ink"
+],
+"robe_women": [
+"fill",
+"ink"
+],
+"sarpech": [
+"color"
+],
+"skullcap": [
+"fill",
+"ink"
+],
+"steppe_brim": [
+"fill",
+"ink"
+],
+"steppe_hat": [
+"fill",
+"ink"
+],
+"taj": [
+"color"
+],
+"tiara": [
+"fill",
+"color",
+"ink"
+],
+"trim_jama": [
+"fill",
+"ink"
+],
+"trim_kaftan": [
+"fill",
+"ink"
+],
+"trim_shamma": [
+"fill",
+"ink"
+],
+"trim_steppe": [
+"fill",
+"ink"
+],
+"trim_west": [
+"fill",
+"ink"
+],
+"trim_women": [
+"fill",
+"ink"
+],
+"turban_indian": [
+"fill",
+"ink"
+],
+"turban_mamluk": [
+"fill",
+"ink"
+],
+"turban_ottoman": [
+"fill",
+"ink"
+],
+"turban_persian": [
+"fill",
+"ink"
+],
+"veil_back": [
+"fill",
+"ink"
+],
+"veil_front": [
+"fill",
+"ink"
+],
+"wrinkles": [
+"ink"
+]
+}

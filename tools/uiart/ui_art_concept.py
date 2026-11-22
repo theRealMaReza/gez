@@ -759,6 +759,7 @@ def seal_with_letter(path, size, base, letter):
 
 CINZEL = 'godot/assets/fonts/Cinzel.ttf'
 
+
 # What each screen button and indicator shows (also read by GezStyle.gd).
 MEDALLIONS = {
     # top bar indicators
@@ -977,12 +978,128 @@ def build_buildings(render_dir, out_dir, goods_dir):
     return done
 
 
+
+# ---------------------------------------------------------------- Phase 20 part 3: portrait parts
+PW, PH = 200, 250            # parts are drawn on a 100 x 125 grid at 2x
+INK_RGB = np.array([52, 32, 18], float)
+
+
+def _pmask(path, stroke=0.0):
+    if stroke:
+        attrs = f'fill="none" stroke="#fff" stroke-width="{stroke}" stroke-linecap="round" stroke-linejoin="round"'
+    else:
+        attrs = 'fill="#fff"'
+    svg = (f'<svg xmlns="http://www.w3.org/2000/svg" width="{PW}" height="{PH}" viewBox="0 0 100 125">'
+           f'<path d="{path}" {attrs}/></svg>')
+    im = Image.open(io.BytesIO(cairosvg.svg2png(bytestring=svg.encode()))).convert('RGBA')
+    return np.asarray(im, float)[..., 3] / 255
+
+
+def _outline(m, width=2):
+    return np.clip(ndimage.maximum_filter(m, width + 1) - ndimage.minimum_filter(m, 2), 0, 1)
+
+
+def _modelling(m):
+    """Light-grey fill with soft modelling (lighter to the upper left),
+    so tinting it in the game keeps a little roundness."""
+    h = ndimage.gaussian_filter(m, 5)
+    gy, gx = np.gradient(h)
+    lit = np.clip(0.5 - (gx * 0.7 + gy * 0.8) * 14, 0, 1)
+    return 0.80 + 0.20 * lit
+
+
+def _save_layer(path, rgb, a):
+    if a.max() <= 0.002:
+        return False
+    Image.fromarray(np.dstack([np.clip(rgb, 0, 255), np.clip(a, 0, 1) * 255]).astype('uint8'), 'RGBA').save(path, optimize=True)
+    return True
+
+
+def portrait_background(path):
+    """Gold leaf with a tooled halo of punched dots (manuscript style)."""
+    y, x = np.mgrid[0:PH, 0:PW].astype(float)
+    n = periodic_noise(PH, PW, 2.2, 77)
+    g = 0.86 + 0.18 * n
+    rgb = np.dstack([206 * g, 160 * g, 70 * g])
+    cx, cy = PW / 2, PH * 0.42
+    r = np.hypot(x - cx, y - cy)
+    for rad in (PW * 0.36, PW * 0.40):
+        ring = np.abs(r - rad) < 1.2
+        rgb[ring] *= 0.72
+    ang = np.arctan2(y - cy, x - cx)
+    dots = (np.abs(r - PW * 0.38) < 2.2) & (np.abs(np.sin(ang * 36)) < 0.22)
+    rgb[dots] *= 0.65
+    rgb *= (1 - 0.18 * (y / PH))[..., None]
+    _save_layer(path, rgb, np.ones((PH, PW)))
+
+
+def portrait_mask_and_frame(mask_path, frame_path):
+    """Arched window (mask) and the gold frame around it, same size as the parts."""
+    y, x = np.mgrid[0:PH, 0:PW].astype(float)
+    def inside(inset):
+        r = PW / 2 - inset
+        cx = PW / 2; cy = r + inset
+        arch = (y < cy) & (np.hypot(x - cx, y - cy) <= r)
+        body = (y >= cy) & (x >= inset) & (x <= PW - 1 - inset) & (y <= PH - 1 - inset)
+        return arch | body
+    B = PW * 0.075
+    outer = inside(0); inner = inside(B)
+    win = ndimage.gaussian_filter(inner.astype(float), 0.7)
+    _save_layer(mask_path, np.ones((PH, PW, 3)) * 255, win)
+    ring = outer & ~inner
+    dist = ndimage.distance_transform_edt(ring)
+    hm = frame_profile(dist, B)
+    hm += 0.12 * np.sin((dist + (x + y) * 0.5) / (B * 0.18) * math.pi) * ((dist > B * .3) & (dist < B * .82))
+    rgb = shade_metal(ndimage.gaussian_filter(hm, .8) * B * 0.12, GOLD, strength=1.0)
+    _save_layer(frame_path, rgb, ndimage.gaussian_filter(ring.astype(float), 0.6))
+
+
+def build_portraits(out_dir):
+    import os
+    from portrait_art import PARTS
+    os.makedirs(out_dir, exist_ok=True)
+    portrait_background(os.path.join(out_dir, 'bg.png'))
+    portrait_mask_and_frame(os.path.join(out_dir, 'mask.png'), os.path.join(out_dir, 'frame.png'))
+    made = {}
+    for name, (fill, lines, colours) in PARTS.items():
+        ink = np.zeros((PH, PW))
+        layers = []
+        if fill:
+            m = _pmask(fill)
+            g = _modelling(m)
+            if _save_layer(os.path.join(out_dir, f'{name}_fill.png'), np.dstack([g * 255] * 3), m):
+                layers.append('fill')
+            ink = np.maximum(ink, _outline(m))
+        if colours:
+            rgb = np.zeros((PH, PW, 3)); a = np.zeros((PH, PW))
+            for path, col in colours:
+                cm = _pmask(path)
+                shade = _modelling(cm)[..., None]
+                rgb = rgb * (1 - cm[..., None]) + np.array(col, float) * shade * cm[..., None]
+                a = np.maximum(a, cm)
+                ol = _outline(cm, 1)
+                rgb = rgb * (1 - ol[..., None] * 0.8) + INK_RGB * ol[..., None] * 0.8
+                a = np.maximum(a, ol * 0.8)
+            if _save_layer(os.path.join(out_dir, f'{name}_color.png'), rgb, a):
+                layers.append('color')
+        if lines:
+            ink = np.maximum(ink, _pmask(lines, stroke=1.1) * 0.9)
+        if _save_layer(os.path.join(out_dir, f'{name}_ink.png'), np.zeros((PH, PW, 3)) + INK_RGB, ink):
+            layers.append('ink')
+        made[name] = layers
+    import json
+    with open(os.path.join(out_dir, 'parts.json'), 'w') as f:
+        json.dump(made, f, indent=0, sort_keys=True)
+    return made
+
+
 if __name__ == '__main__':
     import sys, os
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
     if len(sys.argv) > 2 and sys.argv[1] == '--kit':
         m = build_kit(sys.argv[2])
         build_goods(os.path.join(sys.argv[2], 'goods'))
+        build_portraits(os.path.join(sys.argv[2], 'portrait'))
         print('kit margins:', m)
     elif len(sys.argv) > 3 and sys.argv[1] == '--buildings':
         # ui_art_concept.py --buildings <renders folder> godot/assets/ui

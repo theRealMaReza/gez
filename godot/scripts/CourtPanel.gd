@@ -203,24 +203,15 @@ func _refresh_person(d: Dictionary) -> void:
 	top.add_theme_constant_override("separation", 10)
 	person_box.add_child(top)
 
-	var avatar := PanelContainer.new()
-	avatar.custom_minimum_size = Vector2(40.0, 40.0)
-	var av_style := StyleBoxFlat.new()
-	av_style.bg_color = Color(0.45, 0.25, 0.30, 0.9) if bool(ch.get("female", false)) else Color(0.28, 0.34, 0.44, 0.9)
-	av_style.set_corner_radius_all(20)
-	avatar.add_theme_stylebox_override("panel", av_style)
-	var av_lbl := _make_label(str(ch.get("initial", "?")), Color(0.96, 0.92, 0.84), 18)
-	av_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	av_lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	avatar.add_child(av_lbl)
-	top.add_child(avatar)
+	# Phase 20 part 3: the owner's painting, or a generated manuscript portrait.
+	top.add_child(Portrait.make(ch, Vector2(96.0, 120.0)))
 
 	var info := VBoxContainer.new()
 	info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	info.add_theme_constant_override("separation", 1)
 	top.add_child(info)
 
-	var name_lbl := _make_label(str(ch.get("fullName", "")), Color(0.97, 0.90, 0.68), 15)
+	var name_lbl := GezStyle.as_heading(_make_label(str(ch.get("fullName", "")), Color(0.97, 0.90, 0.68), 15))
 	name_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	info.add_child(name_lbl)
 

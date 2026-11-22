@@ -157,3 +157,31 @@ static func icon_rect(t: Texture2D, size := 24.0) -> TextureRect:
 ## sans-serif at the same size, so small sizes get a little bigger.
 static func fs(n: int) -> int:
 	return n + 2 if n <= 13 else n + 1
+
+const PAINTINGS := "res://assets/paintings/"
+const PAINTING_EXTS := ["png", "jpg", "jpeg", "webp"]
+
+## The owner's painting `name` in assets/paintings/<kind>/ ("menu",
+## "events", "portraits"), or null if it hasn't been made yet (the screen
+## then shows its placeholder). Works both for imported pictures (exported
+## games) and for pictures just dropped into the folder (running from the
+## project): docs/ART_PROMPTS.md lists the file names.
+static func painting(kind: String, painting_name: String) -> Texture2D:
+	if painting_name.is_empty():
+		return null
+	var ck := "painting:%s/%s" % [kind, painting_name]
+	if _cache.has(ck):
+		return _cache[ck]
+	var t: Texture2D = null
+	for ext in PAINTING_EXTS:
+		var path := "%s%s/%s.%s" % [PAINTINGS, kind, painting_name, ext]
+		if ResourceLoader.exists(path):
+			t = load(path) as Texture2D
+		elif FileAccess.file_exists(path) or FileAccess.file_exists(ProjectSettings.globalize_path(path)):
+			var img := Image.load_from_file(ProjectSettings.globalize_path(path))
+			if img != null and not img.is_empty():
+				t = ImageTexture.create_from_image(img)
+		if t != null:
+			break
+	_cache[ck] = t
+	return t
