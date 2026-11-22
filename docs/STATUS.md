@@ -4,7 +4,18 @@ The short version of `docs/HANDOFF.md` and `docs/ROADMAP.md`, mirrored to
 the claude.ai Project as `claude/STATUS.md`. Everything else lives in the
 repo (`theRealMaReza/gez`): read only the parts a task needs.
 
-Last updated: 20 November 2026.
+Last updated: 22 November 2026.
+
+## Repo move (21–22 Nov 2026)
+- Old account `yv28f5k922-dot` suspended (owner appealed). New repo
+  **`theRealMaReza/gez`**: all 40 old branches pushed; Phases 16–17
+  restored from the owner's bundle (original hashes); Phase 17 part 3 was
+  old PR #35, merged here as PR #2. PR #1 renamed the repo in docs and
+  `tools/ci/status.sh`. New PR numbers start again at #1.
+- Loose ends: tell Gemini the new remote; public site
+  `yv28f5k922-dot.github.io` is not moved (HANDOFF "Public site" still
+  points there); owner decides whether to delete
+  `~/Developer/Gez/.git/transfer` (≈1.9 GB) on the Mac.
 
 ## The owner
 - Doesn't write code. Plain language, short replies (often on a phone).
@@ -24,7 +35,8 @@ Last updated: 20 November 2026.
   AI behaviour setting: Historical vs Free; 16 sound effects + math
   tooltips; **Phase 17 Going 3D**: 3D terrain map that tilts as you zoom,
   3D towns/forts/ports/armies/fleets in five regional styles, 3D battle
-  view; PRs #33–#35 merged 20 Nov).
+  view; parts 1–2 were old PRs #33–#34, part 3 is new PR #2, merged
+  22 Nov after green CI).
 - Gemini writes most code on `gemini/*` branches; Claude reviews
   (routine: HANDOFF "Working with Gemini" and "How Claude reviews").
 

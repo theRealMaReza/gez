@@ -134,3 +134,16 @@ truce (Galata surrendered on 1 June 1453, two days after the start).
   to one kept inside a Dictionary changes a copy, and copying it out and
   back copies the whole array every time. Keep a plain Array of small
   packed arrays and join them once (`MapModels._commit`).
+
+## Session 13: repo move to theRealMaReza/gez (21–22 Nov 2026)
+- Moving a repo: a bundle of every ref, split into parts under 400 MB to
+  stage from the Mac, rebuilt and checked by sha256; `git clone --mirror`,
+  turn `refs/remotes/origin/*` into `refs/heads/*`, push all. Work that is
+  only in another Claude session can come across as a small bundle the
+  owner downloads and attaches.
+- Pushing many branches at once queues a CI run for each; the new account
+  ran only about 3 jobs at a time. Cancel runs for old branches at once,
+  and avoid both a `workflow_dispatch` and a `pull_request` run for the
+  same commit (the dispatch run's checks already show on the PR).
+- From this session: repository settings writes (for example the default
+  branch) are refused by the proxy; GraphQL is blocked (use REST).
