@@ -59,8 +59,9 @@ Decided by the owner on 13 November 2026 (session 6, on claude.ai).
 ## Plan for the remaining phases (owner, 16 Nov 2026)
 
 Order: 14 events → 15 AI setting → 16 sound + tooltips → 17 3D →
-18 chronicle → 20 art → **20.5 balance and play-test** → **alpha
-"Kayser"** → 21 mission trees and 19 multiplayer.
+18 chronicle → 20 art → **20.5 balance and play-test** (with the 1453
+border fixes) → **alpha "Kayser"** → **20.7 Old World map** → 21 mission
+trees and 19 multiplayer (map order: owner, 22 Nov 2026).
 
 | Phase | Who writes | Decisions |
 |---|---|---|
@@ -71,7 +72,8 @@ Order: 14 events → 15 AI setting → 16 sound + tooltips → 17 3D →
 | 18 Chronicle ✅ | Gemini | History is recorded from Phase 18 on (no early recording); timelapse covers games started after it |
 | 20 Art | Claude (pipeline) | Frames, medallions, seals by our art script; building icons rendered from the 3D models; paintings (events, missions, portraits) made by the owner in the Gemini app from Claude's prompts. **No paid tools or per-image API costs** |
 | 20.5 Balance and play-test | Claude | Long AI-only runs plus the owner's play-throughs; fix balance, speed and bugs before Kayser |
-| 21 Mission trees | Gemini | After the alpha |
+| 20.7 Old World map | Decide when it starts | After the alpha, before 21, so mission trees are written once for the final list of countries |
+| 21 Mission trees | Gemini | After the alpha and the Old World map |
 | 19 Multiplayer | Claude | After the alpha; Epic Online Services (EOS) with join codes, as decided in session 6 |
 
 Money: **no extra paid services** (owner, 16 Nov 2026); the owner already
@@ -398,8 +400,28 @@ Added by the owner on 16 Nov 2026. Long AI-only runs (balance lines in
 the CI logs), the owner's own play-throughs on the Mac, then fixes to
 balance, speed and bugs. Then the alpha build "Kayser".
 
+Also in 20.5 (owner, 22 Nov 2026): the **1453 border and vassal fixes on
+the current map** from Part I of `docs/MAP_EXPANSION_RESEARCH.md` (Metz,
+Besançon, Basel as imperial cities; Further Austria under Albert VI;
+Swiss associates; Yemen split between Rasulids and Tahirids; Irish
+lordships; Malatesta, Pomerania and others). Data edits only; read that
+document's "Review notes" first.
+
+### Phase 20.7: The Old World map (after Kayser, before 21)
+Decided by the owner on 22 Nov 2026. Grow the map to all of Afro-Eurasia
+(East Asia, Southeast Asia, Siberia, Africa south of the Sahara,
+Madagascar) and add detail inside today's map, as planned in
+`docs/MAP_EXPANSION_RESEARCH.md` (Parts II–IV and its review notes).
+Open questions to settle at the start: map detail (48 or 40 pixels per
+degree; measure memory on an 8 GB M1 and texture limits on Windows), and
+what to do with Australia and New Guinea, which fall inside the map box.
+Several pull requests per region, each green in CI on its own. Regional
+governance systems (HRE, Shogunate, Mandate of Heaven and others) and
+formable nations from the same document come after Phase 21; decide
+their order then.
+
 ### Phase 21: Mission trees
-Moved here from Phase 14 by the owner (16 Nov 2026): after 3D (Phase 17)
+After the Old World map (20.7). Moved here from Phase 14 by the owner (16 Nov 2026): after 3D (Phase 17)
 and the art pass (Phase 20). Branching mission trees for major 1453 powers
 (Ottomans, France, England, Castile, Portugal, Austria, Hungary, Venice,
 Mamluks, Aq Qoyunlu/Persia, Timurids, Delhi, Vijayanagara) and regional
