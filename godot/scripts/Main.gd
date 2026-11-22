@@ -1534,6 +1534,9 @@ func _process(delta: float) -> void:
 		fps_label.text = "%d FPS" % cur_fps
 
 	var in_battle := (battle_view != null and battle_view.visible) or (battle_choice_panel != null and battle_choice_panel.visible)
+	# The battle view covers the screen: do not draw the 3D map under it.
+	if map3d != null:
+		map3d.visible = not (battle_view != null and battle_view.visible)
 
 	# Arrow-key panning when no text input is focused
 	if not in_battle and not _is_text_input_focused():

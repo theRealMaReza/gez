@@ -67,7 +67,7 @@ Order: 14 events → 15 AI setting → 16 sound + tooltips → 17 3D →
 | 14 Historical events | Gemini | Mission trees moved to 21 |
 | 15 AI setting | Gemini | Historical AI uses a simple goal list per country until 21 |
 | 16 Sound + tooltips | Gemini | Sounds from free CC0 libraries (Kenney, Sonniss GDC, freesound CC0); tooltip text now, styled cards in 20 |
-| 17 3D | Claude | Built in Godot (not Metal); three parts: map, models, battles. Models from free CC0 kits (Quaternius, KayKit, Kenney) recoloured by region, plus simple models Claude builds in code with Blender; **no paid tools** |
+| 17 3D ✅ | Claude | Built in Godot (not Metal); three parts: map, models, battles. Models from free CC0 kits (KayKit used; Quaternius and Kenney allowed) recoloured by region, plus simple models built in code; **no paid tools** |
 | 18 Chronicle | Gemini | History is recorded from Phase 18 on (no early recording); timelapse covers games started after it |
 | 20 Art | Claude (pipeline) | Frames, medallions, seals by our art script; building icons rendered from the 3D models; paintings (events, missions, portraits) made by the owner in the Gemini app from Claude's prompts. **No paid tools or per-image API costs** |
 | 20.5 Balance and play-test | Claude | Long AI-only runs plus the owner's play-throughs; fix balance, speed and bugs before Kayser |
@@ -314,13 +314,27 @@ Owner's choices: Strictly zero music or musical instruments: procedural/recorded
 - [x] **Sound effects & ambience** (`tools/audio/make_sfx.py`, `godot/assets/audio/*.ogg` — 27 `.ogg` files, ~1.1 MB total from Kenney CC0 packs, OpenGameArt CC0, and filtered-noise procedural generation, `AudioManager.gd` autoload with `UI`, `Effects`, and `Ambience` buses, local settings in `user://audio_settings.cfg`, Game Menu sliders + Master Mute, voice limits/cooldowns, pause-gating, camera-zoom/terrain ambience mixing, and simulation + tactical battle sound cues; credited in `docs/CREDITS.md`).
 - [x] **Math-breakdown tooltips everywhere** (`Packages/GezCore/Sources/GezCore/Core/Breakdowns.swift` sharing exact component helpers across `ArmySystem`, `NavySystem`, `SiegeSystem`, `GovernmentSystem`, `Diplomacy`, `Finance`, and `Breakdowns`; `GezGodotPhase16Bridge.swift`; shared parchment `TooltipManager.gd` autoload covering top bar, nation picker, province view, sea & market panels, budget, trade, court, government, diplomacy, wars, armies, fleets, religion/culture, rebels, technology, event popups, battle view, and map army counters; `BreakdownTests`, `SaveLoadTests` legacy check, and `GezGodotTests` verification).
 
-### Phase 17: Going 3D
-Owner's choices: Vertex-displaced 3D Metal terrain mesh from the heightmap with smooth camera pitch tilt as you zoom in (reusing existing map mode shaders); 3D instanced Metal models on the map for growing towns, tiered forts, ports/ships, and marching army figures in regional styles (European, Islamic, Indian, East Asian, Steppe); and upgrading the Phase 9 battle view to 3D instanced soldier formations, walls, and siege engines using CC0 low-poly meshes.
-1. **3D map**: terrain mesh from the elevation data, camera tilts as you
-   zoom in; the current shader shading is reused.
-2. **3D cities, forts, ports and army figures** replacing the 2D icons.
-3. **3D battle view** upgrade (free CC0 soldier models such as
-   Quaternius), keeping the battle rules from Phase 9.
+### Phase 17: Going 3D ✅ (session 12, PRs #33–#35, written by Claude)
+Owner's choices: built in **Godot** (not Metal), only free tools and CC0
+models (KayKit, plus models built in code), fast on Mac and Windows.
+- [x] 1. **3D map** (#33): terrain mesh lifted by the elevation data
+   (`tools/terrain/bake_heightmap.py` → `App/Resources/Terrain/height.png`),
+   painted by `godot/shaders/map3d.gdshader` (port of the 2D map shader:
+   map modes, borders, water, selection). The camera looks straight down
+   for the whole map and tilts smoothly to 52° as you zoom in
+   (`MapProjector.gd`); labels, counters, routes, overlays and clicks go
+   through the same camera.
+- [x] 2. **3D cities, forts, ports and army figures** (#34) replacing the
+   2D icons: towns grow with development, forts by level, piers and ships
+   on the coast, capital flags, marching soldiers and riders, fleets; five
+   regional styles (European, Islamic, Indian, East Asian, Steppe) from the
+   recoloured KayKit kits mixed with models built in code
+   (`tools/models/build_models.py` → `godot/assets/models/models.bin`,
+   `MapModels.gd`).
+- [x] 3. **3D battle view** (#35): 3D ground, soldier formations in each
+   side's style, walls, towers, gate, keep, breaches, rams, ladders, guns
+   and a siege camp (`BattleView3D.gd`); the Phase 9 rules and controls
+   are unchanged (the 2D overlay sits on the tilted field).
 
 ### Phase 18: Chronicle and stats
 Owner's choices: Full regnal Chronicle book recording wars, major battles, peace treaties, laws, plagues, and dynastic events in period prose; a Ledger & Graphs screen comparing nations over time (population, GDP/income, army & navy size, technology, religion/culture pie charts); and an interactive Map Timelapse player recording yearly province-owner & religion snapshots from 1453 onward.

@@ -666,3 +666,41 @@ See `docs/ROADMAP.md` for the agreed feature decisions and build order.
 - **Shared simulation breakdowns (`Packages/GezCore/Sources/GezCore/Core/Breakdowns.swift`)**: every major tooltip breakdown (`monthlyIncome`, `manpower`, `sailors`, `armyMorale`, `siege`, `stability`, `unrest`, `researchSpeed`, `techCost`, `relations`, `relationSlots`, `aiGoal`, `provinceSupply`, `warScore`) calls the exact helper functions shared with simulation ticks so tooltip figures never diverge from monthly/daily math.
 - **Shared parchment tooltip panel (`godot/scripts/TooltipManager.gd`)**: singleton autoload on top canvas layer (`0.30s` hover delay, automatic viewport clamping, no off-screen clipping) intercepting `tooltip_text` and resolving live `@Callable` breakdown callbacks and canvas unit/fort hover tips.
 - **Non-musical audio (`godot/scripts/AudioManager.gd`)**: strictly zero music or tonal instruments; three AudioServer buses (`UI`, `Effects`, `Ambience`) with saved sliders + Master Mute (`user://audio_settings.cfg`), capped concurrent voice pools (`MAX_UI_PLAYERS = 3`, `MAX_EFFECT_PLAYERS = 5`), per-cue cooldowns, pause-gating (`Effects` suppressed and `Ambience` faded when paused; `UI` remains responsive), and camera zoom/terrain ambience weighting via `getAmbienceContext`.
+
+## Going 3D (Phase 17)
+
+- **Map camera.** The game keeps its 2D camera state (zoom, offset) and
+  builds a perspective camera from it (`godot/scripts/MapProjector.gd`,
+  30° field of view): straight down up to 1.6× the whole-map zoom (exactly
+  the old 2D picture), easing to a 52° tilt at 70% of the maximum zoom.
+  Every 2D layer and every click converts through this one camera.
+- **Terrain.** Height map at half the map size, 8-bit, stored as
+  sqrt(height / 6,000 m); 6,000 m is drawn 34 map pixels high (strong
+  exaggeration so relief reads when tilted). The terrain mesh has a cell
+  every 6 map pixels; the shader lifts it and lights slopes only when
+  tilted (the baked terrain picture already has hill shading).
+- **Regional styles** (bridge, `GezGodotPhase17Bridge.swift`): Tibetan and
+  Theravada → East Asian; Hindu and Jain → Indian (East Asian east of
+  93°E); Tengri → Steppe; folk religions → Steppe north of 40°N, else
+  Islamic; Muslims → Indian in India (66–93°E, 5–31.5°N), Steppe on steppe
+  terrain north of 38°N, else Islamic; Eastern Christians and
+  Zoroastrians → Islamic look; other Christians and Jews → European.
+  Towns use the province's majority religion; armies, fleets and battle
+  sides use their country's capital.
+- **Towns.** Houses 1 + 0.65 × development (max 7); temple from
+  development 4 (or capitals), market from 6, great building from 8 (or
+  capitals from 5). Forts: level 2 tower, 3 strong tower, 4+ castle.
+  Ports get a pier and a ship on the nearest water. Towns appear from zoom
+  0.6 (development 5+ and capitals), 1.1 (3+) and 1.6 (all).
+- **Units on the map.** One soldier per ~8,000 men (1–4) plus a standard
+  in the owner's colour; steppe armies ride. Moving armies stand part-way
+  to their next stop (days walked / days needed) and bob as they march.
+  Fleets: 1–3 ships (1 per 6 ships) with sails in the owner's colour.
+  Model size on screen grows slowly with zoom (9.5 × zoom^−0.38 map
+  pixels per model unit; soldiers ×1.5, ships ×1.25).
+- **Battle view.** One soldier per 60 men (max 40 per regiment) filling the
+  regiment's rectangle; cavalry ride, ranged units carry bows (handguns in
+  Europe), artillery are guns with crews. Walls stand 34 field units
+  tall; breached walls become rubble. Rules, timings and results are the
+  Phase 9 ones; the 3D view only reads the battle state.
+

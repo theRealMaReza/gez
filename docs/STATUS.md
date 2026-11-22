@@ -4,7 +4,7 @@ The short version of `docs/HANDOFF.md` and `docs/ROADMAP.md`, mirrored to
 the claude.ai Project as `claude/STATUS.md`. Everything else lives in the
 repo (`theRealMaReza/gez`): read only the parts a task needs.
 
-Last updated: 19 November 2026.
+Last updated: 20 November 2026.
 
 ## The owner
 - Doesn't write code. Plain language, short replies (often on a phone).
@@ -18,25 +18,30 @@ Last updated: 19 November 2026.
 - Alpha build name: **"Kayser"** (after Phase 20.5).
 
 ## Where things stand
-- Phases 0–16 done (map, economy, trade, characters, government, armies,
+- Phases 0–17 done (map, economy, trade, characters, government, armies,
   diplomacy and war, sieges, Godot screens, battle view, navies, religion
   and culture, plague/famine/rebels, technology, historical events: 70,
   AI behaviour setting: Historical vs Free; 16 sound effects + math
-  tooltips, PR #32 merged 19 Nov).
+  tooltips; **Phase 17 Going 3D**: 3D terrain map that tilts as you zoom,
+  3D towns/forts/ports/armies/fleets in five regional styles, 3D battle
+  view; PRs #33–#35 merged 20 Nov).
 - Gemini writes most code on `gemini/*` branches; Claude reviews
   (routine: HANDOFF "Working with Gemini" and "How Claude reviews").
 
 ## Next
-1. Owner play-test of Phases 15 and 16 on the Mac (`git pull`,
+1. Owner play-test of Phases 15–17 on the Mac (`git pull`,
    `./godot/build_mac.sh`): AI behaviour selector + `AI Goal:` line;
-   hover top-bar numbers for tooltips; unpause to hear sounds; Esc menu
-   volume sliders. Small known nits: coin sound plays almost every month;
-   sea-battle sound can stop once the recent-battles list is full.
-2. **Phase 17: Going 3D** (Claude; free CC0 models + models built in code).
-3. Then: 18 chronicle, 20 art, 20.5 balance and play-test (Claude),
-   **alpha "Kayser"**, then 21 mission trees and 19 multiplayer (Epic
-   Online Services, join codes). Who writes what: ROADMAP "Plan for the
-   remaining phases". Art script: `tools/uiart/ui_art_concept.py`.
+   tooltips, sounds and volume sliders; zoom in to see the tilt, 3D
+   towns, marching armies; lead a battle and a storm assault in 3D.
+   Report the frame rate on the M1 if it feels slow. Small known nits:
+   coin sound plays almost every month; sea-battle sound can stop once
+   the recent-battles list is full.
+2. **Phase 18: Chronicle** (Gemini).
+3. Then: 20 art, 20.5 balance and play-test (Claude), **alpha "Kayser"**,
+   then 21 mission trees and 19 multiplayer (Epic Online Services, join
+   codes). Who writes what: ROADMAP "Plan for the remaining phases". Art
+   script: `tools/uiart/ui_art_concept.py`; 3D models:
+   `tools/models/build_models.py`.
 
 ## Saving tokens (owner's choice, 16 Nov 2026)
 - One task per session (a phase part, or one PR review); HANDOFF carries

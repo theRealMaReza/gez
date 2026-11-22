@@ -6,12 +6,13 @@ judgment calls) and `CLAUDE.md` (rules). Lessons from past sessions and reviews 
 `docs/SESSION_LOG.md` (read only the part a task needs). This file says where the project
 stands, how to work on it, and what to do next.
 
-Last updated: Phase 16 (17 November 2026). Phases 0–16 are done; mission trees remain in Phase 21. Phase 16 implemented on branch `gemini/phase-16-sound-tooltips` (`Breakdowns.swift`, `GameSession.swift` audio event queue, `SaveGame.swift` backward-compatible optional fields, `GezGodotPhase16Bridge.swift`, `tools/audio/make_sfx.py`, 27 CC0/procedural `.ogg` assets in `godot/assets/audio/`, `AudioManager.gd`, `TooltipManager.gd`, all `godot/scripts/*.gd` UI panels, `BreakdownTests.swift`, `SaveLoadTests.swift`, `GezGodotTests.swift`, `docs/CREDITS.md`). Next: Phase 17 (Going 3D).
+Last updated: Phase 17 (20 November 2026). Phases 0–17 are done; mission trees remain in Phase 21. Phase 17 (Going 3D) was written by Claude in three PRs: #33 3D map (`MapProjector.gd`, `Map3D.gd`, `shaders/map3d.gdshader`, `tools/terrain/bake_heightmap.py`), #34 3D towns, forts, ports, armies and fleets (`tools/models/build_models.py`, `godot/assets/models/models.bin`, `ModelLibrary.gd`, `MapModels.gd`, `shaders/map_model.gdshader`, `GezGodotPhase17Bridge.swift`), #35 3D battle view (`BattleView3D.gd`). Headless GDScript tests live in `godot/tests/` and run on CI after the Linux export. Next: Phase 18 (chronicle, Gemini).
 
-How to test Phase 16 by hand on Mac:
-1. Build the GDExtension library (`./godot/build_mac.sh`) and open the project in Godot 4 (`open /Applications/Godot.app` or launch `godot/project.godot`).
-2. Hover over top-bar stats (Treasury/income, Stability, Tech speed, Diplomacy slots, Armies/Manpower, Fleets/Sailors), Province View (Unrest, Supply, Sieges), Diplomacy (Relations, AI Goal), Wars (War Score), and Tech tracks -> parchment tooltip appears after ~0.3s showing itemized `+/-` breakdowns matching the displayed totals without going off-screen.
-3. Unpause (`Space`) -> UI parchment/wood clicks play whenever clicking tabs/buttons; army marches, construction, coin changes, sieges, battles, and zoom levels blend wind/sea/city ambience without voice pile-up; Esc -> Game Menu adjusts UI/Effects/Ambience sliders & Master Mute.
+How to test Phase 17 by hand on Mac:
+1. `git pull`, `./godot/build_mac.sh`, Cmd+Q Godot, reopen the project.
+2. Zoom in from the whole map: the map tilts smoothly and mountains stand up (Alps, Caucasus, Himalaya); labels, army counters and clicks still land on the right provinces.
+3. Towns are 3D (bigger with development; mosques in the Islamic world, temples in India, pagodas in Tibet, yurts on the steppe), forts by level, ships at ports, flags on capitals; move an army and watch the soldiers march.
+4. Lead a battle in person (and a storm assault): soldiers, walls, gate, keep, rams and ladders are 3D; all orders work as before.
 
 ## The owner
 
@@ -65,6 +66,7 @@ Everything below is built, tested on CI and visible in the app.
 | Government (Phase 5) | Stability −3…+3; 11 law areas with trade-offs (6 months to change); estates tied to pops (core four plus Janissaries, Mamluks, Rajputs, Tribes, Dhimmi) with power, loyalty and 23 privileges; a 4-tier reform tree per government type that can change the government |
 | Armies & logistics (Phase 6) | 15 unit types (5 core + 10 regional 1453 units), 39 starting standing armies (235 regiments, 225,000 men), three origins (levies from pops, standing professionals from manpower + market goods, mercenaries for gold), daily province-to-province movement (distance, terrain, rivers, roads, unit speed, commander Martial), supply limit & monthly attrition/reinforcement, great vassal open revolts, military AI |
 | Godot screens (Phase 8.5) | `godot/`: every Apple-app window, button, map mode, map icon and coat of arms (court, government, diplomacy, wars & peace, alerts, budget, trade, buildings, armies, game menu, nation picker); GezCore loaded through SwiftGodot (`godot/swift`, `GezGodotBridge`); exports for Mac, Windows and Linux on CI |
+| Going 3D (Phase 17) | `godot/scripts/{MapProjector,Map3D,MapModels,ModelLibrary,BattleView3D}.gd`, `godot/shaders/{map3d,map_model}.gdshader`, `godot/assets/models/models.bin`: terrain mesh from the elevation with a camera that tilts as you zoom; 3D towns (grow with development), forts by level, ports with ships, capital flags, marching soldiers and riders, fleets, in five regional styles (KayKit CC0 kits recoloured + models built in code); 3D battlefield, soldier formations, walls and siege engines over the unchanged Phase 9 rules |
 | Battle view (Phase 9) | `Packages/GezCore/Sources/GezCore/Battle/` + `godot/scripts/BattleView.gd`: choice modal (Lead Battle in Person / Auto-Resolve), reproducible terrain/hills/forest/river+ford battlefields, deployment + ambush skip, real-time 10 Hz fixed-step combat (Pause/0.5x/1x/2x), click/box/move/path/frontline/attack/retreat orders (touch/Pencil friendly), 6 formations, 5 stances, flanking/morale/routing/fatigue/ammo, tactical AI, playable fort siege assaults (walls/towers/gate/keep/breaches/ladders/ram), and deterministic write-back (survivors, levy pops, commanders, war score, fort capture) with result panel |
 | Navies (Phase 10) | `Packages/GezCore/Sources/GezCore/Navy/`, `Systems/Navy*.swift`, `data/navy/` (`navy1453.json`), `godot/scripts/FleetPanel.gd` & `MapFleetsLayer.gd`: 4 core + 4 regional ship types, Docks shipbuilding with market goods, coastal pop sailors, 28 starting 1453 fleets (230 ships), daily sea movement/attrition/port repair, fleet AI, multi-day auto-resolved naval battles (cannon + boarding, inland galley bonus, capture, war score), blockades (siege & trade cuts), strait blocking, 1-Cog-per-1,000 amphibious transport (`-2` landing penalty) with AI usage, Godot counters/panels/alerts |
 | Religion & culture (Phase 11) | `Packages/GezCore/Sources/GezCore/Faith/`, `Systems/{FaithSystem,MovementSystem,CultureSystem}.swift`, `data/faith/` (`faith1453.json`), `godot/scripts/{ReligionPanel,MapFaithLayer}.gd`: monthly conversion (Clergy loyalty, temples, Faith laws, Dhimmi/Compacts blocks), missionaries, `religiousUnrest`, 43 holy sites (prestige, Clergy loyalty, stab discount), Hussites (`BOH`), Safaviyya/Qizilbash, Protestant/Reformed Reformation (~1517+, trade-route Centres), accepted cultures (government rank + law slots, tax/manpower/mood multipliers), conditional assimilation, and pop-conserving migration across neighbors/trade routes; Godot Religion & Culture window + People tab + map overlays + 1520 snapshot |
@@ -77,13 +79,15 @@ Everything below is built, tested on CI and visible in the app.
 
 Also built (Phases 7–8): diplomacy, war and peace, auto-resolved battles,
 sieges, save/load and autosave, nation picker, alerts. Not started (later
-phases): sound & tooltips (Phase 16), 3D (Phase 17), chronicle (Phase 18), multiplayer (Phase 19), EU art pass (Phase 20), mission trees (Phase 21).
+phases): chronicle (Phase 18), multiplayer (Phase 19), EU art pass (Phase 20), mission trees (Phase 21).
 
 ## What to do next
 
-1. **Owner play-test of Phase 15** on the Mac (`git pull`,
-   `./godot/build_mac.sh`, Cmd+Q Godot, reopen): open Nation Picker (`New Game / Choose Nation...`), pick `Historical` or `Free` under **AI behaviour**, press **Start**, and open Diplomacy (Country View) on any AI nation to see its live `AI Goal:` line.
-2. **Phase 16: Sound effects and tooltips** (ROADMAP).
+1. **Owner play-test of Phases 15–17** on the Mac (steps above; Phase 15:
+   Nation Picker `AI behaviour`, Diplomacy `AI Goal:` line; Phase 16:
+   tooltips, sounds, Esc volume sliders). Check frame rate on the M1 when
+   zoomed in over a busy area and in a big battle.
+2. **Phase 18: Chronicle and stats** (Gemini, ROADMAP).
 3. Follow-ups: the campaign still uses platform maths (`MarketModel.km`
    distances, `hypot` in the AI), which can differ between Mac, Windows and
    Linux; move it to `Core/DetMath.swift` before multiplayer (Phase 19),
@@ -212,6 +216,13 @@ SmartScreen (More info > Run anyway) until the Microsoft Store.
   `--headless --import` once and `--headless --check-only --script
   scripts/Main.gd`. "GDExtension not found" errors are expected (no Linux
   build of the Swift extension); any `SCRIPT ERROR: Parse Error` is real.
+- **Godot script tests and local renders:** `godot --headless --path godot
+  --script res://tests/run_tests.gd` (no Swift extension needed). 3D
+  renders work here too: `LIBGL_ALWAYS_SOFTWARE=1 xvfb-run -a -s "-screen 0
+  1440x900x24" godot --rendering-driver opengl3 --path godot --script
+  <scene script>` and save `root.get_viewport().get_texture().get_image()`.
+  **PR screenshots:** `gh workflow run ci.yml --ref <branch>` publishes
+  them to the `ci-snapshots-preview` branch.
 - **Anything needing internet** runs as a GitHub Actions job that commits
   its output (`terrain.yml` fetches elevation, `heraldry.yml` fetches arms).
 
@@ -229,6 +240,8 @@ of them are reproducible (same input, byte-identical output).
 |---|---|---|
 | `data/map/` | `python3 tools/mapgen/mapgen.py --land /tmp/geo/land10m.geojson` (coastlines once: `tools/mapgen/fetch_coastlines.sh /tmp/geo`; `pip install numpy scipy pillow --break-system-packages`) | `scenario1453.json`, `provinces1453.idmap`, `seas1453.idmap`, `docs/map_preview.png` |
 | terrain | `python3 tools/terrain/bake_terrain.py` (after mapgen; elevation comes from the "Fetch elevation" CI job) | `App/Resources/Terrain/terrain.jpg` |
+| height map (3D map) | `python3 tools/terrain/bake_heightmap.py` (after mapgen or new elevation) | `App/Resources/Terrain/height.png` |
+| 3D models | `python3 tools/models/build_models.py` (KayKit originals in `tools/models/kaykit/`; new kit models must be credited in `docs/CREDITS.md`) | `godot/assets/models/models.bin` |
 | `data/economy/` | `python3 tools/economy/econgen.py` (balance with `tools/economy/prototype.py`, a Python copy of the monthly market; keep constants in step) | `economy1453.json` |
 | `data/characters/` | `python3 tools/characters/chargen.py` | `characters1453.json` |
 | `data/government/` | `python3 tools/government/govgen.py` | `government1453.json` |
