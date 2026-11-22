@@ -120,22 +120,14 @@ func _selected_csv() -> String:
 		parts.append(str(idx))
 	return ",".join(parts)
 
-func _make_panel_style(bg := Color(0.11, 0.09, 0.07, 0.96), border := Color(0.70, 0.56, 0.28, 0.90)) -> StyleBoxFlat:
-	var s := StyleBoxFlat.new()
-	s.bg_color = bg
-	s.border_color = border
-	s.set_border_width_all(1)
-	s.set_corner_radius_all(6)
-	s.content_margin_left = 10.0
-	s.content_margin_right = 10.0
-	s.content_margin_top = 6.0
-	s.content_margin_bottom = 6.0
-	return s
+# Battle bars use the slim parchment card (Phase 20) so the field stays visible.
+func _make_panel_style(_bg := Color(0.11, 0.09, 0.07, 0.96), _border := Color(0.70, 0.56, 0.28, 0.90)) -> StyleBox:
+	return GezTheme.tooltip_style()
 
 func _make_label(txt: String, col := Color(0.95, 0.92, 0.84), font_size := 13) -> Label:
 	var l := Label.new()
 	l.text = txt
-	l.add_theme_color_override("font_color", col)
+	l.add_theme_color_override("font_color", GezStyle.ink(col))
 	l.add_theme_font_size_override("font_size", font_size)
 	return l
 
@@ -685,7 +677,7 @@ func _sync_result_panel() -> void:
 	var kind_lbl := "Storm Assault" if bool(res.get("isAssault", false)) else "Field Battle"
 	var prov := str(res.get("provinceName", state.get("provinceName", "")))
 	result_title_lbl.text = ("VICTORY AT %s!" if player_won else "DEFEAT AT %s") % prov.to_upper()
-	result_title_lbl.add_theme_color_override("font_color", Color(0.55, 0.96, 0.58) if player_won else Color(0.96, 0.45, 0.40))
+	result_title_lbl.add_theme_color_override("font_color", GezStyle.ink(Color(0.55, 0.96, 0.58) if player_won else Color(0.96, 0.45, 0.40)))
 	result_sub_lbl.text = "%s · Winner: %s (%d s)" % [
 		kind_lbl,
 		str(res.get("winnerName", winner_side.capitalize())),

@@ -382,6 +382,9 @@ jobs:
           "$GODOT_BIN" --headless --path godot --import
           xvfb-run -a -s "-screen 0 1440x900x24" \
             "$GODOT_BIN" --rendering-driver opengl3 --path godot --script res://scripts/capture_snapshots.gd
+          # Phase 20 style kit: every themed control on one screen.
+          xvfb-run -a -s "-screen 0 1440x900x24" \
+            "$GODOT_BIN" --rendering-driver opengl3 --path godot --script res://tools/theme_gallery.gd
       - name: Upload Godot screenshots
         if: always()
         uses: actions/upload-artifact@v4

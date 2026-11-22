@@ -25,7 +25,7 @@ func _call_bridge(method_name: String, args: Array = [], fallback: Variant = nul
 func _make_label(txt: String, col: Color, fsize: int) -> Label:
 	var lbl := Label.new()
 	lbl.text = txt
-	lbl.add_theme_color_override("font_color", col)
+	lbl.add_theme_color_override("font_color", GezStyle.ink(col))
 	lbl.add_theme_font_size_override("font_size", fsize)
 	return lbl
 
@@ -42,7 +42,7 @@ func _build_panel() -> void:
 	rel_panel.visible = false
 	rel_panel.custom_minimum_size = Vector2(780.0, 0.0)
 	if main_view != null and main_view.has_method("_make_panel_style"):
-		var st: StyleBoxFlat = main_view.call("_make_panel_style")
+		var st: StyleBox = main_view.call("_make_panel_style")
 		rel_panel.add_theme_stylebox_override("panel", st)
 	add_child(rel_panel)
 
@@ -53,10 +53,10 @@ func _build_panel() -> void:
 	var header := HBoxContainer.new()
 	outer.add_child(header)
 	var title := _make_label("Religion & Culture", Color(0.97, 0.90, 0.68), 18)
+	GezStyle.as_title(title)
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	header.add_child(title)
-	var close_btn := Button.new()
-	close_btn.text = "X"
+	var close_btn := GezStyle.medallion_button("close", 30.0)
 	close_btn.tooltip_text = "Close Religion & Culture window"
 	close_btn.pressed.connect(close_window)
 	header.add_child(close_btn)

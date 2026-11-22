@@ -28,7 +28,7 @@ func _call_bridge(method_name: String, args: Array = [], fallback: Variant = nul
 func _make_label(txt: String, col: Color, fsize: int) -> Label:
 	var lbl := Label.new()
 	lbl.text = txt
-	lbl.add_theme_color_override("font_color", col)
+	lbl.add_theme_color_override("font_color", GezStyle.ink(col))
 	lbl.add_theme_font_size_override("font_size", fsize)
 	return lbl
 
@@ -45,7 +45,7 @@ func _build_gov_panel() -> void:
 	gov_panel.visible = false
 	gov_panel.custom_minimum_size = Vector2(440.0, 0.0)
 	if main_view != null and main_view.has_method("_make_panel_style"):
-		var st: StyleBoxFlat = main_view.call("_make_panel_style")
+		var st: StyleBox = main_view.call("_make_panel_style")
 		gov_panel.add_theme_stylebox_override("panel", st)
 	add_child(gov_panel)
 
@@ -56,10 +56,10 @@ func _build_gov_panel() -> void:
 	var header := HBoxContainer.new()
 	outer.add_child(header)
 	var title := _make_label("Government", Color(0.97, 0.90, 0.68), 18)
+	GezStyle.as_title(title)
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	header.add_child(title)
-	var close_btn := Button.new()
-	close_btn.text = "X"
+	var close_btn := GezStyle.medallion_button("close", 30.0)
 	close_btn.tooltip_text = "Close Government window"
 	close_btn.pressed.connect(close_window)
 	header.add_child(close_btn)
@@ -209,7 +209,7 @@ func _add_power_bar_row(label_txt: String, share: float, has_loyalty: bool, loya
 		btn.flat = true
 		btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		btn.custom_minimum_size = Vector2(108.0, 0.0)
-		btn.add_theme_color_override("font_color", Color(0.96, 0.88, 0.65))
+		btn.add_theme_color_override("font_color", GezStyle.ink(Color(0.96, 0.88, 0.65)))
 		btn.add_theme_font_size_override("font_size", 12)
 		btn.pressed.connect(on_click)
 		row.add_child(btn)
@@ -242,7 +242,7 @@ func _add_power_bar_row(label_txt: String, share: float, has_loyalty: bool, loya
 			col = Color(0.55, 0.90, 0.58)
 		elif loyalty < disloyal_below:
 			col = Color(0.95, 0.45, 0.40)
-		loy_lbl.add_theme_color_override("font_color", col)
+		loy_lbl.add_theme_color_override("font_color", GezStyle.ink(col))
 	row.add_child(loy_lbl)
 
 func _refresh_estates(d: Dictionary) -> void:
@@ -280,14 +280,7 @@ func _refresh_estates(d: Dictionary) -> void:
 
 func _add_estate_detail(e: Dictionary) -> void:
 	var box_panel := PanelContainer.new()
-	var ps := StyleBoxFlat.new()
-	ps.bg_color = Color(0.19, 0.16, 0.12, 0.95)
-	ps.set_corner_radius_all(6)
-	ps.content_margin_left = 8
-	ps.content_margin_right = 8
-	ps.content_margin_top = 6
-	ps.content_margin_bottom = 6
-	box_panel.add_theme_stylebox_override("panel", ps)
+	box_panel.theme_type_variation = "Card"
 	estates_box.add_child(box_panel)
 
 	var vbox := VBoxContainer.new()

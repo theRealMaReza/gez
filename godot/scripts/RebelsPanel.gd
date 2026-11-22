@@ -29,7 +29,7 @@ func _call_bridge(method_name: String, args: Array = [], fallback: Variant = nul
 func _make_label(txt: String, col: Color, fsize: int) -> Label:
 	var lbl := Label.new()
 	lbl.text = txt
-	lbl.add_theme_color_override("font_color", col)
+	lbl.add_theme_color_override("font_color", GezStyle.ink(col))
 	lbl.add_theme_font_size_override("font_size", fsize)
 	return lbl
 
@@ -52,7 +52,7 @@ func _build_panel() -> void:
 	rebels_panel.visible = false
 	rebels_panel.custom_minimum_size = Vector2(780.0, 0.0)
 	if main_view != null and main_view.has_method("_make_panel_style"):
-		var st: StyleBoxFlat = main_view.call("_make_panel_style")
+		var st: StyleBox = main_view.call("_make_panel_style")
 		rebels_panel.add_theme_stylebox_override("panel", st)
 	add_child(rebels_panel)
 
@@ -63,10 +63,10 @@ func _build_panel() -> void:
 	var header := HBoxContainer.new()
 	outer.add_child(header)
 	var title := _make_label("Unrest & Rebels", Color(0.97, 0.90, 0.68), 18)
+	GezStyle.as_title(title)
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	header.add_child(title)
-	var close_btn := Button.new()
-	close_btn.text = "X"
+	var close_btn := GezStyle.medallion_button("close", 30.0)
 	close_btn.tooltip_text = "Close Unrest & Rebels window"
 	close_btn.pressed.connect(close_window)
 	header.add_child(close_btn)
@@ -192,11 +192,9 @@ func refresh(force: bool = false) -> void:
 		var target_idx: int = int(f.get("targetProvinceIndex", -1))
 
 		var card := PanelContainer.new()
-		var card_style := StyleBoxFlat.new()
-		card_style.bg_color = Color(0.22, 0.10, 0.08, 0.85) if risen else Color(0.18, 0.15, 0.11, 0.85)
-		card_style.set_content_margin_all(8.0)
-		card_style.set_corner_radius_all(4)
-		card.add_theme_stylebox_override("panel", card_style)
+		card.theme_type_variation = "Card"
+		if risen:
+			card.self_modulate = Color(1.0, 0.82, 0.78)
 		left_box.add_child(card)
 		var box := VBoxContainer.new()
 		box.add_theme_constant_override("separation", 3)
@@ -210,7 +208,7 @@ func refresh(force: bool = false) -> void:
 		name_btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		name_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		name_btn.tooltip_text = "Show on the map"
-		name_btn.add_theme_color_override("font_color", Color(0.98, 0.62, 0.50) if risen else Color(0.97, 0.90, 0.68))
+		name_btn.add_theme_color_override("font_color", GezStyle.ink(Color(0.98, 0.62, 0.50) if risen else Color(0.97, 0.90, 0.68)))
 		name_btn.pressed.connect(func() -> void: _focus_province(target_idx))
 		head.add_child(name_btn)
 		head.add_child(_make_label("IN ARMS" if risen else str(f.get("progressText", "0%")), Color(0.98, 0.45, 0.38) if risen else Color(0.95, 0.80, 0.45), 13))

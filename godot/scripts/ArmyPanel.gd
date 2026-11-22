@@ -32,7 +32,7 @@ func _call_bridge(method_name: String, args: Array = [], fallback: Variant = nul
 func _make_label(txt: String, col: Color, fsize: int) -> Label:
 	var lbl := Label.new()
 	lbl.text = txt
-	lbl.add_theme_color_override("font_color", col)
+	lbl.add_theme_color_override("font_color", GezStyle.ink(col))
 	lbl.add_theme_font_size_override("font_size", fsize)
 	return lbl
 
@@ -58,7 +58,7 @@ func _build_armies_window_panel() -> void:
 	armies_window_panel.visible = false
 	armies_window_panel.custom_minimum_size = Vector2(430.0, 0.0)
 	if main_view != null and main_view.has_method("_make_panel_style"):
-		var st: StyleBoxFlat = main_view.call("_make_panel_style")
+		var st: StyleBox = main_view.call("_make_panel_style")
 		armies_window_panel.add_theme_stylebox_override("panel", st)
 	add_child(armies_window_panel)
 
@@ -75,10 +75,10 @@ func _build_armies_window_panel() -> void:
 	armies_window_arms.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	header.add_child(armies_window_arms)
 	var title := _make_label("Armies", Color(0.97, 0.90, 0.68), 18)
+	GezStyle.as_title(title)
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	header.add_child(title)
-	var close_btn := Button.new()
-	close_btn.text = "X"
+	var close_btn := GezStyle.medallion_button("close", 30.0)
 	close_btn.tooltip_text = "Close Armies window"
 	close_btn.pressed.connect(func() -> void:
 		armies_window_panel.visible = false
@@ -107,7 +107,7 @@ func _build_selected_army_panel() -> void:
 	selected_army_panel.visible = false
 	selected_army_panel.custom_minimum_size = Vector2(360.0, 0.0)
 	if main_view != null and main_view.has_method("_make_panel_style"):
-		var st: StyleBoxFlat = main_view.call("_make_panel_style")
+		var st: StyleBox = main_view.call("_make_panel_style")
 		selected_army_panel.add_theme_stylebox_override("panel", st)
 	add_child(selected_army_panel)
 
@@ -118,10 +118,10 @@ func _build_selected_army_panel() -> void:
 	var header := HBoxContainer.new()
 	outer.add_child(header)
 	sel_army_title_label = _make_label("Army", Color(0.97, 0.90, 0.68), 17)
+	GezStyle.as_title(sel_army_title_label)
 	sel_army_title_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	header.add_child(sel_army_title_label)
-	var close_btn := Button.new()
-	close_btn.text = "X"
+	var close_btn := GezStyle.medallion_button("close", 30.0)
 	close_btn.tooltip_text = "Deselect army"
 	close_btn.pressed.connect(func() -> void:
 		_call_bridge("clearSelectedArmy")
@@ -553,7 +553,7 @@ func _build_army_card_in_window(a_dict: Dictionary, cands: Array) -> void:
 	name_btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
 	name_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var is_sel: bool = bool(a_dict.get("isSelected", false))
-	name_btn.add_theme_color_override("font_color", Color(1.0, 0.90, 0.42) if is_sel else Color(0.96, 0.92, 0.82))
+	name_btn.add_theme_color_override("font_color", GezStyle.ink(Color(1.0, 0.90, 0.42) if is_sel else Color(0.96, 0.92, 0.82)))
 	name_btn.pressed.connect(func() -> void:
 		_call_bridge("selectArmy", [aid], false)
 		if main_view != null:

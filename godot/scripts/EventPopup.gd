@@ -35,7 +35,7 @@ func _call_bridge(method_name: String, args: Array = [], fallback: Variant = nul
 func _make_label(txt: String, col: Color, fsize: int) -> Label:
 	var lbl := Label.new()
 	lbl.text = txt
-	lbl.add_theme_color_override("font_color", col)
+	lbl.add_theme_color_override("font_color", GezStyle.ink(col))
 	lbl.add_theme_font_size_override("font_size", fsize)
 	return lbl
 
@@ -68,7 +68,7 @@ func _build_ui() -> void:
 	popup_panel.name = "EventPopupPanel"
 	popup_panel.custom_minimum_size = Vector2(560.0, 0.0)
 	if main_view != null and main_view.has_method("_make_panel_style"):
-		var st: StyleBoxFlat = main_view.call("_make_panel_style", Color(0.15, 0.12, 0.09, 0.98))
+		var st: StyleBox = main_view.call("_make_panel_style", Color(0.15, 0.12, 0.09, 0.98))
 		popup_panel.add_theme_stylebox_override("panel", st)
 	center.add_child(popup_panel)
 
