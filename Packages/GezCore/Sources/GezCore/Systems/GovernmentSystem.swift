@@ -313,6 +313,14 @@ public enum GovernmentSystem {
             changeStability(&world, c, by: -1)
         }
         world.people.record(date, c, "New law in force: \(rules.lawAreas[law.area].options[law.option].name).")
+        HistorySystem.recordEvent(
+            &world,
+            date: date,
+            kind: .lawChanged,
+            primary: c,
+            valueA: law.area,
+            valueB: law.option
+        )
     }
 
     @discardableResult
@@ -350,6 +358,14 @@ public enum GovernmentSystem {
         let reform = tier.options[option]
         world.government.reforms[c.index].append(option)
         world.people.record(date, c, "Government reform: \(reform.name).")
+        HistorySystem.recordEvent(
+            &world,
+            date: date,
+            kind: .reformAdopted,
+            primary: c,
+            valueA: next.index,
+            valueB: option
+        )
         if let g = reform.becomes, g != world.countries.government[c.index] {
             world.countries.government[c.index] = g
             world.government.reforms[c.index] = [0]

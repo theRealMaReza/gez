@@ -151,6 +151,7 @@ public enum SiegeSystem {
                         siege: &siege,
                         hostileArmies: hostileArmiesHere,
                         fortLevel: fortLvl,
+                        date: date,
                         random: &random
                     )
                     if siege.lastOutcome == .surrender {
@@ -243,6 +244,7 @@ public enum SiegeSystem {
         siege: inout Siege,
         hostileArmies: [ArmyID],
         fortLevel: Int,
+        date: GameDate,
         random: inout GameRandom
     ) {
         let pid = siege.province
@@ -260,7 +262,7 @@ public enum SiegeSystem {
 
         if total >= surrenderThreshold || garrison <= 0 {
             siege.lastOutcome = .surrender
-            captureFort(&world, province: pid, capturer: siege.besieger)
+            captureFort(&world, province: pid, capturer: siege.besieger, date: date)
             return
         }
 
@@ -311,7 +313,7 @@ public enum SiegeSystem {
 
         if world.provinces.fortGarrison[p] <= 0 {
             siege.lastOutcome = .surrender
-            captureFort(&world, province: pid, capturer: siege.besieger)
+            captureFort(&world, province: pid, capturer: siege.besieger, date: date)
         }
     }
 
@@ -333,6 +335,7 @@ public enum SiegeSystem {
         _ world: inout World,
         province pid: ProvinceID,
         attacker: CountryID,
+        date: GameDate? = nil,
         random: inout GameRandom
     ) -> AssaultResult {
         let p = pid.index
@@ -370,7 +373,7 @@ public enum SiegeSystem {
         world.provinces.fortGarrison[p] = remainingGarrison
 
         if remainingGarrison == 0 {
-            captureFort(&world, province: pid, capturer: attacker)
+            captureFort(&world, province: pid, capturer: attacker, date: date)
             world.military.sieges.remove(at: siegeIdx)
             return AssaultResult(captured: true, attackerLosses: attackerLosses, garrisonLosses: garrisonLosses, remainingGarrison: 0)
         } else {
@@ -381,14 +384,28 @@ public enum SiegeSystem {
 
     // MARK: - Helpers
 
-    public static func captureFort(_ world: inout World, province pid: ProvinceID, capturer: CountryID) {
+    public static func captureFort(_ world: inout World, province pid: ProvinceID, capturer: CountryID, date: GameDate? = nil) {
         let p = pid.index
         let cap = world.provinces.maxGarrison(of: pid)
-        if world.provinces.owner[p] == capturer {
+        let owner = world.provinces.owner[p]
+        if owner == capturer {
             // Liberated home fort
             world.provinces.occupiedBy[p] = nil
         } else {
             world.provinces.occupiedBy[p] = capturer
+            // Chronicle only notable sieges: strong forts (level 2+) or a capital.
+            let isCapital = owner.map { world.countries.capital[$0.index] == pid } ?? false
+            if let date, world.provinces.fortLevel[p] >= 2 || isCapital {
+                HistorySystem.recordEvent(
+                    &world,
+                    date: date,
+                    kind: .siegeCaptured,
+                    primary: capturer,
+                    secondary: owner,
+                    province: pid,
+                    valueA: world.provinces.fortLevel[p]
+                )
+            }
         }
         world.provinces.fortGarrison[p] = max(100, cap / 5)
     }

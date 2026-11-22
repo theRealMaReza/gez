@@ -125,6 +125,14 @@ public enum PlagueSystem {
         if let owner = world.provinces.owner[p],
            world.countries.capital[owner.index] == ProvinceID(p) || world.provinces.development[p] >= 8 {
             world.people.record(date, owner, text)
+            HistorySystem.recordEvent(
+                &world,
+                date: date,
+                kind: .plagueOutbreak,
+                primary: owner,
+                province: ProvinceID(p),
+                valueA: d.rawValue
+            )
         }
         return true
     }

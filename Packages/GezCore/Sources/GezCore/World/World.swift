@@ -380,6 +380,8 @@ public struct World: Sendable {
     public var ai = AIState()
     /// Historical AI goal lists loaded from `ai_goals1453.json` (fixed data, not saved).
     public var aiRules = AIGoalRules()
+    /// Chronicle events, regnal chapters, yearly stats, and map timelapse (Phase 18).
+    public var history = HistoryState()
 
     public init(map: MapInfo = MapInfo(width: 1, height: 1, pixelsPerDegree: 1, longitudeMin: 0, latitudeMax: 0)) {
         self.map = map

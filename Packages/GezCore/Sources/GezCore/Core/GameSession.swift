@@ -104,6 +104,7 @@ public final class GameSession {
             sim.world.humanCountries = [picked]
         }
         AIGoalSystem.updateGoals(&sim.world, date: sim.date)
+        HistorySystem.ensureInitialized(&sim.world, date: sim.date)
         refreshSavedGames()
         rebuildLabels()
     }
@@ -418,7 +419,7 @@ public final class GameSession {
 
     public func propose(_ a: CharacterID, _ b: CharacterID) {
         guard CharacterSystem.marriageRefusal(world, a, b, date: date) == nil else { return }
-        CharacterSystem.marry(&simulation.world, a, b)
+        CharacterSystem.marry(&simulation.world, a, b, date: date)
         revision &+= 1
     }
 

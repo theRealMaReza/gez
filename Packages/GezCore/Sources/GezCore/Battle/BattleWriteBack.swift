@@ -163,7 +163,7 @@ public enum BattleWriteBack {
             }
             if winnerSide == .attacker && engine.keepCaptured {
                 fortCaptured = true
-                SiegeSystem.captureFort(&world, province: engine.province, capturer: engine.attackerCountry)
+                SiegeSystem.captureFort(&world, province: engine.province, capturer: engine.attackerCountry, date: date)
                 world.military.sieges.removeAll { $0.province == engine.province && $0.besieger == engine.attackerCountry }
                 remainingGarrison = world.provinces.fortGarrison[pIdx]
             } else {
@@ -219,6 +219,22 @@ public enum BattleWriteBack {
         let summary = "\(winnerName) wins the \(actionNoun) \(engine.provinceName) (\(attLosses) attacker / \(defLosses) defender casualties)."
         world.people.record(date, engine.attackerCountry, summary)
         world.people.record(date, engine.defenderCountry, summary)
+
+        let totalMen = attInit + defInit
+        let totalLosses = attLosses + defLosses
+        if totalMen >= 2000 || totalLosses >= 500 {
+            let loseCountry = winnerCountry == engine.attackerCountry ? engine.defenderCountry : engine.attackerCountry
+            HistorySystem.recordEvent(
+                &world,
+                date: date,
+                kind: .majorBattle,
+                primary: winnerCountry,
+                secondary: loseCountry,
+                province: engine.province,
+                valueA: totalLosses,
+                valueB: daysFought
+            )
+        }
 
         return TacticalBattleResult(
             province: engine.province,
