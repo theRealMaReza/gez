@@ -51,6 +51,9 @@ Last updated: 22 November 2026 (session 13, Phase 20).
   (routine: HANDOFF "Working with Gemini" and "How Claude reviews"). New
   screens: plain controls, `add_window`, `add_side_button` (HANDOFF "New
   screens and the Phase 20 look").
+- **Map and flavour research** (owner, 22 Nov 2026): PR #13 adds
+  `docs/MAP_EXPANSION_RESEARCH.md` (1453 border fixes, Afro-Eurasia
+  expansion, regional governance, formables) with Claude's review notes.
 
 ## Next
 1. **Phase 18 Chronicle** (Gemini, in progress): its screens get the
@@ -60,7 +63,10 @@ Last updated: 22 November 2026 (session 13, Phase 20).
    the Mac (`git pull`, `./godot/build_mac.sh`): frame rate on the M1 when
    zoomed out (painted chart) and when windows open.
 3. Then: **20.5 balance and play-test** (Claude, after 18 and 20 are
-   merged), **alpha "Kayser"**, then 21 mission trees and 19 multiplayer.
+   merged; includes the 1453 border fixes from
+   `docs/MAP_EXPANSION_RESEARCH.md`), **alpha "Kayser"**, **20.7 Old
+   World map** (Afro-Eurasia), **20.8 ruling systems and formables**,
+   then 21 mission trees and 19 multiplayer.
    Who writes what: ROADMAP "Plan for the remaining phases".
 
 ## Saving tokens (owner's choice, 16 Nov 2026)

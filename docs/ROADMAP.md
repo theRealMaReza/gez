@@ -59,8 +59,10 @@ Decided by the owner on 13 November 2026 (session 6, on claude.ai).
 ## Plan for the remaining phases (owner, 16 Nov 2026)
 
 Order: 14 events → 15 AI setting → 16 sound + tooltips → 17 3D →
-18 chronicle → 20 art → **20.5 balance and play-test** → **alpha
-"Kayser"** → 21 mission trees and 19 multiplayer.
+18 chronicle → 20 art → **20.5 balance and play-test** (with the 1453
+border fixes) → **alpha "Kayser"** → **20.7 Old World map** → **20.8
+ruling systems and formables** → 21 mission trees and 19 multiplayer
+(order of 20.7 and 20.8: owner, 22 Nov 2026).
 
 | Phase | Who writes | Decisions |
 |---|---|---|
@@ -71,7 +73,9 @@ Order: 14 events → 15 AI setting → 16 sound + tooltips → 17 3D →
 | 18 Chronicle ✅ | Gemini | History is recorded from Phase 18 on (no early recording); timelapse covers games started after it |
 | 20 Art | Claude (pipeline) | Frames, medallions, seals by our art script; building icons rendered from the 3D models; paintings (events, missions, portraits) made by the owner in the Gemini app from Claude's prompts. **No paid tools or per-image API costs** |
 | 20.5 Balance and play-test | Claude | Long AI-only runs plus the owner's play-throughs; fix balance, speed and bugs before Kayser |
-| 21 Mission trees | Gemini | After the alpha |
+| 20.7 Old World map | Decide when it starts | After the alpha, before 21, so mission trees are written once for the final list of countries |
+| 20.8 Ruling systems and formables | Decide when it starts | Before 21, so mission trees can lead into them (owner, 22 Nov 2026) |
+| 21 Mission trees | Gemini | After the alpha, the Old World map, and ruling systems and formables |
 | 19 Multiplayer | Claude | After the alpha; Epic Online Services (EOS) with join codes, as decided in session 6 |
 
 Money: **no extra paid services** (owner, 16 Nov 2026); the owner already
@@ -314,7 +318,7 @@ Owner's choices: Strictly zero music or musical instruments: procedural/recorded
 - [x] **Sound effects & ambience** (`tools/audio/make_sfx.py`, `godot/assets/audio/*.ogg` — 27 `.ogg` files, ~1.1 MB total from Kenney CC0 packs, OpenGameArt CC0, and filtered-noise procedural generation, `AudioManager.gd` autoload with `UI`, `Effects`, and `Ambience` buses, local settings in `user://audio_settings.cfg`, Game Menu sliders + Master Mute, voice limits/cooldowns, pause-gating, camera-zoom/terrain ambience mixing, and simulation + tactical battle sound cues; credited in `docs/CREDITS.md`).
 - [x] **Math-breakdown tooltips everywhere** (`Packages/GezCore/Sources/GezCore/Core/Breakdowns.swift` sharing exact component helpers across `ArmySystem`, `NavySystem`, `SiegeSystem`, `GovernmentSystem`, `Diplomacy`, `Finance`, and `Breakdowns`; `GezGodotPhase16Bridge.swift`; shared parchment `TooltipManager.gd` autoload covering top bar, nation picker, province view, sea & market panels, budget, trade, court, government, diplomacy, wars, armies, fleets, religion/culture, rebels, technology, event popups, battle view, and map army counters; `BreakdownTests`, `SaveLoadTests` legacy check, and `GezGodotTests` verification).
 
-### Phase 17: Going 3D ✅ (session 12, PRs #33–#35, written by Claude)
+### Phase 17: Going 3D ✅ (session 12, PRs #33–#34 on the old repo and #2 on the new one, written by Claude)
 Owner's choices: built in **Godot** (not Metal), only free tools and CC0
 models (KayKit, plus models built in code), fast on Mac and Windows.
 - [x] 1. **3D map** (#33): terrain mesh lifted by the elevation data
@@ -398,8 +402,44 @@ Added by the owner on 16 Nov 2026. Long AI-only runs (balance lines in
 the CI logs), the owner's own play-throughs on the Mac, then fixes to
 balance, speed and bugs. Then the alpha build "Kayser".
 
+Also in 20.5 (owner, 22 Nov 2026): the **1453 border and vassal fixes on
+the current map** from Part I of `docs/MAP_EXPANSION_RESEARCH.md` (Metz,
+Besançon, Basel as imperial cities; Further Austria under Albert VI;
+Swiss associates; Yemen split between Rasulids and Tahirids; Irish
+lordships; Malatesta, Pomerania and others). Data edits only; read that
+document's "Review notes" first.
+
+### Phase 20.7: The Old World map (after Kayser, before 21)
+Decided by the owner on 22 Nov 2026. Grow the map to all of Afro-Eurasia
+(East Asia, Southeast Asia, Siberia, Africa south of the Sahara,
+Madagascar) and add detail inside today's map, as planned in
+`docs/MAP_EXPANSION_RESEARCH.md` (Parts II–IV and its review notes).
+Open questions to settle at the start: map detail (48 or 40 pixels per
+degree; measure memory on an 8 GB M1 and texture limits on Windows), and
+what to do with Australia and New Guinea, which fall inside the map box.
+Several pull requests per region, each green in CI on its own.
+
+### Phase 20.8: Ruling systems and formables (after 20.7, before 21)
+Decided by the owner on 22 Nov 2026, so mission trees can be built on
+top of them. From Parts V–VIII of `docs/MAP_EXPANSION_RESEARCH.md`:
+- **Own systems** where history had its own machinery: HRE (7 electors,
+  Imperial Authority, Reichstag reforms, free imperial cities, religious
+  leagues), Ashikaga Shogunate (shugo vassals, Ōnin War trigger), Ming
+  Mandate of Heaven and the tributary order, Polish–Lithuanian Sejm and
+  royal elections, steppe kurultai and Chinggisid legitimacy, Southeast
+  Asian mandala tribute rings.
+- **Data-driven flavour** (estates, privileges, reforms, events)
+  everywhere else: Ottoman, Mamluk, Persianate, Indian, Italian, Russian,
+  Iberian, Ethiopian, West African and others.
+- **Formable nations:** historical, plausible alt-history and sandbox
+  unions, done by transforming a country in place (name, colour, shield,
+  reforms; the country list stays fixed so saves stay safe).
+Decide at the start which systems come first and split into pull
+requests.
+
 ### Phase 21: Mission trees
-Moved here from Phase 14 by the owner (16 Nov 2026): after 3D (Phase 17)
+After the Old World map (20.7) and ruling systems and formables (20.8);
+missions can lead into formables and the new systems. Moved here from Phase 14 by the owner (16 Nov 2026): after 3D (Phase 17)
 and the art pass (Phase 20). Branching mission trees for major 1453 powers
 (Ottomans, France, England, Castile, Portugal, Austria, Hungary, Venice,
 Mamluks, Aq Qoyunlu/Persia, Timurids, Delhi, Vijayanagara) and regional
