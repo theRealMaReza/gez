@@ -128,7 +128,7 @@ When the owner asks Claude to test Gemini's work:
    numbers changed. Look at the `ci-snapshots` images for UI changes
    (Godot ones in its `godot/` folder). Snapshots come from `main` pushes;
    for a pull request, run `gh workflow run ci.yml --ref <branch>` (REST:
-   `gh api -X POST repos/yv28f5k922-dot/Gez/actions/workflows/ci.yml/dispatches -f ref=<branch> -f 'inputs[only]=all'`):
+   `gh api -X POST repos/theRealMaReza/gez/actions/workflows/ci.yml/dispatches -f ref=<branch> -f 'inputs[only]=all'`):
    its Godot screenshots go to the `ci-snapshots-preview` branch, and it
    also runs the long simulations. `gh pr list/view/review` use GraphQL,
    which is blocked; use `gh api repos/.../pulls/<n>` (REST) instead.
@@ -192,15 +192,15 @@ SmartScreen (More info > Run anyway) until the Microsoft Store.
 - Watching CI from the workspace: `tools/ci/status.sh <branch> --wait`
   (one call; prints pass/fail per job and only the error lines). By hand:
   ```sh
-  gh api "repos/yv28f5k922-dot/Gez/actions/runs?head_sha=$(git rev-parse HEAD)" \
+  gh api "repos/theRealMaReza/gez/actions/runs?head_sha=$(git rev-parse HEAD)" \
     --jq '.workflow_runs[] | "\(.id) \(.name) \(.status) \(.conclusion)"'
-  gh api repos/yv28f5k922-dot/Gez/actions/runs/<run id>/jobs --jq '.jobs[] | "\(.id) \(.name) \(.conclusion)"'
-  gh api repos/yv28f5k922-dot/Gez/actions/jobs/<job id>/logs | tail -100
+  gh api repos/theRealMaReza/gez/actions/runs/<run id>/jobs --jq '.jobs[] | "\(.id) \(.name) \(.conclusion)"'
+  gh api repos/theRealMaReza/gez/actions/jobs/<job id>/logs | tail -100
   ```
 - Push with `git -c push.negotiate=true push -q origin main` (plain push
   sometimes stalls). GitHub prints a "repository moved" note; harmless.
 - **To see the app:** `git clone --depth 1 -b ci-snapshots
-  https://github.com/yv28f5k922-dot/Gez /tmp/snap`, then open the PNGs
+  https://github.com/theRealMaReza/gez /tmp/snap`, then open the PNGs
   (`screen_main.png`, `metal_*.png`, `budget.png`, `trade.png`,
   `court.png`, `government.png`, `market_venice.png`, `panel_*.png`...).
   Artifact downloads are blocked by the proxy; use the branch. Buttons and
@@ -333,7 +333,7 @@ note`) and push; the "Heraldry" workflow downloads, converts to PNG and
 commits. To look for candidates: put rows in `data/heraldry/check.txt`
 (`TAG | Name | wiki articles | commons searches | File: titles`) and run the
 workflow by hand with mode `check` (`gh api -X POST
-repos/yv28f5k922-dot/Gez/actions/workflows/heraldry.yml/dispatches -f
+repos/theRealMaReza/gez/actions/workflows/heraldry.yml/dispatches -f
 ref=main -f 'inputs[mode]=check'`). Contact sheets go to the
 `heraldry-candidates` branch. CC BY-SA credits must be shown in-game
 (credits screen still to do).

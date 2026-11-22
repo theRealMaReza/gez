@@ -8,7 +8,7 @@
 # prints only the lines that look like errors (max N, default 30).
 # --wait: check every 60 s until no job is queued or running (max 90 min).
 set -euo pipefail
-REPO=yv28f5k922-dot/Gez
+REPO=theRealMaReza/gez
 REF=HEAD; WAIT=0; N=30
 while [ $# -gt 0 ]; do
   case "$1" in
