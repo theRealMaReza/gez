@@ -127,7 +127,7 @@ truce (Galata surrendered on 1 June 1453, two days after the start).
 - KayKit's free kits are on GitHub (`KayKit-Game-Assets/...`) and can be
   cloned from the workspace; Kenney and Quaternius need a CI job.
 - `gh pr create` is blocked (GraphQL); open PRs with
-  `gh api repos/yv28f5k922-dot/Gez/pulls -f title=... -f head=... -f base=main -f body=...`.
+  `gh api repos/theRealMaReza/gez/pulls -f title=... -f head=... -f base=main -f body=...`.
 - MultiMesh instances with models scaled by the shader need a big
   `custom_aabb`, or they are culled at the screen edges.
 - Packed arrays (`PackedFloat32Array`...) are copied on write: appending
