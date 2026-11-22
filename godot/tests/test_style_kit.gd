@@ -109,3 +109,13 @@ func test_alert_medallions() -> void:
 			"techLevel", "institution", "event"]:
 		runner.check(GezStyle.medallion("alert_" + k) != null, "alert medallion %s" % k)
 	runner.check(ResourceLoader.exists("res://assets/ui/glow.png"), "alert glow")
+
+func test_paintings_fall_back_to_stand_ins() -> void:
+	# Phase 20 part 9: until the owner's paintings arrive, stand-ins show.
+	var ep: Script = load("res://scripts/EventPopup.gd")
+	var t: Texture2D = ep.call("event_picture", "hist_wars_of_the_roses")
+	runner.check(t != null, "an event shows a picture (painting or stand-in)")
+	runner.check(ResourceLoader.exists("res://assets/ui/menu_placeholder.jpg"), "main menu stand-in")
+	runner.check(ResourceLoader.exists("res://assets/ui/event_placeholder.jpg"), "event picture stand-in")
+	var shared: Dictionary = ep.get("SHARED_PICTURES") if ep.get("SHARED_PICTURES") != null else ep.get_script_constant_map().get("SHARED_PICTURES", {})
+	runner.check(shared.get("hist_columbus_fallback", "") == "hist_columbus_castile", "shared event pictures")

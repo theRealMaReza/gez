@@ -8,6 +8,7 @@ var main_view: Control = null
 
 var backdrop: ColorRect
 var popup_panel: PanelContainer
+var picture_rect: TextureRect
 var category_label: Label
 var date_label: Label
 var title_label: Label
@@ -96,7 +97,17 @@ func _build_ui() -> void:
 	top_row.add_child(focus_btn)
 
 	title_label = _make_wrapped("", Color(0.98, 0.90, 0.64), 20)
+	GezStyle.as_title(title_label)
+	title_label.autowrap_mode = TextServer.AUTOWRAP_OFF
 	outer.add_child(title_label)
+
+	# Phase 20 part 9: the owner's painting for this event, or a parchment stand-in.
+	picture_rect = TextureRect.new()
+	picture_rect.custom_minimum_size = Vector2(520.0, 250.0)
+	picture_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	picture_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	picture_rect.clip_contents = true
+	outer.add_child(picture_rect)
 
 	outer.add_child(HSeparator.new())
 
@@ -123,6 +134,22 @@ func _build_ui() -> void:
 	pause_check.button_pressed = true
 	pause_check.toggled.connect(_on_pause_toggled)
 	footer.add_child(pause_check)
+
+# Events that share another event's painting (docs/ART_PROMPTS.md).
+const SHARED_PICTURES := {
+	"hist_columbus_fallback": "hist_columbus_castile",
+	"hist_luther_95_theses_alt": "hist_luther_95_theses",
+	"hist_otranto_1480_alt": "hist_otranto_1480_nap",
+	"hist_trebizond_legacy_alt": "hist_trebizond_1461",
+}
+
+## The painting for an event (assets/paintings/events/<event id>.png), or
+## the parchment stand-in until the owner has painted it.
+static func event_picture(event_id: String) -> Texture2D:
+	var t := GezStyle.painting("events", SHARED_PICTURES.get(event_id, event_id))
+	if t == null:
+		t = GezStyle.tex("res://assets/ui/event_placeholder.jpg")
+	return t
 
 func is_open() -> bool:
 	return visible
@@ -152,6 +179,7 @@ func _populate(details: Dictionary) -> void:
 	category_label.text = cat_name.to_upper() + " EVENT"
 	date_label.text = str(details.get("dateText", ""))
 	title_label.text = str(details.get("title", "Event"))
+	picture_rect.texture = event_picture(str(details.get("eventID", "")))
 	body_label.text = str(details.get("text", ""))
 	focus_btn.visible = current_province_index >= 0
 
@@ -179,7 +207,6 @@ func _populate(details: Dictionary) -> void:
 			btn.tooltip_text = tip_text
 		btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		btn.custom_minimum_size = Vector2(520.0, 34.0)
-		btn.modulate = Color(1.0, 0.94, 0.78)
 		btn.pressed.connect(_on_option_pressed.bind(opt_idx))
 		row.add_child(btn)
 

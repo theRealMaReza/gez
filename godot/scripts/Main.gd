@@ -27,6 +27,7 @@ const EventPopupScript := preload("res://scripts/EventPopup.gd")
 const TooltipManagerScript := preload("res://scripts/TooltipManager.gd")
 const AlertsRowScript := preload("res://scripts/AlertsRow.gd")
 const ChartLayerScript := preload("res://scripts/MapChartLayer.gd")
+const TitleScreensScript := preload("res://scripts/TitleScreens.gd")
 
 var bridge: RefCounted = null
 var warned_missing_methods: Dictionary = {}
@@ -230,12 +231,31 @@ var is_dragging: bool = false
 var pointer_down_pos: Vector2 = Vector2.ZERO
 var drag_start_offset: Vector2 = Vector2.ZERO
 
+## Phase 20 part 9: show the main menu once the world is ready (the CI
+## screenshot script turns this off).
+var show_main_menu_at_start: bool = true
+var title_screens: Control
+
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_build_scene_ui()
-	_init_bridge_and_map()
 	resized.connect(_on_viewport_resized)
-	call_deferred("_reset_to_start_camera")
+	# The loading screen is drawn first; the world is built a moment later.
+	title_screens.call("show_loading")
+	call_deferred("_start_world")
+
+func _start_world() -> void:
+	for _i in range(2):
+		await get_tree().process_frame
+	_init_bridge_and_map()
+	_reset_to_start_camera()
+	if show_main_menu_at_start:
+		title_screens.call("show_menu")
+	else:
+		title_screens.call("hide_screens")
+
+func open_main_menu() -> void:
+	title_screens.call("show_menu")
 
 # Safe bridge caller that always checks bridge.has_method() first so an
 # out-of-date GDExtension binary logs a clear warning instead of crashing.
@@ -516,6 +536,11 @@ func _build_scene_ui() -> void:
 	event_popup.set_script(EventPopupScript)
 	add_child(event_popup)
 	event_popup.call("setup", self)
+
+	# 12. Loading screen and main menu (Phase 20 part 9), over everything
+	title_screens = TitleScreensScript.new()
+	add_child(title_screens)
+	title_screens.call("setup", self)
 
 # Every window uses the shared Phase 20 window style (gold frame, leather
 # band, parchment page). `bg` is kept so older callers still work.
@@ -1387,6 +1412,14 @@ func _build_game_menu_panel() -> void:
 
 	vbox.add_child(HSeparator.new())
 
+	var title_btn := Button.new()
+	title_btn.text = "Main Menu"
+	title_btn.custom_minimum_size = Vector2(0.0, 32.0)
+	bind_tip(title_btn, "Main Menu", "Back to the title screen with the painting of Constantinople.")
+	title_btn.pressed.connect(func() -> void:
+		_toggle_game_menu()
+		open_main_menu())
+	vbox.add_child(title_btn)
 	var quit_btn := Button.new()
 	quit_btn.text = "Quit Game"
 	quit_btn.custom_minimum_size = Vector2(0.0, 32.0)
@@ -3282,6 +3315,13 @@ func _on_viewport_resized() -> void:
 		_sync_camera_uniforms()
 
 func _unhandled_input(event: InputEvent) -> void:
+	if title_screens != null and title_screens.visible:
+		# main menu or loading screen: only Esc (back to the game) works
+		if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE \
+				and bool(title_screens.call("is_menu_open")):
+			title_screens.call("hide_screens")
+			get_viewport().set_input_as_handled()
+		return
 	if (battle_view != null and battle_view.visible) or (battle_choice_panel != null and battle_choice_panel.visible):
 		return
 	if event is InputEventKey and event.pressed and not event.echo:
