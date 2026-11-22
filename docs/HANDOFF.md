@@ -74,14 +74,19 @@ Everything below is built, tested on CI and visible in the app.
 | Technology (Phase 13) | `Packages/GezCore/Sources/GezCore/Technology/`, `Systems/{TechSystem,InstitutionSystem}.swift`, `data/technology/` (`technology1453.json` via `techgen.py`), `godot/scripts/{TechnologyPanel,MapTechLayer}.gd`, `GezGodotTechBridge.swift`: 3 EU4-style tech tracks (Administrative, Diplomatic, Military, levels 1–20 starting 2–4 in 1453), monthly research from ruler + council + Learning + Colleges + Paper/Books routed by Research Focus, −5%/level Neighbour Bonus, ahead-of-time penalty, EU4-style unit/ship/fort/building/trade-range/admin-eff unlocks keeping 1453 starters intact, and 4 historical institutions (Renaissance 1453, Printing Press Mainz 1462, Global Trade 1550, Manufactories 1600) with dedicated RNG stream `world.tech.rngState`; Godot Technology window, Institutions (K) map mode, province panel institutions, alerts |
 | Historical events (Phase 14) | `Packages/GezCore/Sources/GezCore/Events/`, `Systems/EventSystem.swift`, `Scenario/EventLoader.swift`, `data/events/*.txt` (`events1453.json` via `eventgen.py`), `godot/scripts/EventPopup.gd`, `GezGodotEventBridge.swift`: 66 condition-triggered historical events with 2–4 choices and counterfactual fallbacks + 4 interactive chronicle pop-up events (rebel risings, vassal murder plots, ruler deaths), fixed reusable condition/effect vocabulary for future missions, dedicated saved RNG stream `world.events.rngState`, AI weighted choices, `pauseOnEvents` setting, Godot modal event popup, and collapsible Recent Events list in the alerts area |
 | AI behaviour setting (Phase 15) | `Packages/GezCore/Sources/GezCore/AI/AIGoals.swift`, `Scenario/AIGoalsLoader.swift`, `Systems/AIGoalSystem.swift`, `data/ai/goals_1453.txt` (`ai_goals1453.json` via `aigen.py`), `DiplomacyAISystem.swift`, `BuildingSystem.swift`, `ArmySystem.swift`, `EventSystem.swift`, `SaveGame.swift`, `GameSession.swift`, `godot/scripts/{Main,DiplomacyPanel}.gd`: New-game "AI behaviour" selector (`Historical` default vs `Free`); 157 historical goals across 28 key 1453 tags (incl. post-1453 Ottoman targets and Hungary defending Belgrade in 1456 linked to `hist_belgrade_1456_hun`), skipping impossible/expired/too-weak goals and falling back to Free AI when lists run out; Free AI driven by threats, weak neighbours, trade wealth, and ruler traits; full save/load with legacy save fallback to Historical; and Country View AI Goal line |
+| Interface and art (Phase 20) | `godot/scripts/{GezTheme,GezStyle,Portrait,AlertsRow,Motion,MapChartLayer,TitleScreens}.gd`, `godot/assets/ui/` (made by `tools/uiart/`), `godot/assets/fonts/`: one shared Theme (gold frames, leather, parchment, banners, gold buttons, Cinzel / EB Garamond) set as the project default; top bar of medallions, screens in a medallion column on the left, glowing alert medallions; goods, building, trait, shield and portrait art; compact tooltip cards; unrolling windows; curved country names, painted-chart look zoomed out, forests; main menu and loading screen. The owner's paintings go in `godot/assets/paintings/` (`docs/ART_PROMPTS.md`) |
 | App windows (old Apple app) | Top bar: treasury (Budget), Trade, Court, Stability (Government), Armies (manpower, field armies, commanders, levies, recruitment). Province panel tabs: Overview (holder, supply, levy, buildings), Economy, People. Market panel. Map modes Q–I; 2D army counters and marching arrows |
 | Tests | GezCore simulation tests (incl. `StartingWarsTests`, `FingerprintTests`, `BattleEngineTests`, `FaithTests`, `CultureTests`, `PlagueTests`, `FamineTests`, `UnrestTests`, `TechnologyTests`, `AIGoalTests`, six long runs), GezGodot bridge tests (incl. Phase 9, Phase 11, Phase 12, Phase 13, Phase 14 & Phase 15 bridge tests), App snapshot tests; note `FingerprintTests` updates whenever economy/manpower/pop rules change |
 
 Also built (Phases 7–8): diplomacy, war and peace, auto-resolved battles,
 sieges, save/load and autosave, nation picker, alerts. Not started (later
-phases): chronicle (Phase 18), multiplayer (Phase 19), EU art pass (Phase 20), mission trees (Phase 21).
+phases): chronicle (Phase 18, Gemini, in progress), multiplayer (Phase 19), mission trees (Phase 21).
 
 ## What to do next
+
+0. **Paintings**: the owner makes them in the Gemini app from
+   `docs/ART_PROMPTS.md` and drops them in `godot/assets/paintings/`
+   (or attaches them in a chat; Claude commits them). Nothing else to do.
 
 1. **Owner play-test of Phases 15–17** on the Mac (steps above; Phase 15:
    Nation Picker `AI behaviour`, Diplomacy `AI Goal:` line; Phase 16:
@@ -97,6 +102,22 @@ phases): chronicle (Phase 18), multiplayer (Phase 19), EU art pass (Phase 20), m
    (`claude/fingerprint-base`, `claude/fingerprint-speedonly`) can be
    deleted on GitHub (the workspace cannot delete branches); retire `App/`
    when the owner says so.
+
+### New screens and the Phase 20 look (for Gemini and Claude)
+- Build screens from **plain Godot controls**: `PanelContainer` is a
+  window (frame, leather, parchment page), `theme_type_variation = "Card"`
+  an inner section, `"Title"` a red banner label, `"Heading"` a red Cinzel
+  heading, `"Tab"` a leather tab button. Don't override colours or
+  styleboxes; text is ink by default.
+- Add a window with `main.add_window(node)` (it then sits right of the
+  side column) and its button with `main.add_side_button(key, title,
+  summary, callable)`; keys with medallions ready: `chronicle`, `ledger`,
+  `timelapse` (others in `MEDALLIONS`, `tools/uiart/ui_art_concept.py`).
+- Helpers in `GezStyle.gd`: `medallion_button`, `close_button`, `title`,
+  `good_icon`, `building_icon`, `trait_seal`, `painting`, `fs` (font size).
+  Portraits: `Portrait.make(character_dict, size)`.
+- After changing `GezTheme.gd`, re-save the theme (HANDOFF pipeline table);
+  `godot/tests/test_style_kit.gd` fails if it is stale.
 
 ### How Claude reviews Gemini's pull requests (owner's choice, 15 Nov 2026)
 The owner found full reviews too slow (each CI round with the three game
@@ -313,6 +334,11 @@ App/Shared/
   Map/               MapCanvasView (camera, gestures, labels, icons, routes, armies),
                      Metal/ (MapShaders.metal, renderer), MapRenderer (CPU fallback)
 App/Tests/SnapshotTests.swift   renders PNGs on CI
+godot/scripts/     the Godot game: Main.gd (map, top bar, side column, windows),
+                   one script per window, GezTheme/GezStyle (Phase 20 look),
+                   Portrait, AlertsRow, Motion, TitleScreens, Map*Layer
+godot/assets/ui/   Phase 20 art (made by tools/uiart/), gez_theme.tres
+godot/assets/paintings/  the owner's paintings (menu, events, portraits)
 data/              hand-written source data (see table above)
 tools/             generators and helpers (see table above)
 docs/              HANDOFF (this), ROADMAP, DESIGN, HISTORY_NOTES, CREDITS, previews

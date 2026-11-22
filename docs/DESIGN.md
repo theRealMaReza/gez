@@ -650,8 +650,7 @@ The owner found the first flat-colour look ugly, so looks are a priority.
   country borders, animated water and a light paper grain.
 - **Map (later):** the same shading on a 3D terrain mesh with a camera
   that tilts as you zoom in, then 3D cities, forts and armies.
-- **Interface (skipped for now by the owner):** period fonts, parchment panels with frames, icons,
-  coats of arms, curved country names.
+- **Interface (Phase 20):** see "Interface and art (Phase 20)" below.
 - **Battles:** fight or auto-resolve. 2D sprites or 3D models (free CC0
   medieval models exist); to be decided with the owner.
 - Art can come from code, free asset packs, an artist, or an AI image
@@ -703,4 +702,46 @@ See `docs/ROADMAP.md` for the agreed feature decisions and build order.
   Europe), artillery are guns with crews. Walls stand 34 field units
   tall; breached walls become rubble. Rules, timings and results are the
   Phase 9 ones; the 3D view only reads the battle state.
+
+## Interface and art (Phase 20)
+
+The owner picked each look from mock-ups (session 13).
+
+- **One shared Theme** (`godot/scripts/GezTheme.gd`, saved as
+  `godot/assets/ui/gez_theme.tres`, the project's default theme): every
+  plain Godot control gets the look with no per-panel styling. Windows
+  are a gold rope frame with corner rosettes around a tooled-leather band
+  and a parchment page; inner sections are thin gold "Card"s; titles are
+  red cloth banners ("Title" variation); buttons are bevelled gold, tabs
+  dark leather ("Tab"). Cinzel for titles and the top bar, EB Garamond for
+  text. Text on parchment is dark ink; `GezStyle.ink()` darkens colours
+  that older code chose for dark panels (keeping their hue).
+- **Layout:** top bar of medallion + number (names and breakdowns on
+  hover); the screens are a column of medallions down the left edge
+  (`Main.add_side_button`); windows open right of it (`Main.add_window`).
+  Map modes and zoom are medallions; alerts are glowing medallions centred
+  under the top bar (red danger, amber attention, blue sea, green good news).
+- **Icons:** goods in colour on gold roundels; buildings rendered from our
+  3D models on gold-edged plaques, workshops with their good as a badge;
+  trait wax seals stamped with the trait's initial and coloured by kind.
+- **Portraits:** generated in the style of an illuminated manuscript (ink
+  lines on gold leaf, arched gold frame), parts picked by culture family,
+  religion, age, sex and rank, the variant by the person's id. A painting
+  named after the person's id replaces it (29 rulers and captains of 1453).
+- **Shields** by the capital's culture: heater (Latin Europe, and Catholic
+  realms in Greek lands), round (Islamic world), lobed (India), tall oval
+  (steppe), kite (Orthodox east), leaf (Africa), rounded square (East Asia).
+- **Tooltips:** compact parchment cards, red heading, gains green, costs
+  red, double rule above the total.
+- **Motion:** windows unroll from the top in 0.16 s; medallions swell on
+  hover and press in. Nothing runs while nothing moves.
+- **Map:** country names in letter-spaced capitals curve along the
+  country's shape (within ±40° of level). Zoomed out (below zoom 0.78), the
+  map turns into a painted chart: parchment washed with the map colours,
+  ink mountains, coast ripple lines, blank parchment for land outside the
+  map, sea creatures, ships and a compass rose. Zoomed in: 3D forests.
+- **Paintings** (the owner's, from `docs/ART_PROMPTS.md`, made in the free
+  Gemini app): main menu and loading screen (Constantinople, 1453), 66
+  event pictures, 29 portraits; stand-ins until they arrive. Dropping a
+  picture in `godot/assets/paintings/<menu|events|portraits>/` is all it takes.
 
