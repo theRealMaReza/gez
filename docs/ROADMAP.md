@@ -318,7 +318,7 @@ Owner's choices: Strictly zero music or musical instruments: procedural/recorded
 - [x] **Sound effects & ambience** (`tools/audio/make_sfx.py`, `godot/assets/audio/*.ogg` — 27 `.ogg` files, ~1.1 MB total from Kenney CC0 packs, OpenGameArt CC0, and filtered-noise procedural generation, `AudioManager.gd` autoload with `UI`, `Effects`, and `Ambience` buses, local settings in `user://audio_settings.cfg`, Game Menu sliders + Master Mute, voice limits/cooldowns, pause-gating, camera-zoom/terrain ambience mixing, and simulation + tactical battle sound cues; credited in `docs/CREDITS.md`).
 - [x] **Math-breakdown tooltips everywhere** (`Packages/GezCore/Sources/GezCore/Core/Breakdowns.swift` sharing exact component helpers across `ArmySystem`, `NavySystem`, `SiegeSystem`, `GovernmentSystem`, `Diplomacy`, `Finance`, and `Breakdowns`; `GezGodotPhase16Bridge.swift`; shared parchment `TooltipManager.gd` autoload covering top bar, nation picker, province view, sea & market panels, budget, trade, court, government, diplomacy, wars, armies, fleets, religion/culture, rebels, technology, event popups, battle view, and map army counters; `BreakdownTests`, `SaveLoadTests` legacy check, and `GezGodotTests` verification).
 
-### Phase 17: Going 3D ✅ (session 12, PRs #33–#35, written by Claude)
+### Phase 17: Going 3D ✅ (session 12, PRs #33–#34 on the old repo and #2 on the new one, written by Claude)
 Owner's choices: built in **Godot** (not Metal), only free tools and CC0
 models (KayKit, plus models built in code), fast on Mac and Windows.
 - [x] 1. **3D map** (#33): terrain mesh lifted by the elevation data
