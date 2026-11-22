@@ -2,7 +2,7 @@
 
 The short version of `docs/HANDOFF.md` and `docs/ROADMAP.md`, mirrored to
 the claude.ai Project as `claude/STATUS.md`. Everything else lives in the
-repo (`yv28f5k922-dot/Gez`): read only the parts a task needs.
+repo (`theRealMaReza/gez`): read only the parts a task needs.
 
 Last updated: 19 November 2026.
 

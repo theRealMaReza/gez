@@ -12,7 +12,7 @@ from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 
 API = "https://commons.wikimedia.org/w/api.php"
-UA = "GezGame/0.1 (https://github.com/yv28f5k922-dot/Gez; heraldry research)"
+UA = "GezGame/0.1 (https://github.com/theRealMaReza/gez; heraldry research)"
 PER_QUERY = 5
 MAX_PER_TAG = 16
 THUMB = 96

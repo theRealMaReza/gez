@@ -11,7 +11,7 @@ from pathlib import Path
 from PIL import Image
 
 API = "https://commons.wikimedia.org/w/api.php"
-UA = "GezGame/0.1 (https://github.com/yv28f5k922-dot/Gez; heraldry download)"
+UA = "GezGame/0.1 (https://github.com/theRealMaReza/gez; heraldry download)"
 OUT = Path("App/Resources/Heraldry")
 SIZE = 256
 
