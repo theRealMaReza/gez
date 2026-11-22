@@ -162,4 +162,76 @@ extension GezGodotController {
             "cultureSlices": encodeSlices(pies.cultures)
         ]
     }
+
+    // MARK: - Map Timelapse
+
+    public func timelapseInfo() -> [String: Any] {
+        guard let s = session else {
+            return ["hasWorld": false]
+        }
+        let years = s.world.history.timelapse.years
+        return [
+            "hasWorld": true,
+            "years": years,
+            "minYear": years.first ?? s.date.year,
+            "maxYear": years.last ?? s.date.year
+        ]
+    }
+
+    public func timelapseStyleBytes(yearIndex: Int, showReligion: Bool) -> [UInt8] {
+        let width = Self.styleTextureWidth
+        var bytes = [UInt8](repeating: 0, count: width * 2 * 4)
+        guard let s = session else { return bytes }
+        let w = s.world
+        let frame = w.history.timelapse.frame(atYearIndex: yearIndex)
+        let keys = MapStyling.keys(world: w)
+        let count = min(w.provinces.count + 2, width)
+
+        for v in 0..<count {
+            var r: UInt8 = 0
+            var g: UInt8 = 0
+            var b: UInt8 = 0
+            var a: UInt8 = 0
+            var ownerInt = -1
+            let state = (v < keys.state.count) ? keys.state[v] : -1
+
+            if v >= 2 {
+                let p = v - 2
+                if p < frame.owner.count {
+                    ownerInt = Int(frame.owner[p])
+                }
+                if showReligion {
+                    if p < frame.religion.count {
+                        let rel = HistorySystem.religion(fromIndex: frame.religion[p])
+                        let rgb = HistoryQueries.religionColor(rel)
+                        r = rgb.r
+                        g = rgb.g
+                        b = rgb.b
+                        a = 255
+                    }
+                } else if ownerInt >= 0 && ownerInt < w.countries.count {
+                    let rgb = w.countries.color[ownerInt]
+                    r = rgb.r
+                    g = rgb.g
+                    b = rgb.b
+                    a = 255
+                }
+            }
+
+            let row0 = v * 4
+            bytes[row0] = r
+            bytes[row0 + 1] = g
+            bytes[row0 + 2] = b
+            bytes[row0 + 3] = a
+
+            let ownerEnc = UInt16(bitPattern: Int16(clamping: ownerInt + 4))
+            let stateEnc = UInt16(bitPattern: Int16(clamping: state + 4))
+            let row1 = (width + v) * 4
+            bytes[row1] = UInt8(ownerEnc & 0xFF)
+            bytes[row1 + 1] = UInt8(ownerEnc >> 8)
+            bytes[row1 + 2] = UInt8(stateEnc & 0xFF)
+            bytes[row1 + 3] = UInt8(stateEnc >> 8)
+        }
+        return bytes
+    }
 }

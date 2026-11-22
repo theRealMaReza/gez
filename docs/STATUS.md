@@ -4,7 +4,7 @@ The short version of `docs/HANDOFF.md` and `docs/ROADMAP.md`, mirrored to
 the claude.ai Project as `claude/STATUS.md`. Everything else lives in the
 repo (`theRealMaReza/gez`): read only the parts a task needs.
 
-Last updated: 20 November 2026.
+Last updated: 22 November 2026.
 
 ## The owner
 - Doesn't write code. Plain language, short replies (often on a phone).
@@ -24,7 +24,9 @@ Last updated: 20 November 2026.
   AI behaviour setting: Historical vs Free; 16 sound effects + math
   tooltips; **Phase 17 Going 3D**: 3D terrain map that tilts as you zoom,
   3D towns/forts/ports/armies/fleets in five regional styles, 3D battle
-  view; PRs #33–#35 merged 20 Nov).
+  view; PRs #33–#35 merged 20 Nov; **Phase 18 Chronicle and stats**:
+  regnal Chronicle book with period-prose templates, Ledger & Graphs
+  comparison + religion/culture pie charts, and yearly Map Timelapse).
 - Gemini writes most code on `gemini/*` branches; Claude reviews
   (routine: HANDOFF "Working with Gemini" and "How Claude reviews").
 
@@ -36,8 +38,8 @@ Last updated: 20 November 2026.
    Report the frame rate on the M1 if it feels slow. Small known nits:
    coin sound plays almost every month; sea-battle sound can stop once
    the recent-battles list is full.
-2. **Phase 18: Chronicle** (Gemini).
-3. Then: 20 art, 20.5 balance and play-test (Claude), **alpha "Kayser"**,
+2. **Phase 20: Art & interface** (Claude).
+3. Then: 20.5 balance and play-test (Claude), **alpha "Kayser"**,
    then 21 mission trees and 19 multiplayer (Epic Online Services, join
    codes). Who writes what: ROADMAP "Plan for the remaining phases". Art
    script: `tools/uiart/ui_art_concept.py`; 3D models:

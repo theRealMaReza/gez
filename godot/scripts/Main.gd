@@ -22,6 +22,7 @@ const RebelsPanelScript := preload("res://scripts/RebelsPanel.gd")
 const TechnologyPanelScript := preload("res://scripts/TechnologyPanel.gd")
 const ChroniclePanelScript := preload("res://scripts/ChroniclePanel.gd")
 const LedgerPanelScript := preload("res://scripts/LedgerPanel.gd")
+const TimelapsePanelScript := preload("res://scripts/TimelapsePanel.gd")
 const DiplomacyPanelScript := preload("res://scripts/DiplomacyPanel.gd")
 const WarsPanelScript := preload("res://scripts/WarsPanel.gd")
 const BattleViewScript := preload("res://scripts/BattleView.gd")
@@ -88,6 +89,7 @@ var rebels_ui: Control
 var tech_ui: Control
 var chronicle_ui: Control
 var ledger_ui: Control
+var timelapse_ui: Control
 var diplomacy_ui: Control
 var wars_ui: Control
 
@@ -104,6 +106,7 @@ var rebels_btn: Button
 var tech_btn: Button
 var chronicle_btn: Button
 var ledger_btn: Button
+var timelapse_btn: Button
 var _last_rebels_btn_str: String = ""
 var _last_rel_btn_str: String = ""
 var _last_tech_btn_str: String = ""
@@ -467,6 +470,14 @@ func _build_scene_ui() -> void:
 	add_child(ledger_ui)
 	ledger_ui.call("setup", self)
 
+	timelapse_ui = Control.new()
+	timelapse_ui.name = "TimelapseUI"
+	timelapse_ui.set_script(TimelapsePanelScript)
+	timelapse_ui.set_anchors_preset(Control.PRESET_FULL_RECT)
+	timelapse_ui.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(timelapse_ui)
+	timelapse_ui.call("setup", self)
+
 	# 6e. Diplomacy & Wars/Peace windows
 	diplomacy_ui = PanelContainer.new()
 	diplomacy_ui.name = "DiplomacyUI"
@@ -667,6 +678,12 @@ func _build_top_bar() -> void:
 	ledger_btn.custom_minimum_size = Vector2(72.0, 30.0)
 	ledger_btn.pressed.connect(_toggle_ledger_window)
 	hbox.add_child(ledger_btn)
+
+	timelapse_btn = Button.new()
+	timelapse_btn.text = "Timelapse"
+	timelapse_btn.custom_minimum_size = Vector2(88.0, 30.0)
+	timelapse_btn.pressed.connect(_toggle_timelapse_window)
+	hbox.add_child(timelapse_btn)
 
 	hbox.add_child(_make_separator())
 
@@ -3446,6 +3463,8 @@ func _close_top_left_windows(except_key: String = "") -> void:
 		chronicle_ui.call("close_window")
 	if except_key != "ledger" and ledger_ui != null:
 		ledger_ui.call("close_window")
+	if except_key != "timelapse" and timelapse_ui != null:
+		timelapse_ui.call("close_window")
 	if except_key != "diplomacy" and diplomacy_ui != null:
 		diplomacy_ui.call("close_window")
 	if except_key != "wars" and wars_ui != null:
@@ -3542,6 +3561,14 @@ func _toggle_ledger_window() -> void:
 	if opening:
 		_close_top_left_windows("ledger")
 	ledger_ui.call("toggle_window")
+
+func _toggle_timelapse_window() -> void:
+	if timelapse_ui == null:
+		return
+	var opening: bool = not bool(timelapse_ui.call("is_open"))
+	if opening:
+		_close_top_left_windows("timelapse")
+	timelapse_ui.call("toggle_window")
 
 # Markers for the Plague, Unrest and Institutions map modes (called with the faith overlay).
 func _refresh_calamity_overlay() -> void:

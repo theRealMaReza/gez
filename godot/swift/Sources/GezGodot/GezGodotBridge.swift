@@ -12,6 +12,9 @@ public final class GezGodotController {
     public private(set) var session: GameSession?
     public var mapMode: MapModeKind = .political
     public private(set) var townIconsRevision: Int = 0
+    public var timelapseActive: Bool = false
+    public var timelapseYearIndex: Int = 0
+    public var timelapseShowReligion: Bool = false
 
     public init() {}
 
@@ -4513,6 +4516,9 @@ public final class GezGodotController {
     /// - Row 0 (`y = 0`): `(r, g, b, a)` map-mode colour (`a = 0` means no tint).
     /// - Row 1 (`y = 1`): `owner + 4` in `(r, g)` and `state + 4` in `(b, a)` as unsigned 16-bit little-endian integers.
     public func styleBytes() -> [UInt8] {
+        if timelapseActive {
+            return timelapseStyleBytes(yearIndex: timelapseYearIndex, showReligion: timelapseShowReligion)
+        }
         let width = Self.styleTextureWidth
         var bytes = [UInt8](repeating: 0, count: width * 2 * 4)
         guard let s = session else { return bytes }
@@ -5788,6 +5794,23 @@ public final class GezGodotBridge: RefCounted {
             }
         }
         return Self.toVariantDictionary(controller.ledgerComparison(countryIndices: indices, pieCountryIndex: pieCountryIndex))
+    }
+
+    @Callable
+    public func getTimelapseInfo() -> VariantDictionary {
+        Self.toVariantDictionary(controller.timelapseInfo())
+    }
+
+    @Callable
+    public func setTimelapseFrame(yearIndex: Int, showReligion: Bool) {
+        controller.timelapseActive = true
+        controller.timelapseYearIndex = yearIndex
+        controller.timelapseShowReligion = showReligion
+    }
+
+    @Callable
+    public func setTimelapseActive(active: Bool) {
+        controller.timelapseActive = active
     }
 
     // MARK: - Step 3d2: Diplomacy, Wars, Peace & Alerts Callables

@@ -6,7 +6,7 @@ judgment calls) and `CLAUDE.md` (rules). Lessons from past sessions and reviews 
 `docs/SESSION_LOG.md` (read only the part a task needs). This file says where the project
 stands, how to work on it, and what to do next.
 
-Last updated: Phase 17 (20 November 2026). Phases 0–17 are done; mission trees remain in Phase 21. Phase 17 (Going 3D) was written by Claude in three PRs: #33 3D map (`MapProjector.gd`, `Map3D.gd`, `shaders/map3d.gdshader`, `tools/terrain/bake_heightmap.py`), #34 3D towns, forts, ports, armies and fleets (`tools/models/build_models.py`, `godot/assets/models/models.bin`, `ModelLibrary.gd`, `MapModels.gd`, `shaders/map_model.gdshader`, `GezGodotPhase17Bridge.swift`), #35 3D battle view (`BattleView3D.gd`). Headless GDScript tests live in `godot/tests/` and run on CI after the Linux export. Next: Phase 18 (chronicle, Gemini).
+Last updated: Phase 18 (22 November 2026). Phases 0–18 are done; Phase 20 (art) is in progress and mission trees remain in Phase 21. Phase 18 (Chronicle and stats) was built by Gemini in four PRs (#14–#17): `HistoryState.swift`, `HistorySystem.swift`, `ChronicleRenderer.swift`, `HistoryQueries.swift`, `data/chronicle/templates.txt` (`chronicle_templates.json` via `tools/chronicle/chroniclegen.py`), `GezGodotPhase18Bridge.swift`, and `godot/scripts/{ChroniclePanel,LedgerPanel,TimelapsePanel}.gd`. Next: Phase 20 (EU art pass, Claude).
 
 How to test Phase 17 by hand on Mac:
 1. `git pull`, `./godot/build_mac.sh`, Cmd+Q Godot, reopen the project.
@@ -87,7 +87,7 @@ phases): chronicle (Phase 18), multiplayer (Phase 19), EU art pass (Phase 20), m
    Nation Picker `AI behaviour`, Diplomacy `AI Goal:` line; Phase 16:
    tooltips, sounds, Esc volume sliders). Check frame rate on the M1 when
    zoomed in over a busy area and in a big battle.
-2. **Phase 18: Chronicle and stats** (Gemini, ROADMAP).
+2. **Phase 20: Interface and art** (Claude).
 3. Follow-ups: the campaign still uses platform maths (`MarketModel.km`
    distances, `hypot` in the AI), which can differ between Mac, Windows and
    Linux; move it to `Core/DetMath.swift` before multiplayer (Phase 19),
