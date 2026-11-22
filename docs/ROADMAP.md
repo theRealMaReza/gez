@@ -68,7 +68,7 @@ Order: 14 events → 15 AI setting → 16 sound + tooltips → 17 3D →
 | 15 AI setting | Gemini | Historical AI uses a simple goal list per country until 21 |
 | 16 Sound + tooltips | Gemini | Sounds from free CC0 libraries (Kenney, Sonniss GDC, freesound CC0); tooltip text now, styled cards in 20 |
 | 17 3D ✅ | Claude | Built in Godot (not Metal); three parts: map, models, battles. Models from free CC0 kits (KayKit used; Quaternius and Kenney allowed) recoloured by region, plus simple models built in code; **no paid tools** |
-| 18 Chronicle | Gemini | History is recorded from Phase 18 on (no early recording); timelapse covers games started after it |
+| 18 Chronicle ✅ | Gemini | History is recorded from Phase 18 on (no early recording); timelapse covers games started after it |
 | 20 Art | Claude (pipeline) | Frames, medallions, seals by our art script; building icons rendered from the 3D models; paintings (events, missions, portraits) made by the owner in the Gemini app from Claude's prompts. **No paid tools or per-image API costs** |
 | 20.5 Balance and play-test | Claude | Long AI-only runs plus the owner's play-throughs; fix balance, speed and bugs before Kayser |
 | 21 Mission trees | Gemini | After the alpha |
@@ -336,7 +336,7 @@ models (KayKit, plus models built in code), fast on Mac and Windows.
    and a siege camp (`BattleView3D.gd`); the Phase 9 rules and controls
    are unchanged (the 2D overlay sits on the tilted field).
 
-### Phase 18: Chronicle and stats
+### Phase 18: Chronicle and stats ✅
 Owner's choices: Full regnal Chronicle book recording wars, major battles, peace treaties, laws, plagues, and dynastic events in period prose; a Ledger & Graphs screen comparing nations over time (population, GDP/income, army & navy size, technology, religion/culture pie charts); and an interactive Map Timelapse player recording yearly province-owner & religion snapshots from 1453 onward.
 History book of the game (wars, rulers, borders), graphs, and a
 world-history timelapse.

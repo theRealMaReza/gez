@@ -466,6 +466,21 @@ public enum NavyBattleSystem {
             defenderSailorsLost: battle.defender.sailorsLost,
             warScoreDelta: wsDelta
         ))
+
+        let attLost = battle.attacker.shipsSunk + battle.attacker.shipsCaptured
+        let defLost = battle.defender.shipsSunk + battle.defender.shipsCaptured
+        if battle.attacker.startingShips + battle.defender.startingShips >= 8 || (attLost + defLost) >= 2 {
+            let loseCountry = winnerCountry == battle.attacker.country ? battle.defender.country : battle.attacker.country
+            HistorySystem.recordEvent(
+                &world,
+                date: date,
+                kind: .navalBattle,
+                primary: winnerCountry,
+                secondary: loseCountry,
+                valueA: attLost + defLost,
+                valueB: battle.dayCount
+            )
+        }
     }
 
     private static func retreatFleetToPort(_ world: inout World, fleet: FleetID, from battleSea: SeaZoneID) {

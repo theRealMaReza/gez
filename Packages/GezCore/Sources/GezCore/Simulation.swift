@@ -40,10 +40,11 @@ public final class Simulation {
     /// Launches a storm assault on a breached fort using the simulation's RNG stream.
     @discardableResult
     public func assaultFort(in province: ProvinceID, attacker: CountryID) -> AssaultResult {
-        SiegeSystem.assaultFort(&world, province: province, attacker: attacker, random: &random)
+        SiegeSystem.assaultFort(&world, province: province, attacker: attacker, date: date, random: &random)
     }
 
     public func tick() {
+        HistorySystem.ensureInitialized(&world, date: date)
         date.advanceOneDay()
         ticksRun += 1
 
@@ -113,6 +114,7 @@ public final class Simulation {
         if date.isFirstOfYear {
             CharacterSystem.runYearly(&world, date: date, random: &random)
             VassalSystem.runYearly(&world, date: date, random: &random)
+            HistorySystem.recordYearlySnapshot(&world, date: date)
         }
     }
 }

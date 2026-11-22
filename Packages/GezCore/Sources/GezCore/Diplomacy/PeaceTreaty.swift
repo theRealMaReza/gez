@@ -446,6 +446,13 @@ extension World {
             war.defenders.removeAll { $0 == offer.loser }
             if war.attackers.isEmpty || war.defenders.isEmpty {
                 diplomacy.endWar(id: war.id)
+                HistorySystem.recordEvent(
+                    &self,
+                    date: date,
+                    kind: .warEnded,
+                    primary: offer.winner,
+                    secondary: offer.loser
+                )
             } else {
                 diplomacy.updateWar(war)
             }
@@ -460,6 +467,15 @@ extension World {
         let summary = "Peace signed ending hostilities between \(winName) and \(loseName) (\(totalCost)% terms; \(truceYears)-year truce)."
         people.record(date, offer.winner, summary)
         people.record(date, offer.loser, summary)
+        HistorySystem.recordEvent(
+            &self,
+            date: date,
+            kind: .peaceTreaty,
+            primary: offer.winner,
+            secondary: offer.loser,
+            valueA: totalCost,
+            valueB: truceYears
+        )
 
         return .success(truceYears)
     }

@@ -1,0 +1,98 @@
+# Chronicle Book prose templates (Phase 18).
+# Format:
+#   [kind_key]
+#   - Template prose with {primary}, {secondary}, {province}, {character},
+#     {secondary_character}, {value_a}, {value_b}, {detail}.
+#
+# Every ChronicleEventKind must have at least 3 variants so consecutive
+# entries do not repeat word for word.
+
+[war_declared]
+- {primary} took up the sword against {secondary}, proclaiming a {detail} cause.
+- Trumpets sounded across {primary} as war was declared upon {secondary} ({detail}).
+- The chancery of {primary} dispatched heralds to {secondary}, opening hostilities under a {detail} claim.
+- With banners raised, {primary} marched against {secondary}, citing {detail}.
+
+[war_ended]
+- The long struggle between {primary} and {secondary} at last drew to a close.
+- Hostilities ceased between {primary} and {secondary}, bringing an end to the war.
+- Swords were sheathed as the conflict pitting {primary} against {secondary} concluded.
+- After seasons of bloodshed, the war between {primary} and {secondary} came to its end.
+
+[major_battle]
+- At {province}, the host of {primary} shattered the forces of {secondary} in a {value_b}-day battle costing {value_a} lives.
+- Blood soaked the fields of {province} as {primary} prevailed over {secondary}; {value_a} men fell over {value_b} days.
+- {primary} won a hard-fought victory against {secondary} at {province}, leaving {value_a} dead and wounded.
+- In a fierce clash at {province}, {primary} drove {secondary} from the field after {value_b} days of combat ({value_a} casualties).
+
+[naval_battle]
+- Upon the high seas, the fleet of {primary} scattered the ships of {secondary}, with {value_a} vessels lost in {value_b} days.
+- Cannons thundered across the waves as {primary} bested {secondary} at sea, claiming {value_a} ships.
+- The admirals of {primary} broke the naval power of {secondary} in a {value_b}-day engagement ({value_a} ships sunk or taken).
+- Salt and smoke marked a triumph for {primary} over {secondary}'s fleet, costing {value_a} vessels.
+
+[siege_captured]
+- The garrison of {province} yielded to {primary}, wresting the fortress from {secondary}.
+- After a stubborn defence, the walls of {province} fell to the besiegers of {primary} at {secondary}'s expense.
+- {primary} raised its standard over {province} following the capitulation of {secondary}'s garrison.
+- Breached and starved, {province} surrendered to {primary}, dealing a blow to {secondary}.
+
+[peace_treaty]
+- Envoys of {primary} and {secondary} sealed a peace treaty ({value_a}% terms), swearing a {value_b}-year truce.
+- Parchment and wax bound {primary} and {secondary} to peace for {value_b} years under {value_a}% terms.
+- {primary} dictated peace to {secondary} on {value_a}% terms, establishing a {value_b}-year truce.
+- At the peace table, {primary} and {secondary} laid down their arms for {value_b} years ({value_a}% terms).
+
+[law_changed]
+- The realm of {primary} enacted a new statute: {detail}.
+- By royal decree, {primary} promulgated the law of {detail}.
+- Scribes of {primary} entered a new ordinance into the rolls: {detail}.
+- Across {primary}, magistrates began enforcing the newly ratified {detail}.
+
+[reform_adopted]
+- {primary} reshaped the governance of the state by adopting {detail}.
+- A sweeping reform—{detail}—was instituted throughout {primary}.
+- The council of {primary} ushered in a new order with {detail}.
+- Seeking stronger rule, {primary} embraced the reform of {detail}.
+
+[plague_outbreak]
+- Pestilence—{detail}—descended upon {province} in {primary}, filling the churchyards.
+- A grim outbreak of {detail} struck {province}, bringing mourning to {primary}.
+- Bells tolled without cease in {province} as {detail} swept through {primary}.
+- Merchants fled {province} when {detail} erupted within the borders of {primary}.
+
+[famine]
+- Harvests failed around {province}, and gaunt famine gripped the people of {primary}.
+- Empty granaries in {province} brought bitter hunger upon {primary}.
+- Dearth and starvation stalked {province}, testing the endurance of {primary}.
+- With fields barren in {province}, {primary} suffered a season of cruel famine.
+
+[rebellion]
+- Defying the crown, {value_a} {detail} rose in open revolt at {province} against {primary}.
+- Banners of rebellion were unfurled at {province} as {value_a} {detail} challenged {primary}.
+- Unrest boiled over at {province}, where {value_a} {detail} took up arms against {primary}.
+- {primary} faced insurrection at {province}, with {value_a} {detail} marching in defiance.
+
+[ruler_crowned]
+- {character} ascended the throne of {primary} amid solemn ceremony.
+- Crowns and oaths greeted {character} as the new sovereign of {primary}.
+- {primary} hailed the accession of {character} to rule the realm.
+- The nobles and clergy of {primary} swore fealty to {character} upon their coronation.
+
+[ruler_died]
+- {character} of {primary} passed from this world, leaving the realm in mourning.
+- Death claimed {character}, ending their reign over {primary}.
+- Funeral bells tolled across {primary} for the passing of {character}.
+- {primary} laid {character} to rest after years upon the throne.
+
+[marriage]
+- A noble marriage united {character} and {secondary_character} in {primary}.
+- Bells rang in {primary} to celebrate the wedding of {character} and {secondary_character}.
+- {primary} witnessed the solemn vows of {character} and {secondary_character} at the altar.
+- Dynastic ties were forged as {character} wed {secondary_character} for {primary}.
+
+[heir_born]
+- Joy filled the court of {primary} at the birth of an heir, {character}, to {secondary_character}.
+- {primary} rejoiced as {character} was born to {secondary_character}, securing the line of succession.
+- A cradle was blessed in {primary} for {character}, newborn child of {secondary_character}.
+- Heralds proclaimed the birth of {character} to {secondary_character} across the lands of {primary}.
