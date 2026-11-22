@@ -103,6 +103,7 @@ func close_window() -> void:
 	if timelapse_panel != null:
 		timelapse_panel.visible = false
 	_call_bridge("setTimelapseActive", [false])
+	_set_country_names_visible(true)
 	if main_view != null and main_view.has_method("_refresh_styles_and_country_labels"):
 		main_view.call("_refresh_styles_and_country_labels")
 
@@ -178,5 +179,15 @@ func _apply_frame() -> void:
 		return
 	year_label.text = str(_years[_current_index])
 	_call_bridge("setTimelapseFrame", [_current_index, _show_religion])
+	_set_country_names_visible(false)
 	if main_view != null and main_view.has_method("_refresh_styles_and_country_labels"):
 		main_view.call("_refresh_styles_and_country_labels")
+
+# The curved country names show today's borders, so hide them while an old
+# year is on the map and bring them back when the Timelapse closes.
+func _set_country_names_visible(on: bool) -> void:
+	if main_view == null:
+		return
+	var layer = main_view.get("labels_layer")
+	if layer is CanvasItem:
+		layer.visible = on

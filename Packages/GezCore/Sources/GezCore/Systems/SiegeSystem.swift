@@ -393,7 +393,9 @@ public enum SiegeSystem {
             world.provinces.occupiedBy[p] = nil
         } else {
             world.provinces.occupiedBy[p] = capturer
-            if let date {
+            // Chronicle only notable sieges: strong forts (level 2+) or a capital.
+            let isCapital = owner.map { world.countries.capital[$0.index] == pid } ?? false
+            if let date, world.provinces.fortLevel[p] >= 2 || isCapital {
                 HistorySystem.recordEvent(
                     &world,
                     date: date,

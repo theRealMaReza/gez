@@ -512,7 +512,7 @@ func _build_scene_ui() -> void:
 	chronicle_ui.set_script(ChroniclePanelScript)
 	chronicle_ui.set_anchors_preset(Control.PRESET_FULL_RECT)
 	chronicle_ui.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(chronicle_ui)
+	add_window(chronicle_ui)
 	chronicle_ui.call("setup", self)
 
 	ledger_ui = Control.new()
@@ -520,7 +520,7 @@ func _build_scene_ui() -> void:
 	ledger_ui.set_script(LedgerPanelScript)
 	ledger_ui.set_anchors_preset(Control.PRESET_FULL_RECT)
 	ledger_ui.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(ledger_ui)
+	add_window(ledger_ui)
 	ledger_ui.call("setup", self)
 
 	timelapse_ui = Control.new()
@@ -528,7 +528,7 @@ func _build_scene_ui() -> void:
 	timelapse_ui.set_script(TimelapsePanelScript)
 	timelapse_ui.set_anchors_preset(Control.PRESET_FULL_RECT)
 	timelapse_ui.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(timelapse_ui)
+	add_window(timelapse_ui)
 	timelapse_ui.call("setup", self)
 
 	# 6e. Diplomacy & Wars/Peace windows

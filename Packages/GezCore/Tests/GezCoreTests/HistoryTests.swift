@@ -137,10 +137,11 @@ struct HistoryTests {
         HistorySystem.ensureInitialized(&sim.world, date: sim.date)
 
         let pCount = sim.world.provinces.count
-        let cCount = min(150, sim.world.countries.count)
+        let cCount = sim.world.countries.count
         var rng = GameRandom(seed: 18)
 
-        // Simulate 400 yearly snapshots + 2,000 chronicle events + 1,000 regnal chapters
+        // Simulate 400 yearly snapshots + 80,000 chronicle events (200 a year: a
+        // realistic rate for 266 countries with successions, marriages, heirs, sieges)
         for yOffset in 1...400 {
             let year = 1453 + yOffset
             // Mutate ~30 province owners and ~10 religions per year
@@ -156,12 +157,14 @@ struct HistoryTests {
             }
             HistorySystem.recordYearlySnapshot(&sim.world, date: GameDate(year: year, month: 1, day: 1))
 
-            for _ in 0..<5 {
+            for _ in 0..<200 {
                 let c1 = CountryID(Int(rng.next() % UInt64(cCount)))
                 let c2 = CountryID(Int(rng.next() % UInt64(cCount)))
                 let p = ProvinceID(Int(rng.next() % UInt64(pCount)))
+                let ch = CharacterID(Int(rng.next() % 20_000))
+                let month = Int(rng.next() % 12) + 1
                 let kind = ChronicleEventKind.allCases[Int(rng.next() % UInt64(ChronicleEventKind.allCases.count))]
-                HistorySystem.recordEvent(&sim.world, date: GameDate(year: year, month: 6, day: 1), kind: kind, primary: c1, secondary: c2, province: p, valueA: 2500, valueB: 12)
+                HistorySystem.recordEvent(&sim.world, date: GameDate(year: year, month: month, day: 1), kind: kind, primary: c1, secondary: c2, province: p, character: ch, valueA: Int(rng.next() % 40_000), valueB: 12)
             }
         }
 
@@ -170,6 +173,24 @@ struct HistoryTests {
         let limitBytes = 5 * 1024 * 1024
         print("400-year save size: \(sizeBytes) bytes (\(String(format: "%.2f", Double(sizeBytes) / 1048576.0)) MB)")
         #expect(sizeBytes < limitBytes, "Save size \(sizeBytes) bytes exceeded 5 MB limit (\(limitBytes))")
+    }
+
+    @Test("Packed Chronicle events survive save and load exactly")
+    func packedEventsRoundTrip() throws {
+        var table = ChronicleEventTable()
+        table.append(date: GameDate(year: 1453, month: 5, day: 29), kind: .siegeCaptured,
+                     primaryCountry: CountryID(3), secondaryCountry: CountryID(7),
+                     province: ProvinceID(151), valueA: 3, templateSeed: 0xFFFF_FFFF)
+        table.append(date: GameDate(year: 1452, month: 12, day: 31), kind: .famine,
+                     primaryCountry: CountryID(0), valueA: -12_345, valueB: 2_000_000, templateSeed: 0)
+        table.append(date: GameDate(year: 1600, month: 1, day: 1), kind: .marriage,
+                     primaryCountry: CountryID(265), character: CharacterID(19_999),
+                     secondaryCharacter: CharacterID(0), templateSeed: 42)
+        let data = try JSONEncoder().encode(table)
+        let back = try JSONDecoder().decode(ChronicleEventTable.self, from: data)
+        #expect(back == table)
+        #expect(back.secondaryCountry[1] == -1)
+        #expect(back.year == [1453, 1452, 1600])
     }
 
     @Test("Chronicle templates load from JSON and render varied regnal chapters")

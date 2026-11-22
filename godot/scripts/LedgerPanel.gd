@@ -55,8 +55,8 @@ class LineChartCanvas extends Control:
 		if plot_w <= 10.0 or plot_h <= 10.0:
 			return
 
-		draw_rect(Rect2(pad_l, pad_t, plot_w, plot_h), Color(0.10, 0.10, 0.12, 0.45), true)
-		draw_rect(Rect2(pad_l, pad_t, plot_w, plot_h), Color(0.65, 0.62, 0.55, 0.55), false, 1.0)
+		draw_rect(Rect2(pad_l, pad_t, plot_w, plot_h), Color(0.36, 0.25, 0.12, 0.08), true)
+		draw_rect(Rect2(pad_l, pad_t, plot_w, plot_h), Color(0.36, 0.25, 0.12, 0.70), false, 1.0)
 
 		var min_y := 1e18
 		var max_y := -1e18
@@ -90,14 +90,14 @@ class LineChartCanvas extends Control:
 		for step in range(5):
 			var frac := float(step) / 4.0
 			var yy := pad_t + plot_h * (1.0 - frac)
-			draw_line(Vector2(pad_l, yy), Vector2(pad_l + plot_w, yy), Color(0.55, 0.52, 0.46, 0.28), 1.0)
+			draw_line(Vector2(pad_l, yy), Vector2(pad_l + plot_w, yy), Color(0.36, 0.25, 0.12, 0.22), 1.0)
 			var val := min_y + (max_y - min_y) * frac
-			draw_string(font, Vector2(4.0, yy + 4.0), _fmt_val(val), HORIZONTAL_ALIGNMENT_LEFT, pad_l - 8.0, fsize, Color(0.86, 0.84, 0.78))
+			draw_string(font, Vector2(4.0, yy + 4.0), _fmt_val(val), HORIZONTAL_ALIGNMENT_LEFT, pad_l - 8.0, fsize, Color(0.24, 0.16, 0.08))
 
 		# Year labels
-		draw_string(font, Vector2(pad_l, h - 5.0), str(min_yr), HORIZONTAL_ALIGNMENT_LEFT, 60.0, fsize, Color(0.86, 0.84, 0.78))
+		draw_string(font, Vector2(pad_l, h - 5.0), str(min_yr), HORIZONTAL_ALIGNMENT_LEFT, 60.0, fsize, Color(0.24, 0.16, 0.08))
 		if max_yr > min_yr:
-			draw_string(font, Vector2(pad_l + plot_w - 48.0, h - 5.0), str(max_yr), HORIZONTAL_ALIGNMENT_RIGHT, 48.0, fsize, Color(0.86, 0.84, 0.78))
+			draw_string(font, Vector2(pad_l + plot_w - 48.0, h - 5.0), str(max_yr), HORIZONTAL_ALIGNMENT_RIGHT, 48.0, fsize, Color(0.24, 0.16, 0.08))
 
 		var yr_span := float(maxi(1, max_yr - min_yr))
 		var val_span := max_y - min_y
@@ -153,7 +153,7 @@ class PieChartCanvas extends Control:
 				pts.append(center + Vector2(cos(a), sin(a)) * radius)
 			draw_colored_polygon(pts, col)
 			angle += sweep
-		draw_arc(center, radius, 0.0, TAU, 48, Color(0.85, 0.82, 0.75, 0.7), 1.2, true)
+		draw_arc(center, radius, 0.0, TAU, 48, Color(0.36, 0.25, 0.12, 0.8), 1.2, true)
 
 func setup(host: Control) -> void:
 	main_view = host

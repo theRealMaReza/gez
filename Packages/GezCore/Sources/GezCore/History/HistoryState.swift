@@ -68,6 +68,55 @@ public struct ChronicleEventTable: Sendable, Equatable, Codable {
         self.templateSeed.append(templateSeed)
     }
 
+    // Saved as one compact varint blob (not 12 JSON arrays), so a realistic
+    // 400-year game with ~200 events a year stays small in the save file.
+    private enum CodingKeys: String, CodingKey { case packedData }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        var r = HistoryVarintReader(try container.decode(Data.self, forKey: .packedData))
+        let n = Int(r.unsigned())
+        var lastYear = 0
+        for _ in 0..<n {
+            lastYear += r.signed()
+            year.append(Int16(clamping: lastYear))
+            month.append(UInt8(truncatingIfNeeded: r.unsigned()))
+            day.append(UInt8(truncatingIfNeeded: r.unsigned()))
+            kind.append(UInt8(truncatingIfNeeded: r.unsigned()))
+            primaryCountry.append(Int16(clamping: r.signed()))
+            secondaryCountry.append(Int16(clamping: r.signed()))
+            province.append(Int16(clamping: r.signed()))
+            character.append(Int32(clamping: r.signed()))
+            secondaryCharacter.append(Int32(clamping: r.signed()))
+            valueA.append(Int32(clamping: r.signed()))
+            valueB.append(Int32(clamping: r.signed()))
+            templateSeed.append(UInt32(truncatingIfNeeded: r.unsigned()))
+        }
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var w = HistoryVarintWriter()
+        w.unsigned(UInt64(count))
+        var lastYear = 0
+        for i in 0..<count {
+            w.signed(Int(year[i]) - lastYear)
+            lastYear = Int(year[i])
+            w.unsigned(UInt64(month[i]))
+            w.unsigned(UInt64(day[i]))
+            w.unsigned(UInt64(kind[i]))
+            w.signed(Int(primaryCountry[i]))
+            w.signed(Int(secondaryCountry[i]))
+            w.signed(Int(province[i]))
+            w.signed(Int(character[i]))
+            w.signed(Int(secondaryCharacter[i]))
+            w.signed(Int(valueA[i]))
+            w.signed(Int(valueB[i]))
+            w.unsigned(UInt64(templateSeed[i]))
+        }
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(w.data, forKey: .packedData)
+    }
+
     public func eventKind(at index: Int) -> ChronicleEventKind? {
         ChronicleEventKind(rawValue: kind[index])
     }
@@ -390,4 +439,51 @@ public struct HistoryState: Sendable, Equatable, Codable {
     public var timelapse = TimelapseHistory()
 
     public init() {}
+}
+
+/// Little helpers for the compact save format of the history tables.
+struct HistoryVarintWriter {
+    var data = Data()
+
+    mutating func unsigned(_ value: UInt64) {
+        var v = value
+        while v >= 0x80 {
+            data.append(UInt8(v & 0x7F) | 0x80)
+            v >>= 7
+        }
+        data.append(UInt8(v))
+    }
+
+    mutating func signed(_ value: Int) {
+        let s = Int64(value)
+        unsigned(UInt64(bitPattern: (s << 1) ^ (s >> 63)))
+    }
+}
+
+struct HistoryVarintReader {
+    let data: Data
+    var cursor: Int
+
+    init(_ data: Data) {
+        self.data = data
+        self.cursor = data.startIndex
+    }
+
+    mutating func unsigned() -> UInt64 {
+        var result: UInt64 = 0
+        var shift: UInt64 = 0
+        while cursor < data.endIndex {
+            let byte = data[cursor]
+            cursor += 1
+            result |= UInt64(byte & 0x7F) << shift
+            if (byte & 0x80) == 0 { break }
+            shift += 7
+        }
+        return result
+    }
+
+    mutating func signed() -> Int {
+        let v = unsigned()
+        return Int(Int64(bitPattern: (v >> 1) ^ (0 &- (v & 1))))
+    }
 }
