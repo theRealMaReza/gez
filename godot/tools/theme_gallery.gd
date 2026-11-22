@@ -105,12 +105,10 @@ func _initialize() -> void:
 		var a := Label.new(); a.text = g; a.size_flags_horizontal = Control.SIZE_EXPAND_FILL; r.add_child(a)
 		var b2 := Label.new(); b2.text = "1.0"; r.add_child(b2)
 
-	# A tooltip card
-	var tip := PanelContainer.new()
-	tip.add_theme_stylebox_override("panel", GezTheme.tooltip_style())
-	tip.position = Vector2(990, 90)
-	root.add_child(tip)
-	var tl2 := Label.new(); tl2.text = "Treasury & Monthly Net\n+14.0 ducats a month"; tip.add_child(tl2)
+	# A tooltip card, made by the real TooltipManager (Phase 20 part 6)
+	var tm: CanvasLayer = load("res://scripts/TooltipManager.gd").new()
+	root.add_child(tm)
+	tm.set_meta("gallery_sample", true)
 
 	# Map mode medallions
 	var mm := HBoxContainer.new(); mm.position = Vector2(990, 200); root.add_child(mm)
@@ -128,6 +126,17 @@ func _initialize() -> void:
 	call_deferred("_shoot")
 
 func _shoot() -> void:
+	var tm: Node = null
+	for c in root.get_children():
+		if c.has_meta("gallery_sample"):
+			tm = c
+	if tm != null:
+		tm.set_process(false)   # keep the sample card shown (no mouse here)
+		tm.call("_populate_panel", {"title": "Treasury & Monthly Net", "summary": "Ducats in, ducats out, each month.",
+			"entries": [{"label": "Tax from peasants", "valueText": "+18.7"}, {"label": "Tax from burghers", "valueText": "+1.6"},
+				{"label": "Merchants", "valueText": "−13.7"}, {"label": "Army upkeep", "valueText": "−6.4"}],
+			"totalText": "+14.0", "notes": ["Taxes are collected on the 1st of each month."]})
+		(tm.get("tooltip_panel") as Control).position = Vector2(990, 330)
 	for _i in range(6):
 		await process_frame
 	await RenderingServer.frame_post_draw
