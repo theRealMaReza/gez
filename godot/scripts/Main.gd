@@ -530,7 +530,7 @@ func _build_top_bar() -> void:
 	get_viewport().size_changed.connect(_fit_top_bar)
 
 	top_arms_rect = TextureRect.new()
-	top_arms_rect.custom_minimum_size = Vector2(34.0, 30.0)
+	top_arms_rect.custom_minimum_size = Vector2(34.0, 40.0)
 	top_arms_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	top_arms_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	bind_tip(top_arms_rect, "National Coat of Arms", "Your realm banner on 30 May 1453 and beyond.")
@@ -1441,6 +1441,14 @@ func _get_country_arms_texture(tag: String, r: int = 180, g: int = 140, b: int =
 	if arms_cache.has(cache_key):
 		return arms_cache[cache_key]
 
+	# Phase 20 part 4: the arms in a gold-framed shield of the country's region
+	# (made by tools/uiart/ui_art_concept.py --kit from the Heraldry pictures).
+	if not tag.is_empty():
+		var shield := GezStyle.tex("res://assets/ui/shields/%s.png" % tag)
+		if shield != null:
+			arms_cache[cache_key] = shield
+			return shield
+
 	if not tag.is_empty():
 		var path := _find_asset_file("Heraldry/arms_%s.png" % tag, "res://../App/Resources/Heraldry/arms_%s.png" % tag)
 		if not path.is_empty():
@@ -1485,7 +1493,12 @@ func _get_country_arms_icon(tag: String, r: int = 180, g: int = 140, b: int = 80
 	var img := full_tex.get_image()
 	if img != null and not img.is_empty():
 		var scaled := img.duplicate()
-		scaled.resize(22, 16, Image.INTERPOLATE_BILINEAR)
+		if scaled.is_compressed():
+			scaled.decompress()
+		# keep the picture's shape (shields are taller than wide)
+		var h := 18
+		var w := maxi(1, int(round(float(scaled.get_width()) * h / float(scaled.get_height()))))
+		scaled.resize(w, h, Image.INTERPOLATE_BILINEAR)
 		var icon_tex := ImageTexture.create_from_image(scaled)
 		arms_icon_cache[cache_key] = icon_tex
 		return icon_tex

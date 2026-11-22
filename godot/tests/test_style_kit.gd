@@ -90,3 +90,14 @@ func test_portraits_use_existing_parts_and_are_stable() -> void:
 	runner.check(str(a) == str(b), "same person, same portrait")
 	runner.check(ResourceLoader.exists("res://assets/ui/portrait/frame.png") and ResourceLoader.exists("res://assets/ui/portrait/mask.png"), "portrait frame and mask")
 	runner.check(GezStyle.painting("portraits", "no_such_person") == null, "no painting gives the generated portrait")
+
+func test_shields_by_culture() -> void:
+	# Phase 20 part 4: every 1453 country has its shield; shapes follow the region.
+	var shapes: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://assets/ui/shields/shapes.json"))
+	runner.check(shapes.size() > 200, "shields for all countries (%d)" % shapes.size())
+	for pair in [["FRA", "heater"], ["ENG", "heater"], ["TUR", "round"], ["MAM", "round"], ["DEL", "cusped"],
+			["VIJ", "cusped"], ["MOS", "kite"], ["SER", "kite"], ["ETH", "leaf"], ["KNI", "heater"]]:
+		runner.check(shapes.get(pair[0], "") == pair[1], "%s has a %s shield (got %s)" % [pair[0], pair[1], shapes.get(pair[0], "")])
+	for tag in shapes.keys():
+		if not ResourceLoader.exists("res://assets/ui/shields/%s.png" % tag):
+			runner.check(false, "shield picture for %s" % tag)

@@ -1093,6 +1093,126 @@ def build_portraits(out_dir):
     return made
 
 
+# ---------------------------------------------------------------- Phase 20 part 4: shields by culture
+SW, SH = 100, 120     # shield grid; saved at 96 x 116 (2x of the usual 48 x 58)
+
+
+def _cusped(cx, cy, r, lobes=12, depth=0.07):
+    pts = []
+    for k in range(lobes * 12):
+        a = k / (lobes * 12) * 2 * math.pi - math.pi / 2
+        rr = r * (1 - depth * (1 - abs(math.cos(a * lobes / 2))))
+        pts.append(f'{cx + rr * math.cos(a):.2f} {cy + rr * math.sin(a):.2f}')
+    return 'M' + 'L'.join(pts) + 'Z'
+
+
+SHIELD_SHAPES = {
+    'heater': 'M8 5H92V50C92 81 72 103 50 115C28 103 8 81 8 50Z',            # Latin Europe
+    'round': 'M50 14a46 46 0 1 0 0.01 0Z',                                     # Islamic world
+    'cusped': _cusped(50, 60, 46),                                              # India
+    'steppe': 'M50 4C76 4 90 30 90 60C90 90 76 116 50 116C24 116 10 90 10 60C10 30 24 4 50 4Z',  # steppe: tall oval
+    'kite': 'M50 3C78 3 92 21 92 41C92 70 66 96 50 117C34 96 8 70 8 41C8 21 22 3 50 3Z',          # Orthodox east
+    'leaf': 'M50 2C80 30 80 90 50 118C20 90 20 30 50 2Z',                       # Africa
+    'east': 'M16 6H84Q94 6 94 16V104Q94 114 84 114H16Q6 114 6 104V16Q6 6 16 6Z',  # East Asia
+}
+
+SHAPE_BY_FAMILY = {
+    'iberian': 'heater', 'french': 'heater', 'dutch': 'heater', 'british': 'heater', 'gaelic': 'heater',
+    'german': 'heater', 'nordic': 'heater', 'finnic': 'heater', 'baltic': 'heater', 'italian': 'heater',
+    'west_slavic': 'heater', 'magyar': 'heater', 'albanian': 'heater',
+    'east_slavic': 'kite', 'south_slavic': 'kite', 'eastern_romance': 'kite', 'hellenic': 'kite',
+    'kartvelian': 'kite', 'armenian': 'kite', 'caucasian': 'kite',
+    'turkic': 'round', 'iranian': 'round', 'arab': 'round', 'berber': 'round', 'jewish': 'round',
+    'indo_aryan': 'cusped', 'dravidian': 'cusped', 'sinhalese': 'cusped', 'himalayan': 'cusped',
+    'mongolic': 'steppe', 'volga_ural': 'steppe',
+    'ethiopian': 'leaf', 'cushitic': 'leaf', 'nilo_saharan': 'leaf', 'bantu': 'leaf',
+    'tibeto_burman': 'east', 'austroasiatic': 'east',
+}
+MUSLIM = {'sunni', 'twelver', 'zaydi', 'ismaili', 'ibadi', 'druze', 'alawite', 'yazidi'}
+
+
+def shield_shape_for(family, religion):
+    shape = SHAPE_BY_FAMILY.get(family, 'heater')
+    if religion in MUSLIM and shape in ('heater', 'kite', 'leaf'):
+        return 'round'
+    if religion in ('tengri',) and family in ('turkic', 'volga_ural', 'mongolic'):
+        return 'steppe'
+    if shape == 'kite' and religion in ('catholic', 'hussite', 'protestant', 'reformed'):
+        return 'heater'   # e.g. the Knights of Rhodes, Latin lords in Greece
+    return shape
+
+
+def _shape_mask(path, scale=4, inset=0.0):
+    W, H = SW * scale, SH * scale
+    svg = (f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {SW} {SH}">'
+           f'<path d="{path}" fill="#fff"/></svg>')
+    m = np.asarray(Image.open(io.BytesIO(cairosvg.svg2png(bytestring=svg.encode()))).convert('RGBA'), float)[..., 3] / 255
+    if inset:
+        m = ndimage.minimum_filter(m, int(inset * scale) * 2 + 1)
+    return m
+
+
+def shield_image(shape, arms_png=None, colour=(150, 120, 80), scale=4):
+    """The country's arms in a gold-framed shield of its region's shape."""
+    W, H = SW * scale, SH * scale
+    outer = _shape_mask(SHIELD_SHAPES[shape], scale)
+    rim = 6 * scale
+    inner = np.clip(ndimage.minimum_filter(outer, rim * 2 + 1), 0, 1)
+    # the field: the country's colour, then the arms (cover-fitted)
+    field = Image.new('RGBA', (W, H), tuple(colour) + (255,))
+    if arms_png:
+        art = Image.open(arms_png).convert('RGBA')
+        bb = art.getbbox()
+        if bb:
+            art = art.crop(bb)
+        k = max(W / art.width, H / art.height) * 0.98
+        art = art.resize((max(1, int(art.width * k)), max(1, int(art.height * k))), Image.LANCZOS)
+        field.alpha_composite(art, ((W - art.width) // 2, (H - art.height) // 2))
+    frgb = np.asarray(field, float)[..., :3]
+    # a little shading so the field reads as a curved shield
+    y, x = np.mgrid[0:H, 0:W].astype(float)
+    dome = 1.06 - 0.18 * (((x - W * 0.42) / W) ** 2 + ((y - H * 0.38) / H) ** 2) * 2.2
+    frgb = frgb * dome[..., None]
+    # gold rim with rope moulding
+    dist = ndimage.distance_transform_edt(outer > 0.5)
+    ring = (outer > 0.5) & (inner < 0.5)
+    hm = np.where(ring, frame_profile(np.clip(dist, 0, rim), rim), 0)
+    ang = np.arctan2(y - H / 2, x - W / 2)
+    hm += 0.12 * np.sin(ang * 40) * ring * ((dist > rim * 0.3) & (dist < rim * 0.8))
+    gold = shade_metal(ndimage.gaussian_filter(hm, 1) * rim * 0.12, GOLD, strength=1.0)
+    rgb = np.where(ring[..., None], gold, frgb)
+    a = np.clip(outer, 0, 1)
+    im = Image.fromarray(np.dstack([np.clip(rgb, 0, 255), a * 255]).astype('uint8'), 'RGBA')
+    im = im.resize((96, 116), Image.LANCZOS)
+    # 256 colours keep the files small (about a third) with no visible change
+    return im.quantize(256, method=Image.Quantize.FASTOCTREE, dither=Image.Dither.NONE)
+
+
+def build_shields(out_dir, heraldry_dir='App/Resources/Heraldry',
+                  scenario='Packages/GezCore/Sources/GezCore/Resources/scenario1453.json'):
+    import json, os
+    os.makedirs(out_dir, exist_ok=True)
+    d = json.load(open(scenario, encoding='utf-8'))
+    fams = [c['family'] for c in d['cultures']]
+    shapes = {}
+    for c in d['countries']:
+        tag = c['tag']
+        cap = d['provinces'][c['capital']] if c.get('capital') is not None else None
+        fam = ''
+        if cap and cap.get('pops'):
+            best = max(cap['pops'], key=lambda p: p[3])
+            fam = fams[best[0]]
+        shape = shield_shape_for(fam, c.get('religion', ''))
+        arms = os.path.join(heraldry_dir, f'arms_{tag}.png')
+        shield_image(shape, arms if os.path.exists(arms) else None, c['color']).save(os.path.join(out_dir, f'{tag}.png'), optimize=True)
+        shapes[tag] = shape
+    # plain shields for countries that appear later in the game (by shape)
+    for shape in SHIELD_SHAPES:
+        shield_image(shape, None, (150, 120, 80)).save(os.path.join(out_dir, f'_{shape}.png'), optimize=True)
+    with open(os.path.join(out_dir, 'shapes.json'), 'w') as f:
+        json.dump(shapes, f, indent=0, sort_keys=True)
+    return shapes
+
 if __name__ == '__main__':
     import sys, os
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -1100,6 +1220,7 @@ if __name__ == '__main__':
         m = build_kit(sys.argv[2])
         build_goods(os.path.join(sys.argv[2], 'goods'))
         build_portraits(os.path.join(sys.argv[2], 'portrait'))
+        build_shields(os.path.join(sys.argv[2], 'shields'))
         print('kit margins:', m)
     elif len(sys.argv) > 3 and sys.argv[1] == '--buildings':
         # ui_art_concept.py --buildings <renders folder> godot/assets/ui
