@@ -310,6 +310,18 @@ final class OwnerDecisionTests: XCTestCase {
         XCTAssertEqual(owner(world, "Bahrain"), "JAB")
         XCTAssertEqual(owner(world, "Dongola"), "DOT")
         XCTAssertEqual(owner(world, "Kalat"), "BLC")
+        // 1453 border fixes (Phase 20.5)
+        XCTAssertEqual(owner(world, "Zabid"), "RAS")
+        XCTAssertEqual(owner(world, "Lahij"), "TAH")
+        XCTAssertEqual(owner(world, "Metz"), "MTZ")
+        XCTAssertEqual(owner(world, "Freiburg"), "FUR")
+        XCTAssertEqual(owner(world, "Frauenfeld"), "TIR")
+        XCTAssertEqual(owner(world, "Sion"), "VAL")
+        XCTAssertEqual(owner(world, "Cesena"), "CES")
+        XCTAssertEqual(owner(world, "Stolp"), "PSL")
+        XCTAssertEqual(owner(world, "Schleswig"), "SLE")
+        XCTAssertEqual(owner(world, "Angers"), "PRO")
+        XCTAssertEqual(owner(world, "Enniskillen"), "FMN")
     }
 
     func testTribalLandFillsTheBlanks() {
