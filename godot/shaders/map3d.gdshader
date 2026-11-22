@@ -101,10 +101,11 @@ float mountain_ink(vec2 m, float px) {
 	vec2 f = fract(g) - 0.5;
 	vec2 centre = (vec2(cid.x - shift, cid.y) + 0.5) * cell;
 	float h = textureLod(height_tex, centre / map_size, 0.0).r;
-	if (h < 0.48) {
+	float j = hash2(cid);
+	// only the high ground, and not every cell: a scattering of peaks
+	if (h < 0.55 || j < 0.35) {
 		return 0.0;
 	}
-	float j = hash2(cid);
 	f -= vec2(j - 0.5, hash2(cid + 7.1) - 0.5) * 0.18;
 	float s = clamp((h - 0.40) * 1.1, 0.18, 0.44) * (0.85 + 0.3 * j);
 	// peak at (0, -s), base from (-s, 0.55 s) to (s, 0.55 s)
@@ -118,8 +119,8 @@ float mountain_ink(vec2 m, float px) {
 	float ink = 1.0 - smoothstep(line_w * 0.5, line_w * 1.4, edge);
 	if (abs(f.x) < hw && f.x > 0.0) {
 		// hatch the shaded side
-		float hatch = step(0.55, fract((f.x - f.y * 0.6) / (line_w * 3.2)));
-		ink = max(ink, hatch * 0.55);
+		float hatch = step(0.62, fract((f.x - f.y * 0.6) / (line_w * 4.5)));
+		ink = max(ink, hatch * 0.4);
 	}
 	return ink;
 }

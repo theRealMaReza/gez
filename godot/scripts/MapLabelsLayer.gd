@@ -129,7 +129,7 @@ func _place_labels_world(texts: PackedStringArray, metrics: PackedFloat32Array, 
 			if curve.y > 0.0:
 				# letter-spaced capitals along the country's own curve (old maps)
 				var span := curve.y * z * 0.86
-				font_size = int(clampf(span / maxf(float(label_text.length()), 1.0) / 1.05, 10.0, 44.0))
+				font_size = int(clampf(span / maxf(float(label_text.length()), 1.0) / 1.05, 10.0, 34.0))
 				if span < float(label_text.length()) * 7.0:
 					curve = Vector3.ZERO
 				else:

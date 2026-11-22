@@ -6,13 +6,13 @@ extends Control
 
 const DECOR := [
 	# picture, latitude, longitude, width in map pixels
-	["compass", 30.0, -22.0, 150.0],
-	["ship", 45.0, -14.0, 95.0],
-	["whale", 9.0, -18.0, 125.0],
-	["serpent", 66.0, 2.0, 110.0],
-	["serpent", 12.0, 63.0, 125.0],
-	["whale", -6.0, 73.0, 120.0],
-	["ship", 9.0, 86.0, 85.0],
+	["compass", 33.0, -17.0, 230.0],
+	["ship", 45.5, -12.0, 170.0],
+	["whale", 8.0, -16.0, 220.0],
+	["serpent", 67.0, 3.0, 190.0],
+	["serpent", 13.0, 63.0, 220.0],
+	["whale", -5.0, 73.0, 210.0],
+	["ship", 9.0, 87.0, 160.0],
 ]
 
 var chart: float = 0.0
