@@ -152,24 +152,32 @@ public struct MapLabelInfo: Identifiable, Sendable, Equatable {
     /// (weighted by size): the long axis by principal components, the length
     /// from the spread along it, the bend from a parabola across it.
     public static func curve(points: [(x: Double, y: Double, w: Double)]) -> (angle: Double, length: Double, bend: Double) {
-        let total = points.reduce(0) { $0 + $1.w }
+        var total = 0.0
+        for p in points { total += p.w }
         guard points.count >= 2, total > 0 else {
             return (0, sqrt(max(total, 1)), 0)
         }
-        let mx = points.reduce(0) { $0 + $1.x * $1.w } / total
-        let my = points.reduce(0) { $0 + $1.y * $1.w } / total
+        var sumX = 0.0, sumY = 0.0
+        for p in points {
+            sumX += p.x * p.w
+            sumY += p.y * p.w
+        }
+        let mx: Double = sumX / total
+        let my: Double = sumY / total
         var sxx = 0.0, syy = 0.0, sxy = 0.0
         for p in points {
-            let dx = p.x - mx, dy = p.y - my
+            let dx: Double = p.x - mx
+            let dy: Double = p.y - my
             sxx += p.w * dx * dx; syy += p.w * dy * dy; sxy += p.w * dx * dy
         }
         var angle = 0.5 * atan2(2 * sxy, sxx - syy)
         if angle > Double.pi / 2 { angle -= Double.pi }
         if angle < -Double.pi / 2 { angle += Double.pi }
         // roundish countries keep a level name; long ones follow their shape
-        let mean = (sxx + syy) / 2
-        let spread = sqrt(((sxx - syy) / 2) * ((sxx - syy) / 2) + sxy * sxy)
-        let ratio = sqrt((mean + spread) / max(mean - spread, 1e-9))
+        let mean: Double = (sxx + syy) / 2
+        let half: Double = (sxx - syy) / 2
+        let spread: Double = (half * half + sxy * sxy).squareRoot()
+        let ratio: Double = ((mean + spread) / max(mean - spread, 1e-9)).squareRoot()
         angle *= min(max((ratio - 1.2) / 0.5, 0), 1)
         // keep text readable: within ±40° of level
         let limit = Double.pi * 2 / 9
@@ -177,8 +185,16 @@ public struct MapLabelInfo: Identifiable, Sendable, Equatable {
         let ux = cos(angle), uy = sin(angle)
         let vx = -uy, vy = ux
         // spread along the axis: weighted 10th to 90th percentile
-        let along = points.map { (u: ($0.x - mx) * ux + ($0.y - my) * uy, v: ($0.x - mx) * vx + ($0.y - my) * vy, w: $0.w) }
-            .sorted { $0.u < $1.u }
+        var along: [(u: Double, v: Double, w: Double)] = []
+        along.reserveCapacity(points.count)
+        for p in points {
+            let dx: Double = p.x - mx
+            let dy: Double = p.y - my
+            let u: Double = dx * ux + dy * uy
+            let v: Double = dx * vx + dy * vy
+            along.append((u: u, v: v, w: p.w))
+        }
+        along.sort { $0.u < $1.u }
         func percentile(_ q: Double) -> Double {
             var acc = 0.0
             for a in along {
@@ -193,15 +209,19 @@ public struct MapLabelInfo: Identifiable, Sendable, Equatable {
         // parabola v = a*u^2 + b*u + c (weighted least squares)
         var s0 = 0.0, s1 = 0.0, s2 = 0.0, s3 = 0.0, s4 = 0.0, t0 = 0.0, t1 = 0.0, t2 = 0.0
         for a in along {
-            let u = a.u, u2 = u * u
-            s0 += a.w; s1 += a.w * u; s2 += a.w * u2; s3 += a.w * u2 * u; s4 += a.w * u2 * u2
-            t0 += a.w * a.v; t1 += a.w * a.v * u; t2 += a.w * a.v * u2
+            let u: Double = a.u
+            let u2: Double = u * u
+            let w: Double = a.w
+            s0 += w; s1 += w * u; s2 += w * u2; s3 += w * u2 * u; s4 += w * u2 * u2
+            let wv: Double = w * a.v
+            t0 += wv; t1 += wv * u; t2 += wv * u2
         }
         // solve the 3x3 normal equations by Cramer's rule
         func det3(_ m: [[Double]]) -> Double {
-            m[0][0] * (m[1][1] * m[2][2] - m[1][2] * m[2][1])
-            - m[0][1] * (m[1][0] * m[2][2] - m[1][2] * m[2][0])
-            + m[0][2] * (m[1][0] * m[2][1] - m[1][1] * m[2][0])
+            let a: Double = m[0][0] * (m[1][1] * m[2][2] - m[1][2] * m[2][1])
+            let b: Double = m[0][1] * (m[1][0] * m[2][2] - m[1][2] * m[2][0])
+            let c: Double = m[0][2] * (m[1][0] * m[2][1] - m[1][1] * m[2][0])
+            return a - b + c
         }
         let mat = [[s4, s3, s2], [s3, s2, s1], [s2, s1, s0]]
         let d = det3(mat)
