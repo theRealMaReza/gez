@@ -5774,6 +5774,22 @@ public final class GezGodotBridge: RefCounted {
         Self.toVariantDictionary(controller.chronicleDetails(countryIndex: countryIndex))
     }
 
+    @Callable
+    public func getLedgerOverview() -> VariantDictionary {
+        Self.toVariantDictionary(controller.ledgerOverview())
+    }
+
+    @Callable
+    public func getLedgerComparison(countryIndices: VariantArray, pieCountryIndex: Int) -> VariantDictionary {
+        var indices: [Int] = []
+        for i in 0..<countryIndices.count {
+            if let v = Int(countryIndices[i]) {
+                indices.append(v)
+            }
+        }
+        return Self.toVariantDictionary(controller.ledgerComparison(countryIndices: indices, pieCountryIndex: pieCountryIndex))
+    }
+
     // MARK: - Step 3d2: Diplomacy, Wars, Peace & Alerts Callables
 
     @Callable

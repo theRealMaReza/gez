@@ -213,4 +213,34 @@ struct HistoryTests {
             #expect(!entry.prose.contains("}"))
         }
     }
+
+    @Test("Ledger queries return current rows, multi-country time series (up to 8), and pie breakdowns")
+    func ledgerQueriesAndPies() {
+        let sim = makeTestSimulation()
+        sim.advance(days: 220) // Records 1453 and 1454
+
+        let rows = HistoryQueries.ledgerRows(in: sim.world)
+        #expect(!rows.isEmpty)
+        #expect(rows[0].population >= rows.last!.population)
+
+        let tur = sim.world.countries.id(forTag: "TUR")!
+        let hun = sim.world.countries.id(forTag: "HUN")!
+        let series = HistoryQueries.comparisonSeries(for: [tur.index, hun.index], in: sim.world)
+        #expect(series.count == 2)
+        #expect(series[0].years == [1453, 1454])
+        #expect(series[0].population.count == 2)
+
+        // Cap at 8 countries even if more are passed
+        let many = Array(0..<12)
+        let capped = HistoryQueries.comparisonSeries(for: many, in: sim.world)
+        #expect(capped.count == 8)
+
+        let pies = HistoryQueries.demographicsBreakdown(for: tur, in: sim.world)
+        #expect(!pies.religions.isEmpty)
+        #expect(!pies.cultures.isEmpty)
+        let relShareSum = pies.religions.reduce(0.0) { $0 + $1.share }
+        let culShareSum = pies.cultures.reduce(0.0) { $0 + $1.share }
+        #expect(abs(relShareSum - 1.0) < 0.001)
+        #expect(abs(culShareSum - 1.0) < 0.001)
+    }
 }
