@@ -6,7 +6,7 @@ judgment calls) and `CLAUDE.md` (rules). Lessons from past sessions and reviews 
 `docs/SESSION_LOG.md` (read only the part a task needs). This file says where the project
 stands, how to work on it, and what to do next.
 
-Last updated: Phase 18 (22 November 2026). Phases 0–18 are done; Phase 20 (art) is in progress and mission trees remain in Phase 21. Phase 18 (Chronicle and stats) was built by Gemini in four PRs (#14–#17): `HistoryState.swift`, `HistorySystem.swift`, `ChronicleRenderer.swift`, `HistoryQueries.swift`, `data/chronicle/templates.txt` (`chronicle_templates.json` via `tools/chronicle/chroniclegen.py`), `GezGodotPhase18Bridge.swift`, and `godot/scripts/{ChroniclePanel,LedgerPanel,TimelapsePanel}.gd`. Next: Phase 20 (EU art pass, Claude).
+Last updated: Phase 18 (22 November 2026). Phases 0–18 and 20 are done; next is 20.5 (balance and play-test), then the alpha "Kayser"; mission trees remain in Phase 21. Phase 18 (Chronicle and stats) was built by Gemini in four PRs (#14–#17): `HistoryState.swift`, `HistorySystem.swift`, `ChronicleRenderer.swift`, `HistoryQueries.swift`, `data/chronicle/templates.txt` (`chronicle_templates.json` via `tools/chronicle/chroniclegen.py`), `GezGodotPhase18Bridge.swift`, and `godot/scripts/{ChroniclePanel,LedgerPanel,TimelapsePanel}.gd`; merged as #18 (squashed onto Phase 20, with review fixes). Next: Phase 20.5 (Claude).
 
 How to test Phase 17 by hand on Mac:
 1. `git pull`, `./godot/build_mac.sh`, Cmd+Q Godot, reopen the project.
@@ -92,7 +92,7 @@ phases): chronicle (Phase 18, Gemini, in progress), multiplayer (Phase 19), miss
    Nation Picker `AI behaviour`, Diplomacy `AI Goal:` line; Phase 16:
    tooltips, sounds, Esc volume sliders). Check frame rate on the M1 when
    zoomed in over a busy area and in a big battle.
-2. **Phase 20: Interface and art** (Claude).
+2. **Phase 20.5: Balance and play-test** (Claude): 1453 border fixes (#19), then long AI-only runs.
 3. Follow-ups: the campaign still uses platform maths (`MarketModel.km`
    distances, `hypot` in the AI), which can differ between Mac, Windows and
    Linux; move it to `Core/DetMath.swift` before multiplayer (Phase 19),

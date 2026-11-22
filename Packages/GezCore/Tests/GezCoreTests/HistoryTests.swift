@@ -168,11 +168,18 @@ struct HistoryTests {
             }
         }
 
+        // The owner's rule: what the recording adds to a save stays well under
+        // 5 MB after 400 years. The rest of the save (the world itself) is
+        // printed for reference.
+        let historyBytes = try JSONEncoder().encode(sim.world.history).count
         let data = try SaveStorage.encodeArchive(sim, name: "400Years", playerTag: "TUR")
-        let sizeBytes = data.count
         let limitBytes = 5 * 1024 * 1024
-        print("400-year save size: \(sizeBytes) bytes (\(String(format: "%.2f", Double(sizeBytes) / 1048576.0)) MB)")
-        #expect(sizeBytes < limitBytes, "Save size \(sizeBytes) bytes exceeded 5 MB limit (\(limitBytes))")
+        print("400-year history: \(historyBytes) bytes; whole save: \(data.count) bytes")
+        #expect(historyBytes < limitBytes, "Recorded history \(historyBytes) bytes exceeded 5 MB (\(limitBytes))")
+
+        // Round trip of the packed tables after 400 years.
+        let back = try JSONDecoder().decode(HistoryState.self, from: JSONEncoder().encode(sim.world.history))
+        #expect(back == sim.world.history)
     }
 
     @Test("Packed Chronicle events survive save and load exactly")
@@ -190,6 +197,8 @@ struct HistoryTests {
         let back = try JSONDecoder().decode(ChronicleEventTable.self, from: data)
         #expect(back == table)
         #expect(back.secondaryCountry[1] == -1)
+        #expect(back.templateSeed == [0xFF, 0, 42])
+        #expect(back.month == [5, 12, 1] && back.day == [29, 31, 1])
         #expect(back.year == [1453, 1452, 1600])
     }
 

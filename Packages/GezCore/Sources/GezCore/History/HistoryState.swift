@@ -65,7 +65,8 @@ public struct ChronicleEventTable: Sendable, Equatable, Codable {
         self.secondaryCharacter.append(secondaryCharacter.map { Int32(clamping: $0.index) } ?? -1)
         self.valueA.append(Int32(clamping: valueA))
         self.valueB.append(Int32(clamping: valueB))
-        self.templateSeed.append(templateSeed)
+        // Only the low byte is kept: it picks one of a handful of prose variants.
+        self.templateSeed.append(templateSeed & 0xFF)
     }
 
     // Saved as one compact varint blob (not 12 JSON arrays), so a realistic
@@ -76,45 +77,58 @@ public struct ChronicleEventTable: Sendable, Equatable, Codable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         var r = HistoryVarintReader(try container.decode(Data.self, forKey: .packedData))
         let n = Int(r.unsigned())
-        var lastYear = 0
+        var lastOrdinal = 0
         for _ in 0..<n {
-            lastYear += r.signed()
-            year.append(Int16(clamping: lastYear))
-            month.append(UInt8(truncatingIfNeeded: r.unsigned()))
-            day.append(UInt8(truncatingIfNeeded: r.unsigned()))
+            // Dates are stored as steps from the previous event (usually 0-2 days).
+            lastOrdinal += r.signed()
+            let (y, m, d) = Self.dateFromOrdinal(lastOrdinal)
+            year.append(Int16(clamping: y))
+            month.append(UInt8(truncatingIfNeeded: m))
+            day.append(UInt8(truncatingIfNeeded: d))
             kind.append(UInt8(truncatingIfNeeded: r.unsigned()))
-            primaryCountry.append(Int16(clamping: r.signed()))
-            secondaryCountry.append(Int16(clamping: r.signed()))
-            province.append(Int16(clamping: r.signed()))
-            character.append(Int32(clamping: r.signed()))
-            secondaryCharacter.append(Int32(clamping: r.signed()))
+            // IDs are stored plus one, so "none" (-1) costs a single byte.
+            primaryCountry.append(Int16(clamping: Int(r.unsigned()) - 1))
+            secondaryCountry.append(Int16(clamping: Int(r.unsigned()) - 1))
+            province.append(Int16(clamping: Int(r.unsigned()) - 1))
+            character.append(Int32(clamping: Int(r.unsigned()) - 1))
+            secondaryCharacter.append(Int32(clamping: Int(r.unsigned()) - 1))
             valueA.append(Int32(clamping: r.signed()))
             valueB.append(Int32(clamping: r.signed()))
-            templateSeed.append(UInt32(truncatingIfNeeded: r.unsigned()))
+            templateSeed.append(UInt32(r.byte()))
         }
     }
 
     public func encode(to encoder: Encoder) throws {
         var w = HistoryVarintWriter()
         w.unsigned(UInt64(count))
-        var lastYear = 0
+        var lastOrdinal = 0
         for i in 0..<count {
-            w.signed(Int(year[i]) - lastYear)
-            lastYear = Int(year[i])
-            w.unsigned(UInt64(month[i]))
-            w.unsigned(UInt64(day[i]))
+            let ordinal = Self.ordinal(year: Int(year[i]), month: Int(month[i]), day: Int(day[i]))
+            w.signed(ordinal - lastOrdinal)
+            lastOrdinal = ordinal
             w.unsigned(UInt64(kind[i]))
-            w.signed(Int(primaryCountry[i]))
-            w.signed(Int(secondaryCountry[i]))
-            w.signed(Int(province[i]))
-            w.signed(Int(character[i]))
-            w.signed(Int(secondaryCharacter[i]))
+            w.unsigned(UInt64(max(0, Int(primaryCountry[i]) + 1)))
+            w.unsigned(UInt64(max(0, Int(secondaryCountry[i]) + 1)))
+            w.unsigned(UInt64(max(0, Int(province[i]) + 1)))
+            w.unsigned(UInt64(max(0, Int(character[i]) + 1)))
+            w.unsigned(UInt64(max(0, Int(secondaryCharacter[i]) + 1)))
             w.signed(Int(valueA[i]))
             w.signed(Int(valueB[i]))
-            w.unsigned(UInt64(templateSeed[i]))
+            w.byte(UInt8(truncatingIfNeeded: templateSeed[i]))
         }
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(w.data, forKey: .packedData)
+    }
+
+    /// A day number used only for the save format: 31 days a month, 12 months a year.
+    static func ordinal(year: Int, month: Int, day: Int) -> Int {
+        year * 372 + (month - 1) * 31 + (day - 1)
+    }
+
+    static func dateFromOrdinal(_ o: Int) -> (Int, Int, Int) {
+        let y = o >= 0 ? o / 372 : (o - 371) / 372
+        let rest = o - y * 372
+        return (y, rest / 31 + 1, rest % 31 + 1)
     }
 
     public func eventKind(at index: Int) -> ChronicleEventKind? {
@@ -254,12 +268,22 @@ public struct CountryStatsHistory: Sendable, Equatable, Codable {
         armySize.reserveCapacity(rowCount)
         navySize.reserveCapacity(rowCount)
         techPacked.reserveCapacity(rowCount)
-        for _ in 0..<rowCount { countryIndex.append(UInt16(truncatingIfNeeded: readVarint())) }
-        for _ in 0..<rowCount { population.append(Int(readVarint())) }
-        for _ in 0..<rowCount { incomeCents.append(readSigned()) }
-        for _ in 0..<rowCount { armySize.append(Int(readVarint())) }
-        for _ in 0..<rowCount { navySize.append(Int(readVarint())) }
-        for _ in 0..<rowCount { techPacked.append(Int(readVarint())) }
+        // Each value is stored as the change from that country's previous row.
+        var last: [Int: [Int]] = [:]
+        var lastCountry = 0
+        for _ in 0..<rowCount {
+            let c = lastCountry + readSigned()
+            lastCountry = c
+            var prev = last[c] ?? [0, 0, 0, 0, 0]
+            for k in 0..<5 { prev[k] += readSigned() }
+            last[c] = prev
+            countryIndex.append(UInt16(truncatingIfNeeded: c))
+            population.append(prev[0])
+            incomeCents.append(prev[1])
+            armySize.append(prev[2])
+            navySize.append(prev[3])
+            techPacked.append(prev[4])
+        }
     }
 
     public func encode(to encoder: Encoder) throws {
@@ -287,12 +311,17 @@ public struct CountryStatsHistory: Sendable, Equatable, Codable {
         for c in yearCounts { writeVarint(UInt64(max(0, c))) }
 
         writeVarint(UInt64(countryIndex.count))
-        for c in countryIndex { writeVarint(UInt64(c)) }
-        for p in population { writeVarint(UInt64(max(0, p))) }
-        for inc in incomeCents { writeSigned(inc) }
-        for a in armySize { writeVarint(UInt64(max(0, a))) }
-        for n in navySize { writeVarint(UInt64(max(0, n))) }
-        for t in techPacked { writeVarint(UInt64(max(0, t))) }
+        var last: [Int: [Int]] = [:]
+        var lastCountry = 0
+        for i in 0..<countryIndex.count {
+            let c = Int(countryIndex[i])
+            writeSigned(c - lastCountry)
+            lastCountry = c
+            let row = [population[i], incomeCents[i], armySize[i], navySize[i], techPacked[i]]
+            let prev = last[c] ?? [0, 0, 0, 0, 0]
+            for k in 0..<5 { writeSigned(row[k] - prev[k]) }
+            last[c] = row
+        }
 
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(data, forKey: .packedData)
@@ -458,6 +487,10 @@ struct HistoryVarintWriter {
         let s = Int64(value)
         unsigned(UInt64(bitPattern: (s << 1) ^ (s >> 63)))
     }
+
+    mutating func byte(_ value: UInt8) {
+        data.append(value)
+    }
 }
 
 struct HistoryVarintReader {
@@ -485,5 +518,12 @@ struct HistoryVarintReader {
     mutating func signed() -> Int {
         let v = unsigned()
         return Int(Int64(bitPattern: (v >> 1) ^ (0 &- (v & 1))))
+    }
+
+    mutating func byte() -> UInt8 {
+        guard cursor < data.endIndex else { return 0 }
+        let b = data[cursor]
+        cursor += 1
+        return b
     }
 }
