@@ -25,6 +25,7 @@ const WarsPanelScript := preload("res://scripts/WarsPanel.gd")
 const BattleViewScript := preload("res://scripts/BattleView.gd")
 const EventPopupScript := preload("res://scripts/EventPopup.gd")
 const TooltipManagerScript := preload("res://scripts/TooltipManager.gd")
+const AlertsRowScript := preload("res://scripts/AlertsRow.gd")
 
 var bridge: RefCounted = null
 var warned_missing_methods: Dictionary = {}
@@ -111,8 +112,7 @@ var diplomacy_btn: Button
 var wars_btn: Button
 var armies_btn: Button
 var fleets_btn: Button
-var alerts_scroll: ScrollContainer
-var alerts_hbox: HBoxContainer
+var alerts_row: HBoxContainer   # Phase 20 part 5 (AlertsRow.gd)
 var recent_events_panel: PanelContainer
 var recent_events_toggle_btn: Button
 var recent_events_list_box: VBoxContainer
@@ -3661,63 +3661,20 @@ func _open_wars_and_peace(war_id: String = "") -> void:
 	if not war_id.is_empty():
 		wars_ui.call("open_peace_for_war", war_id)
 
+# Phase 20 part 5: glowing medallions centred under the top bar (AlertsRow.gd).
 func _build_alerts_bar() -> void:
-	alerts_scroll = ScrollContainer.new()
-	alerts_scroll.name = "AlertsBar"
-	alerts_scroll.position = Vector2(12.0, 52.0)
-	alerts_scroll.custom_minimum_size = Vector2(580.0, 34.0)
-	alerts_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	alerts_scroll.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	alerts_scroll.visible = false
-	windows_layer.add_child(alerts_scroll)
-
-	alerts_hbox = HBoxContainer.new()
-	alerts_hbox.add_theme_constant_override("separation", 6)
-	alerts_scroll.add_child(alerts_hbox)
+	alerts_row = AlertsRowScript.new()
+	alerts_row.call("setup", self)
+	add_child(alerts_row)
+	alerts_row.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP, Control.PRESET_MODE_MINSIZE)
+	alerts_row.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	alerts_row.offset_top = 54.0
 
 func _refresh_alerts_bar() -> void:
-	if alerts_scroll == null or alerts_hbox == null or bridge == null:
+	if alerts_row == null or bridge == null:
 		return
-	_clear_children(alerts_hbox)
 	var alerts: Array = _call_bridge("getActiveAlerts", [], [])
-	if alerts.is_empty():
-		alerts_scroll.visible = false
-		_layout_recent_events_bar()
-		return
-	alerts_scroll.visible = true
-	for a_v in alerts:
-		if not (a_v is Dictionary):
-			continue
-		var a: Dictionary = a_v
-		var kind: String = str(a.get("kind", ""))
-		var btn := Button.new()
-		btn.text = str(a.get("label", "Alert"))
-		match kind:
-			"peaceOffer":
-				btn.modulate = Color(1.0, 0.65, 0.35)
-			"underSiege", "coalition", "bankrupt", "blockadedPort", "plague", "famine", "earthquake":
-				btn.modulate = Color(1.0, 0.45, 0.42)
-			"rebels":
-				btn.modulate = Color(1.0, 0.45, 0.42) if str(a.get("label", "")).begins_with("Rising") else Color(1.0, 0.72, 0.38)
-			"navalBattle":
-				btn.modulate = Color(0.55, 0.85, 1.0)
-			"techLevel", "institution":
-				btn.modulate = Color(0.60, 0.90, 0.62)
-			"event":
-				btn.modulate = Color(1.0, 0.88, 0.45)
-			"breach", "disloyalEstate":
-				btn.modulate = Color(1.0, 0.72, 0.38)
-			_:
-				btn.modulate = Color(0.92, 0.80, 0.56)
-		var alert_copy := a.duplicate()
-		var tip_body := str(a.get("tooltip", ""))
-		if tip_body.is_empty():
-			tip_body = "Click to inspect and respond to this alert."
-		bind_tip(btn, str(a.get("label", "Alert")), tip_body)
-		btn.pressed.connect(func() -> void:
-			_on_alert_pressed(alert_copy)
-		)
-		alerts_hbox.add_child(btn)
+	alerts_row.call("show_alerts", alerts)
 	_layout_recent_events_bar()
 
 func _build_recent_events_bar() -> void:
@@ -3756,8 +3713,7 @@ func _build_recent_events_bar() -> void:
 func _layout_recent_events_bar() -> void:
 	if recent_events_panel == null:
 		return
-	var alerts_vis := alerts_scroll != null and alerts_scroll.visible
-	recent_events_panel.position = Vector2(12.0, 88.0 if alerts_vis else 52.0)
+	recent_events_panel.position = Vector2(12.0, 52.0)
 
 func _refresh_recent_events() -> void:
 	if recent_events_panel == null or recent_events_list_box == null or bridge == null:

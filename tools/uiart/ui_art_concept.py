@@ -760,6 +760,15 @@ def seal_with_letter(path, size, base, letter):
 CINZEL = 'godot/assets/fonts/Cinzel.ttf'
 
 
+def glow(path, size):
+    """Soft white halo behind an alert medallion (tinted and pulsed in the
+    game). The medallion covers the middle 62%; the halo shows around it."""
+    y, x = np.mgrid[0:size, 0:size].astype(float)
+    c = (size - 1) / 2
+    r = np.hypot(x - c, y - c) / (size / 2)
+    a = np.clip(1 - np.maximum(0, r - 0.58) / 0.42, 0, 1) ** 1.8
+    _save_rgba(np.ones((size, size, 3)) * 255, a, path)
+
 # What each screen button and indicator shows (also read by GezStyle.gd).
 MEDALLIONS = {
     # top bar indicators
@@ -779,6 +788,12 @@ MEDALLIONS = {
     # zoom and misc
     'zoom_in': 'plus', 'zoom_out': 'minus', 'zoom_fit': 'fit', 'alerts': 'bell', 'build': 'hammer',
     'capital': 'star', 'globe': 'globe', 'law': 'gavel', 'army': 'sword', 'watch': 'eye',
+    # alerts row (Phase 20 part 5), one per alert kind of the game
+    'alert_peaceOffer': 'scroll', 'alert_breach': 'tower', 'alert_underSiege': 'tower', 'alert_coalition': 'swords',
+    'alert_lowStability': 'scales', 'alert_disloyalEstate': 'column', 'alert_refusingVassal': 'people',
+    'alert_bankrupt': 'coin_down', 'alert_highInflation': 'coin_down', 'alert_navalBattle': 'ship',
+    'alert_blockadedPort': 'anchor', 'alert_plague': 'skull', 'alert_famine': 'wheat', 'alert_earthquake': 'mountain',
+    'alert_rebels': 'torch', 'alert_techLevel': 'astrolabe', 'alert_institution': 'book', 'alert_event': 'bell',
 }
 
 TRAIT_SEALS = {   # seal colour by kind of trait
@@ -808,6 +823,8 @@ def build_kit(out_dir):
     plain_medallion(j('grabber.png'), 20)
     plain_medallion(j('grabber_hover.png'), 20, enamel=(140, 30, 22))
     for key, icon in MEDALLIONS.items():
+        if key.startswith('alert_'):
+            continue   # made last (build_alerts), so adding them changed nothing else
         icon_medallion(j('medallions', f'{key}.png'), 48, ICONS[icon])
         icon_medallion(j('medallions', f'{key}_on.png'), 48, ICONS[icon], enamel=(140, 30, 22))
     for kind, colour in TRAIT_SEALS.items():
@@ -1213,6 +1230,17 @@ def build_shields(out_dir, heraldry_dir='App/Resources/Heraldry',
         json.dump(shapes, f, indent=0, sort_keys=True)
     return shapes
 
+
+# ---------------------------------------------------------------- Phase 20 part 5: alerts row
+def build_alerts(out_dir):
+    """Alert medallions (one per alert kind) and the glow behind them."""
+    import os
+    glow(os.path.join(out_dir, 'glow.png'), 64)
+    for key, icon in MEDALLIONS.items():
+        if key.startswith('alert_'):
+            icon_medallion(os.path.join(out_dir, 'medallions', f'{key}.png'), 48, ICONS[icon])
+            icon_medallion(os.path.join(out_dir, 'medallions', f'{key}_on.png'), 48, ICONS[icon], enamel=(140, 30, 22))
+
 if __name__ == '__main__':
     import sys, os
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -1221,6 +1249,7 @@ if __name__ == '__main__':
         build_goods(os.path.join(sys.argv[2], 'goods'))
         build_portraits(os.path.join(sys.argv[2], 'portrait'))
         build_shields(os.path.join(sys.argv[2], 'shields'))
+        build_alerts(sys.argv[2])
         print('kit margins:', m)
     elif len(sys.argv) > 3 and sys.argv[1] == '--buildings':
         # ui_art_concept.py --buildings <renders folder> godot/assets/ui
