@@ -4,7 +4,7 @@ The short version of `docs/HANDOFF.md` and `docs/ROADMAP.md`, mirrored to
 the claude.ai Project as `claude/STATUS.md`. Everything else lives in the
 repo (`theRealMaReza/gez`): read only the parts a task needs.
 
-Last updated: 22 November 2026 (Phase 18 merged, PR #18).
+Last updated: 23 November 2026 (Phase 20.6 part 3 merged, PRs #32–#33).
 
 ## Repo move (21–22 Nov 2026)
 - Old account `yv28f5k922-dot` suspended (owner appealed). New repo
@@ -52,6 +52,12 @@ Last updated: 22 November 2026 (Phase 18 merged, PR #18).
   culture; compact tooltip cards; unrolling windows; curved country
   names; painted-chart look when zoomed out; forests; main menu and
   loading screen. Every look picked by the owner from mock-ups.
+- **Phase 20.6 Polish** (under way): part 2, Main.gd split (#26); part 3
+  (Claude, owner's picks from mock-ups, 22 Nov): map modes in a dock above
+  the zoom buttons that opens a 4 x 3 grid (#32), and a folding outliner at
+  the top right of armies, fleets, sieges and building work (#33). The
+  market stays its own window. Still to do: part 1 (Gemini, small fixes)
+  and part 4 (Claude, 3D models and battle view).
 - **Paintings still to make** (owner, Gemini app): 97 prompts in
   `docs/ART_PROMPTS.md` (main menu, loading screen, 66 event pictures,
   29 portraits). Drop them in `godot/assets/paintings/{menu,events,portraits}/`
@@ -69,7 +75,9 @@ Last updated: 22 November 2026 (Phase 18 merged, PR #18).
    the Mac (`git pull`, `./godot/build_mac.sh`): frame rate on the M1 when
    zoomed out (painted chart) and when windows open; try the Chronicle,
    Ledger and Timelapse medallions in the left column.
-2. **20.5 balance and play-test** (Claude; Phases 18 and 20 are both
+2. **20.6 Polish**, parts 1 and 4 (prompts G1 and C4 in the Project doc
+   `claude/PHASE_PROMPTS.md`), then 20.7 and 20.8, then the rest of 20.5.
+3. **20.5 balance and play-test** (Claude; Phases 18 and 20 are both
    merged; part 1, the 1453 border fixes, is merged as #19; the first
    six AI-only games to 1550 are in `docs/BALANCE_REPORT.md`; next the
    fixes listed there, one PR per area), then **alpha "Kayser"**, **20.7 Old
