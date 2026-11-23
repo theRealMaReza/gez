@@ -122,9 +122,12 @@ phases): chronicle (Phase 18, Gemini, in progress), multiplayer (Phase 19), miss
   - `ProvinceDrawer.gd`: the province drawer (Overview, Economy, People
     tabs) and the sea-zone panel, bottom left.
   - `MarketPanel.gd`: the market window, bottom right.
-  - `MapModeBar.gd`: the 12 map-mode medallions (top right) and the zoom
-    buttons (bottom right). Part 3's dock starts here. The map state
-    (`current_map_mode`, `_select_map_mode`) stays in Main.
+  - `MapModeBar.gd`: the map-mode dock and the zoom buttons (bottom
+    right). Since part 3 the dock is one medallion showing the current
+    mode; clicking it opens a 4 x 3 grid of all 12 (`open_grid()`,
+    `close_grid()`; owner's pick, 22 Nov 2026). The top right is free for
+    the outliner. The map state (`current_map_mode`, `_select_map_mode`)
+    stays in Main.
   Each is a full-screen, click-through `Control` that Main adds and then
   calls `setup(main)`. The old names still work through Main, so other
   screens need no change: `_refresh_province_panel()`,
