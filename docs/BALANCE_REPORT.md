@@ -83,3 +83,39 @@ gh api -X POST repos/theRealMaReza/gez/actions/workflows/ci.yml/dispatches \
 
 After each fix, run the six games again and add the results here as
 "Run 2", "Run 3" and so on.
+
+## Run 2: 22 November 2026, after the first four fixes
+
+**What changed (PRs #22–#25):**
+- Wars end: there is no war score where peace is impossible any more,
+  and every war settles after at most 8 years.
+- Population grows towards each province's carrying capacity, and
+  migration is gentler.
+- Only ruling families keep having children.
+- Rich realms spend their money.
+
+**The same six games, by 1550:**
+
+| | Run 1 | Run 2 |
+|---|---|---|
+| Oldest war | 60–96 years (in five games) | 0–2 years |
+| Hungary | 0.1–0.8 million | 2.8–3.7 million |
+| Mamluks | 12–29 million | 5.1–6.1 million |
+| World population | 194–217 million | 190–222 million |
+| Fastest-growing country | ×6–8 (city-states) | ×2–3 (mostly by conquest) |
+| Speed in 1550 (CI) | 22–24 ms a day | 13–15 ms a day |
+| Richest treasury | about 150,000 | 24,000–36,000 |
+| "War ended" in the Chronicle | never | recorded |
+
+**Still open.** These move to 20.5 part 2, after the 20.6–20.8 work
+(owner, 22 Nov 2026):
+- The Historical AI: the Qara Qoyunlu still grow to 61–74 provinces while
+  the Aq Qoyunlu stay at 2–9; Muscovy reaches only 13–24; Granada still
+  falls late or never to Castile.
+- About 95 of 287 countries are gone by 1550. The Empire's small states
+  are handled in 20.8.
+- Almost no rebellions (0–3 a decade).
+- The AI never changes a law.
+- A game day still slows from about 8 ms to 13–15 ms over the century,
+  and the 1st of each month and 1 January stutter.
+- The middle treasury is still around 2,000 by 1550.
