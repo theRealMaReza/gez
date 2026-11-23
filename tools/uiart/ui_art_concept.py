@@ -423,6 +423,9 @@ ICONS = {
      'sword':'M18 3h3v3L9 18l-3-3zM5 14l5 5M7 17l-4 4',
      'eye':'M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12zM12 9a3 3 0 1 0 0 6a3 3 0 1 0 0-6',
      'gavel':'M13 4l5 5M11 6l5 5M12 5l-4 4 3 3 4-4M9.5 10.5L3 17l2 2 6.5-6.5M14 20h7',
+     # Phase 20.6: small inline glyphs (opinion, loyalty, capital)
+     'heart':'M12 20.5C6 16 2.5 12.6 2.5 8.6A4.6 4.6 0 0 1 12 6.2a4.6 4.6 0 0 1 9.5 2.4c0 4-3.5 7.4-9.5 11.9z',
+     'crack':'M12 6.4l-1.6 3.6 2.6 2.4-2.2 3.2 1.2 4.6',
     }
 
 # ---------------------------------------------------------------- concept pieces
@@ -1356,6 +1359,48 @@ def build_placeholders(out_dir, terrain='App/Resources/Terrain/terrain.jpg'):
     im.alpha_composite(Image.fromarray(ra.astype('uint8'), 'RGBA'), ((W - 300) // 2, (H - 300) // 2))
     im.convert('RGB').save(os.path.join(out_dir, 'event_placeholder.jpg'), quality=88)
 
+
+# ---------------------------------------------------------------- Phase 20.6: inline glyphs
+# Small embossed pictures that sit inside a line of text (instead of the
+# old text symbols): heart = good opinion or loyalty, heart_broken = bad
+# opinion, star = capital. Drawn at 4x, saved at 2x of `size`.
+GLYPHS = {
+    'heart': ('heart', (168, 34, 28), None),
+    'heart_broken': ('heart', (92, 58, 52), 'crack'),
+    'star': ('star', None, None),          # gold metal
+}
+
+
+def glyph(path, size, shape, enamel, crack=None):
+    S = size * 4
+    m = _fill_mask(ICONS[shape], S, stroke=1.2)
+    inner = ndimage.binary_erosion(m > 0.5, iterations=max(1, S // 14))
+    dist = ndimage.distance_transform_edt(m > 0.5)
+    h = np.clip(dist / (S * 0.16), 0, 1) ** 0.6
+    if enamel is None:
+        rgb = shade_metal(ndimage.gaussian_filter(h, 1.2) * S * 0.10, GOLD, strength=1.0)
+    else:
+        rim = (m > 0.5) & ~inner
+        rgb = shade_matte(ndimage.gaussian_filter(h, 1.2) * S * 0.10, enamel, strength=1.0, spec=0.45)
+        gold = shade_metal(ndimage.gaussian_filter(h, 1.2) * S * 0.10, GOLD, strength=1.0)
+        rgb = np.where(rim[..., None], gold, rgb)
+    if crack:
+        c = _fill_mask(ICONS[crack], S, stroke=2.4, fill=False)
+        rgb = rgb * (1 - c[..., None]) + np.array([30, 18, 10], float) * c[..., None]
+    # thin dark outline so it reads on parchment and on dark leather
+    out = np.clip(ndimage.maximum_filter(m, 3) - m, 0, 1)
+    rgb = rgb * (1 - out[..., None]) + np.array([46, 28, 14], float) * out[..., None]
+    a = np.maximum(m, out)
+    im = Image.fromarray(np.dstack([np.clip(rgb, 0, 255), a * 255]).astype('uint8'), 'RGBA')
+    im.resize((size * 2, size * 2), Image.LANCZOS).save(path, optimize=True)
+
+
+def build_glyphs(out_dir, size=16):
+    import os
+    os.makedirs(out_dir, exist_ok=True)
+    for key, (shape, enamel, crack) in GLYPHS.items():
+        glyph(os.path.join(out_dir, f'{key}.png'), size, shape, enamel, crack)
+
 if __name__ == '__main__':
     import sys, os
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -1367,6 +1412,7 @@ if __name__ == '__main__':
         build_alerts(sys.argv[2])
         build_chart(os.path.join(sys.argv[2], 'chart'))
         build_placeholders(sys.argv[2])
+        build_glyphs(os.path.join(sys.argv[2], 'glyphs'))   # last: older art unchanged
         print('kit margins:', m)
     elif len(sys.argv) > 3 and sys.argv[1] == '--buildings':
         # ui_art_concept.py --buildings <renders folder> godot/assets/ui

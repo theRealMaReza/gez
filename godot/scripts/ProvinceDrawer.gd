@@ -18,6 +18,7 @@ var prov_owner_label: Label
 var prov_diplomacy_btn: Button
 var prov_owner_index: int = -1
 var prov_capital_label: Label
+var prov_capital_row: HBoxContainer
 var prov_occupied_label: Label
 var prov_status_label: Label
 var prov_tab_buttons: Dictionary = {}
@@ -111,9 +112,10 @@ func _build_province_panel() -> void:
 			main._open_diplomacy_with(prov_owner_index)
 	)
 	owner_row.add_child(prov_diplomacy_btn)
-	prov_capital_label = _make_label("★ Capital", Color(0.98, 0.84, 0.32), 12)
-	bind_tip(prov_capital_label, "National Capital", "Seat of government and court. Losing a capital yields major war score.")
-	owner_row.add_child(prov_capital_label)
+	prov_capital_label = _make_label("Capital", Color(0.98, 0.84, 0.32), 12)
+	prov_capital_row = GezStyle.with_glyph("star", prov_capital_label)
+	bind_tip(prov_capital_row, "National Capital", "Seat of government and court. Losing a capital yields major war score.")
+	owner_row.add_child(prov_capital_row)
 
 	prov_occupied_label = _make_label("", Color(0.95, 0.42, 0.38), 12)
 	prov_occupied_label.visible = false
@@ -224,7 +226,7 @@ func refresh_province() -> void:
 	prov_owner_index = int(d.get("ownerIndex", -1))
 	if prov_diplomacy_btn != null:
 		prov_diplomacy_btn.visible = bool(d.get("isForeignOwner", false)) and prov_owner_index >= 0
-	prov_capital_label.visible = bool(d.get("isCapital", false))
+	prov_capital_row.visible = bool(d.get("isCapital", false))
 
 	var occ: String = str(d.get("occupiedByName", ""))
 	prov_occupied_label.visible = not occ.is_empty()

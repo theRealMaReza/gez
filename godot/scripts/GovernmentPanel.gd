@@ -233,17 +233,22 @@ func _add_power_bar_row(label_txt: String, share: float, has_loyalty: bool, loya
 	row.add_child(pct_lbl)
 
 	var loy_lbl := _make_label("", Color(0.86, 0.82, 0.74), 11)
-	loy_lbl.custom_minimum_size = Vector2(38.0, 0.0)
+	loy_lbl.custom_minimum_size = Vector2(26.0, 0.0)
 	loy_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	var loy_row := GezStyle.with_glyph("heart", loy_lbl)
+	loy_row.custom_minimum_size = Vector2(44.0, 0.0)
+	loy_row.alignment = BoxContainer.ALIGNMENT_END
+	loy_row.get_child(0).visible = has_loyalty
 	if has_loyalty:
-		loy_lbl.text = "♥%.0f" % loyalty
+		loy_row.tooltip_text = "Loyalty %.0f" % loyalty
+		loy_lbl.text = "%.0f" % loyalty
 		var col := Color(0.80, 0.76, 0.68)
 		if loyalty >= loyal_at:
 			col = Color(0.55, 0.90, 0.58)
 		elif loyalty < disloyal_below:
 			col = Color(0.95, 0.45, 0.40)
 		loy_lbl.add_theme_color_override("font_color", GezStyle.ink(col))
-	row.add_child(loy_lbl)
+	row.add_child(loy_row)
 
 func _refresh_estates(d: Dictionary) -> void:
 	_clear_children(estates_box)
