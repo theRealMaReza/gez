@@ -575,3 +575,15 @@ Enniskillen.
   Lusatia, Saxe-Lauenburg, Anhalt and the other merged HRE states, Italian
   minor lords, Hasankeyf, Bohtan, Medina, Medri Bahri, Dahlak, Gilan's two
   halves, Rustamdar, and the Indian feudatories.
+
+## Old World faiths (Phase 20.7, 23 Nov 2026)
+- The Oromo, Sidama and Kafa (and the kingdoms of Kaffa, Ennarea and Damot)
+  move from generic "folk" to **East African traditions**. For the Oromo
+  this is Waaqeffanna (worship of Waaqa); Kafa and Ennarea had their own
+  sacred kingship and spirit cults (Omotic rather than Cushitic), grouped
+  here for want of finer data. Damot's faith in 1453 is uncertain: it may
+  already have been partly Christian or Muslim after Ethiopian and Adal
+  raids.
+- "Highland traditions" is a game label for the spirit cults of mainland
+  Southeast Asia's hill peoples (Tai *phi* worship outside Buddhist courts,
+  Karen, Hmong, Mon-Khmer hill groups); it is not one historical religion.

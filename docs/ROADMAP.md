@@ -415,10 +415,20 @@ Decided by the owner on 22 Nov 2026. Grow the map to all of Afro-Eurasia
 (East Asia, Southeast Asia, Siberia, Africa south of the Sahara,
 Madagascar) and add detail inside today's map, as planned in
 `docs/MAP_EXPANSION_RESEARCH.md` (Parts II–IV and its review notes).
-Open questions to settle at the start: map detail (48 or 40 pixels per
-degree; measure memory on an 8 GB M1 and texture limits on Windows), and
-what to do with Australia and New Guinea, which fall inside the map box.
 Several pull requests per region, each green in CI on its own.
+- **Part 1, foundation (Claude, 23 Nov 2026)**: settled by the owner after
+  measuring: **48 pixels per degree** (8304 × 5112; +~580 MB in the game,
+  fine on Windows GPUs, which all take 16384-pixel textures) and
+  **Australia and New Guinea as unknown-land parchment**. Map box,
+  generators, Godot sizes, 59 new sea zones, placeholder wasteland for the
+  new land, new faiths (Mahayana, Confucian, Daoist, Shinto; West African,
+  Bantu, East African, Siberian, Austronesian, Highland). Guide for the
+  region pull requests: `docs/HANDOFF.md`, "Old World region pull requests".
+- **Next, region pull requests (Gemini, reviewed by Claude)**: East Asia
+  (Ming, Korea, Japan, Ryukyu, Mongolia, Manchuria, Tibet, Tarim),
+  Southeast Asia (mainland, then islands), Siberia, Africa south of the
+  Equator and Madagascar, plus the Sahel and Guinea coast inside the old
+  box (still wasteland), then the in-map density work of research Part III.
 
 ### Phase 20.8: Ruling systems and formables (after 20.7, before 21)
 Decided by the owner on 22 Nov 2026, so mission trees can be built on
