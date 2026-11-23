@@ -135,6 +135,14 @@
   "note": "",
   "page": "https://commons.wikimedia.org/wiki/File:Wappen_Bistum_Bamberg.png"
  },
+ "BAS": {
+  "author": "",
+  "file": "File:Wappen Basel-Stadt matt.svg",
+  "license": "Public domain",
+  "licenseUrl": "",
+  "note": "",
+  "page": "https://commons.wikimedia.org/wiki/File:Wappen_Basel-Stadt_matt.svg"
+ },
  "BAV": {
   "author": "Sir Iain",
   "file": "File:Banner of Bavaria-München.svg",
@@ -158,6 +166,14 @@
   "licenseUrl": "",
   "note": "Invented: no historical symbol is known",
   "page": ""
+ },
+ "BES": {
+  "author": "",
+  "file": "File:Blason ville fr Besançon (Doubs).svg",
+  "license": "CC BY-SA 3.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+  "note": "imperial eagle of the free city",
+  "page": "https://commons.wikimedia.org/wiki/File:Blason_ville_fr_Besan%C3%A7on_(Doubs).svg"
  },
  "BGL": {
   "author": "Germenfer",
@@ -270,6 +286,14 @@
   "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
   "note": "",
   "page": "https://commons.wikimedia.org/wiki/File:Arms_of_the_Crown_of_Castile_(15th_Century).svg"
+ },
+ "CES": {
+  "author": "Roberto.Amerighi",
+  "file": "File:Stemma della famiglia Malatesta di Rimini.svg",
+  "license": "CC BY-SA 3.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+  "note": "Malatesta family arms",
+  "page": "https://commons.wikimedia.org/wiki/File:Stemma_della_famiglia_Malatesta_di_Rimini.svg"
  },
  "CHB": {
   "author": "The original uploader was Nataraja at French Wikipedia.",
@@ -447,6 +471,14 @@
   "note": "",
   "page": "https://commons.wikimedia.org/wiki/File:Flag_of_Dulkadir_Beylik.png"
  },
+ "EBR": {
+  "author": "Samhanin",
+  "file": "File:Coat of arms of O'Reilly.svg",
+  "license": "CC BY 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+  "note": "",
+  "page": "https://commons.wikimedia.org/wiki/File:Coat_of_arms_of_O%27Reilly.svg"
+ },
  "ENG": {
   "author": "",
   "file": "File:Royal Arms of England (1399-1603).svg",
@@ -495,6 +527,14 @@
   "note": "",
   "page": "https://commons.wikimedia.org/wiki/File:Stemma_di_Firenze_dal_1251.svg"
  },
+ "FMN": {
+  "author": "self-created",
+  "file": "File:Maguire.png",
+  "license": "CC BY-SA 3.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+  "note": "",
+  "page": "https://commons.wikimedia.org/wiki/File:Maguire.png"
+ },
  "FOI": {
   "author": "",
   "file": "File:Blason du comté de Foix.svg",
@@ -518,6 +558,14 @@
   "licenseUrl": "",
   "note": "",
   "page": "https://commons.wikimedia.org/wiki/File:Small_coat_of_arms_of_Friesland.png"
+ },
+ "FUR": {
+  "author": "W!B:",
+  "file": "File:Bindenschild Privilegium maius 1512.svg",
+  "license": "Public domain",
+  "licenseUrl": "",
+  "note": "Austrian shield (Albert VI)",
+  "page": "https://commons.wikimedia.org/wiki/File:Bindenschild_Privilegium_maius_1512.svg"
  },
  "GAR": {
   "author": "Robert Alfers",
@@ -1055,6 +1103,14 @@
   "note": "seal of Vasily II",
   "page": "https://commons.wikimedia.org/wiki/File:%D0%9F%D0%B5%D1%87%D0%B0%D1%82%D1%8C_%D0%92%D0%B0%D1%81%D0%B8%D0%BB%D0%B8%D1%8F_II_%D0%92%D0%B0%D1%81%D0%B8%D0%BB%D1%8C%D0%B5%D0%B2%D0%B8%D1%87%D0%B0_%D0%A2%D0%B5%D0%BC%D0%BD%D0%BE%D0%B3%D0%BE.svg"
  },
+ "MTZ": {
+  "author": "Oie blanche",
+  "file": "File:Grandes Armes de Metz.svg",
+  "license": "CC BY-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+  "note": "",
+  "page": "https://commons.wikimedia.org/wiki/File:Grandes_Armes_de_Metz.svg"
+ },
  "MUN": {
   "author": "David Liuzzo",
   "file": "File:Wappen Bistum Münster.png",
@@ -1062,6 +1118,14 @@
   "licenseUrl": "",
   "note": "",
   "page": "https://commons.wikimedia.org/wiki/File:Wappen_Bistum_M%C3%BCnster.png"
+ },
+ "MWI": {
+  "author": "",
+  "file": "File:Arms of Bourke of Mayo.svg",
+  "license": "CC BY-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+  "note": "",
+  "page": "https://commons.wikimedia.org/wiki/File:Arms_of_Bourke_of_Mayo.svg"
  },
  "NAP": {
   "author": "FDRMRZUSA; see sourced file(s) for related original author(s)",
@@ -1118,6 +1182,30 @@
   "licenseUrl": "",
   "note": "",
   "page": "https://commons.wikimedia.org/wiki/File:DEU_N%C3%BCrnberg_COA_(klein).svg"
+ },
+ "OCN": {
+  "author": "self-created",
+  "file": "File:O'Conor.png",
+  "license": "CC BY-SA 3.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+  "note": "",
+  "page": "https://commons.wikimedia.org/wiki/File:O%27Conor.png"
+ },
+ "OES": {
+  "author": "Robert Jahoda",
+  "file": "File:Coat of arms Bishopric of Ösel–Wiek.svg",
+  "license": "CC BY-SA 3.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+  "note": "",
+  "page": "https://commons.wikimedia.org/wiki/File:Coat_of_arms_Bishopric_of_%C3%96sel%E2%80%93Wiek.svg"
+ },
+ "OFL": {
+  "author": "self-created",
+  "file": "File:Ó Conchobhair Uí Failghe.png",
+  "license": "CC BY-SA 3.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+  "note": "",
+  "page": "https://commons.wikimedia.org/wiki/File:%C3%93_Conchobhair_U%C3%AD_Failghe.png"
  },
  "OIR": {
   "author": "HorseBro the hemionus",
@@ -1185,11 +1273,11 @@
  },
  "POM": {
   "author": "User:N3MOUser:Artemis Andromeda",
-  "file": "File:COA Pomerania-Stettin Iberian style shield white.svg",
+  "file": "File:COA Pomerania Wologast Iberian style shield.svg",
   "license": "CC BY-SA 4.0",
   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
-  "note": "",
-  "page": "https://commons.wikimedia.org/wiki/File:COA_Pomerania-Stettin_Iberian_style_shield_white.svg"
+  "note": "Pomerania-Wolgast",
+  "page": "https://commons.wikimedia.org/wiki/File:COA_Pomerania_Wologast_Iberian_style_shield.svg"
  },
  "POR": {
   "author": "‍Bragancihno",
@@ -1231,6 +1319,22 @@
   "note": "",
   "page": "https://commons.wikimedia.org/wiki/File:%D0%9F%D0%B5%D1%87%D0%B0%D1%82%D1%8C_%D0%9F%D0%BB%D0%B5%D1%81%D0%BA%D0%BE%D0%B2%D1%81%D0%BA%D0%B0%D1%8F.svg"
  },
+ "PSL": {
+  "author": "User:N3MOUser:Artemis Andromeda",
+  "file": "File:COA Pomerania-Stettin Iberian style shield white.svg",
+  "license": "CC BY-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+  "note": "Griffin of Pomerania",
+  "page": "https://commons.wikimedia.org/wiki/File:COA_Pomerania-Stettin_Iberian_style_shield_white.svg"
+ },
+ "PST": {
+  "author": "User:N3MOUser:Artemis Andromeda",
+  "file": "File:COA Pomerania Stettin blue.svg",
+  "license": "CC BY-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+  "note": "",
+  "page": "https://commons.wikimedia.org/wiki/File:COA_Pomerania_Stettin_blue.svg"
+ },
  "QAR": {
   "author": "Törə Bəy Türkman",
   "file": "File:Flag of Kara Koyunlu dynasty.png",
@@ -1255,6 +1359,14 @@
   "note": "Yüreğir tamga",
   "page": "https://commons.wikimedia.org/wiki/File:Yuregir.svg"
  },
+ "RAS": {
+  "author": "Abo Yemen",
+  "file": "File:Flag of the Rasulid Dynasty.png",
+  "license": "CC BY-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+  "note": "",
+  "page": "https://commons.wikimedia.org/wiki/File:Flag_of_the_Rasulid_Dynasty.png"
+ },
  "RIG": {
   "author": "The City of Riga",
   "file": "File:Two crossed black keys - Coat of Arms of Riga.svg",
@@ -1262,6 +1374,14 @@
   "licenseUrl": "",
   "note": "",
   "page": "https://commons.wikimedia.org/wiki/File:Two_crossed_black_keys_-_Coat_of_Arms_of_Riga.svg"
+ },
+ "RIM": {
+  "author": "MostEpic",
+  "file": "File:Arms of Sigismondo Pandolfo Malatesta, lord of Rimini.svg",
+  "license": "CC BY-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+  "note": "",
+  "page": "https://commons.wikimedia.org/wiki/File:Arms_of_Sigismondo_Pandolfo_Malatesta,_lord_of_Rimini.svg"
  },
  "RJP": {
   "author": "Bossk-Office",
@@ -1327,6 +1447,14 @@
   "note": "",
   "page": "https://commons.wikimedia.org/wiki/File:Coat_of_arms_of_the_Serbian_Despotate.svg"
  },
+ "SGA": {
+  "author": "sidonius 12:36, 12 February 2007 (UTC)",
+  "file": "File:Coa Abbey Saint Gall.svg",
+  "license": "Public domain",
+  "licenseUrl": "",
+  "note": "",
+  "page": "https://commons.wikimedia.org/wiki/File:Coa_Abbey_Saint_Gall.svg"
+ },
  "SHI": {
   "author": "Cavidaga",
   "file": "File:Shirvan gerb.png",
@@ -1350,6 +1478,14 @@
   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
   "note": "",
   "page": "https://commons.wikimedia.org/wiki/File:Stemma_Repubblica_di_Siena.svg"
+ },
+ "SLE": {
+  "author": "Ipankonin",
+  "file": "File:Schleswig Arms.svg",
+  "license": "CC BY-SA 3.0",
+  "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/",
+  "note": "",
+  "page": "https://commons.wikimedia.org/wiki/File:Schleswig_Arms.svg"
  },
  "SLZ": {
   "author": "MostEpic",
@@ -1400,12 +1536,12 @@
   "page": "https://commons.wikimedia.org/wiki/File:Early_Swiss_cross.svg"
  },
  "TAH": {
-  "author": "Abo Yemen",
-  "file": "File:Flag of the Rasulid Dynasty.png",
-  "license": "CC BY-SA 4.0",
-  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
-  "note": "Rasulid flag; Tahirids succeeded them in 1454",
-  "page": "https://commons.wikimedia.org/wiki/File:Flag_of_the_Rasulid_Dynasty.png"
+  "author": "HetmanTheResearcher",
+  "file": "File:Flag of the Tahirids.svg",
+  "license": "CC BY 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+  "note": "modern guess",
+  "page": "https://commons.wikimedia.org/wiki/File:Flag_of_the_Tahirids.svg"
  },
  "TEU": {
   "author": "",
@@ -1574,6 +1710,14 @@
   "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
   "note": "Shaybanid flag of 1510 (nearest known)",
   "page": "https://commons.wikimedia.org/wiki/File:Flag_of_the_Shaybanid_Uzbek_State_(Khanate_of_Bukhra)_in_1510.svg"
+ },
+ "VAL": {
+  "author": "David Liuzzo",
+  "file": "File:Wappen Bistum Sitten.png",
+  "license": "Attribution",
+  "licenseUrl": "",
+  "note": "Bishopric of Sion",
+  "page": "https://commons.wikimedia.org/wiki/File:Wappen_Bistum_Sitten.png"
  },
  "VEN": {
   "author": "Facquis",
