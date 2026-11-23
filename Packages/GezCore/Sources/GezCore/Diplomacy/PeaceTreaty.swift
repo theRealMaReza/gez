@@ -427,6 +427,13 @@ extension World {
                 }
             }
             diplomacy.endWar(id: war.id)
+            HistorySystem.recordEvent(
+                &self,
+                date: date,
+                kind: .warEnded,
+                primary: war.primaryAttacker,
+                secondary: war.primaryDefender
+            )
         } else {
             // Separate peace: loser leaves war with scaled truce against winner's side
             let opposingSide = war.isAttacker(offer.winner) ? war.attackers : war.defenders

@@ -330,6 +330,9 @@ public enum DiplomacyAISystem {
 
     // MARK: - Peace Treaty AI
 
+    /// Months after which an AI war is settled on current terms (Phase 20.5).
+    public static let exhaustedWarMonths = 96
+
     private static func resolveActiveWarsAI(
         _ world: inout World,
         ownedProvinces: [[ProvinceID]],
@@ -353,9 +356,23 @@ public enum DiplomacyAISystem {
                 world.provinces.occupiedBy[pid.index].map { war.areEnemies($0, loser) } ?? false
             }
 
+            // A main side that no longer holds land cannot fight on: end the
+            // war as it stands (Phase 20.5: such wars used to last forever).
+            if !loserHuman && (loserProvs.isEmpty || ownedProvinces[winner.index].isEmpty) {
+                let wp = PeaceOffer(warID: war.id, winner: winner, loser: loser, demands: [])
+                _ = world.executePeaceTreaty(wp, date: date, forceAccept: true)
+                continue
+            }
+
             let isStalemate = monthsFought >= 48 && absWS < 15 && !fullyOccupied
+            // After two years any clear lead is enough to ask for terms; before,
+            // wars stuck between 15% and 34% had no way to end (Phase 20.5).
             let wantsPeace = fullyOccupied || absWS >= 35 || isStalemate
-            guard wantsPeace else { continue }
+                || (monthsFought >= 24 && absWS >= 10)
+            // After eight years both sides are exhausted and settle on the
+            // terms the war score allows.
+            let exhausted = monthsFought >= DiplomacyAISystem.exhaustedWarMonths
+            guard wantsPeace || exhausted else { continue }
 
             var demands: [PeaceDemand] = []
             if !isStalemate {
@@ -435,13 +452,23 @@ public enum DiplomacyAISystem {
                 world.diplomacy.pendingPeaceOffers.append(offer)
             } else {
                 let eval = world.diplomacy.evaluatePeaceOffer(offer, date: date, in: world)
+                var ended = false
                 if eval.willAccept {
-                    _ = world.executePeaceTreaty(offer, date: date)
-                } else if isStalemate {
+                    if case .success = world.executePeaceTreaty(offer, date: date) { ended = true }
+                } else if isStalemate || exhausted {
                     let whitePeace = PeaceOffer(warID: war.id, winner: winner, loser: loser, demands: [])
                     let wpEval = world.diplomacy.evaluatePeaceOffer(whitePeace, date: date, in: world)
                     if wpEval.willAccept {
-                        _ = world.executePeaceTreaty(whitePeace, date: date)
+                        if case .success = world.executePeaceTreaty(whitePeace, date: date) { ended = true }
+                    }
+                }
+                if !ended && exhausted {
+                    // Forced settlement: the demands were sized to the war
+                    // score, so the loser gives what the war has won.
+                    if case .success = world.executePeaceTreaty(offer, date: date, forceAccept: true) {
+                    } else {
+                        let whitePeace = PeaceOffer(warID: war.id, winner: winner, loser: loser, demands: [])
+                        _ = world.executePeaceTreaty(whitePeace, date: date, forceAccept: true)
                     }
                 }
             }
