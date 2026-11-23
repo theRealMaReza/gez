@@ -252,12 +252,28 @@ public enum CharacterSystem {
                 died.append(id)
             }
         }
-        // Births.
+        // Births. Only the ruling families have children in the simulation:
+        // rulers and heirs, their spouses, children and siblings. Distant
+        // branches stay in the history but stop growing (Phase 20.5: every
+        // branch kept breeding, so the number of people and the cost of
+        // each day grew without limit).
+        var royal = Set<Int>()
+        for c in world.countries.ids {
+            for x in [world.countries.ruler[c.index], world.countries.heir[c.index]].compactMap({ $0 }) {
+                royal.insert(x.index)
+                for sp in ch.spouses[x.index] { royal.insert(sp.index) }
+                for k in ch.children[x.index] { royal.insert(k.index) }
+                if let f = ch.father[x.index] {
+                    for k in ch.children[f.index] { royal.insert(k.index) }
+                }
+            }
+        }
         var births: [(mother: CharacterID, father: CharacterID)] = []
         for i in 0..<ch.count where ch.female[i] && ch.death[i] == nil {
             let mother = CharacterID(i)
             let age = ch.age(mother, on: date)
             guard (16...42).contains(age), let husband = ch.livingSpouses(mother).first else { continue }
+            guard royal.contains(i) || royal.contains(husband.index) else { continue }
             let chance = age < 35 ? 0.28 : 0.12
             if random.unit() < chance / 12 { births.append((mother, husband)) }
         }
