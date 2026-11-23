@@ -426,6 +426,10 @@ ICONS = {
      # Phase 20.6: small inline glyphs (opinion, loyalty, capital)
      'heart':'M12 20.5C6 16 2.5 12.6 2.5 8.6A4.6 4.6 0 0 1 12 6.2a4.6 4.6 0 0 1 9.5 2.4c0 4-3.5 7.4-9.5 11.9z',
      'crack':'M12 6.4l-1.6 3.6 2.6 2.4-2.2 3.2 1.2 4.6',
+     # Phase 20.6: battle glyphs (regiment kinds)
+     'horse':'M7 21c0-4 1-7 4-9-2-1-3-2-3-4l3-5 1 2h2l5 6c1 1 0 3-1 3l-3-1-1 2c1 2 1 4 1 6',
+     'bow':'M7 3c7 4 7 14 0 18M7 3v18M3 12h16M16 9.5l3 2.5-3 2.5',
+     'cannon':'M3 10l13-4 1.2 4-13 4zM17 6.8l3-.9M9 13a4 4 0 1 0 0 8a4 4 0 1 0 0-8',
     }
 
 # ---------------------------------------------------------------- concept pieces
@@ -1395,11 +1399,17 @@ def glyph(path, size, shape, enamel, crack=None):
     im.resize((size * 2, size * 2), Image.LANCZOS).save(path, optimize=True)
 
 
+# Regiment kinds on the battle field (Phase 20.6 part 4): small medallions.
+BATTLE_GLYPHS = {'infantry': 'sword', 'cavalry': 'horse', 'ranged': 'bow', 'artillery': 'cannon'}
+
+
 def build_glyphs(out_dir, size=16):
     import os
     os.makedirs(out_dir, exist_ok=True)
     for key, (shape, enamel, crack) in GLYPHS.items():
         glyph(os.path.join(out_dir, f'{key}.png'), size, shape, enamel, crack)
+    for kind, icon in BATTLE_GLYPHS.items():
+        icon_medallion(os.path.join(out_dir, f'battle_{kind}.png'), 24, ICONS[icon], icon_scale=0.8)
 
 if __name__ == '__main__':
     import sys, os

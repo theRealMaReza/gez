@@ -88,6 +88,20 @@ func open_battle() -> void:
 		if canvas != null:
 			canvas.queue_redraw()
 
+# Phase 20.6: show a given battle state without the bridge (the CI close-up
+# shot and local checks use BattleShowcase.state()).
+func show_state(s: Dictionary, selected: Array[int] = []) -> void:
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	state = s
+	visible = true
+	selected_units = selected
+	field_w = maxf(100.0, float(state.get("fieldW", 1200.0)))
+	field_h = maxf(100.0, float(state.get("fieldH", 800.0)))
+	_sync_ui_from_state()
+	_sync_3d()
+	if canvas != null:
+		canvas.queue_redraw()
+
 func close_battle() -> void:
 	visible = false
 	if result_panel != null:
@@ -975,6 +989,7 @@ func _draw_overlay() -> void:
 				float(int(u_item.get("colorB", 80))) / 255.0)
 	var shift_side := -1
 	var shifted_col := Color()
+	var plates: Array = []   # 3D view: label plates, drawn last (Phase 20.6)
 	if side_cols.size() == 2:
 		var keys := side_cols.keys()
 		var ca: Color = side_cols[keys[0]]
@@ -1010,23 +1025,11 @@ func _draw_overlay() -> void:
 			col = col.darkened(0.42)
 			col.a = 0.72
 
-		var poly := _unit_shape_polygon(center, bw, bh, ang, form)
 		if use_3d:
-			# Outline on the ground around the 3D soldiers, lightly filled.
-			poly = PackedVector2Array()
-			for fp in _unit_shape_polygon(center_f, maxf(float(u_item.get("w", 24.0)), 10.0) + 10.0, maxf(float(u_item.get("h", 44.0)), 10.0) + 10.0, ang, form):
-				poly.append(_field_to_canvas(fp))
-			var fill := col
-			fill.a = 0.10
-			canvas.draw_colored_polygon(poly, fill)
-			var pr := Rect2(poly[0], Vector2.ZERO)
-			for pp in poly:
-				pr = pr.expand(pp)
-			bw = maxf(pr.size.x, 18.0)
-			bh = maxf(pr.size.y, 18.0)
-			center = _field_to_canvas(center_f) + Vector2(0.0, -10.0 * canvas_scale)
-		else:
-			canvas.draw_colored_polygon(poly, col)
+			plates.append(_draw_unit_ground_3d(u_item, center_f, col, is_sel, routing, ang, form))
+			continue
+		var poly := _unit_shape_polygon(center, bw, bh, ang, form)
+		canvas.draw_colored_polygon(poly, col)
 		var border_col := Color(1.0, 0.90, 0.25, 1.0) if is_sel else (Color(0.95, 0.28, 0.24, 0.9) if routing else Color(0.95, 0.92, 0.82, 0.85))
 		var closed := poly.duplicate()
 		closed.append(poly[0])
@@ -1061,6 +1064,9 @@ func _draw_overlay() -> void:
 			canvas.draw_string(font, center + Vector2(-5.0, 4.0), glyph, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color(0.98, 0.96, 0.90))
 			canvas.draw_string(font, center + Vector2(-14.0, maxf(bw, bh) * 0.5 + 12.0), "%d%s" % [men, badge], HORIZONTAL_ALIGNMENT_LEFT, -1, 10, Color(0.94, 0.90, 0.80))
 
+	if use_3d:
+		_draw_plates(plates)
+
 	# 8. Drag gestures overlay (box select / sketched path / dragged frontline)
 	if is_box_selecting:
 		var tl := Vector2(minf(box_start_canvas.x, box_cur_canvas.x), minf(box_start_canvas.y, box_cur_canvas.y))
@@ -1080,6 +1086,116 @@ func _draw_overlay() -> void:
 		for k in range(count_sel):
 			var frac := 0.5 if count_sel == 1 else (float(k) / float(count_sel - 1))
 			canvas.draw_circle(a.lerp(b, frac), 5.0, Color(1.0, 0.94, 0.55, 0.95))
+
+# ---- Phase 20.6: the 3D view's unit marks -----------------------------------
+
+const PLATE_H := 17.0
+const _CAT_GLYPH := {"infantry": "battle_infantry", "cavalry": "battle_cavalry", "ranged": "battle_ranged", "artillery": "battle_artillery"}
+
+# A field outline drawn on the ground: each edge sampled so it follows hills.
+func _ground_outline(field_pts: PackedVector2Array) -> PackedVector2Array:
+	var out := PackedVector2Array()
+	var n := field_pts.size()
+	for k in range(n):
+		var a := field_pts[k]
+		var b := field_pts[(k + 1) % n]
+		var steps := clampi(int(a.distance_to(b) / 8.0), 1, 8)
+		for t in range(steps):
+			out.append(_field_to_canvas(a.lerp(b, float(t) / float(steps))))
+	out.append(out[0])
+	return out
+
+# The unit's footprint on the ground (the rectangle you click) and its
+# facing tick; returns its label plate: [anchor point, unit, colour, selected].
+func _draw_unit_ground_3d(u: Dictionary, center_f: Vector2, col: Color, is_sel: bool, routing: bool, ang: float, form: String) -> Array:
+	var w := maxf(float(u.get("w", 24.0)), 10.0) + 4.0
+	var h := maxf(float(u.get("h", 44.0)), 10.0) + 4.0
+	var outline := _ground_outline(_unit_shape_polygon(center_f, w, h, ang, form))
+	var fill := col
+	fill.a = 0.10 if is_sel else 0.05
+	var poly := outline.slice(0, outline.size() - 1)
+	if poly.size() >= 3:
+		canvas.draw_colored_polygon(poly, fill)
+	if is_sel:
+		canvas.draw_polyline(outline, Color(1.0, 0.86, 0.30, 0.30), 3.4, true)
+		canvas.draw_polyline(outline, Color(1.0, 0.90, 0.40, 1.0), 1.3, true)
+	else:
+		var edge := Color(0.96, 0.30, 0.25, 0.85) if routing else col.lightened(0.45)
+		edge.a = 0.85 if routing else 0.55
+		canvas.draw_polyline(outline, edge, 1.0, true)
+	# facing: a short tick from the front edge, on the ground
+	var fwd := Vector2(cos(ang), sin(ang))
+	var a := _field_to_canvas(center_f + fwd * (w * 0.5))
+	var b := _field_to_canvas(center_f + fwd * (w * 0.5 + 7.0))
+	canvas.draw_line(a, b, Color(1.0, 0.95, 0.70, 0.9 if is_sel else 0.6), 1.5, true)
+	# the plate floats over the regiment's back edge, above the soldiers
+	var top := _field_to_canvas(center_f - fwd * (w * 0.5))
+	if view3d != null:
+		top = view3d.call("field_to_screen", center_f - fwd * (w * 0.25), 12.0)
+	return [top, u, col, is_sel]
+
+# Label plates: kind medallion, type letter and men, with strength and morale
+# bars under the text. Placed bottom-up and nudged upwards past plates
+# already drawn, with a thin leader line when moved, so neighbours in melee
+# never cover each other.
+func _draw_plates(plates: Array) -> void:
+	var font := ThemeDB.fallback_font
+	if font == null:
+		return
+	plates.sort_custom(func(a: Array, b: Array) -> bool: return (a[0] as Vector2).y > (b[0] as Vector2).y)
+	var placed: Array[Rect2] = []
+	for pl in plates:
+		var anchor: Vector2 = pl[0]
+		var u: Dictionary = pl[1]
+		var is_sel: bool = pl[3]
+		var men := int(u.get("men", 0))
+		var txt := "%s  %s" % [str(u.get("glyph", "I")), _fmt_int(men)]
+		var eq := str(u.get("siegeEquipment", "none"))
+		if eq == "ladders":
+			txt += " · L"
+		elif eq == "ram":
+			txt += " · R"
+		var fs := 10
+		var tw := font.get_string_size(txt, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x
+		var pw := 15.0 + 3.0 + tw + 6.0
+		var base := Rect2(anchor.x - pw * 0.5, anchor.y - PLATE_H, pw, PLATE_H)
+		# first free spot: right above, then a little to the side, then higher
+		var r := base
+		var found := false
+		for dy in [0.0, -(PLATE_H + 2.0), -(PLATE_H + 2.0) * 2.0]:
+			for dx in [0.0, -pw * 0.55, pw * 0.55, -pw * 1.05, pw * 1.05]:
+				var cand := Rect2(base.position + Vector2(dx, dy), base.size)
+				var free := true
+				for q in placed:
+					if q.grow(1.0).intersects(cand):
+						free = false
+						break
+				if free:
+					r = cand
+					found = true
+					break
+			if found:
+				break
+		placed.append(r)
+		if r.position != base.position:
+			canvas.draw_line(anchor, Vector2(clampf(anchor.x, r.position.x + 2.0, r.end.x - 2.0), r.end.y), Color(0.10, 0.08, 0.06, 0.6), 1.0, true)
+		var bg := Color(0.11, 0.08, 0.06, 0.72)
+		canvas.draw_rect(r, bg, true)
+		canvas.draw_rect(r, Color(1.0, 0.88, 0.40, 0.95) if is_sel else Color(0.80, 0.66, 0.36, 0.55), false, 1.0)
+		var icon := GezStyle.glyph(str(_CAT_GLYPH.get(str(u.get("category", "infantry")), "battle_infantry")))
+		if icon != null:
+			canvas.draw_texture_rect(icon, Rect2(r.position + Vector2(1.5, 1.5), Vector2(14.0, 14.0)), false)
+		canvas.draw_string(font, r.position + Vector2(18.0, 10.0), txt, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color(0.98, 0.95, 0.86))
+		# strength (green, red when low) and morale (gold) under the text
+		var max_m := maxf(1.0, float(u.get("maxMen", 1000)))
+		var hp := clampf(float(men) / max_m, 0.0, 1.0)
+		var mor := clampf(float(u.get("morale", 0.0)) / maxf(1.0, float(u.get("maxMorale", 3.0))), 0.0, 1.0)
+		var bx := r.position.x + 18.0
+		var bw := r.size.x - 21.0
+		canvas.draw_rect(Rect2(bx, r.position.y + 12.0, bw, 2.0), Color(0, 0, 0, 0.6), true)
+		canvas.draw_rect(Rect2(bx, r.position.y + 12.0, bw * hp, 2.0), Color(0.32, 0.88, 0.42) if hp > 0.45 else Color(0.94, 0.44, 0.30), true)
+		canvas.draw_rect(Rect2(bx, r.position.y + 14.5, bw, 1.5), Color(0, 0, 0, 0.6), true)
+		canvas.draw_rect(Rect2(bx, r.position.y + 14.5, bw * mor, 1.5), Color(0.94, 0.82, 0.30), true)
 
 # A field rectangle drawn on the (possibly tilted) battlefield; returns its screen bounds.
 func _draw_field_rect(r: Rect2, fill: Color, border: Color, width: float) -> Rect2:
