@@ -24,6 +24,10 @@ File format (little endian): b"GZMZ", u32 size of the unpacked data, then
 gzip of: u32 version (1), u32 mesh count, then per mesh:
   u16 name length, name (utf-8), u32 vertex count, u32 index count,
   f32 positions[3n], f32 normals[3n], f32 colours[4n] (sRGB), i32 indices.
+Colour alpha (Phase 20.6) is how much a vertex may move: 0 to 1 on flags
+and sails (the game waves them), 1 everywhere else. Town buildings and forts
+stand on a dark plinth, and towns, forts, ports, armies and fleets have
+ambient occlusion baked into their colours.
 
 Run after changing a model:  python3 tools/models/build_models.py
 """
@@ -107,6 +111,7 @@ class Mesh:
     def __init__(self):
         self.p = []   # list of (x, y, z)
         self.c = []   # list of (r, g, b)
+        self.a = None  # optional per-vertex alpha: how much the vertex may move (flags, sails)
 
     def tri(self, a, b, c, col):
         self.p += [a, b, c]
@@ -117,6 +122,8 @@ class Mesh:
         self.tri(a, c, d, col)
 
     def extend(self, other):
+        if self.a is not None or other.a is not None:
+            self.a = (self.a or [0.0] * len(self.p)) + (other.a or [0.0] * len(other.p))
         self.p += other.p
         self.c += other.c
         return self
@@ -127,6 +134,7 @@ class Mesh:
         P = P @ rot_matrix(rot_x, rot_y, rot_z).T + np.array(offset)
         m.p = [tuple(v) for v in P]
         m.c = list(self.c)
+        m.a = list(self.a) if self.a is not None else None
         return m
 
     # ---- primitives ----
@@ -449,6 +457,19 @@ def ship_sails(style):
     else:
         s.box((0.0, 1.08, 0.05), (0.07, 0.72, 0.74), CLOTH)
         s.box((0.0, 1.5, 0.0), (0.04, 0.04, 0.8), DARK_WOOD)
+    # Phase 20.6: the cloth may move (most in the middle, away from mast,
+    # yard and edges); wood never does.
+    P = np.array(s.p)
+    cloth = np.array([c != DARK_WOOD for c in s.c])
+    lo, hi = P[cloth].min(axis=0), P[cloth].max(axis=0)
+    mid = (lo + hi) * 0.5
+    half = np.maximum((hi - lo) * 0.5, 1e-6)
+    # how far from the sail's edges, across its two long sides (the third,
+    # thin side is ignored)
+    keep = np.argsort(hi - lo)[1:]
+    t = 1.0 - np.max(np.abs((P - mid) / half)[:, keep], axis=1)
+    w = np.where(cloth, np.clip(t * 1.4, 0.0, 1.0), 0.0)
+    s.a = [float(v) for v in w]
     return s.transformed(rot_y=-math.pi / 2)
 
 
@@ -471,6 +492,8 @@ def flag_pole(h=1.7):
 def flag_cloth(h=1.7):
     m = Mesh()
     m.prism([(0.02, h - 0.05), (0.62, h - 0.12), (0.62, h - 0.47), (0.02, h - 0.40)], 0.03, WHITE)
+    # Phase 20.6: fixed at the pole, free at the fly end.
+    m.a = [min(max((x - 0.02) / 0.6, 0.0), 1.0) ** 1.3 for x, _, _ in m.p]
     return m
 
 
@@ -729,6 +752,99 @@ def tree(kind=0):
 # --------------------------------------------------------------------------
 # Library
 
+# ---- Phase 20.6: plinths and baked ambient occlusion -----------------------
+
+PLINTH = (0.31, 0.26, 0.20)
+# Meshes (name before the style) that get baked ambient occlusion: towns,
+# forts, ports, armies and fleets.
+AO_MESHES = {"house_a", "house_b", "temple", "landmark", "market", "fort1", "fort2", "fort3",
+             "pier", "ship", "sail", "soldier_body", "soldier_gear", "archer_gear", "rider_body",
+             "rider_gear", "flag_pole", "flag_cloth"}
+
+
+def with_plinth(m, pad=0.07, h=0.035, col=PLINTH):
+    """An opaque dark base under a building (instead of a see-through shadow
+    quad): the footprint's box with cut corners, a little wider than the
+    walls, so the model sits on the ground at every angle."""
+    P = np.array(m.p)
+    height = P[:, 1].max()
+    low = P[P[:, 1] < max(height * 0.12, 0.05)]
+    if len(low) == 0:
+        low = P
+    x0, z0 = low[:, 0].min() - pad, low[:, 2].min() - pad
+    x1, z1 = low[:, 0].max() + pad, low[:, 2].max() + pad
+    cut = min(x1 - x0, z1 - z0) * 0.22
+    ring = [(x0 + cut, z0), (x1 - cut, z0), (x1, z0 + cut), (x1, z1 - cut),
+            (x1 - cut, z1), (x0 + cut, z1), (x0, z1 - cut), (x0, z0 + cut)]
+    cx, cz = (x0 + x1) * 0.5, (z0 + z1) * 0.5
+    top = [(cx + (x - cx) * 0.97, h, cz + (z - cz) * 0.97) for x, z in ring]
+    bot = [(x, -0.02, z) for x, z in ring]
+    b = Mesh()
+    for i in range(8):
+        j = (i + 1) % 8
+        b.quad(bot[i], bot[j], top[j], top[i], shade(col, 0.85))
+        b.tri((cx, h, cz), top[i], top[j], col)
+    return b.extend(m) if m.a is None else m.extend(b)
+
+
+def _voxels(P, T, cell):
+    """Occupancy grid of the mesh's surface (points sampled on every triangle)."""
+    lo = P.min(axis=0) - cell * 2
+    dims = np.ceil((P.max(axis=0) + cell * 2 - lo) / cell).astype(int) + 1
+    grid = np.zeros(dims, bool)
+    tri = P[T]
+    edge = np.maximum(np.linalg.norm(tri[:, 1] - tri[:, 0], axis=1),
+                      np.linalg.norm(tri[:, 2] - tri[:, 0], axis=1))
+    for k in np.unique(np.clip(np.ceil(edge / (cell * 0.7)).astype(int), 1, 40)):
+        sel = tri[np.clip(np.ceil(edge / (cell * 0.7)).astype(int), 1, 40) == k]
+        u, v = np.meshgrid(np.arange(k + 1), np.arange(k + 1))
+        ok = (u + v) <= k
+        u, v = u[ok] / k, v[ok] / k
+        pts = (sel[:, None, 0] * (1 - u - v)[None, :, None] + sel[:, None, 1] * u[None, :, None]
+               + sel[:, None, 2] * v[None, :, None]).reshape(-1, 3)
+        idx = np.floor((pts - lo) / cell).astype(int)
+        grid[idx[:, 0], idx[:, 1], idx[:, 2]] = True
+    return grid, lo
+
+
+def _dirs(n=24):
+    """Fixed directions over a sphere (golden spiral)."""
+    i = np.arange(n) + 0.5
+    phi = np.arccos(1 - 2 * i / n)
+    th = math.pi * (1 + 5 ** 0.5) * i
+    return np.stack([np.cos(th) * np.sin(phi), np.cos(phi), np.sin(th) * np.sin(phi)], axis=1)
+
+
+def ambient_occlusion(P, N, T, strength=0.55, reach=0.45):
+    """Per-vertex light from the sky that the model itself does not block.
+    Rays are marched through a voxel copy of the surface; the ground (y < 0)
+    blocks too, so walls darken where they meet it. Winding is not
+    consistent between builders, so each vertex takes the more open of its
+    two sides."""
+    span = (P.max(axis=0) - P.min(axis=0)).max()
+    cell = max(span / 72.0, 0.012)
+    grid, lo = _voxels(P, T, cell)
+    D = _dirs()
+    steps = np.linspace(cell * 2.2, reach, 9)
+    best = np.zeros(len(P))
+    for sign in (1.0, -1.0):
+        n = N * sign
+        cos = n @ D.T                                   # vertices x directions
+        start = P + n * cell * 1.6
+        hit = np.zeros(cos.shape, bool)
+        for d in steps:
+            q = start[:, None, :] + D[None, :, :] * d   # V x D x 3
+            idx = np.floor((q - lo) / cell).astype(int)
+            inside = np.all((idx >= 0) & (idx < np.array(grid.shape)), axis=2)
+            idc = np.clip(idx, 0, np.array(grid.shape) - 1)
+            occ = grid[idc[..., 0], idc[..., 1], idc[..., 2]] & inside
+            hit |= occ | (q[..., 1] < -0.01)
+        w = np.clip(cos, 0, None)
+        vis = ((~hit) * w).sum(axis=1) / np.maximum(w.sum(axis=1), 1e-6)
+        best = np.maximum(best, vis)
+    return 1.0 - strength * (1.0 - best)
+
+
 def normalise_base(m, target_width=None, target_height=None):
     P = np.array(m.p)
     lo, hi = P.min(axis=0), P.max(axis=0)
@@ -795,6 +911,10 @@ def build_library():
         lib[f"keep.{st}"] = keep(st)
         lib[f"rubble.{st}"] = rubble(st)
 
+        # Phase 20.6: town buildings and forts stand on a dark plinth.
+        for kind in ("house_a", "house_b", "temple", "landmark", "market", "fort1", "fort2", "fort3"):
+            lib[f"{kind}.{st}"] = with_plinth(lib[f"{kind}.{st}"], pad=0.09 if kind.startswith("fort") else 0.07)
+
     lib["pier"] = pier()
     lib["flag_pole"] = flag_pole()
     lib["flag_cloth"] = flag_cloth()
@@ -812,9 +932,10 @@ def build_library():
     return lib
 
 
-def mesh_arrays(m):
+def mesh_arrays(m, ao=False):
     P = np.array(m.p, dtype=np.float32).reshape(-1, 3)
     C = np.array(m.c, dtype=np.float32).reshape(-1, 3)
+    A = np.array(m.a if m.a is not None else [1.0] * len(m.p), dtype=np.float32).reshape(-1, 1)
     # Flat normals per triangle (low-poly look).
     T = P.reshape(-1, 3, 3)
     n = np.cross(T[:, 1] - T[:, 0], T[:, 2] - T[:, 0])
@@ -824,17 +945,21 @@ def mesh_arrays(m):
     # Share identical corners (same place, normal and colour) between triangles.
     # Winding is not consistent between builders: the game draws both sides
     # and Godot turns the normal towards the viewer, so lighting stays right.
-    key = np.concatenate([np.round(P, 4), np.round(N, 3), np.round(C, 3)], axis=1)
+    key = np.concatenate([np.round(P, 4), np.round(N, 3), np.round(C, 3), np.round(A, 3)], axis=1)
     _, first, inverse = np.unique(key, axis=0, return_index=True, return_inverse=True)
-    C4 = np.concatenate([C[first], np.ones((len(first), 1), np.float32)], axis=1)
-    return P[first], N[first], C4, inverse.reshape(-1).astype(np.int32)
+    I = inverse.reshape(-1).astype(np.int32)
+    C4 = np.concatenate([C[first], A[first]], axis=1)
+    if ao:
+        k = ambient_occlusion(P[first].astype(np.float64), N[first].astype(np.float64), I.reshape(-1, 3))
+        C4[:, :3] *= k[:, None].astype(np.float32)
+    return P[first], N[first], C4, I
 
 
-def write_library(lib, path):
+def write_library(lib, path, ao=None):
     raw = bytearray()
     raw += struct.pack("<II", 1, len(lib))
     for name in sorted(lib):
-        P, N, C, I = mesh_arrays(lib[name])
+        P, N, C, I = mesh_arrays(lib[name], ao=(ao is not None and name.split(".")[0] in ao))
         nb = name.encode()
         raw += struct.pack("<H", len(nb)) + nb
         raw += struct.pack("<II", len(P), len(I))
@@ -934,7 +1059,7 @@ def write_icon_models():
 
 def main():
     lib = build_library()
-    size = write_library(lib, OUT)
+    size = write_library(lib, OUT, ao=AO_MESHES)
     tris = sum(len(m.p) // 3 for m in lib.values())
     print(f"wrote {OUT}: {len(lib)} meshes, {tris} triangles, {size / 1e6:.2f} MB")
 
