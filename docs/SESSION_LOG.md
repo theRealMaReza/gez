@@ -236,3 +236,6 @@ truce (Galata surrendered on 1 June 1453, two days after the start).
   height was in old map units. `MapScale.k` (pixels per degree / 32) and
   `MapScale.look(zoom)` keep them geographic. A test clicking 41.0 N
   29.0 E for Constantinople hit the Bosporus at 48 px/degree.
+- The simulation had one pixel-based rule: sea travel (`baseSeaPixelsPerDay`
+  over zone-centre distances). `seaDistance` now counts 32-px/degree
+  pixels, so fleets keep their speed; NavyTests caught it.
