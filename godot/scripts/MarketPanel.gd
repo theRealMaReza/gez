@@ -18,7 +18,9 @@ var current_market_category: String = ""
 func setup(host: Control) -> void:
 	main = host
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
-	set_anchors_preset(Control.PRESET_FULL_RECT)
+	# offsets too: we are already in the tree, so plain set_anchors_preset
+	# would keep our zero size
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_build_market_panel()
 
 func close() -> void:
