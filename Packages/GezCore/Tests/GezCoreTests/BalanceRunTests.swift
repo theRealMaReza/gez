@@ -65,7 +65,8 @@ struct BalanceRunTests {
         let oldest = wars.map { y - $0.startDate.year }.max() ?? 0
         print("\(p) alive=\(rows.count) pop_m=\(String(format: "%.1f", Double(pop) / 1e6)) wars=\(wars.count) oldest_war_years=\(oldest)")
         if let k = w.provinces.id(named: "Konstantiniyye") {
-            print("\(p) Konstantiniyye=\(w.countries.tag[w.provinces.owner[k.index].index])")
+            let o = w.provinces.owner[k.index].map { w.countries.tag[$0.index] } ?? "none"
+            print("\(p) Konstantiniyye=\(o)")
         }
         let top = rows.sorted { $0.provinces > $1.provinces }.prefix(12)
             .map { "\($0.tag):\($0.provinces)" }.joined(separator: " ")
