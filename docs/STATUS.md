@@ -4,7 +4,7 @@ The short version of `docs/HANDOFF.md` and `docs/ROADMAP.md`, mirrored to
 the claude.ai Project as `claude/STATUS.md`. Everything else lives in the
 repo (`theRealMaReza/gez`): read only the parts a task needs.
 
-Last updated: 23 November 2026 (Phase 20.6 done: parts 1 and 4, PRs #35–#40).
+Last updated: 23 November 2026 (Phase 20.7 part 1, Old World map foundation, PR #43).
 
 ## Repo move (21–22 Nov 2026)
 - Old account `yv28f5k922-dot` suspended (owner appealed). New repo
@@ -71,6 +71,14 @@ Last updated: 23 November 2026 (Phase 20.6 done: parts 1 and 4, PRs #35–#40).
   (routine: HANDOFF "Working with Gemini" and "How Claude reviews"). New
   screens: plain controls, `add_window`, `add_side_button` (HANDOFF "New
   screens and the Phase 20 look").
+- **Phase 20.7 part 1, Old World map foundation** (Claude, PR #43, 23 Nov):
+  map grown to Afro-Eurasia (25 W–148 E, 35 S–71.5 N) at **48 px/degree**
+  (8304 × 5112, owner's pick after measuring: about +580 MB in the game);
+  **Australia and New Guinea are unknown-land parchment** (owner's pick);
+  new land is placeholder wasteland; 59 new sea zones; old borders kept;
+  new faiths (Mahayana, Confucian, Daoist, Shinto; West African, Bantu,
+  East African, Siberian, Austronesian, Highland). Guide for Gemini's
+  region PRs: HANDOFF "Old World region pull requests".
 - **Map and flavour research** (owner, 22 Nov 2026): PR #13 (merged) adds
   `docs/MAP_EXPANSION_RESEARCH.md` (1453 border fixes, Afro-Eurasia
   expansion, regional governance, formables) with Claude's review notes.
@@ -80,8 +88,9 @@ Last updated: 23 November 2026 (Phase 20.6 done: parts 1 and 4, PRs #35–#40).
    the Mac (`git pull`, `./godot/build_mac.sh`): frame rate on the M1 when
    zoomed out (painted chart) and when windows open; try the Chronicle,
    Ledger and Timelapse medallions in the left column.
-2. **20.7 Old World map** (prompt C5 in the Project doc
-   `claude/PHASE_PROMPTS.md`), then 20.8, then the rest of 20.5. Also on
+2. **20.7 region PRs** (Gemini writes, Claude reviews; guide in HANDOFF):
+   East Asia, Southeast Asia, Siberia, Africa south of the Equator, and the
+   still-empty Sahel and Guinea coast; then 20.8, then the rest of 20.5. Also on
    the Mac: frame rate of the new battle view (smoke, more haze) and of
    towns on first load.
 3. **20.5 balance and play-test** (Claude; Phases 18 and 20 are both
