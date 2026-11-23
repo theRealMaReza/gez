@@ -155,6 +155,22 @@ static func building_icon(building_name: String) -> Texture2D:
 	var key: String = _index("buildings").get(building_name, "")
 	return null if key.is_empty() else tex("res://assets/ui/buildings/%s.png" % key)
 
+## Small embossed glyph that sits in a line of text (Phase 20.6):
+## "heart" (good opinion, loyalty), "heart_broken" (bad opinion), "star"
+## (capital). Made by build_glyphs in tools/uiart/ui_art_concept.py.
+static func glyph(key: String) -> Texture2D:
+	return tex("res://assets/ui/glyphs/%s.png" % key)
+
+## `label` with a glyph in front of it, in a tight row. Keeps the label's
+## own font, size and colour.
+static func with_glyph(key: String, label: Label, size := 14.0) -> HBoxContainer:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 2)
+	row.mouse_filter = Control.MOUSE_FILTER_PASS
+	row.add_child(icon_rect(glyph(key), size))
+	row.add_child(label)
+	return row
+
 ## A small TextureRect showing `t` at `size` pixels (null-safe: empty box).
 static func icon_rect(t: Texture2D, size := 24.0) -> TextureRect:
 	var r := TextureRect.new()
