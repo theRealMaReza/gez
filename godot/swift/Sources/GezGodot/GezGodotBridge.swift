@@ -5352,6 +5352,12 @@ public final class GezGodotBridge: RefCounted {
         Self.toVariantDictionary(controller.selectedArmyDetails())
     }
 
+    /// Phase 20.6 part 3b: the right-hand outliner's rows (GezGodotOutlinerBridge.swift).
+    @Callable
+    public func getOutlinerData() -> VariantDictionary {
+        Self.toVariantDictionary(controller.outlinerData())
+    }
+
     @Callable
     public func getArmiesWindowDetails() -> VariantDictionary {
         Self.toVariantDictionary(controller.armiesWindowDetails())

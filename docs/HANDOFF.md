@@ -128,6 +128,14 @@ phases): chronicle (Phase 18, Gemini, in progress), multiplayer (Phase 19), miss
     `close_grid()`; owner's pick, 22 Nov 2026). The top right is free for
     the outliner. The map state (`current_map_mode`, `_select_map_mode`)
     stays in Main.
+  - `Outliner.gd` (part 3b): the right-hand outliner, top right. Your
+    armies, fleets, sieges (yours and enemy sieges of your forts) and
+    building work (buildings and ships); a click selects the army or fleet
+    (or the province) and centres the map there. Headings fold; the title
+    medallion folds the whole list. Data: one bridge call,
+    `getOutlinerData` (`GezGodotOutlinerBridge.swift`), polled twice a
+    second and rebuilt only when it changes. The market stays its own
+    window (owner, 22 Nov 2026).
   Each is a full-screen, click-through `Control` that Main adds and then
   calls `setup(main)`. The old names still work through Main, so other
   screens need no change: `_refresh_province_panel()`,

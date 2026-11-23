@@ -88,6 +88,12 @@ func _run_captures() -> void:
 	if mp is Control:
 		(mp as Control).visible = false
 
+	# Phase 20.6 part 3b: the right-hand outliner (top right), alone.
+	var outl = root_node.get("outliner")
+	if outl != null:
+		outl.call("refresh", true)
+		await _save_shot("godot_outliner.png")
+
 	# Each top-left window.
 	var windows := [
 		["_toggle_budget_window", "godot_budget.png"],
