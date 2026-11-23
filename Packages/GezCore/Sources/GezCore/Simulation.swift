@@ -94,7 +94,7 @@ public final class Simulation {
             BuildingSystem.runAI(&world, month: date.month, date: date)
             ArmySystem.runAI(&world, month: date.month, date: date)
             NavySystem.runAI(&world)
-            PopulationSystem.runMonthly(&world)
+            PopulationSystem.runMonthly(&world, date: date)
             PlagueSystem.runMonthly(&world, date: date, random: &random)
             FamineSystem.runMonthly(&world, date: date, random: &random)
             QuakeSystem.runMonthly(&world, date: date, random: &random)

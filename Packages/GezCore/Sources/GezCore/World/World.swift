@@ -20,6 +20,9 @@ public struct ProvinceTable: Sendable {
     public var development: [Int] = []
     /// Number of people.
     public var population: [Double] = []
+    /// Number of people on 30 May 1453 (from the scenario, never saved):
+    /// the base of each province's carrying capacity (Phase 20.5).
+    public private(set) var startPopulation: [Double] = []
     /// Yearly tax value in ducats.
     public var baseTax: [Double] = []
     /// Yearly production value in ducats.
@@ -93,6 +96,7 @@ public struct ProvinceTable: Sendable {
         self.owner.append(owner)
         self.development.append(development)
         self.population.append(population)
+        self.startPopulation.append(population)
         self.baseTax.append(baseTax)
         self.production.append(production)
         self.religion.append(religion)
