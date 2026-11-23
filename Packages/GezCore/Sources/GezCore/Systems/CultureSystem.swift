@@ -50,7 +50,10 @@ public enum CultureModel {
     public static let siegeDevastationGain = 0.08
     public static let battleDevastationGain = 0.05
     public static let peaceDevastationDecay = 0.025
-    public static let maxMonthlyMigrationRate = 0.12
+    /// Phase 20.5: was 0.12, which emptied frontier provinces in a few years.
+    public static let maxMonthlyMigrationRate = 0.05
+    /// Share of a crossing that still happens when the destination has another owner.
+    public static let foreignMigrationWeight = 0.35
     public static let minRemainingPopAfterMigration = 25.0
 }
 
@@ -207,7 +210,7 @@ public enum CultureSystem {
 
         updateDevastation(&world, provinceCount: P)
         runAssimilation(&world, provinceCount: P, countryCount: C)
-        runMigration(&world, provinceCount: P, countryCount: C, random: &random)
+        runMigration(&world, provinceCount: P, countryCount: C, year: date.year, random: &random)
         world.pops.foldDust(provinceCount: P)
     }
 
@@ -358,9 +361,16 @@ public enum CultureSystem {
         _ world: inout World,
         provinceCount P: Int,
         countryCount C: Int,
+        year: Int,
         random: inout GameRandom
     ) {
         world.provinces.lastNetMigration = Array(repeating: 0.0, count: P)
+        // Phase 20.5: how full each province is; crowded places stop
+        // attracting people, so migrants no longer pile into a few cities.
+        var fullness = Array(repeating: 0.0, count: P)
+        for p in 0..<P {
+            fullness[p] = world.provinces.population[p] / PopulationSystem.capacity(world, p, year: year)
+        }
 
         // Precompute faith law per country for persecution & tolerance bonuses.
         let g = world.government
@@ -390,6 +400,7 @@ public enum CultureSystem {
             // People shun a town where the sick are dying (Phase 12).
             score -= world.calamity.totalInfection(p) * 100.0
             if world.provinces.occupiedBy[p] != nil { score -= 10.0 }
+            if fullness[p] > 0.9 { score -= (fullness[p] - 0.9) * 30.0 }
             if let owner = world.provinces.owner[p] {
                 let f = countryFaithCode[owner.index]
                 if f == 2 { score += 2.0 }
@@ -443,7 +454,7 @@ public enum CultureSystem {
 
             // Flight from plague; a cordon keeps people in (and out).
             let sick = world.calamity.totalInfection(p)
-            let plaguePush = sick > 0.005 ? sick * 0.5 : 0.0
+            let plaguePush = sick > 0.005 ? sick * 0.25 : 0.0
             if world.calamity.isCordoned(p) { continue }
 
             let maxPotentialPush = devPush + famPush + faithPush + plaguePush
@@ -464,17 +475,23 @@ public enum CultureSystem {
                    world.provinces.famine[q] < 0.25,
                    world.provinces.occupiedBy[q] == nil,
                    !world.calamity.isCordoned(q),
+                   fullness[q] < 1.1,
                    attractiveness[q] > myAttr + 0.1 {
                     seenDest.insert(q)
-                    candidates.append((q, max(0.5, attractiveness[q] - myAttr)))
+                    let foreign = world.provinces.owner[q] != world.provinces.owner[p]
+                    let w = max(0.5, attractiveness[q] - myAttr) * (foreign ? CultureModel.foreignMigrationWeight : 1.0)
+                    candidates.append((q, w))
                 }
             }
             if p < eco.provinceMarket.count {
                 let m = eco.provinceMarket[p].index
                 if let partners = sortedMarketPartners[m] {
                     for pm in partners where pm < M {
+                        // Long-distance moves stay inside the realm (Phase 20.5).
                         for q in topInMarket[pm] where q != p && !seenDest.contains(q) && attractiveness[q] > myAttr + 0.5
-                            && !world.calamity.isCordoned(q) {
+                            && !world.calamity.isCordoned(q)
+                            && fullness[q] < 1.1
+                            && world.provinces.owner[q] != nil && world.provinces.owner[q] == world.provinces.owner[p] {
                             seenDest.insert(q)
                             candidates.append((q, max(0.5, (attractiveness[q] - myAttr) * 0.6)))
                         }
