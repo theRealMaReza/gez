@@ -296,6 +296,23 @@ func _run_captures() -> void:
 		else:
 			push_warning("No field battle prompt occurred while marching Imperial Army to Kruje (660).")
 
+	# Phase 20.6: the battle view on a fixed picture (BattleShowcase), so the
+	# 3D battle is always shot even when no field battle comes up above:
+	# whole view plus a close-up of the melee (labels, selection, smoke).
+	var bv_show: Variant = root_node.get("battle_view")
+	if bv_show is Control:
+		var sel: Array[int] = [0, 2]
+		bv_show.call("show_state", preload("res://scripts/BattleShowcase.gd").state(), sel)
+		await _save_shot("godot_battle_showcase.png")
+		var full := root.get_viewport().get_texture().get_image()
+		if full != null and not full.is_empty():
+			var w := full.get_width()
+			var h := full.get_height()
+			var crop := full.get_region(Rect2i(int(w * 0.33), int(h * 0.2), int(w * 0.31), int(h * 0.49)))
+			crop.resize(crop.get_width() * 2, crop.get_height() * 2, Image.INTERPOLATE_LANCZOS)
+			crop.save_png(out_dir.path_join("godot_battle_closeup.png"))
+		bv_show.call("close_battle")
+
 	# Phase 10 Naval Snapshots (Venice, Adriatic & Aegean fleets, Fleet Panel, Naval Battle):
 	bridge.call("startNewGame", "VEN")
 	root_node.call("_after_world_replaced")
