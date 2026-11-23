@@ -93,9 +93,9 @@ func _build_court_panel() -> void:
 	person_box.add_theme_constant_override("separation", 4)
 	body.add_child(person_box)
 
-	body.add_child(HSeparator.new())
 	family_tree_box = VBoxContainer.new()
 	family_tree_box.add_theme_constant_override("separation", 3)
+	family_tree_box.visible = false
 	body.add_child(family_tree_box)
 
 	body.add_child(HSeparator.new())
@@ -184,8 +184,11 @@ func refresh() -> void:
 	header_arms.texture = _get_arms(p_tag, pr, pg, pb)
 	marrying_char_index = int(d.get("selectedMarryingIndex", -1))
 
+	# Phase 20.6 (owner's pick A): relatives are shown once, as the clickable
+	# names under the person; the ruler's heir is marked there and "Back to
+	# <ruler>" returns from anyone else. The old Ruling Family buttons are gone.
+	_read_ruling_family(d)
 	_refresh_person(d)
-	_refresh_family_tree(d)
 	_refresh_council(d)
 	_refresh_vassals(d)
 	_refresh_marriages(d)
@@ -304,7 +307,7 @@ func _refresh_person(d: Dictionary) -> void:
 
 	if not bool(d.get("showingRuler", true)):
 		var back_btn := Button.new()
-		back_btn.text = "Back to your ruler"
+		back_btn.text = "Back to %s" % _ruler_name if not _ruler_name.is_empty() else "Back to your ruler"
 		back_btn.pressed.connect(func() -> void: _view_character(-1))
 		person_box.add_child(back_btn)
 
@@ -332,12 +335,32 @@ func _add_family_links(label_txt: String, items_var: Variant) -> void:
 			var idx: int = int(it.get("characterIndex", -1))
 			var btn := Button.new()
 			btn.text = str(it.get("label", ""))
+			if idx >= 0 and idx == _heir_idx:
+				btn.text += "  · heir"
+				btn.tooltip_text = "Heir to the throne"
 			btn.flat = true
 			btn.add_theme_color_override("font_color", GezStyle.ink(Color(0.95, 0.86, 0.62)))
 			btn.add_theme_font_size_override("font_size", GezStyle.fs(12))
 			btn.pressed.connect(func() -> void: _view_character(idx))
 			flow.add_child(btn)
 
+var _heir_idx: int = -1
+var _ruler_name: String = ""
+
+func _read_ruling_family(d: Dictionary) -> void:
+	_heir_idx = -1
+	_ruler_name = ""
+	var tree_var: Variant = d.get("familyTree", [])
+	for item in (tree_var if tree_var is Array else []):
+		if item is Dictionary:
+			var role := str(item.get("role", ""))
+			if role == "Ruler":
+				_ruler_name = str(item.get("fullName", ""))
+			elif role.begins_with("Heir"):
+				_heir_idx = int(item.get("characterIndex", -1))
+
+# Not shown since Phase 20.6 (the names under the person cover it); kept for
+# anything that still calls it.
 func _refresh_family_tree(d: Dictionary) -> void:
 	_clear_children(family_tree_box)
 	family_tree_box.add_child(_make_label("Ruling Family", Color(0.96, 0.90, 0.72), 14))
