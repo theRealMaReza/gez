@@ -126,6 +126,13 @@ func _run_captures() -> void:
 	root_node.call("_show_whole_map")
 	await _save_shot("godot_map_world.png")
 
+	# Phase 20.6 part 3: the map-mode dock, opened (bottom right).
+	var mmb = root_node.get("map_mode_bar")
+	if mmb != null:
+		mmb.call("open_grid")
+		await _save_shot("godot_map_mode_dock.png")
+		mmb.call("close_grid")
+
 	var mode_btns: Dictionary = root_node.get("map_mode_buttons")
 	for mode_key in ["terrain", "religion", "diplomatic"]:
 		if mode_btns.has(mode_key):
