@@ -70,8 +70,9 @@ Last updated: 22 November 2026 (Phase 18 merged, PR #18).
    zoomed out (painted chart) and when windows open; try the Chronicle,
    Ledger and Timelapse medallions in the left column.
 2. **20.5 balance and play-test** (Claude; Phases 18 and 20 are both
-   merged; part 1, the 1453 border fixes, is merged as #19; next the
-   long AI-only runs), then **alpha "Kayser"**, **20.7 Old
+   merged; part 1, the 1453 border fixes, is merged as #19; the first
+   six AI-only games to 1550 are in `docs/BALANCE_REPORT.md`; next the
+   fixes listed there, one PR per area), then **alpha "Kayser"**, **20.7 Old
    World map** (Afro-Eurasia), **20.8 ruling systems and formables**,
    then 21 mission trees and 19 multiplayer.
    Who writes what: ROADMAP "Plan for the remaining phases".
