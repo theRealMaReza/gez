@@ -14,8 +14,8 @@ Last updated: 22 November 2026 (Phase 18 merged, PR #18).
 - Loose ends: tell Gemini the new remote; public site
   `yv28f5k922-dot.github.io` is not moved (HANDOFF "Public site" still
   points there); owner decides whether to delete
-  `~/Developer/Gez/.git/transfer` (≈1.9 GB) on the Mac; docs PR #3 (repo
-  move notes) is still open.
+  `~/Developer/Gez/.git/transfer` (≈1.9 GB) on the Mac. (Docs PR #3 was closed;
+  its notes went into #13.)
 
 ## The owner
 - Doesn't write code. Plain language, short replies (often on a phone).
