@@ -101,3 +101,52 @@ func _has_prefix(parts: Array, prefix: String) -> bool:
 		if String(p[0]).begins_with(prefix):
 			return true
 	return false
+
+# Phase 20.6 part 4 -----------------------------------------------------------
+
+func test_small_provinces_get_small_towns() -> void:
+	var free: Array = ModelsScript.town_layout(5, 9, 4, false, "european")
+	var cap := ModelsScript.town_radius_cap(120.0, 2)
+	var tight: Array = ModelsScript.town_layout(5, 9, 4, false, "european", 2, cap)
+	runner.check(tight.size() < free.size(), "a tiny province drops houses")
+	runner.check(_has(tight, "landmark.european"), "...but keeps its great building")
+	runner.check(_has_prefix(tight, "fort3"), "...and its castle")
+	runner.check(not _has(tight, "market.european"), "...and leaves out the market")
+	var big := ModelsScript.town_radius_cap(40000.0, 2)
+	runner.check(str(ModelsScript.town_layout(5, 9, 4, false, "european", 2, big)) == str(free), "a big province is unchanged")
+	runner.check(ModelsScript.town_layout(8, 1, 0, false, "steppe", 2, 0.2).size() >= 1, "every town keeps one building")
+
+func test_cloth_may_move_and_buildings_do_not() -> void:
+	var flag := Lib.get_mesh("flag_cloth").surface_get_arrays(0)
+	var cols: PackedColorArray = flag[Mesh.ARRAY_COLOR]
+	var verts: PackedVector3Array = flag[Mesh.ARRAY_VERTEX]
+	var near_pole := 1.0
+	var fly_end := 0.0
+	for k in range(verts.size()):
+		if verts[k].x < 0.05:
+			near_pole = minf(near_pole, cols[k].a)
+		if verts[k].x > 0.55:
+			fly_end = maxf(fly_end, cols[k].a)
+	runner.check(near_pole < 0.1 and fly_end > 0.9, "flag: fixed at the pole, free at the end")
+	var house: PackedColorArray = Lib.get_mesh("house_a.european").surface_get_arrays(0)[Mesh.ARRAY_COLOR]
+	var all_one := true
+	for c in house:
+		all_one = all_one and is_equal_approx(c.a, 1.0)
+	runner.check(all_one, "buildings never move")
+	var mm = ModelsScript.new()
+	runner.check(mm.material_for("flag_cloth") != mm.material and mm.material_for("sail.islamic") != mm.material_for("sail.european"), "flags and sails get their own waving material")
+	runner.check(mm.material_for("house_a.european") == mm.material, "houses keep the plain material")
+	mm.free()
+
+func test_town_reach_follows_the_province_shape() -> void:
+	var img := Image.create(200, 200, false, Image.FORMAT_RG8)
+	img.fill(Color(0, 0, 0))   # sea
+	for y in range(90, 110):   # a thin strip of land, id 5
+		for x in range(20, 180):
+			img.set_pixel(x, y, Color(5.0 / 255.0, 0, 0))
+	var mm = ModelsScript.new()
+	mm.id_image = img
+	var r: float = mm._town_reach(Vector2(100, 100))
+	runner.check(r <= 20.0, "a thin coastal strip limits the town (%.0f px)" % r)
+	runner.check(ModelsScript.town_reach_cap(r, 2) < ModelsScript.town_reach_cap(48.0, 2), "...to a smaller radius than open land")
+	mm.free()

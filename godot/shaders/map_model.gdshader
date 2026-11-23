@@ -12,8 +12,24 @@ render_mode world_vertex_coords, cull_disabled, specular_disabled;
 uniform float model_scale = 1.0;
 uniform float march_speed = 7.0;
 uniform float march_height = 0.09;
+// Phase 20.6: flags and sails move. Only the cloth materials set cloth_wave
+// (> 0); COLOR.a is the baked "may move" weight (0 at the pole or mast, 1
+// where the cloth is free) and cloth_axis the cloth's thin side in model
+// space, the way it flaps.
+uniform float cloth_wave = 0.0;
+uniform vec3 cloth_axis = vec3(0.0, 0.0, 1.0);
+uniform float cloth_speed = 3.2;
 
 void vertex() {
+	if (cloth_wave > 0.0) {
+		vec3 o = MODEL_MATRIX[3].xyz;
+		float k = max(length(MODEL_MATRIX[0].xyz), 0.0001);
+		vec3 ax = normalize((MODEL_MATRIX * vec4(cloth_axis, 0.0)).xyz);
+		float along = length(VERTEX - o) / k;
+		float seed = fract(sin(dot(o.xz, vec2(12.9898, 78.233))) * 43758.5453) * 6.2832;
+		float wave = sin(TIME * cloth_speed - along * 5.0 + seed) + 0.35 * sin(TIME * cloth_speed * 1.9 - along * 9.0 + seed * 1.7);
+		VERTEX += ax * (wave * cloth_wave * COLOR.a * k);
+	}
 	vec3 anchor = INSTANCE_CUSTOM.xyz;
 	VERTEX = anchor + (VERTEX - anchor) * model_scale;
 	float phase = INSTANCE_CUSTOM.w;

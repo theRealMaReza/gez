@@ -20,6 +20,10 @@ const TOWN_MIN_ZOOM := 0.6
 const UNIT_MIN_ZOOM := 0.75
 
 var material: ShaderMaterial
+# Phase 20.6: flags and sails wave. Same shader with cloth_wave set; one
+# material per way the cloth flaps (its thin side in model space).
+var cloth_z: ShaderMaterial   # flags, square sails
+var cloth_x: ShaderMaterial   # lateen and junk sails
 var projector: RefCounted = null
 var id_image: Image = null
 var map_size: Vector2 = Vector2(3936.0, 2384.0)
@@ -36,6 +40,23 @@ func _init() -> void:
 	name = "MapModels"
 	material = ShaderMaterial.new()
 	material.shader = ModelShader
+	cloth_z = _cloth_material(Vector3(0, 0, 1), 0.06)
+	cloth_x = _cloth_material(Vector3(1, 0, 0), 0.05)
+
+func _cloth_material(axis: Vector3, amount: float) -> ShaderMaterial:
+	var m := ShaderMaterial.new()
+	m.shader = ModelShader
+	m.set_shader_parameter("cloth_wave", amount)
+	m.set_shader_parameter("cloth_axis", axis)
+	return m
+
+## Material for a mesh: the waving cloth material for flags and sails.
+func material_for(mesh_name: String) -> ShaderMaterial:
+	if mesh_name == "flag_cloth" or mesh_name == "sail.european" or mesh_name == "sail.steppe":
+		return cloth_z
+	if mesh_name.begins_with("sail."):
+		return cloth_x
+	return material
 
 func ready_ok() -> bool:
 	return Lib.ensure_loaded()
@@ -60,7 +81,8 @@ static func town_tier_for_zoom(z: float) -> int:
 
 func update_zoom(z: float) -> void:
 	_zoom = z
-	material.set_shader_parameter("model_scale", scale_for_zoom(z))
+	for m in [material, cloth_z, cloth_x]:
+		m.set_shader_parameter("model_scale", scale_for_zoom(z))
 	var tier := town_tier_for_zoom(z)
 	if tier != _town_tier:
 		_town_tier = tier
@@ -90,7 +112,7 @@ func _batch(layer: String, mesh_name: String) -> Variant:
 		var node := MultiMeshInstance3D.new()
 		node.name = key.replace("|", "_").replace(".", "_")
 		node.multimesh = mm
-		node.material_override = material
+		node.material_override = material_for(mesh_name)
 		node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		# The shader moves vertices far from the instance origins; never cull.
 		node.custom_aabb = AABB(Vector3(-200, -100, -200), Vector3(map_size.x + 400, 600, map_size.y + 400))
@@ -208,6 +230,7 @@ const FOREST_MIN_ZOOM := 0.9
 # leaves further south), only on the province's own ground. terrain: key per
 # province index; label_metrics: stride 3 [x, y, pixel area] per province.
 func set_forests(terrain: PackedStringArray, label_metrics: PackedFloat32Array) -> void:
+	set_province_areas(label_metrics)
 	_begin("forest")
 	var n := mini(terrain.size(), label_metrics.size() / 3)
 	for i in range(n):
@@ -234,6 +257,72 @@ func set_forests(terrain: PackedStringArray, label_metrics: PackedFloat32Array) 
 	_set_layer_visible("forest", _zoom >= FOREST_MIN_ZOOM)
 
 # ---- Towns -----------------------------------------------------------------
+
+# Phase 20.6: pixel area per province index (label metrics, stride 3), so a
+# town never spreads far past its own province.
+var _prov_area := PackedFloat32Array()
+
+func set_province_areas(label_metrics: PackedFloat32Array) -> void:
+	var n := label_metrics.size() / 3
+	var areas := PackedFloat32Array()
+	areas.resize(n)
+	for i in range(n):
+		areas[i] = label_metrics[i * 3 + 2]
+	if areas == _prov_area:
+		return
+	_prov_area = areas
+	if not _town_metrics.is_empty():
+		_town_cache.clear()
+		_rebuild_towns()
+
+# Largest town radius (model units) for a province of `area` map pixels at a
+# detail tier: the radius of a circle of that area, at the tier's smallest
+# zoom (where models are largest relative to the map).
+static func town_radius_cap(area: float, tier: int) -> float:
+	if area <= 0.0:
+		return 99.0
+	var z := [TOWN_MIN_ZOOM, 1.1, 1.6][clampi(tier, 0, 2)] as float
+	return sqrt(area / PI) * 1.1 / scale_for_zoom(z)
+
+func _town_area(m: Vector2) -> float:
+	var pidx := _id_at(int(m.x), int(m.y)) - 2
+	return _prov_area[pidx] if pidx >= 0 and pidx < _prov_area.size() else 0.0
+
+# How far the province reaches around a town (map pixels): walk out in 12
+# directions until the id map shows another province or the sea, and take
+# the middle distance. Long thin or coastal provinces (Konstantiniyye) get a
+# smaller town than their area alone would give. Cached per town position.
+var _reach_cache: Dictionary = {}
+const REACH_MAX := 48.0
+
+func _town_reach(m: Vector2) -> float:
+	var key := Vector2i(int(m.x), int(m.y))
+	if _reach_cache.has(key):
+		return _reach_cache[key]
+	var own := _id_at(key.x, key.y)
+	if own < 2:
+		_reach_cache[key] = REACH_MAX
+		return REACH_MAX
+	var dists: Array[float] = []
+	for k in range(12):
+		var ang := TAU * float(k) / 12.0
+		var dir := Vector2(cos(ang), sin(ang))
+		var d := 2.0
+		while d < REACH_MAX:
+			var p := m + dir * d
+			if _id_at(int(p.x), int(p.y)) != own:
+				break
+			d += 2.0
+		dists.append(d)
+	dists.sort()
+	var r := (dists[5] + dists[6]) * 0.5
+	_reach_cache[key] = r
+	return r
+
+# Radius cap from that reach, at a tier's smallest zoom (model units).
+static func town_reach_cap(reach_px: float, tier: int) -> float:
+	var z := [TOWN_MIN_ZOOM, 1.1, 1.6][clampi(tier, 0, 2)] as float
+	return maxf(reach_px * 1.25 / scale_for_zoom(z), 1.2)
 
 # metrics: stride 6 [x, y, dev, fort, capital, port]; data: stride 4 [style, r, g, b].
 func set_towns(metrics: PackedFloat32Array, data: PackedFloat32Array) -> void:
@@ -292,7 +381,8 @@ func _build_town(i: int) -> void:
 		st = _style(_town_data[i * 4])
 		owner_col = Color(_town_data[i * 4 + 1], _town_data[i * 4 + 2], _town_data[i * 4 + 3])
 	var anchor := Vector3(m.x, _ground(m) - 0.05, m.y)
-	for part in town_layout(i, dev, fort, is_cap, st, _town_tier):
+	var cap := minf(town_radius_cap(_town_area(m), _town_tier), town_reach_cap(_town_reach(m), _town_tier))
+	for part in town_layout(i, dev, fort, is_cap, st, _town_tier, cap):
 		_place("town", part[0], anchor, part[1], part[2])
 	if is_cap:
 		_place("town", "flag_pole", anchor, Vector2(0.15, -0.35), 0.0)
@@ -312,7 +402,9 @@ func _build_town(i: int) -> void:
 # The buildings of one town: [mesh, local offset (model units), yaw].
 # Deterministic for a town index, so towns do not reshuffle when they grow.
 # detail: 0 zoomed out (main building and castle only), 1 a few houses, 2 everything.
-static func town_layout(i: int, dev: int, fort: int, is_cap: bool, st: String, detail: int = 2) -> Array:
+# max_r (Phase 20.6): houses and the market beyond this radius are left out
+# and the fort is drawn closer in, so small provinces get small towns.
+static func town_layout(i: int, dev: int, fort: int, is_cap: bool, st: String, detail: int = 2, max_r: float = 99.0) -> Array:
 	var parts: Array = []
 	var houses := clampi(1 + int(float(dev) * 0.65), 1, 7)
 	if detail == 0:
@@ -326,7 +418,7 @@ static func town_layout(i: int, dev: int, fort: int, is_cap: bool, st: String, d
 		parts.append(["landmark." + st, Vector2(0.0, -0.2), 0.0])
 	elif has_temple:
 		parts.append(["temple." + st, Vector2(0.0, -0.1), 0.0])
-	if has_market and detail >= 1:
+	if has_market and detail >= 1 and max_r >= 2.2:
 		parts.append(["market." + st, Vector2(-1.45, 0.75), 0.4])
 	var ring := 1.15 if (has_temple or has_landmark) else 0.0
 	for h in range(houses):
@@ -339,6 +431,8 @@ static func town_layout(i: int, dev: int, fort: int, is_cap: bool, st: String, d
 		var pos := Vector2(cos(ang), sin(ang)) * rad
 		if has_market and pos.distance_to(Vector2(-1.45, 0.75)) < 0.8:
 			pos += Vector2(0.9, -0.6)
+		if pos.length() + 0.5 > max_r and not (parts.is_empty() and h == houses - 1):
+			continue
 		var kind := "house_a." if _hash01(i, h + 7) < 0.55 else "house_b."
 		parts.append([kind + st, pos, _hash01(i, h + 21) * TAU])
 	var fort_mesh := ""
@@ -352,6 +446,8 @@ static func town_layout(i: int, dev: int, fort: int, is_cap: bool, st: String, d
 		fort_mesh = "fort1."
 	if not fort_mesh.is_empty():
 		var out := 2.2 if fort >= 4 else 1.8
+		var reach := (1.3 if fort >= 4 else 0.6) + 0.6
+		out = maxf(minf(out, max_r - reach), 1.0)
 		parts.append([fort_mesh + st, Vector2(out, -0.6), 0.0])
 	return parts
 
