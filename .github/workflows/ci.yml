@@ -477,6 +477,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - name: AI-only game
+        shell: bash
         run: |
           set -o pipefail
           swift test -c release -Xswiftc -enable-testing --package-path Packages/GezCore --filter 'balanceRun' 2>&1 | tee /tmp/balance.log | grep -E "BALANCE|passed|failed|error:|Fatal"
