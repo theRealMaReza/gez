@@ -9,6 +9,9 @@ public struct ProvinceIDMap: Sendable {
     public static let water: UInt16 = 0
     public static let wasteland: UInt16 = 1
     public static let firstProvince: UInt16 = 2
+    /// Sea-map value for unknown land (terra incognita, Phase 20.7): the
+    /// province map has wasteland there, and the map draws blank parchment.
+    public static let unknownLand: UInt16 = 0xFFFF
 
     public enum LoadError: Error {
         case badHeader
@@ -77,10 +80,16 @@ public struct ProvinceIDMap: Sendable {
         return try ProvinceIDMap(data: Data(contentsOf: url))
     }
 
-    /// Sea zone at a pixel of a sea map.
+    /// Sea zone at a pixel of a sea map (nil on land, unzoned water and
+    /// unknown land).
     public func seaZone(x: Int, y: Int) -> SeaZoneID? {
         let v = value(x: x, y: y)
-        return v > 0 ? SeaZoneID(Int(v) - 1) : nil
+        return v > 0 && v != ProvinceIDMap.unknownLand ? SeaZoneID(Int(v) - 1) : nil
+    }
+
+    /// True on unknown land, for a sea map.
+    public func isUnknownLand(x: Int, y: Int) -> Bool {
+        value(x: x, y: y) == ProvinceIDMap.unknownLand
     }
 
     public func value(x: Int, y: Int) -> UInt16 {

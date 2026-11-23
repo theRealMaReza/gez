@@ -205,7 +205,7 @@ TLE | Tlemcen | 210 150 110 | monarchy | sunni
 TUN | Hafsid Tunis | 120 160 70 | monarchy | sunni
 ALO | Alodia | 150 100 160 | monarchy | coptic
 ETH | Ethiopia | 100 165 60 | monarchy | ethiopian
-KAF | Kaffa | 170 120 70 | monarchy | folk
+KAF | Kaffa | 170 120 70 | monarchy | east_african
 ADA | Adal | 185 155 90 | monarchy | sunni
 MGD | Mogadishu | 90 170 160 | monarchy | sunni
 AJU | Ajuran | 200 120 60 | monarchy | sunni
@@ -297,8 +297,8 @@ HAD | Hadiya | 160 190 110 | monarchy | sunni
 BLI | Bali | 140 170 130 | monarchy | sunni
 DAW | Dawaro | 200 160 120 | monarchy | sunni
 IFT | Ifat | 190 140 160 | monarchy | sunni
-ENN | Ennarea | 110 150 90 | monarchy | folk
-DAM | Damot | 150 110 90 | monarchy | folk
+ENN | Ennarea | 110 150 90 | monarchy | east_african
+DAM | Damot | 150 110 90 | monarchy | east_african
 
 # Smaller Indian states added with the India split (session 3)
 KAN | Kangra | 200 150 110 | monarchy | hindu

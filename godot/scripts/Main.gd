@@ -226,8 +226,8 @@ var arms_cache: Dictionary = {}
 var arms_icon_cache: Dictionary = {}
 
 # Map dimensions & GPU textures
-var map_size := Vector2(3936.0, 2384.0)
-var style_tex_width: int = 2048
+var map_size := Vector2(8304.0, 5112.0)
+var style_tex_width: int = 8192
 var id_tex: ImageTexture
 var sea_tex: ImageTexture
 var style_tex: ImageTexture
@@ -1348,10 +1348,10 @@ func _init_bridge_and_map() -> void:
 	# CI's export jobs look for this line to prove the exported game starts.
 	print("Gez: 1453 world loaded from ", data_dir)
 
-	var w: int = int(_call_bridge("getMapWidth", [], 3936))
-	var h: int = int(_call_bridge("getMapHeight", [], 2384))
+	var w: int = int(_call_bridge("getMapWidth", [], 8304))
+	var h: int = int(_call_bridge("getMapHeight", [], 5112))
 	map_size = Vector2(float(w), float(h))
-	style_tex_width = int(_call_bridge("getStyleTextureWidth", [], 2048))
+	style_tex_width = int(_call_bridge("getStyleTextureWidth", [], 8192))
 
 	# Build ID map, sea map, and style textures.
 	var id_bytes: PackedByteArray = _call_bridge("getProvinceIDBytes", [], PackedByteArray())

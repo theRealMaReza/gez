@@ -37,46 +37,12 @@ VALID_CATEGORIES = {
     "calamity",
 }
 
-VALID_RELIGIONS = {
-    "catholic",
-    "hussite",
-    "protestant",
-    "reformed",
-    "orthodox",
-    "bosnian",
-    "coptic",
-    "ethiopian",
-    "armenian",
-    "syriac",
-    "nestorian",
-    "sunni",
-    "twelver",
-    "zaydi",
-    "ismaili",
-    "ibadi",
-    "druze",
-    "alawite",
-    "yazidi",
-    "hindu",
-    "jain",
-    "theravada",
-    "tibetan",
-    "zoroastrian",
-    "jewish",
-    "tengri",
-    "folk",
-}
+sys.path.insert(0, str(ROOT / "tools"))
+from faiths import RELIGIONS as VALID_RELIGIONS, FAMILIES  # noqa: E402
 
 RELIGION_ALIASES = {"tengrist": "tengri"}
 
-VALID_RELIGION_FAMILIES = {
-    "christian",
-    "muslim",
-    "dharmic",
-    "iranian",
-    "jewish",
-    "pagan",
-}
+VALID_RELIGION_FAMILIES = set(FAMILIES)
 
 VALID_GOVERNMENTS = {"monarchy", "republic", "steppeHorde", "theocracy", "tribal"}
 

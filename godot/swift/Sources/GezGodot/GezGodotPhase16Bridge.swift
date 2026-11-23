@@ -163,7 +163,7 @@ extension GezGodotController {
             let dev = Double(w.provinces.development[provIdx])
             let devFactor = max(0.15, min(1.0, dev / 10.0))
             cityWeight = zoomNorm * (0.22 + 0.78 * devFactor)
-        } else if seaRaw >= 1 {
+        } else if seaRaw >= 1 && seaRaw != Int(ProvinceIDMap.unknownLand) {
             seaWeight = 0.14 + 0.82 * zoomNorm
         }
 

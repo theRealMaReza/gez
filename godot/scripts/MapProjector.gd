@@ -17,7 +17,7 @@ const MIN_PITCH_DEG := 52.0   # most tilted (fully zoomed in)
 const HEIGHT_MAX := 34.0      # world units for 6,000 m (strong exaggeration)
 const ELEV_MAX_M := 6000.0
 
-var map_size: Vector2 = Vector2(3936.0, 2384.0)
+var map_size: Vector2 = Vector2(8304.0, 5112.0)
 var view_size: Vector2 = Vector2(1440.0, 900.0)
 var zoom: float = 1.0
 var offset: Vector2 = Vector2.ZERO

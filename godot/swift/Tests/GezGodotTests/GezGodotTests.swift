@@ -10,8 +10,8 @@ struct GezGodotTests {
         let controller = GezGodotController()
         let ok = controller.setup(dataDirectoryPath: "", tag: "TUR")
         #expect(ok)
-        #expect(controller.mapWidth == 3936)
-        #expect(controller.mapHeight == 2384)
+        #expect(controller.mapWidth == 8304)
+        #expect(controller.mapHeight == 5112)
         #expect(controller.countryTag == "TUR")
         #expect(controller.countryName.contains("Ottoman"))
         #expect(controller.dateText == "30 May 1453")
@@ -19,9 +19,9 @@ struct GezGodotTests {
 
         // Verify ID map and style texture byte buffers.
         let idBytes = controller.provinceIDBytes()
-        #expect(idBytes.count == 3936 * 2384 * 2)
+        #expect(idBytes.count == 8304 * 5112 * 2)
         let seaBytes = controller.seaIDBytes()
-        #expect(seaBytes.count == 3936 * 2384 * 2)
+        #expect(seaBytes.count == 8304 * 5112 * 2)
         let styleBytes = controller.styleBytes()
         #expect(styleBytes.count == GezGodotController.styleTextureWidth * 2 * 4)
 

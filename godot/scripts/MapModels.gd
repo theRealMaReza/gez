@@ -26,7 +26,7 @@ var cloth_z: ShaderMaterial   # flags, square sails
 var cloth_x: ShaderMaterial   # lateen and junk sails
 var projector: RefCounted = null
 var id_image: Image = null
-var map_size: Vector2 = Vector2(3936.0, 2384.0)
+var map_size: Vector2 = Vector2(8304.0, 5112.0)
 
 var _batches: Dictionary = {}     # "layer|mesh" -> {node, items: [20 floats per instance]}
 var _town_cache: Dictionary = {}  # town index * 4 + detail tier -> {sig, recs}

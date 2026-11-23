@@ -39,7 +39,11 @@ def main():
     ids = load_idmap(os.path.join(ROOT, "Packages/GezCore/Sources/GezCore/Resources/provinces1453.idmap"))
     assert elev.shape == ids.shape, "elevation and province map sizes differ"
     land = ids != 0
-    h = np.where(land, np.clip(elev, 0, ELEV_MAX), 0.0)
+    # Unknown land (sea-map value 0xFFFF, Phase 20.7) lies flat, like paper.
+    seas = load_idmap(os.path.join(ROOT, "Packages/GezCore/Sources/GezCore/Resources/seas1453.idmap"))
+    unknown = (seas == 0xFFFF) & (ids == 1)
+    del seas
+    h = np.where(land & ~unknown, np.clip(elev, 0, ELEV_MAX), 0.0).astype(np.float32)
     # Soften single-pixel spikes; keep the coast sharp by blurring land only.
     w = ndimage.gaussian_filter(land.astype(np.float32), 1.0)
     hs = ndimage.gaussian_filter(h, 1.0) / np.maximum(w, 1e-3)

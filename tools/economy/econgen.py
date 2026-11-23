@@ -26,12 +26,10 @@ CRAFT_SHARE = 0.6
 # Burgher jobs per workshop level (thousands).
 JOBS_PER_LEVEL = 2.5
 
-RELIGION_FAMILY = {
-    **{r: "Christian" for r in "catholic hussite orthodox bosnian coptic ethiopian armenian syriac nestorian".split()},
-    **{r: "Muslim" for r in "sunni twelver zaydi ismaili ibadi druze alawite yazidi".split()},
-    **{r: "Dharmic" for r in "hindu jain theravada tibetan".split()},
-    "zoroastrian": "Iranian", "jewish": "Jewish", "tengri": "Pagan", "folk": "Pagan",
-}
+sys.path.insert(0, str(ROOT / "tools"))
+from faiths import FAMILY, FAMILY_NAME  # noqa: E402
+
+RELIGION_FAMILY = {r: FAMILY_NAME[f] for r, f in FAMILY.items()}
 
 
 def rows(name):

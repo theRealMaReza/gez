@@ -96,3 +96,77 @@ Coromandel Coast | 13.0 81.0
 Bay of Bengal | 16.0 86.0
 Mouths of the Ganges | 21.0 89.5
 Andaman Sea | 12.0 95.0
+
+# Old World waters (Phase 20.7). Added at the end so the older zones keep
+# their numbers. Rough first cut: region pull requests may move or split them.
+
+# Atlantic coast of Africa
+Atlantic off Sierra Leone | 6.0 -14.0
+Bight of Benin | 4.5 3.0
+Bight of Biafra | 2.0 7.5
+Coast of Kongo | -5.5 11.0
+Coast of Angola | -12.0 12.0
+Benguela Sea | -23.0 12.5
+South Atlantic | -15.0 -5.0
+Cape Waters | -34.5 18.0
+
+# Southern Indian Ocean
+Swahili Coast | -7.0 41.0
+Mozambique Channel | -17.0 41.5
+Sofala Coast | -21.5 36.5
+Natal Waters | -30.0 33.0
+Agulhas Sea | -34.5 26.0
+Eastern Madagascar | -20.0 51.5
+Mascarene Sea | -15.0 58.0
+Chagos Sea | -7.0 72.0
+Southern Indian Ocean | -27.0 75.0
+Central Indian Ocean | -10.0 90.0
+Sea off Western Sumatra | -1.0 96.0
+
+# Southeast Asia
+Strait of Malacca | 3.5 100.0
+Gulf of Siam | 10.0 102.0
+Natuna Sea | 3.0 108.0
+South China Sea | 13.0 114.0
+Gulf of Tonkin | 20.0 107.5
+Java Sea | -5.0 111.0
+Sea South of Java | -10.0 111.0
+Makassar Strait | -2.0 118.0
+Flores Sea | -7.5 121.0
+Banda Sea | -5.5 127.5
+Timor Sea | -11.0 126.0
+Molucca Sea | 0.5 126.0
+Celebes Sea | 4.0 122.0
+Sulu Sea | 8.5 120.0
+Philippine Sea | 15.0 130.0
+
+# East Asia
+Taiwan Strait | 24.0 119.5
+East China Sea | 29.0 125.0
+Yellow Sea | 35.5 123.5
+Bohai Sea | 38.8 120.0
+Korea Strait | 34.0 129.0
+Sea of Japan | 40.0 135.0
+Ryukyu Waters | 26.0 128.0
+Pacific off Japan | 32.0 138.0
+Northwest Pacific | 40.0 146.0
+Tatar Strait | 50.0 141.0
+Sea of Okhotsk | 54.0 146.0
+
+# Arctic coast
+Pechora Sea | 69.8 55.0
+Kara Sea | 71.0 66.0
+Gulf of Ob | 69.0 73.5
+Western Laptev Sea | 71.2 115.0
+Laptev Sea | 71.2 130.0
+East Siberian Sea | 71.2 145.0
+
+# Australia and New Guinea
+Arafura Sea | -9.5 136.0
+Gulf of Carpentaria | -14.0 139.0
+Coral Sea | -15.0 147.0
+Bismarck Sea | -4.0 146.5
+Pacific off New Guinea | 0.5 138.0
+Sea off Western Australia | -25.0 110.0
+Great Australian Bight | -34.5 130.0
+Tasman Approaches | -34.5 147.0

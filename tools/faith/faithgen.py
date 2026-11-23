@@ -15,13 +15,8 @@ ROOT = Path(__file__).resolve().parents[2]
 DATA = ROOT / "data/faith"
 RES = ROOT / "Packages/GezCore/Sources/GezCore/Resources"
 
-RELIGIONS = set(
-    "catholic hussite protestant reformed orthodox bosnian coptic ethiopian "
-    "armenian syriac nestorian "
-    "sunni twelver zaydi ismaili ibadi druze alawite yazidi "
-    "hindu jain theravada tibetan "
-    "zoroastrian jewish tengri folk".split()
-)
+sys.path.insert(0, str(ROOT / "tools"))
+from faiths import RELIGIONS  # noqa: E402
 
 
 def rows(name):
