@@ -216,8 +216,9 @@ struct GezGodotTests {
         #expect(controller.setup(dataDirectoryPath: "", tag: "TUR"))
         #expect(controller.selectedProvinceDetails()["hasSelection"] as? Bool == false)
 
-        // Select Constantinople (owned by TUR).
-        let pt = controller.focusPoint(latitude: 41.0, longitude: 29.0)
+        // Select Constantinople (owned by TUR): the old city, west of the
+        // Bosporus (41.0 N 29.0 E is water at 48 pixels per degree).
+        let pt = controller.focusPoint(latitude: 41.01, longitude: 28.95)
         let selVal = controller.selectAt(mapX: Int(pt.x), mapY: Int(pt.y))
         #expect(selVal >= 2)
 

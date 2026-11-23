@@ -77,6 +77,8 @@ static func grid_cell_px(s: Vector2) -> float:
 
 func set_height_texture(tex: Texture2D) -> void:
 	terrain_material.set_shader_parameter("height_tex", tex)
+	# Same relief as the projector (MapProjector.HEIGHT_MAX, in map pixels).
+	terrain_material.set_shader_parameter("height_max", 34.0 * MapScale.k)
 
 # Copy the projector's camera into the real Camera3D.
 func apply_projector(p: RefCounted) -> void:

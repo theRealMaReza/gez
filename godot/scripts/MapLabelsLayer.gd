@@ -207,7 +207,7 @@ func _rebuild_cache_if_needed() -> void:
 	_cached_mode = map_mode
 	_cache_dirty = false
 	_cached_sea = _place_labels_world(sea_texts, sea_metrics, true, false)
-	var show_provinces := map_zoom >= 1.1
+	var show_provinces := MapScale.look(map_zoom) >= 1.1
 	if not show_provinces and map_mode != "political":
 		_cached_main = []
 	elif show_provinces:
@@ -261,7 +261,7 @@ func _draw() -> void:
 		var fsize: int = entry[3]
 		var txt: String = entry[4]
 		var baseline := Vector2(sx - w_scr * 0.5, sy + float(fsize) * 0.35)
-		var lf: Font = font if map_zoom >= 1.1 else _name_font
+		var lf: Font = font if MapScale.look(map_zoom) >= 1.1 else _name_font
 		draw_string_outline(lf, baseline, txt, HORIZONTAL_ALIGNMENT_CENTER, w_scr, fsize, 3, halo)
 		draw_string(lf, baseline, txt, HORIZONTAL_ALIGNMENT_CENTER, w_scr, fsize, ink)
 

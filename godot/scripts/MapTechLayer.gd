@@ -66,7 +66,7 @@ func _draw() -> void:
 		draw_arc(pt, radius, 0.0, TAU, 20, Color(0.98, 0.86, 0.42, 0.98), 2.0)
 		if font != null:
 			draw_string(font, pt + Vector2(-4.0, 4.0), str(o.get("letter", "I")), HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Color(0.99, 0.95, 0.78))
-			if map_zoom >= 0.75:
+			if MapScale.look(map_zoom) >= 0.75:
 				var lbl := "%s (%d)" % [str(o.get("name", "")), int(o.get("year", 1453))]
 				draw_string(font, pt + Vector2(radius + 4.0, 4.0), lbl, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Color(0.14, 0.12, 0.08))
 				draw_string(font, pt + Vector2(radius + 3.0, 3.0), lbl, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Color(0.99, 0.96, 0.84))

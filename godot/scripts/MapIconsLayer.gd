@@ -49,7 +49,7 @@ func set_icons_data(new_metrics: PackedFloat32Array, new_revision: int) -> void:
 	queue_redraw()
 
 func _draw() -> void:
-	if map_zoom < 0.7 or icon_metrics.is_empty():
+	if MapScale.look(map_zoom) < 0.7 or icon_metrics.is_empty():
 		return
 
 	var vis := _visible_map_rect(24.0)
@@ -66,12 +66,12 @@ func _draw() -> void:
 	var port_col := Color(0.12, 0.25, 0.40, 1.0)
 
 	var min_dev := 5
-	if map_zoom >= 1.6:
+	if MapScale.look(map_zoom) >= 1.6:
 		min_dev = 1
-	elif map_zoom >= 1.1:
+	elif MapScale.look(map_zoom) >= 1.1:
 		min_dev = 3
 
-	var draw_ports := map_zoom >= 1.1
+	var draw_ports := MapScale.look(map_zoom) >= 1.1
 	var count := icon_metrics.size() / 6
 	for idx in range(count):
 		var base := idx * 6

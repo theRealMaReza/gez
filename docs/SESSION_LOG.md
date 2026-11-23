@@ -231,3 +231,8 @@ truce (Galata surrendered on 1 June 1453, two days after the start).
 - In a shallow clone, `git fetch origin <branch>` doesn't make
   `origin/<branch>`; fetch with an explicit `branch:refs/remotes/origin/branch`.
 - The map colour texture was 2048 wide (2,046 provinces at most); now 8192.
+- Finer pixels change what the camera zoom means (screen px per map px):
+  every "show names/towns/armies above zoom X", model size and relief
+  height was in old map units. `MapScale.k` (pixels per degree / 32) and
+  `MapScale.look(zoom)` keep them geographic. A test clicking 41.0 N
+  29.0 E for Constantinople hit the Bosporus at 48 px/degree.

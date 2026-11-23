@@ -83,7 +83,7 @@ func near_far() -> Vector2:
 
 static func decode_height(v: float) -> float:
 	# v in 0..1, stored as sqrt(h / 6000 m).
-	return v * v * HEIGHT_MAX
+	return v * v * HEIGHT_MAX * MapScale.k
 
 func height_at(m: Vector2) -> float:
 	if height_img == null or _hw <= 0:
@@ -162,5 +162,5 @@ func visible_rect(pad_px: float = 0.0) -> Rect2:
 	var r := Rect2(to_map_flat(corners[0]), Vector2.ZERO)
 	for c in corners:
 		r = r.expand(to_map_flat(c, 0.0))
-		r = r.expand(to_map_flat(c, HEIGHT_MAX))
+		r = r.expand(to_map_flat(c, HEIGHT_MAX * MapScale.k))
 	return r

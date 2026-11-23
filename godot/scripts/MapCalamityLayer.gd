@@ -64,7 +64,7 @@ func _draw() -> void:
 			if f_v is Dictionary:
 				var f: Dictionary = f_v
 				var f_pt: Vector2 = _screen_point(f)
-				if not _on_screen(f_pt, 20.0) or map_zoom < 0.6:
+				if not _on_screen(f_pt, 20.0) or MapScale.look(map_zoom) < 0.6:
 					continue
 				draw_arc(f_pt + Vector2(0.0, 7.0), 4.5, 0.0, PI, 10, Color(0.42, 0.30, 0.08, 0.95), 2.0)
 
@@ -78,11 +78,11 @@ func _draw() -> void:
 					continue
 				var share: float = float(o.get("share", 0.0))
 				var radius: float = clampf(4.0 + share * 60.0, 4.0, 9.0)
-				if map_zoom < 0.5:
+				if MapScale.look(map_zoom) < 0.5:
 					radius *= 0.7
 				draw_circle(o_pt, radius, Color(0.16, 0.05, 0.05, 0.92))
 				draw_arc(o_pt, radius, 0.0, TAU, 16, Color(0.98, 0.84, 0.70, 0.95), 1.2)
-				if map_zoom >= 0.9 and font != null:
+				if MapScale.look(map_zoom) >= 0.9 and font != null:
 					draw_string(font, o_pt + Vector2(-3.5, 4.0), str(o.get("letter", "P")), HORIZONTAL_ALIGNMENT_LEFT, -1, 10, Color(1.0, 0.92, 0.82))
 
 		# Quarantine (blue anchor ring) and cordon (white dashed ring).
@@ -112,7 +112,7 @@ func _draw() -> void:
 				for ring in range(3):
 					var rr: float = 8.0 + float(ring) * 5.0 * (0.6 + strength)
 					draw_arc(q_pt, rr, 0.3 + float(ring), 2.4 + float(ring), 10, Color(0.36, 0.22, 0.10, 0.85 - 0.2 * float(ring)), 1.8)
-				if map_zoom >= 1.1 and font != null:
+				if MapScale.look(map_zoom) >= 1.1 and font != null:
 					draw_string(font, q_pt + Vector2(12.0, -8.0), str(q.get("name", "Earthquake")), HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Color(0.22, 0.14, 0.08))
 
 	if current_mode == "unrest":
@@ -127,7 +127,7 @@ func _draw() -> void:
 				var progress: float = clampf(float(r.get("progress", 0.0)) / 100.0, 0.0, 1.0)
 				var risen: bool = bool(r.get("risen", false))
 				var mine: bool = bool(r.get("isPlayer", false))
-				if map_zoom < 0.6 and not risen and not mine and progress < 0.5:
+				if MapScale.look(map_zoom) < 0.6 and not risen and not mine and progress < 0.5:
 					continue
 				var col: Color = Color(0.86, 0.20, 0.16, 0.96) if risen else Color(0.98, 0.72, 0.24, 0.96)
 				draw_circle(r_pt, 8.0, Color(0.08, 0.07, 0.06, 0.80))
@@ -139,7 +139,7 @@ func _draw() -> void:
 					draw_line(r_pt + Vector2(-2.0, -5.0), r_pt + Vector2(-2.0, 5.0), col, 1.5)
 				if mine:
 					draw_arc(r_pt, 11.0, 0.0, TAU, 20, Color(0.96, 0.94, 0.86, 0.9), 1.2)
-				if font != null and (map_zoom >= 1.1 or (mine and map_zoom >= 0.7)):
+				if font != null and (MapScale.look(map_zoom) >= 1.1 or (mine and MapScale.look(map_zoom) >= 0.7)):
 					var label: String = str(r.get("name", "Rebels"))
 					if not risen:
 						label += " %d%%" % int(float(r.get("progress", 0.0)))

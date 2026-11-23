@@ -1348,6 +1348,10 @@ func _init_bridge_and_map() -> void:
 	# CI's export jobs look for this line to prove the exported game starts.
 	print("Gez: 1453 world loaded from ", data_dir)
 
+	# Phase 20.7: how fine the map is (MapScale.k = pixels per degree / 32).
+	var p0: Vector2 = _call_bridge("getFocusPoint", [0.0, 0.0], Vector2.ZERO)
+	var p1: Vector2 = _call_bridge("getFocusPoint", [0.0, 1.0], Vector2(48.0, 0.0))
+	MapScale.set_pixels_per_degree(p1.x - p0.x)
 	var w: int = int(_call_bridge("getMapWidth", [], 8304))
 	var h: int = int(_call_bridge("getMapHeight", [], 5112))
 	map_size = Vector2(float(w), float(h))
@@ -2152,14 +2156,14 @@ func _min_zoom() -> float:
 	return _fit_zoom() * 0.9
 
 func _max_zoom() -> float:
-	return 8.0
+	return 8.0 * MapScale.k
 
 func _reset_to_start_camera() -> void:
 	if size.x <= 0.0 or size.y <= 0.0:
 		return
 	var fit := _fit_zoom()
 	zoom = minf(fit * 3.0, _max_zoom())
-	var focus: Vector2 = _call_bridge("getFocusPoint", [41.0, 29.0], Vector2(2150.0, 820.0))
+	var focus: Vector2 = _call_bridge("getFocusPoint", [41.0, 29.0], Vector2(2592.0, 1464.0))
 	var x := size.x * 0.5 - focus.x * zoom
 	var y := size.y * 0.5 - focus.y * zoom
 	offset = _clamped_offset(Vector2(x, y), zoom)
@@ -2232,17 +2236,18 @@ func map_to_screen(map_pt: Vector2) -> Vector2:
 func _sync_camera_uniforms() -> void:
 	if map_material == null:
 		return
-	map_material.set_shader_parameter("zoom", zoom)
+	var look_zoom := MapScale.look(zoom)
+	map_material.set_shader_parameter("zoom", look_zoom)
 	projector.call("update", size, zoom, offset, view_pitch)
 	map3d.call("apply_projector", projector)
 	if map_models != null:
 		map_models.call("update_zoom", zoom)
 	var cam_rev: int = int(projector.get("revision"))
-	var default_tint := clampf(0.72 - 0.2 * zoom, 0.38, 0.66)
-	var tint: float = float(_call_bridge("getTintForZoom", [zoom], default_tint))
+	var default_tint := clampf(0.72 - 0.2 * look_zoom, 0.38, 0.66)
+	var tint: float = float(_call_bridge("getTintForZoom", [look_zoom], default_tint))
 	map_material.set_shader_parameter("tint", tint)
 	# Phase 20 part 8: the painted-chart look fades in as the map is zoomed out
-	var chart_k := smoothstep(0.0, 1.0, clampf((0.78 - zoom) / 0.32, 0.0, 1.0))
+	var chart_k := smoothstep(0.0, 1.0, clampf((0.78 - look_zoom) / 0.32, 0.0, 1.0))
 	map_material.set_shader_parameter("chart", chart_k)
 	if chart_layer != null:
 		chart_layer.call("update_view", chart_k, projector)
@@ -2250,7 +2255,7 @@ func _sync_camera_uniforms() -> void:
 	if bridge != null and zoom > 0.0:
 		var center_map_x := int(round((size.x * 0.5 - offset.x) / zoom))
 		var center_map_y := int(round((size.y * 0.5 - offset.y) / zoom))
-		var amb_v: Variant = _call_bridge("getAmbienceContext", [center_map_x, center_map_y, zoom], {})
+		var amb_v: Variant = _call_bridge("getAmbienceContext", [center_map_x, center_map_y, look_zoom], {})
 		if amb_v is Dictionary:
 			var amb: Dictionary = amb_v
 			var a := _audio()

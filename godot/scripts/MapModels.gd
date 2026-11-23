@@ -64,8 +64,10 @@ func ready_ok() -> bool:
 # World units per model unit for a zoom: models grow on screen as you zoom in
 # but much less than the map does (a house is ~5 px wide zoomed out and
 # ~28 px zoomed right in).
+# z is the "look" zoom (MapScale.look); map pixels per model unit grow with
+# the map's detail so models keep their size on the ground.
 static func scale_for_zoom(z: float) -> float:
-	return 6.5 * pow(maxf(z, 0.05), -0.2)
+	return 6.5 * MapScale.k * pow(maxf(z, 0.05), -0.2)
 
 const ARMY_SIZE := 1.5   # soldiers are drawn larger than the houses
 const FLEET_SIZE := 1.25
@@ -79,7 +81,8 @@ static func town_tier_for_zoom(z: float) -> int:
 		return 1
 	return 2
 
-func update_zoom(z: float) -> void:
+func update_zoom(camera_zoom: float) -> void:
+	var z := MapScale.look(camera_zoom)
 	_zoom = z
 	for m in [material, cloth_z, cloth_x]:
 		m.set_shader_parameter("model_scale", scale_for_zoom(z))
@@ -301,14 +304,14 @@ func _town_reach(m: Vector2) -> float:
 		return _reach_cache[key]
 	var own := _id_at(key.x, key.y)
 	if own < 2:
-		_reach_cache[key] = REACH_MAX
-		return REACH_MAX
+		_reach_cache[key] = REACH_MAX * MapScale.k
+		return REACH_MAX * MapScale.k
 	var dists: Array[float] = []
 	for k in range(12):
 		var ang := TAU * float(k) / 12.0
 		var dir := Vector2(cos(ang), sin(ang))
 		var d := 2.0
-		while d < REACH_MAX:
+		while d < REACH_MAX * MapScale.k:
 			var p := m + dir * d
 			if _id_at(int(p.x), int(p.y)) != own:
 				break

@@ -62,7 +62,7 @@ func _run_captures() -> void:
 	bridge.call("setSpeed", 0)
 
 	# Focus Konstantiniyye (~41N, 29E), open its province panel and market panel for main screen shot.
-	var focus_pt: Vector2 = bridge.call("getFocusPoint", 41.0, 29.0)
+	var focus_pt: Vector2 = bridge.call("getFocusPoint", 41.01, 28.95)
 	var sel_id: int = int(bridge.call("selectAt", int(round(focus_pt.x)), int(round(focus_pt.y))))
 	if sel_id >= 2:
 		root_node.call("_select_province_by_index", sel_id - 2)
@@ -149,28 +149,28 @@ func _run_captures() -> void:
 	if mode_btns.has("political"):
 		(mode_btns["political"] as BaseButton).emit_signal("pressed")
 	var bosporus: Vector2 = bridge.call("getFocusPoint", 41.0, 29.0)
-	root_node.call("focus_map_point", bosporus, 3.0)
+	root_node.call("focus_map_point", bosporus, 3.0 / MapScale.k)
 	await _save_shot("godot_map_3d_balkans.png")
 	var alps: Vector2 = bridge.call("getFocusPoint", 46.5, 9.5)
-	root_node.call("focus_map_point", alps, 6.5)
+	root_node.call("focus_map_point", alps, 6.5 / MapScale.k)
 	await _save_shot("godot_map_3d_alps.png")
 	# Phase 17 part 2: towns, forts, ports and armies as 3D models.
-	root_node.call("focus_map_point", bosporus + Vector2(-30, 10), 5.5)
+	root_node.call("focus_map_point", bosporus + Vector2(-30, 10) * MapScale.k, 5.5 / MapScale.k)
 	await _save_shot("godot_map_3d_models.png")
 	var cairo: Vector2 = bridge.call("getFocusPoint", 30.0, 31.2)
-	root_node.call("focus_map_point", cairo, 4.5)
+	root_node.call("focus_map_point", cairo, 4.5 / MapScale.k)
 	await _save_shot("godot_map_3d_islamic.png")
 	var delhi: Vector2 = bridge.call("getFocusPoint", 28.6, 77.2)
-	root_node.call("focus_map_point", delhi, 4.5)
+	root_node.call("focus_map_point", delhi, 4.5 / MapScale.k)
 	await _save_shot("godot_map_3d_indian.png")
 	var steppe: Vector2 = bridge.call("getFocusPoint", 47.0, 55.0)
-	root_node.call("focus_map_point", steppe, 4.0)
+	root_node.call("focus_map_point", steppe, 4.0 / MapScale.k)
 	await _save_shot("godot_map_3d_steppe.png")
 	var tibet: Vector2 = bridge.call("getFocusPoint", 29.6, 91.1)
-	root_node.call("focus_map_point", tibet, 4.5)
+	root_node.call("focus_map_point", tibet, 4.5 / MapScale.k)
 	await _save_shot("godot_map_3d_eastasian.png")
 	var caucasus: Vector2 = bridge.call("getFocusPoint", 42.5, 44.0)
-	root_node.call("focus_map_point", caucasus, 4.0)
+	root_node.call("focus_map_point", caucasus, 4.0 / MapScale.k)
 	await _save_shot("godot_map_3d_caucasus.png")
 
 	# Phase 9 Battle & Siege Assault Snapshots:
@@ -320,7 +320,7 @@ func _run_captures() -> void:
 	if mode_btns.has("political"):
 		(mode_btns["political"] as BaseButton).emit_signal("pressed")
 	var med_fp: Vector2 = bridge.call("getFocusPoint", 41.2, 19.5)
-	var fleet_zoom := 2.8
+	var fleet_zoom := 2.8 / MapScale.k
 	root_node.set("zoom", fleet_zoom)
 	root_node.set("offset", root_node.call("_clamped_offset", root_node.size * 0.5 - med_fp * fleet_zoom, fleet_zoom))
 	root_node.call("_sync_camera_uniforms")
@@ -344,7 +344,7 @@ func _run_captures() -> void:
 		(pp as Control).visible = false
 
 	# Trigger a Venice vs Ottoman naval battle in the Aegean Sea
-	var tur_fp: Vector2 = bridge.call("getFocusPoint", 41.0, 29.0)
+	var tur_fp: Vector2 = bridge.call("getFocusPoint", 41.01, 28.95)
 	var tur_sel: int = int(bridge.call("selectAt", int(round(tur_fp.x)), int(round(tur_fp.y))))
 	if tur_sel >= 2:
 		var tur_info: Dictionary = bridge.call("getSelectedProvinceDetails", false)
@@ -383,7 +383,7 @@ func _run_captures() -> void:
 			n_steps += 1
 		if found_battle and battle_sz >= 0:
 			var b_pt: Vector2 = bridge.call("getSeaZoneFocusPoint", battle_sz)
-			var b_zoom := 5.0
+			var b_zoom := 5.0 / MapScale.k
 			root_node.set("zoom", b_zoom)
 			root_node.set("offset", root_node.call("_clamped_offset", root_node.size * 0.5 - b_pt * b_zoom, b_zoom))
 			root_node.call("_sync_camera_uniforms")

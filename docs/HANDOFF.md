@@ -299,6 +299,12 @@ three game exports and the map snapshots (look at `ci-snapshots`). The
 province map can hold 8,190 provinces (the map colour texture is 8192
 wide) and 65,533 in the file.
 
+**Godot map code** (for anyone writing map layers): the camera's `zoom` is
+screen pixels per map pixel, and the map is now 1.5 times finer than the
+map the thresholds were tuned on. Compare thresholds with
+`MapScale.look(map_zoom)` (in `godot/scripts/MapScale.gd`), and multiply
+sizes given in map pixels by `MapScale.k`.
+
 ## Website (session 6)
 
 Public site at https://yv28f5k922-dot.github.io (downloads live since
