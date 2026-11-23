@@ -127,6 +127,13 @@ func _run_captures() -> void:
 	await _save_shot("godot_map_world.png")
 
 	var mode_btns: Dictionary = root_node.get("map_mode_buttons")
+	# Close-up of crowded Central Europe / Italy country labels (zoom < 1.1 keeps country labels).
+	if mode_btns.has("political"):
+		(mode_btns["political"] as BaseButton).emit_signal("pressed")
+	var europe_fp: Vector2 = bridge.call("getFocusPoint", 46.5, 11.5)
+	root_node.call("focus_map_point", europe_fp, 1.0)
+	await _save_shot("godot_map_countries_europe.png")
+
 	for mode_key in ["terrain", "religion", "diplomatic"]:
 		if mode_btns.has(mode_key):
 			(mode_btns[mode_key] as BaseButton).emit_signal("pressed")

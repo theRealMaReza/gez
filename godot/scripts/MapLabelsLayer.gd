@@ -83,6 +83,14 @@ func set_sea_labels(texts: PackedStringArray, metrics: PackedFloat32Array) -> vo
 	_cache_dirty = true
 	queue_redraw()
 
+func _label_font(is_country: bool) -> Font:
+	if is_country:
+		if _name_font == null:
+			_name_font = GezTheme.title_font()
+		if _name_font != null:
+			return _name_font
+	return ThemeDB.fallback_font
+
 func _place_labels_world(texts: PackedStringArray, metrics: PackedFloat32Array, is_sea: bool, show_provinces: bool) -> Array:
 	var out: Array = []
 	var count := texts.size()
@@ -91,6 +99,8 @@ func _place_labels_world(texts: PackedStringArray, metrics: PackedFloat32Array, 
 	var inv_z := 1.0 / z
 	var cell_size := 256.0 * inv_z
 	var grid: Dictionary = {}
+	var is_country := not is_sea and not show_provinces
+	var draw_font := _label_font(is_country)
 
 	for i in range(count):
 		var base_idx := i * 3
@@ -105,34 +115,28 @@ func _place_labels_world(texts: PackedStringArray, metrics: PackedFloat32Array, 
 		var wy := metrics[base_idx + 1]
 		var font_size: int
 		var label_text: String
-		var w_screen: float
 		if is_sea:
 			font_size = int(clampf(sqrt(screen_area) / 14.0, 10.0, 16.0))
 			label_text = texts[i]
-			w_screen = float(label_text.length()) * float(font_size) * 0.55
 		elif show_provinces:
 			font_size = int(clampf(sqrt(screen_area) / 9.0, 10.0, 14.0))
 			label_text = texts[i]
-			w_screen = float(label_text.length()) * float(font_size) * 0.56
 		else:
 			font_size = int(clampf(sqrt(screen_area) / 7.0, 10.0, 26.0))
 			label_text = texts[i].to_upper()
-			w_screen = float(label_text.length()) * float(font_size) * 0.68
 
-		var h_screen := float(font_size) * 1.4
-		var w_world := w_screen * inv_z
-		var h_world := h_screen * inv_z
-		var rect_world := Rect2(wx - w_world * 0.5, wy - h_world * 0.5, w_world, h_world)
+		var w_screen := 0.0
+		var rect_world := Rect2()
 		var curve := Vector3.ZERO   # angle, length, bend (map pixels); zero = straight
-		if not is_sea and not show_provinces and country_curves.size() >= base_idx + 3:
-			curve = Vector3(country_curves[base_idx], country_curves[base_idx + 1], country_curves[base_idx + 2])
-			if curve.y > 0.0:
+		var char_widths: PackedFloat32Array = PackedFloat32Array()
+		if is_country and country_curves.size() >= base_idx + 3:
+			var cand_curve := Vector3(country_curves[base_idx], country_curves[base_idx + 1], country_curves[base_idx + 2])
+			if cand_curve.y > 0.0:
 				# letter-spaced capitals along the country's own curve (old maps)
-				var span := curve.y * z * 0.86
-				font_size = int(clampf(span / maxf(float(label_text.length()), 1.0) / 1.05, 10.0, 34.0))
-				if span < float(label_text.length()) * 7.0:
-					curve = Vector3.ZERO
-				else:
+				var span := cand_curve.y * z * 0.86
+				if span >= float(label_text.length()) * 7.0:
+					curve = cand_curve
+					font_size = int(clampf(span / maxf(float(label_text.length()), 1.0) / 1.05, 10.0, 34.0))
 					w_screen = span
 					var dir := Vector2(cos(curve.x), sin(curve.x))
 					var perp := Vector2(-dir.y, dir.x)
@@ -141,6 +145,19 @@ func _place_labels_world(texts: PackedStringArray, metrics: PackedFloat32Array, 
 					var a := Vector2(wx, wy) - half + perp * curve.z
 					var b := Vector2(wx, wy) + half + perp * curve.z
 					rect_world = Rect2(Vector2(wx, wy), Vector2.ZERO).expand(a).expand(b).grow(pad)
+					if draw_font != null:
+						for ci in range(label_text.length()):
+							char_widths.append(draw_font.get_string_size(label_text[ci], HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x)
+
+		if curve.y <= 0.0:
+			if draw_font != null:
+				w_screen = ceilf(draw_font.get_string_size(label_text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x) + 4.0
+			else:
+				w_screen = float(label_text.length()) * float(font_size) * 0.68
+			var h_screen := float(font_size) * 1.4
+			var w_world := w_screen * inv_z
+			var h_world := h_screen * inv_z
+			rect_world = Rect2(wx - w_world * 0.5, wy - h_world * 0.5, w_world, h_world)
 
 		var x0 := int(floor(rect_world.position.x / cell_size))
 		var y0 := int(floor(rect_world.position.y / cell_size))
@@ -177,7 +194,9 @@ func _place_labels_world(texts: PackedStringArray, metrics: PackedFloat32Array, 
 			font_size,
 			label_text,
 			rect_world,
-			curve
+			curve,
+			is_country,
+			char_widths
 		])
 	return out
 
@@ -233,7 +252,7 @@ func _draw() -> void:
 			continue
 		var cv: Vector3 = entry[6]
 		if cv.y > 0.0:
-			_draw_curved_name(str(entry[4]), Vector2(float(entry[0]), float(entry[1])), cv, int(entry[3]), ink, halo)
+			_draw_curved_name(str(entry[4]), Vector2(float(entry[0]), float(entry[1])), cv, int(entry[3]), entry[8], ink, halo)
 			continue
 		var sp := _ms(float(entry[0]), float(entry[1]))
 		var sx := sp.x
@@ -241,14 +260,15 @@ func _draw() -> void:
 		var w_scr: float = entry[2]
 		var fsize: int = entry[3]
 		var txt: String = entry[4]
+		var draw_font := _label_font(bool(entry[7]))
 		var baseline := Vector2(sx - w_scr * 0.5, sy + float(fsize) * 0.35)
-		draw_string_outline(font, baseline, txt, HORIZONTAL_ALIGNMENT_CENTER, w_scr, fsize, 3, halo)
-		draw_string(font, baseline, txt, HORIZONTAL_ALIGNMENT_CENTER, w_scr, fsize, ink)
+		draw_string_outline(draw_font, baseline, txt, HORIZONTAL_ALIGNMENT_CENTER, w_scr, fsize, 3, halo)
+		draw_string(draw_font, baseline, txt, HORIZONTAL_ALIGNMENT_CENTER, w_scr, fsize, ink)
 
 # Phase 20 part 8: a country name in letter-spaced capitals along the curve
 # C + dir*t*L/2 + perp*bend*t^2 (t from -1 to 1, map pixels), projected
 # through the 3D camera so it lies on the tilted map too.
-func _draw_curved_name(txt: String, c: Vector2, cv: Vector3, fsize: int, ink: Color, halo: Color) -> void:
+func _draw_curved_name(txt: String, c: Vector2, cv: Vector3, fsize: int, char_widths: PackedFloat32Array, ink: Color, halo: Color) -> void:
 	var font := _name_font
 	var dir := Vector2(cos(cv.x), sin(cv.x))
 	var perp := Vector2(-dir.y, dir.x)
@@ -265,12 +285,17 @@ func _draw_curved_name(txt: String, c: Vector2, cv: Vector3, fsize: int, ink: Co
 	if arc < 4.0:
 		return
 	var n := txt.length()
-	var widths: Array[float] = []
 	var text_w := 0.0
-	for i in range(n):
-		var w := font.get_string_size(txt[i], HORIZONTAL_ALIGNMENT_LEFT, -1, fsize).x
-		widths.append(w)
-		text_w += w
+	var widths: PackedFloat32Array = char_widths
+	if widths.size() != n:
+		widths = PackedFloat32Array()
+		for i in range(n):
+			var w := font.get_string_size(txt[i], HORIZONTAL_ALIGNMENT_LEFT, -1, fsize).x
+			widths.append(w)
+			text_w += w
+	else:
+		for i in range(n):
+			text_w += widths[i]
 	var gap := 0.0
 	if n > 1:
 		gap = clampf((arc * 0.86 - text_w) / float(n - 1), 0.0, float(fsize) * 0.9)
