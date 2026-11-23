@@ -15,9 +15,18 @@ daily tick like EU4, never turn-based.
 
 ## Map scope
 
-Europe, North Africa, the Horn of Africa, the Middle East, Central Asia up to
-the modern China border, and the Indian subcontinent. Target: roughly
-1,500–2,500 land provinces plus sea zones.
+The Old World (Phase 20.7, owner, 22–23 Nov 2026): all of Afro-Eurasia,
+25° W to 148° E and 35° S to 71.5° N, at 48 pixels per degree (8304 × 5112
+pixels, about 2.3 km per pixel). Europe, North Africa, the Horn, the Middle
+East, Central Asia and India are filled in; East and Southeast Asia, Siberia
+and Africa south of the Equator start as placeholder wasteland and are filled
+region by region (`docs/HANDOFF.md`, "Old World region pull requests").
+Target: roughly 3,000 land provinces and 500 countries.
+**Australia and New Guinea are unknown land** (owner, 23 Nov 2026): not
+playable, drawn as blank parchment (terra incognita). In the data they are
+wasteland in the province map and carry the value `0xFFFF`
+(`ProvinceIDMap.unknownLand`) in the sea map; mapgen makes them from `?`
+seeds instead of `!`.
 
 Map data is built from public-domain geography (e.g. Natural Earth). No data
 or art from Paradox or Creative Assembly games may be used.
@@ -27,7 +36,10 @@ or art from Paradox or Creative Assembly games may be used.
 Region (e.g. *Anatolia*) → State (e.g. *Karaman*) → Province (e.g. *Konya*).
 Provinces are the unit of ownership, sieges and movement. Province shapes
 grow from their towns and stop at 73 major rivers, 20 mountain ridges and a
-few hand-drawn frontier lines, so borders follow real geography. Borders
+few hand-drawn frontier lines, so borders follow real geography. The random
+"wobble" that keeps borders from looking too smooth is tied to fixed
+latitudes and longitudes, so growing the map or changing its detail keeps
+existing borders where they are. Borders
 that run along a river are marked (crossing them will be slower and favour
 the defender). A state can be
 split between several owners. The map data lives in `data/map/` and is
@@ -400,6 +412,15 @@ Pure-Swift faith and culture systems in `Packages/GezCore/Sources/GezCore/Faith/
   - **Blocks & slowdowns**: Muslim owners with non-Muslim pops are completely blocked by the Dhimmi `millet` privilege and slowed (`0.5x`/`0.55x` passive, `0.7x`/`0.75x` missionary) by `own_courts` / `lower_jizya`; Catholic ↔ Hussite conversion is blocked while `hussiteCompactsActive` holds.
   - Missionary cap: `1` base slot, `+1` at `≥ 180` total development, `+1` under `orthodoxy` law.
 - **Religious unrest (`FaithSystem.swift`)**: stored as `0...100` per province (`religiousUnrest`) for Phase 12 rebels, converging at `0.25/month` toward a target driven by non-state pop share, `orthodoxy`/`tolerance`/`open` law modifiers, Dhimmi privilege relief, and recent conquest/conversion.
+- **Faiths (Phase 20.7, owner's choice: granular)**: besides the 1453 set,
+  Mahayana Buddhist (Dharmic family), Confucian, Daoist and Shinto (a new
+  East Asian family), and the old traditions split by region (Pagan family):
+  West African, Bantu, East African (Waaqeffanna of the Oromo, Sidama, Kafa),
+  Siberian shamanism, Austronesian and (mainland Southeast Asian) Highland
+  traditions. Generic "folk" stays for Baltic, Uralic, Caucasian and Indian
+  hill peoples. New cases are appended to `Religion` so older ones keep their
+  place (history stores a religion's position). The Python generators share
+  one list, `tools/faiths.py`.
 - **Holy sites (`data/faith/holy_sites.txt` -> `tools/faith/faithgen.py` -> `faith1453.json`)**: 43 sacred sites (Rome, Konstantiniyye, Jerusalem, Mecca, Medina, Najaf/Kufa, Karbala/Hillah, Benares/Varanasi, Bodh Gaya, Aksum, etc.). Each unoccupied held site sacred to the state religion grants `+0.05/month` (`+0.6/yr`) prestige (decay `0.005/month`), `+3%` Clergy target loyalty (capped at `+12%`), and `-5%` stability-raising cost (capped at `-25%`).
 - **Historical movements (`MovementSystem.swift`)**:
   - **Bohemia (1453+)**: Utraquist / Taborite question (`resolveHussiteQuestion`: uphold Basel Compacts, Taborite revival breaking the Compacts and adopting Hussite, or submit to Rome).

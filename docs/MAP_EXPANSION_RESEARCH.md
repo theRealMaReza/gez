@@ -572,6 +572,11 @@ history holds up; fix these before building from it.
    Africa) and art (shields, portraits, 3D styles). Plan it as several
    pull requests per region, each green in CI on its own.
 
+**Settled (23 Nov 2026, Phase 20.7 part 1):** 5 — Australia and New
+Guinea are unknown-land parchment; 6–7 — measured: 48 px/degree adds about
+580 MB in the game (40: about 340 MB), and every GPU that runs the game takes
+16384-pixel textures; the owner kept 48.
+
 **Checked and correct** (sample): Isabella of Lorraine's death
 (28 Feb 1453) and John II's succession; Metz, Besançon, Basel as imperial
 cities; Thurgau Habsburg until 1460; Further Austria under Albert VI until

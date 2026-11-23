@@ -34,10 +34,8 @@ MIN_SOLD = 0.25
 EXCHANGE_PASSES = 3
 EXCHANGE_RATE = 0.5
 EXCHANGE_LOSS = 0.1
-FAMILY = {**{r: "christian" for r in "catholic hussite orthodox bosnian coptic ethiopian armenian syriac nestorian".split()},
-          **{r: "muslim" for r in "sunni twelver zaydi ismaili ibadi druze alawite yazidi".split()},
-          **{r: "dharmic" for r in "hindu jain theravada tibetan".split()},
-          "zoroastrian": "iranian", "jewish": "jewish", "tengri": "pagan", "folk": "pagan"}
+sys.path.insert(0, str(ROOT / "tools"))
+from faiths import FAMILY  # noqa: E402,F401
 
 
 def km(a, b):

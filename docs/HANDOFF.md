@@ -219,6 +219,92 @@ When the owner asks Claude to test Gemini's work:
    (`gh pr merge <n> --squash`), then update `docs/STATUS.md` and mirror it to the
    Project if they changed.
 
+### Old World region pull requests (for Gemini, Phase 20.7)
+
+Part 1 (Claude, PR "Old World map foundation") grew the map to Afro-Eurasia
+at 48 pixels per degree. The new land is placeholder wasteland; each region
+pull request turns one block of it into real 1453 provinces and countries.
+One region per pull request (for example "Japan", "Korea and Manchuria",
+"Ming South China", "Mainland Southeast Asia", "Swahili coast and Zimbabwe"),
+each green in CI on its own. History comes from
+`docs/MAP_EXPANSION_RESEARCH.md` §3 (read its Review notes first).
+
+**Files to fill (in this order)**
+1. `data/map/countries.txt`: new tags (`TAG | Name | r g b | government |
+   religion [| capital]`). Every country must own at least one province.
+2. `data/map/provinces/1x_<region>.txt` (new file per region, numbered after
+   `10_`): `# Region`, `@ State`, then `Province | lat lon | OWNER terrain
+   development` (terrain letters f p h m w x d s). Wasteland seeds are
+   `! Name | lat lon`; unknown land (blank parchment) is `? Name | lat lon`.
+   Then **delete the placeholder seeds** in that area from
+   `data/map/provinces/10_placeholder_old_world.txt` (keep any that should
+   stay wasteland, e.g. the Gobi, Taklamakan, Kalahari, Siberian taiga).
+   Province names must be unique across the whole map.
+3. `data/map/population_1453.txt`: one line per new region (people).
+4. `data/map/cultures.txt`: new cultures (`id | Name | family`); new families
+   are fine (e.g. sinitic, japonic, koreanic, tai, austronesian, mande, yoruba).
+5. `data/map/pops/1x_<region>.txt`: a mix for **every state**
+   (`culture religion[.sect] share`), province overrides with `> Province`.
+   Religions: `tools/faiths.py` (the new ones are mahayana, confucian,
+   daoist, shinto, west_african, bantu, east_african, siberian,
+   austronesian, highland). A new religion must be added to both
+   `tools/faiths.py` and `Packages/GezCore/Sources/GezCore/Faith/Religion.swift`
+   (append new cases at the end; also its colour, and the switches in
+   `HistoryQueries.swift` and `GezGodotPhase17Bridge.swift`).
+6. `data/map/subjects.txt` (vassals, tributaries: Ming's tributaries,
+   Majapahit's vassals...), `data/map/barriers.txt` (rivers `~`, ridges `^`;
+   the research lists the big ones), `data/map/lakes.txt` (Baikal,
+   Victoria, Tanganyika, Malawi, Chad, Tonlé Sap are not drawn yet),
+   `data/map/seas.txt` (the 59 Old World sea zones at the end are a rough
+   first cut; move or split them, but **append** new ones at the end).
+7. `data/economy/`: a market centre for the region in `markets.txt`;
+   resources and starting buildings for big cities; and lower the
+   matching off-map imports in `imports.txt` (Chinese silk, spices, gold)
+   once those lands are on the map.
+8. `data/characters/people_6_<region>.txt` (new file): rulers, heirs,
+   spouses, children, great vassals (`holds:`) in the people format below.
+   Real people of 1453 wherever history records them (Jingtai Emperor,
+   King Danjong, Ashikaga Yoshimasa, Esen Taishi, Oba Ewuare...); invent
+   only where no one is recorded, and list doubtful dates in
+   `docs/HISTORY_NOTES.md`.
+9. `data/government/laws_1453.txt`, `data/military/armies_1453.txt`,
+   `data/navy/fleets_1453.txt`, `data/technology/starting_levels.txt`
+   (a `region` line for each new region), `data/heraldry/choices.txt`
+   (optional), `data/ai/goals_1453.txt` (optional).
+
+**Generators, in order** (each stops with a clear message on a mistake;
+commit everything they write):
+`python3 tools/mapgen/mapgen.py --land /tmp/geo/land10m.geojson` (coastlines
+once: `tools/mapgen/fetch_coastlines.sh /tmp/geo`; needs ~4 GB of memory,
+70 s) → `econgen` → `chargen` → `govgen` → `milgen` → `navgen` → `dipgen`
+→ `calamitygen` → `techgen` → `eventgen` → `aigen` → `faithgen` →
+`chroniclegen` → `make_icon` → `python3 tools/terrain/bake_terrain.py`
+(the terrain picture is coloured by each province's terrain type, so
+rerun it for new provinces; 60 s, 1.4 GB) → `bake_heightmap.py` (only
+changes when coast or lakes change). Elevation is already fetched for the
+whole box.
+
+**Check before opening the pull request**: `docs/map_preview.png` (new
+provinces in place, no slivers), the mapgen notes ("very small
+provinces", "provinces with no land neighbours", "seed moved ... onto
+land"), and that rerunning every generator changes nothing.
+
+**What CI checks**: the Swift tests read the generated files, so a region
+PR is mostly checked by `OldWorldMapTests` (map box, unknown land, faiths),
+`ProvinceIDMapTests` (every label point inside its province, sea map
+matches), `GezCoreTests` (states, regions, sea zone links, majority
+religions), `HeraldryTests` (tags in `choices.txt` exist), the event and AI
+goal tests (names they use still exist), the Godot extension tests, the
+three game exports and the map snapshots (look at `ci-snapshots`). The
+province map can hold 8,190 provinces (the map colour texture is 8192
+wide) and 65,533 in the file.
+
+**Godot map code** (for anyone writing map layers): the camera's `zoom` is
+screen pixels per map pixel, and the map is now 1.5 times finer than the
+map the thresholds were tuned on. Compare thresholds with
+`MapScale.look(map_zoom)` (in `godot/scripts/MapScale.gd`), and multiply
+sizes given in map pixels by `MapScale.k`.
+
 ## Website (session 6)
 
 Public site at https://yv28f5k922-dot.github.io (downloads live since
@@ -313,7 +399,7 @@ of them are reproducible (same input, byte-identical output).
 | Data | Generator | Output (in `Packages/GezCore/Sources/GezCore/Resources/` unless noted) |
 |---|---|---|
 | `data/map/` | `python3 tools/mapgen/mapgen.py --land /tmp/geo/land10m.geojson` (coastlines once: `tools/mapgen/fetch_coastlines.sh /tmp/geo`; `pip install numpy scipy pillow --break-system-packages`) | `scenario1453.json`, `provinces1453.idmap`, `seas1453.idmap`, `docs/map_preview.png` |
-| terrain | `python3 tools/terrain/bake_terrain.py` (after mapgen; elevation comes from the "Fetch elevation" CI job) | `App/Resources/Terrain/terrain.jpg` |
+| terrain | `python3 tools/terrain/bake_terrain.py` (after mapgen; elevation comes from the "Fetch elevation" CI job: after a change of map box or detail, `gh api -X POST repos/theRealMaReza/gez/actions/workflows/terrain.yml/dispatches -f ref=<branch>`, which fetches, bakes terrain and height map and commits them to that branch) | `App/Resources/Terrain/terrain.jpg` |
 | height map (3D map) | `python3 tools/terrain/bake_heightmap.py` (after mapgen or new elevation) | `App/Resources/Terrain/height.png` |
 | 3D models | `python3 tools/models/build_models.py` (KayKit originals in `tools/models/kaykit/`; new kit models must be credited in `docs/CREDITS.md`) | `godot/assets/models/models.bin` |
 | `data/economy/` | `python3 tools/economy/econgen.py` (balance with `tools/economy/prototype.py`, a Python copy of the monthly market; keep constants in step) | `economy1453.json` |

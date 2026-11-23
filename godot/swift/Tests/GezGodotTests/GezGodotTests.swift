@@ -10,8 +10,8 @@ struct GezGodotTests {
         let controller = GezGodotController()
         let ok = controller.setup(dataDirectoryPath: "", tag: "TUR")
         #expect(ok)
-        #expect(controller.mapWidth == 3936)
-        #expect(controller.mapHeight == 2384)
+        #expect(controller.mapWidth == 8304)
+        #expect(controller.mapHeight == 5112)
         #expect(controller.countryTag == "TUR")
         #expect(controller.countryName.contains("Ottoman"))
         #expect(controller.dateText == "30 May 1453")
@@ -19,9 +19,9 @@ struct GezGodotTests {
 
         // Verify ID map and style texture byte buffers.
         let idBytes = controller.provinceIDBytes()
-        #expect(idBytes.count == 3936 * 2384 * 2)
+        #expect(idBytes.count == 8304 * 5112 * 2)
         let seaBytes = controller.seaIDBytes()
-        #expect(seaBytes.count == 3936 * 2384 * 2)
+        #expect(seaBytes.count == 8304 * 5112 * 2)
         let styleBytes = controller.styleBytes()
         #expect(styleBytes.count == GezGodotController.styleTextureWidth * 2 * 4)
 
@@ -216,8 +216,9 @@ struct GezGodotTests {
         #expect(controller.setup(dataDirectoryPath: "", tag: "TUR"))
         #expect(controller.selectedProvinceDetails()["hasSelection"] as? Bool == false)
 
-        // Select Constantinople (owned by TUR).
-        let pt = controller.focusPoint(latitude: 41.0, longitude: 29.0)
+        // Select Constantinople (owned by TUR): the old city, west of the
+        // Bosporus (41.0 N 29.0 E is water at 48 pixels per degree).
+        let pt = controller.focusPoint(latitude: 41.01, longitude: 28.95)
         let selVal = controller.selectAt(mapX: Int(pt.x), mapY: Int(pt.y))
         #expect(selVal >= 2)
 

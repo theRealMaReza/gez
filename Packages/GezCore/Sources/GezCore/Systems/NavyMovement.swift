@@ -124,10 +124,14 @@ extension NavySystem {
     // MARK: - Speed, Pathfinding & Movement Orders
 
     /// Deterministic Euclidean distance in map pixels between two sea zones via `DetMath`.
+    /// Distance between two zone centres in pixels of a 32-pixels-per-degree
+    /// map (the unit `baseSeaPixelsPerDay` was tuned in), whatever the map's
+    /// detail (Phase 20.7: the map is 48 pixels per degree).
     public static func seaDistance(_ world: World, from a: SeaZoneID, to b: SeaZoneID) -> Double {
         let dx = world.seaZones.centerX[b.index] - world.seaZones.centerX[a.index]
         let dy = world.seaZones.centerY[b.index] - world.seaZones.centerY[a.index]
-        let d = DetMath.length(dx, dy)
+        let ppd = world.map.pixelsPerDegree
+        let d = DetMath.length(dx, dy) * (ppd > 0 ? 32.0 / ppd : 1.0)
         return d > 1.0 ? d : 30.0
     }
 

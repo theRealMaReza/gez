@@ -212,3 +212,30 @@ truce (Galata surrendered on 1 June 1453, two days after the start).
 - The old Metal app's "Render map snapshots" (arm64 runner) can wait in
   the queue for an hour; GDScript-only PRs were merged with it pending.
 
+
+## Session 16 (23 Nov 2026): Phase 20.7 part 1, Old World map foundation (Claude)
+- mapgen's border "wobble" was drawn for the whole picture, so growing the
+  box reshuffled every border (1,070 of 1,378 provinces moved >15%). It now
+  rebuilds today's random knots exactly (spline with mirror boundary) and
+  adds new knots outside; check by regenerating at the old box and PPD 32.
+- Measuring memory: `/proc/self/status` reads empty through Godot's
+  FileAccess; run Godot from Python and read `RUSAGE_CHILDREN` maxrss.
+  llvmpipe keeps textures in process memory, a fair stand-in for the M1's
+  unified memory.
+- This workspace has ~7 GB: bake_terrain on the big map was killed until
+  it painted in strips with a 4-sigma margin; mapgen dropped whole-map
+  distance transforms for seed snapping.
+- A dispatched workflow uses the branch's copy of the workflow file, so the
+  elevation job could be taught to push back to the branch it ran on. Its
+  commit (by GITHUB_TOKEN) does not start CI; push something after it.
+- In a shallow clone, `git fetch origin <branch>` doesn't make
+  `origin/<branch>`; fetch with an explicit `branch:refs/remotes/origin/branch`.
+- The map colour texture was 2048 wide (2,046 provinces at most); now 8192.
+- Finer pixels change what the camera zoom means (screen px per map px):
+  every "show names/towns/armies above zoom X", model size and relief
+  height was in old map units. `MapScale.k` (pixels per degree / 32) and
+  `MapScale.look(zoom)` keep them geographic. A test clicking 41.0 N
+  29.0 E for Constantinople hit the Bosporus at 48 px/degree.
+- The simulation had one pixel-based rule: sea travel (`baseSeaPixelsPerDay`
+  over zone-centre distances). `seaDistance` now counts 32-px/degree
+  pixels, so fleets keep their speed; NavyTests caught it.

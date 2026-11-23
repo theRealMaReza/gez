@@ -116,7 +116,7 @@ amhara ethiopian 40
 @ Shewa
 amhara ethiopian 70
 gurage ethiopian 15
-oromo folk 15
+oromo east_african 15
 > Ifat
 amhara ethiopian 50
 harari sunni.shafii 50
@@ -124,24 +124,24 @@ harari sunni.shafii 50
 amhara ethiopian 70
 harari sunni.shafii 30
 > Damot
-sidama folk 70
+sidama east_african 70
 amhara ethiopian 30
 > Hadiya
 sidama sunni.shafii 50
 sidama ethiopian 30
-sidama folk 20
+sidama east_african 20
 > Bali
-oromo folk 60
+oromo east_african 60
 sidama sunni.shafii 30
 amhara ethiopian 10
 > Dawaro
 harari sunni.shafii 60
-oromo folk 40
+oromo east_african 40
 > Bonga
-kafa folk 85
+kafa east_african 85
 kafa ethiopian 15
 > Ennarea
-oromo folk 50
+oromo east_african 50
 sidama ethiopian 50
 @ Adal
 harari sunni.shafii 50
@@ -169,10 +169,10 @@ hadrami sunni.shafii 10
 somali sunni.shafii 5
 > Kismayo
 somali sunni.shafii 60
-oromo folk 40
+oromo east_african 40
 > Baidoa
 somali sunni.shafii 80
-oromo folk 20
+oromo east_african 20
 
 # Pontic Steppe
 @ Crimea

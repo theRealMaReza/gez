@@ -60,7 +60,7 @@ func _draw() -> void:
 					continue
 				var is_held := bool(hs.get("isHeldByPlayer", false))
 				var is_sacred := bool(hs.get("isSacredToPlayer", false))
-				if map_zoom < 0.75 and not is_sacred:
+				if MapScale.look(map_zoom) < 0.75 and not is_sacred:
 					continue
 				var r := 6.5 if is_held else (5.0 if is_sacred else 3.5)
 				var col := Color(0.98, 0.85, 0.28, 0.95) if is_sacred else Color(0.84, 0.80, 0.70, 0.78)
@@ -76,7 +76,7 @@ func _draw() -> void:
 				draw_polyline(outline, ink, 1.2, true)
 				if is_held:
 					draw_arc(pt, r + 3.0, 0.0, TAU, 16, Color(0.42, 0.95, 0.56, 0.95), 1.6)
-				if map_zoom >= 1.25 and font != null:
+				if MapScale.look(map_zoom) >= 1.25 and font != null:
 					draw_string(font, pt + Vector2(r + 3.0, 4.0), str(hs.get("name", "")), HORIZONTAL_ALIGNMENT_LEFT, -1, 11, col)
 
 		# Active missionaries: amber cross/halo ring
@@ -114,12 +114,12 @@ func _draw() -> void:
 	# Net migration ("moving pops") badges in both religion & culture map modes
 	if show_rel or show_cul:
 		var mig_drawn := 0
-		var max_mig := 24 if map_zoom < 0.8 else 60
+		var max_mig := 24 if MapScale.look(map_zoom) < 0.8 else 60
 		for mig_v in overlay_data.get("migrations", []):
 			if mig_v is Dictionary:
 				var mig: Dictionary = mig_v
 				var net := float(mig.get("netMigration", 0.0))
-				if map_zoom < 0.8 and absf(net) < 400.0:
+				if MapScale.look(map_zoom) < 0.8 and absf(net) < 400.0:
 					continue
 				if mig_drawn >= max_mig:
 					break

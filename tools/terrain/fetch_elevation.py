@@ -7,12 +7,14 @@ see docs/CREDITS.md). Zoom 6 tiles (~2.4 km per pixel at the equator) are
 reprojected from Web Mercator to the game's equirectangular grid.
 
 Output: data/terrain/elevation.png, 16-bit greyscale, same size as the
-province map. value = metres + 12000 (so sea floor stays positive).
+province map. value = metres + 12000 (so sea floor stays positive). The map
+box and pixels per degree come from scenario1453.json, so run mapgen first.
 
 This needs internet access, so it runs on GitHub Actions
 (.github/workflows/terrain.yml), not in the cloud workspace.
 """
 import io
+import json
 import math
 import os
 import sys
@@ -23,11 +25,11 @@ import numpy as np
 from PIL import Image
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-LON_MIN, LON_MAX = -25.0, 98.0
-LAT_MIN, LAT_MAX = -3.0, 71.5
-PPD = 32
-WIDTH = int(round((LON_MAX - LON_MIN) * PPD))
-HEIGHT = int(round((LAT_MAX - LAT_MIN) * PPD))
+_MAP = json.load(open(os.path.join(ROOT, "Packages/GezCore/Sources/GezCore/Resources/scenario1453.json")))["map"]
+PPD = _MAP["pixelsPerDegree"]
+WIDTH, HEIGHT = _MAP["width"], _MAP["height"]
+LON_MIN, LAT_MAX = _MAP["longitudeMin"], _MAP["latitudeMax"]
+LON_MAX, LAT_MIN = LON_MIN + WIDTH / PPD, LAT_MAX - HEIGHT / PPD
 ZOOM = 6
 TILE = 256
 URL = "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png"
@@ -50,7 +52,7 @@ def fetch(x, y):
             with urllib.request.urlopen(url, timeout=60) as r:
                 img = Image.open(io.BytesIO(r.read())).convert("RGB")
             a = np.asarray(img).astype(np.float64)
-            return a[..., 0] * 256 + a[..., 1] + a[..., 2] / 256 - 32768
+            return (a[..., 0] * 256 + a[..., 1] + a[..., 2] / 256 - 32768).astype(np.float32)
         except Exception as e:  # network hiccup: retry
             print(f"retry {x},{y}: {e}", file=sys.stderr)
             time.sleep(2 + attempt * 3)
@@ -62,7 +64,7 @@ def main():
     y0, y1 = int(math.floor(tile_y(LAT_MAX))), int(math.floor(tile_y(LAT_MIN)))
     cols, rows = x1 - x0 + 1, y1 - y0 + 1
     print(f"downloading {cols * rows} tiles")
-    mosaic = np.zeros((rows * TILE, cols * TILE))
+    mosaic = np.zeros((rows * TILE, cols * TILE), dtype=np.float32)
     for ty in range(y0, y1 + 1):
         for tx in range(x0, x1 + 1):
             mosaic[(ty - y0) * TILE:(ty - y0 + 1) * TILE, (tx - x0) * TILE:(tx - x0 + 1) * TILE] = fetch(tx, ty)
@@ -73,17 +75,24 @@ def main():
     lats = LAT_MAX - (np.arange(HEIGHT) + 0.5) / PPD
     mx = (np.array([tile_x(v) for v in lons]) - x0) * TILE - 0.5
     my = (np.array([tile_y(v) for v in lats]) - y0) * TILE - 0.5
-    X, Y = np.meshgrid(mx, my)
-    xi = np.clip(np.floor(X).astype(int), 0, mosaic.shape[1] - 2)
-    yi = np.clip(np.floor(Y).astype(int), 0, mosaic.shape[0] - 2)
-    fx, fy = X - xi, Y - yi
-    h = (mosaic[yi, xi] * (1 - fx) * (1 - fy) + mosaic[yi, xi + 1] * fx * (1 - fy)
-         + mosaic[yi + 1, xi] * (1 - fx) * fy + mosaic[yi + 1, xi + 1] * fx * fy)
-    out = np.clip(np.round(h + OFFSET), 0, 65535).astype(np.uint16)
+    # Bilinear lookup, a band of rows at a time to keep memory small.
+    out = np.zeros((HEIGHT, WIDTH), dtype=np.uint16)
+    lo, hi = np.inf, -np.inf
+    xi1 = np.clip(np.floor(mx).astype(int), 0, mosaic.shape[1] - 2)
+    fx1 = (mx - xi1).astype(np.float32)
+    for r0 in range(0, HEIGHT, 512):
+        Y = my[r0:r0 + 512][:, None]
+        yi = np.clip(np.floor(Y).astype(int), 0, mosaic.shape[0] - 2)
+        fy = (Y - yi).astype(np.float32)
+        xi, fx = xi1[None, :], fx1[None, :]
+        h = (mosaic[yi, xi] * (1 - fx) * (1 - fy) + mosaic[yi, xi + 1] * fx * (1 - fy)
+             + mosaic[yi + 1, xi] * (1 - fx) * fy + mosaic[yi + 1, xi + 1] * fx * fy)
+        lo, hi = min(lo, float(h.min())), max(hi, float(h.max()))
+        out[r0:r0 + 512] = np.clip(np.round(h + OFFSET), 0, 65535).astype(np.uint16)
     path = os.path.join(ROOT, "data/terrain/elevation.png")
     os.makedirs(os.path.dirname(path), exist_ok=True)
     Image.fromarray(out).save(path, optimize=True)
-    print(f"wrote {path}: {WIDTH}x{HEIGHT}, {h.min():.0f} to {h.max():.0f} m")
+    print(f"wrote {path}: {WIDTH}x{HEIGHT}, {lo:.0f} to {hi:.0f} m")
 
 
 if __name__ == "__main__":

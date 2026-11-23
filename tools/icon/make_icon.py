@@ -24,8 +24,10 @@ from PIL import Image, ImageChops, ImageDraw, ImageFilter
 from scipy import ndimage
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-# Same projection as tools/terrain (plain latitude/longitude grid).
-LAT_MAX, LON_MIN, PPD = 71.5, -25.0, 32
+# Same projection as the province map (plain latitude/longitude grid); the
+# box and pixels per degree come from scenario1453.json.
+_MAP = json.load(open(os.path.join(ROOT, "Packages/GezCore/Sources/GezCore/Resources/scenario1453.json")))["map"]
+LAT_MAX, LON_MIN, PPD = _MAP["latitudeMax"], _MAP["longitudeMin"], _MAP["pixelsPerDegree"]
 
 # Chart window. 30 degrees of longitude by 24 of latitude looks square at ~38N.
 LON0, LON1 = 13.0, 43.0
@@ -57,7 +59,7 @@ def land_mask():
     # Drop specks too small to read on an icon (tiny islets, shoals).
     labels, n = ndimage.label(land > 0.5)
     sizes = ndimage.sum(land > 0.5, labels, range(1, n + 1))
-    keep = np.isin(labels, 1 + np.flatnonzero(sizes >= 60))
+    keep = np.isin(labels, 1 + np.flatnonzero(sizes >= 60 * (PPD / 32) ** 2))
     # Fill small lakes so the land reads as solid.
     sea_lbl, m = ndimage.label(~keep)
     sea_sizes = ndimage.sum(~keep, sea_lbl, range(1, m + 1))

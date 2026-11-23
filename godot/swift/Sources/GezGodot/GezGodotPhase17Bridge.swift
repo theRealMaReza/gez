@@ -16,8 +16,12 @@ public enum MapModelStyle: Int, CaseIterable, Sendable {
         let inIndia = lon >= 66 && lon <= 93 && lat >= 5 && lat <= 31.5
         let farEast = lon > 93
         switch religion {
-        case .tibetan, .theravada:
+        case .tibetan, .theravada, .mahayana, .confucian, .daoist, .shinto, .austronesian, .highland:
             return .eastAsian
+        case .siberian:
+            return .steppe
+        case .westAfrican, .bantu, .eastAfrican:
+            return .islamic
         case .hindu, .jain:
             return farEast ? .eastAsian : .indian
         case .tengri:

@@ -39,27 +39,45 @@ from scipy.spatial import cKDTree
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 
-LON_MIN, LON_MAX = -25.0, 98.0
-LAT_MIN, LAT_MAX = -3.0, 71.5
-PPD = 32  # pixels per degree
+# The Old World (Phase 20.7): Afro-Eurasia from the Azores to Japan and
+# from the Cape to the Arctic coast.
+LON_MIN, LON_MAX = -25.0, 148.0
+LAT_MIN, LAT_MAX = -35.0, 71.5
+PPD = 48  # pixels per degree (owner, 23 Nov 2026; --ppd overrides it, for trying sizes)
 WIDTH = int(round((LON_MAX - LON_MIN) * PPD))
 HEIGHT = int(round((LAT_MAX - LAT_MIN) * PPD))
+# Pixel sizes below were tuned at 32 pixels per degree; SCALE keeps their
+# real-world size when the map gets finer.
+SCALE = PPD / 32.0
+
+
+def set_ppd(ppd):
+    global PPD, WIDTH, HEIGHT, SCALE
+    PPD = ppd
+    WIDTH = int(round((LON_MAX - LON_MIN) * PPD))
+    HEIGHT = int(round((LAT_MAX - LAT_MIN) * PPD))
+    SCALE = PPD / 32.0
+
+
+def px(n):
+    """A pixel distance tuned at 32 pixels per degree, at today's PPD."""
+    return max(1, int(round(n * SCALE)))
 
 EARTH_RADIUS_KM = 6371.0
 ISLAND_REACH_KM = 250.0  # seedless islands join the nearest province within this
 
-WATER, WASTE, UNSET = -1, -2, -3
+WATER, WASTE, UNSET, UNKNOWN = -1, -2, -3, -4
+# Sea-map value marking unknown land (terra incognita: drawn as blank
+# parchment). In the province map those pixels are plain wasteland.
+UNKNOWN_MARK = 0xFFFF
 
 TERRAIN = {
     "f": "farmland", "p": "plains", "h": "hills", "m": "mountains",
     "w": "forest", "x": "marsh", "d": "desert", "s": "steppe",
 }
 GOVERNMENTS = {"monarchy", "republic", "theocracy", "steppeHorde", "tribal"}
-RELIGIONS = {
-    "catholic", "hussite", "orthodox", "bosnian", "coptic", "ethiopian", "armenian", "syriac", "nestorian",
-    "sunni", "twelver", "zaydi", "ismaili", "ibadi", "druze", "alawite", "yazidi",
-    "hindu", "jain", "theravada", "tibetan", "zoroastrian", "jewish", "tengri", "folk",
-}
+sys.path.insert(0, os.path.join(ROOT, "tools"))
+from faiths import RELIGIONS  # noqa: E402  (one list for all generators)
 SECTS = {
     "hanafi": "sunni", "maliki": "sunni", "shafii": "sunni", "hanbali": "sunni",
     "vaishnava": "hindu", "shaiva": "hindu", "shakta": "hindu", "lingayat": "hindu",
@@ -164,10 +182,11 @@ def parse_provinces(folder):
                     sys.exit(f"{where}: states take no religion (pops decide it): {line}")
                 states.append({"name": head[0], "region": region})
                 state = len(states) - 1
-            elif line.startswith("!"):
+            elif line.startswith("!") or line.startswith("?"):
+                # "!" wasteland, "?" unknown land (blank parchment on the map).
                 name, coords = [p.strip() for p in line[1:].split("|")]
                 lat, lon = [float(v) for v in coords.split()]
-                wastes.append({"name": name, "lat": lat, "lon": lon})
+                wastes.append({"name": name, "lat": lat, "lon": lon, "unknown": line.startswith("?")})
             else:
                 parts = [p.strip() for p in line.split("|")]
                 if len(parts) != 3 or state is None:
@@ -347,11 +366,58 @@ def chord(km):
     return 2 * math.sin(km / EARTH_RADIUS_KM / 2)
 
 
+def nearest_true(mask, x, y):
+    """The (x, y) of the nearest True pixel of mask (a small local search
+    instead of a whole-map distance transform)."""
+    if mask[y, x]:
+        return x, y
+    r = 8
+    while True:
+        y0, y1, x0, x1 = max(y - r, 0), min(y + r + 1, HEIGHT), max(x - r, 0), min(x + r + 1, WIDTH)
+        yy, xx = np.nonzero(mask[y0:y1, x0:x1])
+        if len(yy):
+            d = (yy + y0 - y) ** 2 + (xx + x0 - x) ** 2
+            j = np.lexsort((xx, yy, d))[0]
+            # Only trust the hit if no closer pixel could lie outside the window.
+            if d[j] <= r * r or (y0 == 0 and x0 == 0 and y1 == HEIGHT and x1 == WIDTH):
+                return int(xx[j] + x0), int(yy[j] + y0)
+        if y0 == 0 and x0 == 0 and y1 == HEIGHT and x1 == WIDTH:
+            sys.exit("no land or water at all near a seed")
+        r *= 2
+
+
+# The random "wobble" fields are defined on the knot grid of the original
+# map (3936 x 2384 pixels at 32 per degree, corner 25 W 71.5 N), with the
+# same random numbers as before, so the old map keeps its borders exactly
+# when the box grows or the map gets finer. Knots beyond the original map
+# (out to 180 E and 90 S) get their own random numbers.
+NOISE_W32, NOISE_H32 = 3936, 2384
+NOISE_LON0, NOISE_LAT0 = -25.0, 71.5
+NOISE_EXT_W32, NOISE_EXT_H32 = int((180.0 - NOISE_LON0) * 32), int((NOISE_LAT0 + 90.0) * 32)
+
+
 def smooth_noise(rng, cell, amplitude):
-    gh, gw = HEIGHT // cell + 3, WIDTH // cell + 3
+    """Smooth random field with knots about `cell` pixels (at 32 per degree)
+    apart, scaled so its spread is `amplitude`."""
+    gh, gw = NOISE_H32 // cell + 3, NOISE_W32 // cell + 3
     grid = rng.standard_normal((gh, gw))
-    up = ndimage.zoom(grid, cell, order=3)[:HEIGHT, :WIDTH]
-    return up / (np.std(up) + 1e-9) * amplitude
+    # Same scaling as the original map: the spread of the original field.
+    std = float(np.std(ndimage.zoom(grid, cell, order=3)[:NOISE_H32, :NOISE_W32]))
+    ry, rx = (gh - 1) / (gh * cell - 1), (gw - 1) / (gw * cell - 1)
+    ext = np.random.default_rng([1453, cell]).standard_normal(
+        (int(NOISE_EXT_H32 * ry) + 8, int(NOISE_EXT_W32 * rx) + 8))
+    ext[:gh, :gw] = grid
+    knots = ndimage.spline_filter(ext, order=3, mode="mirror")
+    del ext
+    # Pixel centres of this map in original-map pixels, then in knots.
+    ky = ((NOISE_LAT0 - (LAT_MAX - (np.arange(HEIGHT) + 0.5) / PPD)) * 32 - 0.5) * ry
+    kx = (((LON_MIN + (np.arange(WIDTH) + 0.5) / PPD) - NOISE_LON0) * 32 - 0.5) * rx
+    out = np.empty((HEIGHT, WIDTH), dtype=np.float64)
+    step = 256
+    for y0 in range(0, HEIGHT, step):
+        yy, xx = np.meshgrid(ky[y0:y0 + step], kx, indexing="ij")
+        out[y0:y0 + step] = ndimage.map_coordinates(knots, [yy, xx], order=3, prefilter=False, mode="mirror")
+    return out / (std + 1e-9) * amplitude
 
 
 # --------------------------------------------------------------------------
@@ -431,7 +497,8 @@ def move_off_rivers(seed_px, provinces, land, river_mask):
     moved = 0
     for k in range(len(provinces)):
         x, y = seed_px[k]
-        y0, y1, x0, x1 = max(y - 2, 0), min(y + 3, HEIGHT), max(x - 2, 0), min(x + 3, WIDTH)
+        r = px(2)
+        y0, y1, x0, x1 = max(y - r, 0), min(y + r + 1, HEIGHT), max(x - r, 0), min(x + r + 1, WIDTH)
         if not river_mask[y0:y1, x0:x1].any():
             continue
         # Direction towards the owner's other towns (or away from the river if none).
@@ -444,8 +511,9 @@ def move_off_rivers(seed_px, provinces, land, river_mask):
         norm = math.hypot(fx, fy) or 1.0
         fx, fy = fx / norm, fy / norm
         best, best_score = None, -1e9
-        for dy in range(-6, 7):
-            for dx in range(-6, 7):
+        reach = px(6)
+        for dy in range(-reach, reach + 1):
+            for dx in range(-reach, reach + 1):
                 nx, ny = x + dx, y + dy
                 if not (0 <= nx < WIDTH and 0 <= ny < HEIGHT) or blocked[ny, nx]:
                     continue
@@ -485,9 +553,9 @@ def grow_seas(labels, seas):
 
     water = labels == WATER
     zone = np.full(labels.shape, -1, dtype=np.int32)
-    node = np.full(labels.shape, -1, dtype=np.int64)
+    node = np.full(labels.shape, -1, dtype=np.int32)
     ys, xs = np.nonzero(water)
-    node[ys, xs] = np.arange(len(ys))
+    node[ys, xs] = np.arange(len(ys), dtype=np.int32)
     rng = np.random.default_rng(1454)
     cost = np.clip(1.0 + smooth_noise(rng, 40, 0.3), 0.4, 2.0)
     row_scale = np.cos(np.radians(LAT_MAX - (np.arange(HEIGHT) + 0.5) / PPD))
@@ -497,16 +565,17 @@ def grow_seas(labels, seas):
         ok = (a >= 0) & (b >= 0)
         rows.append(a[ok]); cols.append(b[ok]); weights.append(w[ok])
     n = len(ys)
-    graph = coo_matrix((np.concatenate(weights), (np.concatenate(rows), np.concatenate(cols))), shape=(n, n)).tocsr()
+    del cost
+    rows, cols, weights = np.concatenate(rows), np.concatenate(cols), np.concatenate(weights)
+    graph = coo_matrix((weights, (rows, cols)), shape=(n, n)).tocsr()
+    del rows, cols, weights
 
     # Snap each sea point onto water.
-    _, (iy, ix) = ndimage.distance_transform_edt(~water, return_indices=True)
     seed_nodes = []
     for k, sea in enumerate(seas):
         x, y = to_px(sea["lat"], sea["lon"])
         xi, yi = min(max(int(x), 0), WIDTH - 1), min(max(int(y), 0), HEIGHT - 1)
-        if not water[yi, xi]:
-            xi, yi = ix[yi, xi], iy[yi, xi]
+        xi, yi = nearest_true(water, xi, yi)
         seed_nodes.append(node[yi, xi])
     seed_nodes = np.array(seed_nodes)
     if len(set(seed_nodes.tolist())) != len(seed_nodes):
@@ -533,17 +602,16 @@ def grow_provinces(land, seed_px, seed_owner, river_mask, ridge_mask, frontier_m
     from scipy.sparse import coo_matrix
     from scipy.sparse.csgraph import dijkstra
 
-    node = np.full(land.shape, -1, dtype=np.int64)
+    node = np.full(land.shape, -1, dtype=np.int32)
     ys, xs = np.nonzero(land)
     n = len(ys)
-    node[ys, xs] = np.arange(n)
+    node[ys, xs] = np.arange(n, dtype=np.int32)
 
     rng = np.random.default_rng(1453)
-    wobble = np.clip(1.0 + smooth_noise(rng, 24, 0.45) + smooth_noise(rng, 7, 0.15), 0.3, 2.6)
-    cost = wobble.copy()
-    cost[river_mask] += RIVER_COST
-    cost[ridge_mask] += RIDGE_COST
-    cost[frontier_mask] += FRONTIER_COST
+    cost = np.clip(1.0 + smooth_noise(rng, 24, 0.45) + smooth_noise(rng, 7, 0.15), 0.3, 2.6)
+    cost[river_mask] += RIVER_COST * SCALE
+    cost[ridge_mask] += RIDGE_COST * SCALE
+    cost[frontier_mask] += FRONTIER_COST * SCALE
     row_scale = np.cos(np.radians(LAT_MAX - (np.arange(HEIGHT) + 0.5) / PPD))
 
     rows, cols, weights = [], [], []
@@ -553,15 +621,17 @@ def grow_provinces(land, seed_px, seed_owner, river_mask, ridge_mask, frontier_m
     ok = (a >= 0) & (b >= 0)
     w = 0.5 * (cost[:, :-1] + cost[:, 1:]) * row_scale[:, None]
     rows.append(a[ok]); cols.append(b[ok]); weights.append(w[ok])
+    del a, b, ok, w
     # Vertical neighbours.
     a = node[:-1, :]
     b = node[1:, :]
     ok = (a >= 0) & (b >= 0)
     w = 0.5 * (cost[:-1, :] + cost[1:, :])
     rows.append(a[ok]); cols.append(b[ok]); weights.append(w[ok])
-    graph = coo_matrix(
-        (np.concatenate(weights), (np.concatenate(rows), np.concatenate(cols))), shape=(n, n)
-    ).tocsr()
+    del a, b, ok, w, cost
+    rows, cols, weights = np.concatenate(rows), np.concatenate(cols), np.concatenate(weights)
+    graph = coo_matrix((weights, (rows, cols)), shape=(n, n)).tocsr()
+    del rows, cols, weights
 
     seed_nodes = node[seed_px[:, 1], seed_px[:, 0]]
     unique_nodes, first = np.unique(seed_nodes, return_index=True)
@@ -570,7 +640,7 @@ def grow_provinces(land, seed_px, seed_owner, river_mask, ridge_mask, frontier_m
     node_to_seed = {int(v): int(k) for v, k in zip(unique_nodes, first)}
 
     _, _, sources = dijkstra(graph, directed=False, indices=unique_nodes, min_only=True,
-                             return_predecessors=True, limit=GROW_LIMIT)
+                             return_predecessors=True, limit=GROW_LIMIT * SCALE)
     labels = np.full(land.shape, WATER, dtype=np.int32)
     reached = sources >= 0
     seed_index = np.full(n, -1, dtype=np.int64)
@@ -682,15 +752,14 @@ def build(args):
 
     # Seeds: provinces first (index = province id), then wasteland.
     seeds = [(p["lat"], p["lon"]) for p in provinces] + [(w["lat"], w["lon"]) for w in wastes]
-    seed_owner = np.array(list(range(len(provinces))) + [WASTE] * len(wastes))
+    seed_owner = np.array(list(range(len(provinces))) + [UNKNOWN if w["unknown"] else WASTE for w in wastes])
     seed_px = []
     # Snap seeds that fall in water to the nearest land pixel.
-    _, (iy, ix) = ndimage.distance_transform_edt(~land, return_indices=True)
     for k, (lat, lon) in enumerate(seeds):
         x, y = to_px(lat, lon)
         xi, yi = min(max(int(x), 0), WIDTH - 1), min(max(int(y), 0), HEIGHT - 1)
         if not land[yi, xi]:
-            nx, ny = ix[yi, xi], iy[yi, xi]
+            nx, ny = nearest_true(land, xi, yi)
             dist_km = math.hypot(nx - xi, ny - yi) / PPD * 111
             if k < len(provinces) and dist_km > 40:
                 print(f"  note: {provinces[k]['name']} seed moved {dist_km:.0f} km onto land")
@@ -811,7 +880,7 @@ def build(args):
     print(f"{len(seas)} sea zones, {sum(len(v) for v in coast_of.values())} coast links")
 
     # Borders that mostly follow a river (matters for battles and movement).
-    near_river = ndimage.binary_dilation(river_mask, iterations=2)
+    near_river = ndimage.binary_dilation(river_mask, iterations=px(2))
     pair_total = defaultdict(int)
     pair_river = defaultdict(int)
     for a, b, ra, rb in ((labels[:, :-1], labels[:, 1:], near_river[:, :-1], near_river[:, 1:]),
@@ -823,10 +892,10 @@ def build(args):
             pair_total[(u, v)] += 1
             if r:
                 pair_river[(u, v)] += 1
-    river_borders = sorted([list(k) for k, t in pair_total.items() if pair_river[k] >= 0.35 * t and t >= 6])
+    river_borders = sorted([list(k) for k, t in pair_total.items() if pair_river[k] >= 0.35 * t and t >= px(6)])
     print(f"{len(river_borders)} province borders follow a river")
 
-    tiny = [provinces[i]["name"] for i in range(n) if counts[i] < 40]
+    tiny = [provinces[i]["name"] for i in range(n) if counts[i] < 40 * SCALE * SCALE]
     if tiny:
         print(f"  note: very small provinces (<40 px): {', '.join(tiny)}")
     lonely = [provinces[i]["name"] for i in range(n) if not adjacent[i]]
@@ -865,11 +934,14 @@ def build(args):
 
     # ----------------------------------------------------------------------
     # Write outputs
-    value = np.where(labels >= 0, labels + 2, np.where(labels == WASTE, 1, 0)).astype(np.uint16)
+    value = np.where(labels >= 0, labels + 2, np.where((labels == WASTE) | (labels == UNKNOWN), 1, 0)).astype(np.uint16)
     idmap_path = os.path.join(ROOT, "Packages/GezCore/Sources/GezCore/Resources/provinces1453.idmap")
     write_idmap(value, idmap_path)
     # Sea zones: 0 = land or unzoned water, k + 1 = zone k.
-    write_idmap((zone + 1).astype(np.uint16), os.path.join(ROOT, "Packages/GezCore/Sources/GezCore/Resources/seas1453.idmap"))
+    # Unknown land carries UNKNOWN_MARK in the sea map.
+    sea_value = np.where(labels == UNKNOWN, UNKNOWN_MARK, zone + 1).astype(np.uint16)
+    write_idmap(sea_value, os.path.join(ROOT, "Packages/GezCore/Sources/GezCore/Resources/seas1453.idmap"))
+    print(f"unknown land pixels: {int((labels == UNKNOWN).sum()):,}")
 
     out = {
         "map": {
@@ -972,7 +1044,8 @@ def preview(labels, provinces, states, countries, tags, path, scale=2, river_mas
         owner_color[i] = countries[tags[p["owner"]]]["color"] if p["owner"] else (150, 140, 120)
     owner_color[n] = (64, 96, 128)      # water
     owner_color[n + 1] = (90, 80, 70)   # wasteland
-    idx = np.where(labels >= 0, labels, np.where(labels == WATER, n, n + 1))
+    owner_color[n + 2] = (226, 212, 176)  # unknown land (parchment)
+    idx = np.where(labels >= 0, labels, np.where(labels == WATER, n, np.where(labels == UNKNOWN, n + 2, n + 1)))
     img = owner_color[idx]
 
     prov_owner = np.array([tags.get(p["owner"], -1) if p["owner"] else -1 for p in provinces] + [-2, -3, -4])
@@ -1010,4 +1083,8 @@ if __name__ == "__main__":
     ap.add_argument("--land", required=True, help="Natural Earth land GeoJSON")
     ap.add_argument("--full-preview", help="also write a full-size preview here")
     ap.add_argument("--show-ridges", action="store_true", help="draw ridges in the full preview")
-    build(ap.parse_args())
+    ap.add_argument("--ppd", type=int, help="pixels per degree (default %d); for trying other sizes" % PPD)
+    args = ap.parse_args()
+    if args.ppd:
+        set_ppd(args.ppd)
+    build(args)

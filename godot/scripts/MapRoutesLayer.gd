@@ -130,7 +130,7 @@ func _draw() -> void:
 		var dot_col := Color(0.95, 0.80, 0.30, 0.95) if is_endpoint else Color(0.75, 0.72, 0.66, 0.75)
 		draw_circle(p, radius + 1.5, Color(0.10, 0.08, 0.06, 0.85))
 		draw_circle(p, radius, dot_col)
-		if font != null and (is_endpoint or map_zoom >= 0.85):
+		if font != null and (is_endpoint or MapScale.look(map_zoom) >= 0.85):
 			var label: String = str(m.get("name", ""))
 			if not label.is_empty():
 				var font_size: int = 12 if is_endpoint else 10

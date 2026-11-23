@@ -11,7 +11,7 @@ render_mode unshaded, cull_disabled, depth_draw_opaque;
 // at the very end when the renderer needs it, so the straight-down view looks
 // exactly as before.
 
-uniform vec2 map_size = vec2(3936.0, 2384.0);
+uniform vec2 map_size = vec2(8304.0, 5112.0);
 uniform float zoom = 1.0;
 uniform float time_sec = 0.0;
 uniform int selected = 0;
@@ -212,9 +212,15 @@ void fragment() {
 				color = mix(base, tinted, tint * s_color.a);
 			}
 			if (s_owner == -3) {
-				color = mix(color, vec3(luminance(color)), 0.5) * 0.78;
-				float hatch = step(0.85, fract((m.x + m.y) * 0.12));
-				color *= 1.0 - hatch * 0.12;
+				if (id_at(sea_tex, m, map_size) == 65535) {
+					// Phase 20.7: unknown land (Australia, New Guinea) is blank
+					// parchment, terra incognita, at every zoom.
+					color = paper(m) * 0.97;
+				} else {
+					color = mix(color, vec3(luminance(color)), 0.5) * 0.78;
+					float hatch = step(0.85, fract((m.x + m.y) * 0.12));
+					color *= 1.0 - hatch * 0.12;
+				}
 			}
 
 			float country_edge = 0.0;

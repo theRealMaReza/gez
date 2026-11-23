@@ -7,7 +7,7 @@ import SwiftGodotRuntime
 /// all buffer encoding, camera math, labels, and simulation stepping without the
 /// Godot engine runtime loaded.
 public final class GezGodotController {
-    public static let styleTextureWidth = 2048
+    public static let styleTextureWidth = 8192
 
     public private(set) var session: GameSession?
     public var mapMode: MapModeKind = .political
@@ -44,8 +44,8 @@ public final class GezGodotController {
         }
     }
 
-    public var mapWidth: Int { session?.idMap.width ?? 3936 }
-    public var mapHeight: Int { session?.idMap.height ?? 2384 }
+    public var mapWidth: Int { session?.idMap.width ?? 8304 }
+    public var mapHeight: Int { session?.idMap.height ?? 5112 }
 
     /// Map pixel coordinate for a given `(latitude, longitude)` (e.g. `41.0, 29.0` for Constantinople).
     public func focusPoint(latitude: Double = 41.0, longitude: Double = 29.0) -> (x: Double, y: Double) {
@@ -4526,7 +4526,7 @@ public final class GezGodotController {
         return s.seaMap.values.withUnsafeBytes { Array($0) }
     }
 
-    /// Encodes `ProvinceStyle` for all ID-map values into a `2048 x 2` `RGBA8` image (`16,384` bytes):
+    /// Encodes `ProvinceStyle` for all ID-map values into a `8192 x 2` `RGBA8` image (`65,536` bytes; room for 8,190 provinces):
     /// - Row 0 (`y = 0`): `(r, g, b, a)` map-mode colour (`a = 0` means no tint).
     /// - Row 1 (`y = 1`): `owner + 4` in `(r, g)` and `state + 4` in `(b, a)` as unsigned 16-bit little-endian integers.
     public func styleBytes() -> [UInt8] {

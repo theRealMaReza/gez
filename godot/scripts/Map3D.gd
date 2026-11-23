@@ -9,15 +9,18 @@ extends Node3D
 const Map3DShader := preload("res://shaders/map3d.gdshader")
 const SEA_COLOR := Color(0.16, 0.25, 0.33)
 
-# Grid cells: ~6 map pixels each on a 3936 x 2384 map (about 250k vertices).
-const GRID_CELL_PX := 6.0
+# Grid cells: about 692 across the map whatever its size (about 296k
+# vertices: 6 map pixels each on the old 3936-wide map, 12 on the Old World
+# map at 48 pixels per degree, 8304 x 5112). Never finer than 6 pixels.
+const GRID_COLUMNS := 692.0
+const MIN_GRID_CELL_PX := 6.0
 
 var terrain_material: ShaderMaterial
 var terrain: MeshInstance3D
 var camera: Camera3D
 var sun: DirectionalLight3D
 var env: WorldEnvironment
-var map_size: Vector2 = Vector2(3936.0, 2384.0)
+var map_size: Vector2 = Vector2(8304.0, 5112.0)
 
 func _init() -> void:
 	name = "Map3D"
@@ -62,14 +65,20 @@ func set_map_size(s: Vector2) -> void:
 	map_size = s
 	var plane := PlaneMesh.new()
 	plane.size = s
-	plane.subdivide_width = maxi(1, int(s.x / GRID_CELL_PX))
-	plane.subdivide_depth = maxi(1, int(s.y / GRID_CELL_PX))
+	var cell := grid_cell_px(s)
+	plane.subdivide_width = maxi(1, int(s.x / cell))
+	plane.subdivide_depth = maxi(1, int(s.y / cell))
 	plane.center_offset = Vector3(s.x * 0.5, 0.0, s.y * 0.5)
 	terrain.mesh = plane
 	terrain_material.set_shader_parameter("map_size", s)
 
+static func grid_cell_px(s: Vector2) -> float:
+	return maxf(MIN_GRID_CELL_PX, s.x / GRID_COLUMNS)
+
 func set_height_texture(tex: Texture2D) -> void:
 	terrain_material.set_shader_parameter("height_tex", tex)
+	# Same relief as the projector (MapProjector.HEIGHT_MAX, in map pixels).
+	terrain_material.set_shader_parameter("height_max", 34.0 * MapScale.k)
 
 # Copy the projector's camera into the real Camera3D.
 func apply_projector(p: RefCounted) -> void:

@@ -167,6 +167,6 @@ final class GameSessionTests: XCTestCase {
         XCTAssertNotNil(fallbackEconomy)
 
         let world = try Scenario1453.loadBundled()
-        XCTAssertEqual(world.provinces.count, 1378)
+        XCTAssertGreaterThanOrEqual(world.provinces.count, 1378)  // grows with the Old World regions
     }
 }

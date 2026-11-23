@@ -2,6 +2,8 @@
 /// each other more easily and can convert more easily.
 public enum ReligionFamily: String, CaseIterable, Sendable, Codable {
     case christian, muslim, dharmic, iranian, jewish, pagan
+    /// Confucian, Daoist and Shinto (Phase 20.7).
+    case eastAsian
 
     public var displayName: String {
         switch self {
@@ -11,6 +13,7 @@ public enum ReligionFamily: String, CaseIterable, Sendable, Codable {
         case .iranian: return "Iranian"
         case .jewish: return "Jewish"
         case .pagan: return "Pagan"
+        case .eastAsian: return "East Asian"
         }
     }
 }
@@ -24,6 +27,14 @@ public enum Religion: String, CaseIterable, Sendable, Codable {
     case hindu, jain, theravada, tibetan
     // Others
     case zoroastrian, jewish, tengri, folk
+    // Phase 20.7, the Old World map: East Asia, and the African, Siberian
+    // and Southeast Asian traditions split out of "folk". Listed last so the
+    // older cases keep their order.
+    case mahayana, confucian, daoist, shinto
+    case westAfrican = "west_african"
+    case bantu
+    case eastAfrican = "east_african"
+    case siberian, austronesian, highland
 
     public var family: ReligionFamily {
         switch self {
@@ -31,13 +42,15 @@ public enum Religion: String, CaseIterable, Sendable, Codable {
             return .christian
         case .sunni, .twelver, .zaydi, .ismaili, .ibadi, .druze, .alawite, .yazidi:
             return .muslim
-        case .hindu, .jain, .theravada, .tibetan:
+        case .hindu, .jain, .theravada, .tibetan, .mahayana:
             return .dharmic
+        case .confucian, .daoist, .shinto:
+            return .eastAsian
         case .zoroastrian:
             return .iranian
         case .jewish:
             return .jewish
-        case .tengri, .folk:
+        case .tengri, .folk, .westAfrican, .bantu, .eastAfrican, .siberian, .austronesian, .highland:
             return .pagan
         }
     }
@@ -71,6 +84,16 @@ public enum Religion: String, CaseIterable, Sendable, Codable {
         case .jewish: return "Jewish"
         case .tengri: return "Tengri"
         case .folk: return "Folk religion"
+        case .mahayana: return "Mahayana Buddhist"
+        case .confucian: return "Confucian"
+        case .daoist: return "Daoist"
+        case .shinto: return "Shinto"
+        case .westAfrican: return "West African traditions"
+        case .bantu: return "Bantu traditions"
+        case .eastAfrican: return "East African traditions"
+        case .siberian: return "Siberian shamanism"
+        case .austronesian: return "Austronesian traditions"
+        case .highland: return "Highland traditions"
         }
     }
 
@@ -104,6 +127,16 @@ public enum Religion: String, CaseIterable, Sendable, Codable {
         case .jewish: return RGB(70, 110, 200)
         case .tengri: return RGB(170, 140, 100)
         case .folk: return RGB(150, 120, 90)
+        case .mahayana: return RGB(235, 170, 70)
+        case .confucian: return RGB(200, 60, 60)
+        case .daoist: return RGB(110, 160, 140)
+        case .shinto: return RGB(230, 120, 130)
+        case .westAfrican: return RGB(185, 110, 60)
+        case .bantu: return RGB(140, 95, 55)
+        case .eastAfrican: return RGB(170, 125, 80)
+        case .siberian: return RGB(120, 140, 150)
+        case .austronesian: return RGB(80, 150, 120)
+        case .highland: return RGB(125, 150, 85)
         }
     }
 }

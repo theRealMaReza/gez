@@ -216,6 +216,13 @@ public enum HistoryQueries {
         case .jewish: return RGB(90, 140, 200)
         case .tengri: return RGB(105, 175, 185)
         case .folk: return RGB(145, 125, 95)
+        case .mahayana: return RGB(225, 180, 70)
+        case .confucian: return RGB(195, 70, 60)
+        case .daoist: return RGB(115, 165, 145)
+        case .shinto: return RGB(225, 125, 135)
+        case .westAfrican, .bantu, .eastAfrican: return RGB(165, 115, 70)
+        case .siberian: return RGB(120, 145, 160)
+        case .austronesian, .highland: return RGB(95, 150, 110)
         }
     }
 }
