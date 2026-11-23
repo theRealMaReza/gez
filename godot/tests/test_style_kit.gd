@@ -64,6 +64,10 @@ func test_every_good_and_building_has_an_icon() -> void:
 	runner.check(GezStyle.good_icon("Olive Oil") != null, "good_icon finds Olive Oil")
 	runner.check(GezStyle.building_icon("Cloth Weavers") != null, "building_icon finds Cloth Weavers")
 	runner.check(GezStyle.good_icon("No Such Good") == null, "unknown good gives no icon")
+	var base_sb := GezTheme.window_style()
+	var padded_sb := GezStyle.with_bottom_margin(base_sb, 42.0)
+	runner.check(padded_sb != null and is_equal_approx(padded_sb.content_margin_bottom, 42.0), "with_bottom_margin sets bottom content margin")
+	runner.check(is_equal_approx(base_sb.content_margin_bottom, 30.0), "with_bottom_margin does not mutate shared StyleBox")
 
 func test_portraits_use_existing_parts_and_are_stable() -> void:
 	# Phase 20 part 3: every part the generator picks exists, for every

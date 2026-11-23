@@ -906,7 +906,7 @@ func _build_province_panel() -> void:
 	province_panel.name = "ProvincePanel"
 	province_panel.visible = false
 	province_panel.custom_minimum_size = Vector2(330.0, 0.0)
-	province_panel.add_theme_stylebox_override("panel", _make_panel_style())
+	province_panel.add_theme_stylebox_override("panel", GezStyle.with_bottom_margin(_make_panel_style(), 42.0))
 	windows_layer.add_child(province_panel)
 
 	var vbox := VBoxContainer.new()

@@ -165,6 +165,14 @@ static func icon_rect(t: Texture2D, size := 24.0) -> TextureRect:
 	r.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	return r
 
+## Return a copy of `sb` with a larger bottom content margin inside the frame.
+static func with_bottom_margin(sb: StyleBox, bottom: float) -> StyleBox:
+	if sb == null:
+		return null
+	var copy: StyleBox = sb.duplicate()
+	copy.content_margin_bottom = bottom
+	return copy
+
 ## Font size for text on parchment: EB Garamond looks smaller than the old
 ## sans-serif at the same size, so small sizes get a little bigger.
 static func fs(n: int) -> int:
