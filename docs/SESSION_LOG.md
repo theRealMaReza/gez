@@ -173,3 +173,20 @@ truce (Galata surrendered on 1 June 1453, two days after the start).
   same commit (the dispatch run's checks already show on the PR).
 - From this session: repository settings writes (for example the default
   branch) are refused by the proxy; GraphQL is blocked (use REST).
+
+## Session 14 (22 Nov 2026): Phase 18 review and merge
+- Gemini's four stacked Phase 18 PRs were built on main from before
+  Phase 20; Claude squashed them onto main as one PR (#18) and moved the
+  buttons into the side column (`add_side_button` / `add_window`).
+- Gemini's save-size test used 5 events a year; at a realistic 200 the
+  save was 7.6 MB. Packing (varints, year-on-year changes, one-byte
+  wording seed) fixed it. Check size tests against realistic rates.
+- Two Claude chats worked on the same branch at once and pushed the same
+  fix minutes apart. Before pushing, fetch the branch; if someone else
+  pushed, keep theirs rather than force-pushing.
+- The 1453 border fixes (#19): the generators run here end to end (coast
+  data via `fetch_coastlines.sh`, elevation is in the repo); new countries
+  need a ruler under `@ TAG`, `ruler | =id` for one man ruling two, and no
+  `d:` date for people alive at the start. Check map colours against
+  neighbours in `docs/map_preview.png`. Heraldry: put rows in `check.txt`,
+  run the workflow in `check` mode on the branch, pick from the sheets.
