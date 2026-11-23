@@ -288,6 +288,42 @@ func _town_area(m: Vector2) -> float:
 	var pidx := _id_at(int(m.x), int(m.y)) - 2
 	return _prov_area[pidx] if pidx >= 0 and pidx < _prov_area.size() else 0.0
 
+# How far the province reaches around a town (map pixels): walk out in 12
+# directions until the id map shows another province or the sea, and take
+# the middle distance. Long thin or coastal provinces (Konstantiniyye) get a
+# smaller town than their area alone would give. Cached per town position.
+var _reach_cache: Dictionary = {}
+const REACH_MAX := 48.0
+
+func _town_reach(m: Vector2) -> float:
+	var key := Vector2i(int(m.x), int(m.y))
+	if _reach_cache.has(key):
+		return _reach_cache[key]
+	var own := _id_at(key.x, key.y)
+	if own < 2:
+		_reach_cache[key] = REACH_MAX
+		return REACH_MAX
+	var dists: Array[float] = []
+	for k in range(12):
+		var ang := TAU * float(k) / 12.0
+		var dir := Vector2(cos(ang), sin(ang))
+		var d := 2.0
+		while d < REACH_MAX:
+			var p := m + dir * d
+			if _id_at(int(p.x), int(p.y)) != own:
+				break
+			d += 2.0
+		dists.append(d)
+	dists.sort()
+	var r := (dists[5] + dists[6]) * 0.5
+	_reach_cache[key] = r
+	return r
+
+# Radius cap from that reach, at a tier's smallest zoom (model units).
+static func town_reach_cap(reach_px: float, tier: int) -> float:
+	var z := [TOWN_MIN_ZOOM, 1.1, 1.6][clampi(tier, 0, 2)] as float
+	return maxf(reach_px * 1.25 / scale_for_zoom(z), 1.2)
+
 # metrics: stride 6 [x, y, dev, fort, capital, port]; data: stride 4 [style, r, g, b].
 func set_towns(metrics: PackedFloat32Array, data: PackedFloat32Array) -> void:
 	_town_metrics = metrics
@@ -345,7 +381,7 @@ func _build_town(i: int) -> void:
 		st = _style(_town_data[i * 4])
 		owner_col = Color(_town_data[i * 4 + 1], _town_data[i * 4 + 2], _town_data[i * 4 + 3])
 	var anchor := Vector3(m.x, _ground(m) - 0.05, m.y)
-	var cap := town_radius_cap(_town_area(m), _town_tier)
+	var cap := minf(town_radius_cap(_town_area(m), _town_tier), town_reach_cap(_town_reach(m), _town_tier))
 	for part in town_layout(i, dev, fort, is_cap, st, _town_tier, cap):
 		_place("town", part[0], anchor, part[1], part[2])
 	if is_cap:

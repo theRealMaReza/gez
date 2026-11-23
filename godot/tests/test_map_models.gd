@@ -137,3 +137,16 @@ func test_cloth_may_move_and_buildings_do_not() -> void:
 	runner.check(mm.material_for("flag_cloth") != mm.material and mm.material_for("sail.islamic") != mm.material_for("sail.european"), "flags and sails get their own waving material")
 	runner.check(mm.material_for("house_a.european") == mm.material, "houses keep the plain material")
 	mm.free()
+
+func test_town_reach_follows_the_province_shape() -> void:
+	var img := Image.create(200, 200, false, Image.FORMAT_RG8)
+	img.fill(Color(0, 0, 0))   # sea
+	for y in range(90, 110):   # a thin strip of land, id 5
+		for x in range(20, 180):
+			img.set_pixel(x, y, Color(5.0 / 255.0, 0, 0))
+	var mm = ModelsScript.new()
+	mm.id_image = img
+	var r: float = mm._town_reach(Vector2(100, 100))
+	runner.check(r <= 20.0, "a thin coastal strip limits the town (%.0f px)" % r)
+	runner.check(ModelsScript.town_reach_cap(r, 2) < ModelsScript.town_reach_cap(48.0, 2), "...to a smaller radius than open land")
+	mm.free()
