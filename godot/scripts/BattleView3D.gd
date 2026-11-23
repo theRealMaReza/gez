@@ -13,22 +13,38 @@ extends SubViewportContainer
 
 const Lib := preload("res://scripts/ModelLibrary.gd")
 const ModelShader := preload("res://shaders/map_model.gdshader")
+const SmokeShader := preload("res://shaders/battle_smoke.gdshader")
 
 const FOV_DEG := 32.0
 const PITCH_DEG := 56.0
 const HILL_SCALE := 1.6        # hill "height" in the battle state -> world units
 const GRID := 6.0              # ground mesh cell (field units)
 const UNIT_SCALE := 10.0       # model unit -> field units for soldiers and engines
-const FIGURE_SPACING := 9.0    # field units between soldiers in a formation
-const MEN_PER_FIGURE := 60
-const MAX_FIGURES := 40
+# Phase 20.6: fewer, bigger soldiers that still fill the regiment's
+# rectangle in the rules (the part you click), tuned together: a figure is
+# FIGURE_SIZE x the model, about 7 field units wide, and stands for
+# MEN_PER_FIGURE men; FIGURE_SPACING keeps them from overlapping.
+const FIGURE_SIZE := 1.45
+const FIGURE_SPACING := 12.0   # field units between soldiers in a formation
+const MEN_PER_FIGURE := 80
+const MAX_FIGURES := 30
 const WALL_HEIGHT := 34.0      # field units
+# Horizon (Phase 20.6): ground runs on past the field into a haze.
+const HAZE := Color(0.63, 0.67, 0.64)
+const SKIRT := 4000.0          # field units of plain ground beyond the field
+# Gunpowder regiments that make smoke when they shoot (others shoot arrows).
+const GUN_KEYS := ["handgunners", "musketeers", "line_infantry", "maurician_infantry", "dragoons", "janissaries", "arquebusiers", "carabineers"]
 
 var viewport: SubViewport
 var world: Node3D
 var camera: Camera3D
 var ground: MeshInstance3D
+var skirt: MeshInstance3D       # plain ground out to the horizon
+var env: Environment
 var unit_mat: ShaderMaterial    # soldiers, engines, trees: scaled by UNIT_SCALE
+var cloth_mat: ShaderMaterial   # standards (waving, Phase 20.6)
+var smoke_mat: ShaderMaterial   # musket and cannon smoke (Phase 20.6)
+var _smoke_mesh: QuadMesh
 var static_mat: ShaderMaterial  # walls and towers: sized by their transform
 
 var field_size := Vector2(1200.0, 800.0)
@@ -57,16 +73,25 @@ func _init() -> void:
 	world = Node3D.new()
 	viewport.add_child(world)
 
-	var env := WorldEnvironment.new()
+	var we := WorldEnvironment.new()
 	var e := Environment.new()
+	env = e
 	e.background_mode = Environment.BG_COLOR
-	e.background_color = Color(0.20, 0.22, 0.20)
+	e.background_color = HAZE
+	# Depth fog (works in the Compatibility renderer): the far ground fades
+	# into the haze. Distances are set in fit_camera().
+	e.fog_enabled = true
+	e.fog_mode = Environment.FOG_MODE_DEPTH
+	e.fog_light_color = HAZE
+	e.fog_density = 1.0
+	e.fog_depth_curve = 1.4
+	e.fog_sky_affect = 0.0
 	e.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 	e.ambient_light_color = Color(0.80, 0.78, 0.74)
 	e.ambient_light_energy = 0.7
 	e.tonemap_mode = Environment.TONE_MAPPER_LINEAR
-	env.environment = e
-	world.add_child(env)
+	we.environment = e
+	world.add_child(we)
 
 	var sun := DirectionalLight3D.new()
 	sun.rotation_degrees = Vector3(-50.0, -140.0, 0.0)
@@ -87,6 +112,9 @@ func _init() -> void:
 	gm.specular_mode = BaseMaterial3D.SPECULAR_DISABLED
 	ground.material_override = gm
 	world.add_child(ground)
+	skirt = MeshInstance3D.new()
+	skirt.material_override = gm
+	world.add_child(skirt)
 
 	unit_mat = ShaderMaterial.new()
 	unit_mat.shader = ModelShader
@@ -96,6 +124,13 @@ func _init() -> void:
 	static_mat = ShaderMaterial.new()
 	static_mat.shader = ModelShader
 	static_mat.set_shader_parameter("model_scale", 1.0)
+	cloth_mat = unit_mat.duplicate()
+	cloth_mat.set_shader_parameter("cloth_wave", 0.07)
+	cloth_mat.set_shader_parameter("cloth_axis", Vector3(0, 0, 1))
+	smoke_mat = ShaderMaterial.new()
+	smoke_mat.shader = SmokeShader
+	_smoke_mesh = QuadMesh.new()
+	_smoke_mesh.size = Vector2.ONE
 
 func ready_ok() -> bool:
 	return Lib.ensure_loaded()
@@ -131,6 +166,10 @@ func fit_camera(p_view: Vector2) -> void:
 	camera.transform = Transform3D(Basis(right, up, -fwd), cam_pos)
 	camera.near = 2.0
 	camera.far = 20000.0
+	# Clear over the field, hazy beyond its far edge.
+	var far_edge := cam_pos.distance_to(Vector3(field_size.x * 0.5, 0.0, 0.0))
+	env.fog_depth_begin = far_edge * 0.98
+	env.fog_depth_end = far_edge + field_size.y * 2.2
 
 func _field_fits(margin: float) -> bool:
 	for c in [Vector3(0, 0, 0), Vector3(field_size.x, 0, 0), Vector3(0, 0, field_size.y), Vector3(field_size.x, 0, field_size.y)]:
@@ -287,6 +326,27 @@ func _build_ground(state: Dictionary) -> void:
 	st.create_from_arrays(arrays)
 	st.generate_normals()
 	ground.mesh = st.commit()
+	_build_skirt(base.darkened(0.22), pad)
+
+# Phase 20.6: a flat frame of ground from the edge of the detailed ground out
+# to the horizon, in the same faded colour, so the view has no hard border.
+func _build_skirt(col: Color, pad: float) -> void:
+	var inner := Rect2(-pad + GRID, -pad + GRID, field_size.x + pad * 2.0 - GRID * 2.0, field_size.y + pad * 2.0 - GRID * 2.0)
+	var outer := inner.grow(SKIRT)
+	var ci := [inner.position, Vector2(inner.end.x, inner.position.y), inner.end, Vector2(inner.position.x, inner.end.y)]
+	var co := [outer.position, Vector2(outer.end.x, outer.position.y), outer.end, Vector2(outer.position.x, outer.end.y)]
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	st.set_normal(Vector3.UP)
+	st.set_color(col)
+	for k in range(4):
+		var a: Vector2 = ci[k]
+		var b: Vector2 = ci[(k + 1) % 4]
+		var c: Vector2 = co[(k + 1) % 4]
+		var d: Vector2 = co[k]
+		for p in [a, c, b, a, d, c]:
+			st.add_vertex(Vector3((p as Vector2).x, -0.4, (p as Vector2).y))
+	skirt.mesh = st.commit()
 
 # ---- Instances -------------------------------------------------------------
 
@@ -297,7 +357,7 @@ func _begin() -> void:
 func _add(mesh_name: String, origin: Vector3, yaw: float, color: Color = Color.WHITE, phase: float = 0.0, scale: Vector3 = Vector3.ONE, static_model: bool = false, tilt: float = 0.0) -> void:
 	var key := ("s|" if static_model else "u|") + mesh_name
 	if not _batches.has(key):
-		var mesh := Lib.get_mesh(mesh_name)
+		var mesh: Mesh = _smoke_mesh if mesh_name == "smoke" else Lib.get_mesh(mesh_name)
 		if mesh == null:
 			return
 		var mm := MultiMesh.new()
@@ -307,7 +367,10 @@ func _add(mesh_name: String, origin: Vector3, yaw: float, color: Color = Color.W
 		mm.mesh = mesh
 		var node := MultiMeshInstance3D.new()
 		node.multimesh = mm
-		node.material_override = static_mat if static_model else unit_mat
+		node.material_override = static_mat if static_model else (cloth_mat if mesh_name == "flag_cloth" else unit_mat)
+		if mesh_name == "smoke":
+			node.material_override = smoke_mat
+			node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		node.custom_aabb = AABB(Vector3(-400, -100, -400), Vector3(field_size.x + 800, 800, field_size.y + 800))
 		world.add_child(node)
 		_batches[key] = {"node": node, "items": []}
@@ -452,7 +515,8 @@ func _place_unit(u: Dictionary, st: String, state: Dictionary) -> void:
 	if routing:
 		yaw += PI
 	var lift := WALL_HEIGHT * 0.95 if on_wall else 0.0
-	var spacing := FIGURE_SPACING * (1.5 if cat == "cavalry" else 1.0)
+	var spacing := FIGURE_SPACING * (1.4 if cat == "cavalry" else 1.0)
+	var fig := Vector3.ONE * FIGURE_SIZE
 	var body := "soldier_body"
 	var gear := "soldier_gear." + st
 	if cat == "cavalry":
@@ -484,24 +548,58 @@ func _place_unit(u: Dictionary, st: String, state: Dictionary) -> void:
 		var origin := Vector3(p.x, height_at(p) + lift, p.y)
 		var phase := (0.05 + 0.9 * _hash01(idx * 31, k)) if (moving or fighting or routing) else 0.0
 		if cat == "artillery":
-			_add("cannon", origin, yaw, Color.WHITE, 0.0, Vector3.ONE * 1.5)
-			var crew := origin + Vector3(side2.x, 0.0, side2.y) * 7.0 - Vector3(fwd2.x, 0.0, fwd2.y) * 6.0
-			_add("soldier_body", crew, yaw, col, phase)
-			_add("soldier_gear." + st, crew, yaw, Color.WHITE, phase)
+			_add("cannon", origin, yaw, Color.WHITE, 0.0, Vector3.ONE * 1.5 * FIGURE_SIZE)
+			var crew := origin + Vector3(side2.x, 0.0, side2.y) * 8.0 - Vector3(fwd2.x, 0.0, fwd2.y) * 7.0
+			_add("soldier_body", crew, yaw, col, phase, fig)
+			_add("soldier_gear." + st, crew, yaw, Color.WHITE, phase, fig)
 			continue
-		_add(body, origin, yaw, col, phase)
-		_add(gear, origin, yaw, Color.WHITE, phase)
+		_add(body, origin, yaw, col, phase, fig)
+		_add(gear, origin, yaw, Color.WHITE, phase, fig)
 		if str(u.get("siegeEquipment", "none")) == "ladders" and colk % 3 == 0 and row == 0:
 			var lp := origin + Vector3(side2.x, 0, side2.y) * 4.0
 			_add("ladder", lp, yaw + PI * 0.5, Color.WHITE, phase, Vector3.ONE * 0.9, false, -1.25)
 	# Standard bearer at the front centre.
 	var fp := c + fwd2 * (depth * 0.5 + 3.0)
 	var forigin := Vector3(fp.x, height_at(fp) + lift, fp.y)
-	_add("flag_pole", forigin, yaw, Color.WHITE, 0.0, Vector3.ONE * 1.3)
-	_add("flag_cloth", forigin, yaw, col, 0.0, Vector3.ONE * 1.3)
+	_add("flag_pole", forigin, yaw, Color.WHITE, 0.0, Vector3.ONE * 1.3 * FIGURE_SIZE)
+	_add("flag_cloth", forigin, yaw, col, 0.0, Vector3.ONE * 1.3 * FIGURE_SIZE)
+	_place_smoke(u, c, fwd2, side2, front, depth, lift, cat)
 	if str(u.get("siegeEquipment", "none")) == "ram":
 		var rp := c + fwd2 * (depth * 0.5 + 9.0)
 		_add("ram", Vector3(rp.x, height_at(rp), rp.y), yaw, Color.WHITE, 0.0, Vector3.ONE * 1.4)
+
+# Phase 20.6: smoke in front of gunpowder regiments and guns while they
+# shoot (stance and ammunition from the battle state; the rules are not
+# touched). Each puff is one billboard that grows, drifts and fades in the
+# smoke shader, so nothing is rebuilt per frame.
+static func makes_smoke(u: Dictionary) -> bool:
+	if int(u.get("men", 0)) <= 0 or bool(u.get("isRouting", false)):
+		return false
+	if int(u.get("ammo", 0)) <= 0:
+		return false
+	var stance := str(u.get("stance", "hold"))
+	if stance == "holdFire" or stance == "retreat" or bool(u.get("inMelee", false)):
+		return false
+	var cat := str(u.get("category", ""))
+	if cat == "artillery":
+		return true
+	return cat == "ranged" and str(u.get("key", "")) in GUN_KEYS and (stance == "volley" or stance == "advance" or stance == "hold")
+
+func _place_smoke(u: Dictionary, c: Vector2, fwd2: Vector2, side2: Vector2, front: float, depth: float, lift: float, cat: String) -> void:
+	if not makes_smoke(u):
+		return
+	var idx := int(u.get("index", 0))
+	var n := 4 if cat == "artillery" else 6
+	var size := 34.0 if cat == "artillery" else 20.0
+	for k in range(n):
+		var t := (float(k) + 0.5) / float(n) - 0.5
+		var p := c + fwd2 * (depth * 0.5 + 6.0 + 4.0 * _hash01(idx, k + 50)) + side2 * (t * front * 0.9)
+		var o := Vector3(p.x, height_at(p) + lift + 4.0, p.y)
+		# colour alpha = how thick; custom.w = the puff's own moment in its cycle
+		_add("smoke", o, 0.0, Color(0.92, 0.91, 0.88, 0.75), 0.02 + 0.96 * _hash01(idx * 7, k), Vector3(size, size, size))
+
+func smoke_count() -> int:
+	return count_of("smoke")
 
 static func _hash01(a: int, b: int) -> float:
 	var h := (a * 73856093) ^ (b * 19349663)
