@@ -5,7 +5,6 @@ var main_view: Control = null
 var court_panel: PanelContainer
 var header_arms: TextureRect
 var person_box: VBoxContainer
-var family_tree_box: VBoxContainer
 var council_box: VBoxContainer
 var vassals_box: VBoxContainer
 var marriages_box: VBoxContainer
@@ -94,11 +93,6 @@ func _build_court_panel() -> void:
 	body.add_child(person_box)
 
 	body.add_child(HSeparator.new())
-	family_tree_box = VBoxContainer.new()
-	family_tree_box.add_theme_constant_override("separation", 3)
-	body.add_child(family_tree_box)
-
-	body.add_child(HSeparator.new())
 	council_box = VBoxContainer.new()
 	council_box.add_theme_constant_override("separation", 4)
 	body.add_child(council_box)
@@ -165,7 +159,6 @@ func refresh() -> void:
 		_last_court_sig = ""
 		_clear_children(person_box)
 		person_box.add_child(_make_label("No active player country.", Color(0.80, 0.75, 0.66), 13))
-		_clear_children(family_tree_box)
 		_clear_children(council_box)
 		_clear_children(vassals_box)
 		_clear_children(marriages_box)
@@ -185,7 +178,6 @@ func refresh() -> void:
 	marrying_char_index = int(d.get("selectedMarryingIndex", -1))
 
 	_refresh_person(d)
-	_refresh_family_tree(d)
 	_refresh_council(d)
 	_refresh_vassals(d)
 	_refresh_marriages(d)
@@ -335,32 +327,6 @@ func _add_family_links(label_txt: String, items_var: Variant) -> void:
 			btn.flat = true
 			btn.add_theme_color_override("font_color", GezStyle.ink(Color(0.95, 0.86, 0.62)))
 			btn.add_theme_font_size_override("font_size", GezStyle.fs(12))
-			btn.pressed.connect(func() -> void: _view_character(idx))
-			flow.add_child(btn)
-
-func _refresh_family_tree(d: Dictionary) -> void:
-	_clear_children(family_tree_box)
-	family_tree_box.add_child(_make_label("Ruling Family", Color(0.96, 0.90, 0.72), 14))
-	var tree_var: Variant = d.get("familyTree", [])
-	var tree: Array = tree_var if tree_var is Array else []
-	if tree.is_empty():
-		family_tree_box.add_child(_make_label("No ruling family recorded.", Color(0.75, 0.70, 0.62), 12))
-		return
-	var flow := HFlowContainer.new()
-	flow.add_theme_constant_override("h_separation", 4)
-	flow.add_theme_constant_override("v_separation", 3)
-	family_tree_box.add_child(flow)
-	for item in tree:
-		if item is Dictionary:
-			var node: Dictionary = item
-			var idx: int = int(node.get("characterIndex", -1))
-			var role: String = str(node.get("role", ""))
-			var full_name: String = str(node.get("fullName", ""))
-			var age_txt: String = str(node.get("ageText", ""))
-			var btn := Button.new()
-			btn.text = "%s: %s (%s)" % [role, full_name, age_txt]
-			if bool(node.get("isViewed", false)):
-				btn.modulate = Color(1.0, 0.88, 0.45)
 			btn.pressed.connect(func() -> void: _view_character(idx))
 			flow.add_child(btn)
 
