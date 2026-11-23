@@ -17,6 +17,10 @@ PRO | Provence | 210 180 120 | monarchy | catholic
 FOI | Foix-Bearn | 230 210 60 | monarchy | catholic
 LOR | Lorraine | 220 200 90 | monarchy | catholic
 STB | Strasbourg | 180 120 150 | republic | catholic
+MTZ | Metz | 150 90 120 | republic | catholic
+BES | Besancon | 170 110 90 | republic | catholic
+BAS | Basel | 70 70 80 | republic | catholic
+FUR | Further Austria | 230 220 150 | monarchy | catholic | Freiburg
 
 # British Isles
 ENG | England | 185 30 40 | monarchy | catholic
@@ -28,8 +32,13 @@ ORM | Ormond | 230 170 90 | monarchy | catholic
 DES | Desmond | 170 120 80 | monarchy | catholic
 TMN | Thomond | 60 130 90 | monarchy | catholic
 CLA | Clanricarde | 160 100 140 | monarchy | catholic
+MWI | Mac William Iochtar | 60 90 170 | monarchy | catholic
+OCN | O'Conor Don | 215 95 70 | monarchy | catholic
+OFL | O'Connor Faly | 140 110 50 | monarchy | catholic
 TYC | Tyrconnell | 90 150 70 | monarchy | catholic
 TYR | Tyrone | 180 200 100 | monarchy | catholic
+EBR | East Breifne | 70 110 120 | monarchy | catholic
+FMN | Fermanagh | 150 60 120 | monarchy | catholic
 
 # Low Countries and Germany
 UTR | Utrecht | 230 220 180 | theocracy | catholic
@@ -53,9 +62,12 @@ BRU | Brunswick-Luneburg | 220 180 80 | monarchy | catholic
 HAM | Hamburg | 230 100 100 | republic | catholic
 LUB | Lubeck | 220 90 120 | republic | catholic
 HOL | Holstein | 120 170 200 | monarchy | catholic
+SLE | Schleswig | 150 200 225 | monarchy | catholic
 DIT | Dithmarschen | 150 200 140 | republic | catholic
 MKL | Mecklenburg | 220 200 140 | monarchy | catholic
 POM | Pomerania | 100 190 190 | monarchy | catholic
+PST | Pomerania-Stettin | 70 160 170 | monarchy | catholic
+PSL | Pomerania-Stolp | 130 210 180 | monarchy | catholic
 BRA | Brandenburg | 70 90 110 | monarchy | catholic
 TEU | Teutonic Order | 25 25 25 | theocracy | catholic | Marienburg
 NUR | Nuremberg | 240 160 120 | republic | catholic
@@ -78,6 +90,8 @@ CIL | Cilli | 150 110 180 | monarchy | catholic
 GOR | Gorizia | 120 160 140 | monarchy | catholic
 TIR | Tyrol | 200 130 100 | monarchy | catholic
 SWI | Swiss Confederation | 200 40 40 | republic | catholic
+SGA | Saint Gall | 225 210 80 | theocracy | catholic
+VAL | Valais | 110 40 70 | theocracy | catholic
 GRI | Grisons | 80 100 140 | republic | catholic
 SAV | Savoy | 150 70 70 | monarchy | catholic | Chambery
 SLZ | Saluzzo | 220 160 160 | monarchy | catholic
@@ -91,6 +105,8 @@ FLO | Florence | 145 60 150 | republic | catholic
 LUC | Lucca | 230 150 100 | republic | catholic
 SIE | Siena | 100 70 50 | republic | catholic
 PAP | Papal States | 245 235 170 | theocracy | catholic | Rome
+RIM | Rimini | 110 70 150 | monarchy | catholic
+CES | Cesena | 160 120 190 | monarchy | catholic
 URB | Urbino | 200 170 230 | monarchy | catholic
 NAP | Naples | 110 175 120 | monarchy | catholic
 
@@ -101,12 +117,15 @@ SWE | Sweden | 40 100 175 | monarchy | catholic
 RIG | Riga | 160 220 200 | theocracy | catholic
 LVO | Livonian Order | 110 110 90 | theocracy | catholic | Wenden
 DOR | Dorpat | 200 160 220 | theocracy | catholic
+OES | Osel-Wiek | 160 180 120 | theocracy | catholic
 
 # Poland, Lithuania, Russia
 POL | Poland | 200 65 100 | monarchy | catholic
 MAZ | Mazovia | 230 130 160 | monarchy | catholic
 LIT | Lithuania | 185 220 155 | monarchy | catholic
+OKA | Upper Oka Princes | 150 180 110 | monarchy | orthodox | Kozelsk
 MOS | Muscovy | 110 145 65 | monarchy | orthodox
+ROS | Rostov | 170 120 60 | monarchy | orthodox
 YAR | Yaroslavl | 170 150 90 | monarchy | orthodox
 TVE | Tver | 230 140 60 | monarchy | orthodox
 RYA | Ryazan | 160 200 120 | monarchy | orthodox
@@ -139,6 +158,7 @@ CYP | Cyprus | 120 200 220 | monarchy | catholic
 TUR | Ottoman Empire | 185 45 45 | monarchy | sunni
 CND | Candar | 80 160 120 | monarchy | sunni
 KAR | Karaman | 120 165 110 | monarchy | sunni
+ALA | Alaiye | 180 110 130 | monarchy | sunni
 RAM | Ramadanids | 200 150 180 | monarchy | sunni
 DUL | Dulkadir | 150 180 90 | monarchy | sunni
 TRE | Trebizond | 150 70 140 | monarchy | orthodox
@@ -169,6 +189,7 @@ JAB | Jabrids | 200 180 140 | monarchy | sunni
 HOR | Hormuz | 100 130 200 | monarchy | sunni
 OMN | Oman | 200 70 70 | theocracy | ibadi
 TAH | Tahirid Sultanate | 120 90 60 | monarchy | sunni
+RAS | Rasulid Sultanate | 170 140 70 | monarchy | sunni | Zabid
 ZAY | Zaydi Imamate | 60 120 70 | theocracy | zaydi
 KTH | Kathiri | 180 140 100 | monarchy | sunni
 GIL | Gilan | 90 170 90 | monarchy | zaydi

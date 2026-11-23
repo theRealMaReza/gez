@@ -6,6 +6,7 @@
 
 ## England: Lancaster, York, Beaufort, Neville, Percy and the great lords
 @ ENG
+vassal | stanley1  | Thomas Stanley       | Stanley   | m | 1405       | holds:Isle_of_Man | diplomat | King of Mann 1437-1459; birth year?
 dead   | gaunt     | John of Gaunt        | Lancaster | m | 1340-03-06 | d:1399-02-03 | ambitious |
 dead   | henry4    | Henry IV             | Lancaster | m | 1367-04-15 | d:1413-03-20 f:gaunt | |
 dead   | henry5    | Henry V              | Lancaster | m | 1386-09-16 | d:1422-08-31 f:henry4 s:catherine_v | strategist, brave |
@@ -109,7 +110,8 @@ vassal | albret    | Charles II of Albret | Albret    | m | 1407       | holds:A
 @ BUR
 dead   | john_fearless | John the Fearless | Valois-Burgundy | m | 1371-05-28 | d:1419-09-10 | brave, cruel |
 link   | philip_good | f:john_fearless
-kin    | nevers    | John of Burgundy, Count of Nevers | Valois-Burgundy | m | 1415 | | | cousin; birth year?
+kin    | nevers    | John of Burgundy, Count of Étampes | Valois-Burgundy | m | 1415 | | | cousin; Count of Nevers only from 1464; birth year?
+vassal | charles_nev | Charles I of Nevers | Valois-Burgundy | m | 1414 | holds:Nevers | | Count of Nevers and Rethel; birth year?
 kin    | adolf_ravenstein | Adolf of Cleves-Ravenstein | La Marck | m | 1425 | | brave | nephew
 kin    | david_b   | David of Burgundy    | Valois-Burgundy | m | 1427 | f:philip_good illegit | pious | later bishop of Utrecht
 kin    | cornelius_b | Cornelius of Burgundy | Valois-Burgundy | m | 1420 | f:philip_good illegit | brave | killed 1452?

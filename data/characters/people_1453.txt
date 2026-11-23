@@ -129,7 +129,10 @@ figure | stephen3_m | Stephen of Moldavia | Mușat    | m | 1433       | | brave
 @ HAB
 ruler  | frederick3 | Frederick III      | Habsburg  | m | 1415-09-21 | s:eleanor_p | patient, lazy, greedy | Holy Roman Emperor
 spouse | eleanor_p | Eleanor of Portugal  | Aviz      | f | 1434-09-18 | | pious | daughter of King Duarte
-heir   | albert6   | Albert VI of Austria | Habsburg  | m | 1418-12-18 | | ambitious, wrathful, generous |
+heir   | =albert6
+@ FUR
+ruler  | albert6   | Albert VI of Austria | Habsburg  | m | 1418-12-18 | s:mechthild_p | ambitious, wrathful, generous | Further Austria 1446-1458; brother and heir of Frederick III
+spouse | mechthild_p | Mechthild of the Palatinate | Wittelsbach | f | 1419-03-07 | | scholar, pious | widow of Louis I of Württemberg
 @ TIR
 ruler  | sigismund_t | Sigismund of Tyrol | Habsburg  | m | 1427-10-26 | s:eleanor_s | generous, lazy |
 spouse | eleanor_s | Eleanor of Scotland  | Stewart   | f | 1433       | | scholar |
@@ -187,9 +190,18 @@ ruler  | henry4_m  | Henry IV of Mecklenburg | Mecklenburg | m | 1417   | |  |
 heir   | albert6_m | Albert VI of Mecklenburg | Mecklenburg | m | 1438 | f:henry4_m | |
 child  | magnus2_m | Magnus II of Mecklenburg | Mecklenburg | m | 1441 | f:henry4_m | |
 @ POM
-ruler  | eric2_pom | Eric II of Pomerania | Griffins  | m | 1425       | | wrathful | birth year?
+ruler  | wartislaw9 | Wartislaw IX of Pomerania | Griffins | m | 1400 | | patient | Duke of Pomerania-Wolgast, died 1457; birth year?
+heir   | eric2_pom | Eric II of Pomerania | Griffins  | m | 1425       | f:wartislaw9 | wrathful | birth year?
+@ PST
+ruler  | otto3_pom | Otto III of Pomerania-Stettin | Griffins | m | 1444-05-29 | | | Duke of Pomerania-Stettin from 1451
+@ PSL
+ruler  | eric1_pom | Eric of Pomerania    | Griffins  | m | 1382       | | ambitious, wrathful | former king of Denmark, Norway and Sweden; rules Stolp and Rügenwalde until 1459
+heir   | =eric2_pom
 @ HOL
 ruler  | adolf8_h  | Adolf VIII of Holstein | Schauenburg | m | 1401    | | content | heir is nephew Christian I
+heir   | =christian1
+@ SLE
+ruler  | =adolf8_h
 heir   | =christian1
 @ OLD
 ruler  | gerhard6_o | Gerhard VI of Oldenburg | Oldenburg | m | 1430    | | wrathful, ambitious |
@@ -426,7 +438,7 @@ sibling| jahangir_a | Jahangir Mirza     | Bayandur  | m | 1420       | | conten
 @ QAR
 ruler  | jahan_shah | Jahan Shah          | Qara Yusuf | m | 1397      | | ambitious, cruel, scholar | poet
 heir   | hasan_ali | Hasan Ali            | Qara Yusuf | m | 1440      | f:jahan_shah | wrathful | birth year?
-child  | pir_budaq | Pir Budaq            | Qara Yusuf | m | 1440      | f:jahan_shah | ambitious | birth year?
+vassal | pir_budaq | Pir Budaq            | Qara Yusuf | m | 1440      | f:jahan_shah holds:Shiraz,Isfahan | ambitious | governor of Fars and Isfahan; birth year?
 @ KAR
 ruler  | ibrahim2_k | İbrahim II of Karaman | Karamanid | m | 1400   | | ambitious | birth year?
 heir   | pir_ahmed | Pir Ahmed            | Karamanid | m | 1430       | f:ibrahim2_k | | birth year?
@@ -517,3 +529,43 @@ ruler  | dharma1_t | Dharma Manikya I     | Manikya   | m | 1410       | | pious
 @ KOT
 ruler  | parakramabahu6 | Parakramabahu VI | Siri Sanga Bo | m | 1410   | | pious, strategist, scholar |
 heir   | sapumal   | Sapumal Kumaraya     | Siri Sanga Bo | m | 1420   | | brave, strategist | adopted son
+
+## Countries added by the 1453 border fixes (Phase 20.5)
+@ RIM
+ruler  | sigismondo | Sigismondo Pandolfo Malatesta | Malatesta | m | 1417-06-19 | | brave, strategist, cruel, scholar, ambitious | lord of Rimini and Fano, papal vicar
+child  | roberto_m | Roberto Malatesta    | Malatesta | m | 1440       | f:sigismondo illegit | brave, strategist | birth year?
+@ CES
+ruler  | novello   | Malatesta Novello    | Malatesta | m | 1418-08-05 | s:violante_m | pious, scholar, sickly | lord of Cesena, papal vicar; founded the Malatestiana library
+spouse | violante_m | Violante da Montefeltro | Montefeltro | f | 1430 | | pious | birth year?
+@ SGA
+ruler  | kaspar_bl | Kaspar von Breitenlandenberg | Breitenlandenberg | m | 1395 | | administrator | Prince-Abbot of Saint Gall 1442-1463; birth year?
+@ VAL
+ruler  | asperlin  | Heinrich Asperlin    | Asperlin  | m | 1400       | | pious | Bishop of Sion 1451-1457; birth year?
+@ OES
+ruler  | ludolf_g  | Ludolf Grove         | Grove     | m | 1400       | | pious | Bishop of Ösel-Wiek 1439-1458; birth year?
+@ ROS
+ruler  | vladimir_ros | Vladimir Andreyevich of Rostov | Rurikid | m | 1420 | | content | one of the Rostov princes who sold their half to Ivan III in 1474; ruler in 1453?
+kin    | ivan_dolgiy | Ivan Ivanovich Dolgiy | Rurikid | m | 1420      | | | cousin, co-prince of Rostov; birth year?
+@ OKA
+ruler  | fyodor_vor | Fyodor Lvovich Vorotynsky | Vorotynsky | m | 1400 | | diplomat | Prince of Vorotynsk in Lithuanian service; leader of the Upper Oka princes in 1453?
+@ ALA
+ruler  | lutfi_a   | Lütfi Bey            | Karamanoğlu | m | 1410     | | | Bey of Alaiye from 1448 under Karaman; birth year?
+heir   | kilic_a   | Kılıç Arslan         | Karamanoğlu | m | 1435     | f:lutfi_a | | last Bey of Alaiye (surrendered 1471); birth year?
+@ RAS
+ruler  | masud_r   | al-Mas'ud Abu al-Qasim | Rasulid | m | 1420        | | | last Rasulid sultan, abdicated 1454; birth year?
+figure | muayyad_r | al-Mu'ayyad Husayn   | Rasulid   | m | 1425       | | ambitious | rival Rasulid claimant 1451-1454; birth year?
+@ TAH
+ruler  | amir_t    | Amir ibn Tahir       | Tahirid   | m | 1410       | | ambitious, strategist | later sultan al-Zafir Amir (1454-1460); birth year?
+figure | ali_t     | Ali ibn Tahir        | Tahirid   | m | 1412       | | brave | his brother, took Aden in 1454; birth year?
+@ MWI
+ruler  | edmund_mw | Edmund na Féasóige Burke | Burke | m | 1400       | | | 4th Mac William Íochtar (1440-1458); birth year?
+sibling | thomas_mw | Tomás Óg Burke      | Burke     | m | 1405       | | | succeeds 1458; birth year?
+@ OCN
+ruler  | aedh_oc   | Aedh O'Conor         | O'Conor   | m | 1400       | | | King of Connacht (died 1461), O'Conor Don; birth year?
+sibling | fedlim_oc | Fedlim Geancach O'Conor | O'Conor | m | 1405      | | ambitious | last King of Connacht (1461-1475); birth year?
+@ OFL
+ruler  | calbhach_of | An Calbhach O'Connor Faly | O'Connor | m | 1395   | | brave | King of Uí Failghe (died 1458); birth year?
+@ EBR
+ruler  | john_or   | John O'Reilly        | O'Reilly  | m | 1415       | | | Lord of East Breifne (1450-1460), son of Owen O'Reilly; birth year?
+@ FMN
+ruler  | thomas_mg | Thomas Óg Maguire    | Maguire   | m | 1400       | | pious | Lord of Fermanagh (1430-1471); birth year?

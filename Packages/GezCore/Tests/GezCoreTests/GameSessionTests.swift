@@ -167,6 +167,6 @@ final class GameSessionTests: XCTestCase {
         XCTAssertNotNil(fallbackEconomy)
 
         let world = try Scenario1453.loadBundled()
-        XCTAssertEqual(world.provinces.count, 1373)
+        XCTAssertEqual(world.provinces.count, 1378)
     }
 }

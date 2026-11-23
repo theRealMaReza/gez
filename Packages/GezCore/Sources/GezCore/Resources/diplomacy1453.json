@@ -57,6 +57,20 @@
       "note": "Confederation of Prussian and Livonian Teutonic Orders"
     },
     {
+      "firstTag": "SWI",
+      "secondTag": "SGA",
+      "type": "alliance",
+      "expiry": null,
+      "note": "Abbey of Saint Gall, associate of the Confederation (1451)"
+    },
+    {
+      "firstTag": "SWI",
+      "secondTag": "VAL",
+      "type": "alliance",
+      "expiry": null,
+      "note": "Valais, allied associate of the Confederation"
+    },
+    {
       "firstTag": "TUR",
       "secondTag": "HUN",
       "type": "truce",

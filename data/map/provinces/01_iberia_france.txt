@@ -121,7 +121,7 @@ Saint-Brieuc | 48.51 -2.76 | BRI h 3
 Orleans | 47.90 1.90 | FRA f 6
 Blois | 47.59 1.33 | FRA f 4
 Tours | 47.39 0.69 | FRA f 6
-Angers | 47.47 -0.55 | FRA f 5
+Angers | 47.47 -0.55 | PRO f 5
 Le Mans | 48.00 0.20 | FRA f 4
 @ Poitou
 Poitiers | 46.58 0.34 | FRA f 4
@@ -173,16 +173,16 @@ Chalon | 46.78 4.85 | BUR f 4
 Auxerre | 47.80 3.57 | BUR f 3
 Nevers | 46.99 3.16 | BUR f 3
 @ Franche-Comte
-Besancon | 47.24 6.02 | BUR h 4
+Besancon | 47.24 6.02 | BES h 4
 Salins | 46.94 5.88 | BUR h 3
 @ Lorraine
 Nancy | 48.69 6.18 | LOR f 4
-Metz | 49.12 6.18 | LOR f 5
-Bar-le-Duc | 48.77 5.16 | LOR f 3
+Metz | 49.12 6.18 | MTZ f 5
+Bar-le-Duc | 48.77 5.16 | PRO f 3
 Epinal | 48.17 6.45 | LOR h 2
 @ Alsace
 Strasbourg | 48.58 7.75 | STB f 6
-Ensisheim | 47.86 7.35 | TIR f 4
+Ensisheim | 47.86 7.35 | FUR f 4
 
 # British Isles
 @ Home Counties
@@ -254,8 +254,9 @@ Dingwall | 57.60 -4.43 | LOI m 2
 Dublin | 53.35 -6.26 | ENG f 4
 Drogheda | 53.72 -6.35 | ENG f 3
 Kildare | 53.16 -6.91 | KID f 3
-Wexford | 52.34 -6.46 | LEI f 2
-Tullamore | 53.27 -7.49 | LEI x 2
+Carlow | 52.84 -6.93 | LEI f 2
+Wexford | 52.34 -6.46 | ENG f 2
+Tullamore | 53.27 -7.49 | OFL x 2
 @ Munster
 Kilkenny | 52.65 -7.25 | ORM f 3
 Clonmel | 52.35 -7.70 | ORM f 2
@@ -266,12 +267,13 @@ Limerick | 52.66 -8.63 | DES f 3
 Ennis | 52.84 -8.98 | TMN h 2
 @ Connacht
 Galway | 53.27 -9.05 | CLA h 2
-Castlebar | 53.85 -9.30 | CLA h 1
-Roscommon | 53.63 -8.19 | CLA x 2
+Castlebar | 53.85 -9.30 | MWI h 1
+Roscommon | 53.63 -8.19 | OCN x 2
 @ Ulster
 Sligo | 54.27 -8.47 | TYC h 2
 Donegal | 54.65 -8.11 | TYC m 2
-Cavan | 53.99 -7.36 | TYC x 1
+Cavan | 53.99 -7.36 | EBR x 1
+Enniskillen | 54.34 -7.64 | FMN x 1
 Dungannon | 54.50 -6.77 | TYR h 2
 Armagh | 54.35 -6.65 | TYR h 2
 Carrickfergus | 54.72 -5.81 | ENG h 2

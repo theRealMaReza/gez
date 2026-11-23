@@ -42,7 +42,7 @@ LUB | File:DEU Luebeck COA.svg
 HOL | File:Holstein Arms.svg
 DIT | File:DEU Kreis Dithmarschen COA.svg
 MKL | File:Wappen Mecklenburg 2.svg
-POM | File:COA Pomerania-Stettin Iberian style shield white.svg
+POM | File:COA Pomerania Wologast Iberian style shield.svg | Pomerania-Wolgast
 BRA | File:Arms of Brandenburg.svg
 TEU | File:Insignia Germany Order Teutonic.svg
 NUR | File:DEU Nürnberg COA (klein).svg
@@ -125,7 +125,7 @@ MGH | File:Flag of Chagatai Khanate.svg | Chagatai flag, Catalan Atlas 1375
 TIM | File:Banner of Timur Khan.svg
 HRT | File:Flag in the name of Timurid ruler Muhammad Juki, Shahnama, probably Herat, c. 1440 (Royal Asiatic Society of Great Britain and Ireland, no. 239), folio 296a (reconstructed).jpg
 MAM | File:Mameluke Flag.svg | Catalan Atlas 1375
-TAH | File:Flag of the Rasulid Dynasty.png | Rasulid flag; Tahirids succeeded them in 1454
+TAH | File:Flag of the Tahirids.svg | modern guess
 MOR | File:Banner of the Merinids.svg
 TLE | File:Banner of Kingdom of Tlemcen according to Albino de Canepa (1489).svg
 TUN | File:Flag of Hafsid Dynasty (15th century).svg
@@ -200,3 +200,23 @@ SMI | File:Sami flag.svg | modern, 1986 (owner's pick)
 ALN | File:Flag of North Ossetia.svg | later era (owner's pick)
 VNK | File:Flag of Ingushetia.svg | modern, with the old Vainakh sun sign (owner: later era)
 KIR | File:Kirat Flag Danesh Rai.svg | modern Kirat flag (owner's pick)
+
+# Countries added by the 1453 border fixes (Phase 20.5)
+MTZ | File:Grandes Armes de Metz.svg
+BES | File:Blason ville fr Besançon (Doubs).svg | imperial eagle of the free city
+BAS | File:Wappen Basel-Stadt matt.svg
+FUR | File:Bindenschild Privilegium maius 1512.svg | Austrian shield (Albert VI)
+SGA | File:Coa Abbey Saint Gall.svg
+VAL | File:Wappen Bistum Sitten.png | Bishopric of Sion
+RIM | File:Arms of Sigismondo Pandolfo Malatesta, lord of Rimini.svg
+CES | File:Stemma della famiglia Malatesta di Rimini.svg | Malatesta family arms
+OES | File:Coat of arms Bishopric of Ösel–Wiek.svg
+RAS | File:Flag of the Rasulid Dynasty.png
+SLE | File:Schleswig Arms.svg
+PST | File:COA Pomerania Stettin blue.svg
+PSL | File:COA Pomerania-Stettin Iberian style shield white.svg | Griffin of Pomerania
+MWI | File:Arms of Bourke of Mayo.svg
+OCN | File:O'Conor.png
+OFL | File:Ó Conchobhair Uí Failghe.png
+EBR | File:Coat of arms of O'Reilly.svg
+FMN | File:Maguire.png

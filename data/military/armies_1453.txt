@@ -36,7 +36,7 @@ POL | Royal Guard           | Krakow  | casimir4  | cavalry:2, infantry:2, arche
 LIT | Grand Ducal Retinue   | Vilnius | gostautas | cavalry:2, infantry:2, archers:1
 MOS | Grand Princely Druzhina | Moscow | vasily_serpukhov | cavalry:3, infantry:2, archers:1
 ALB | League of Lezhë       | Kruje   | skanderbeg | infantry:2, archers:1
-HAB | Archducal Guard       | Graz    | albert6   | infantry:2, cavalry:1, handgunners:1
+HAB | Archducal Guard       | Graz    | -         | infantry:2, cavalry:1, handgunners:1
 SWI | Confederate Eidgenossen | Zurich | inv_swi_marshal | swiss_pikemen:2, handgunners:1
 
 ## Western Europe & Italy

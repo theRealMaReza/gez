@@ -73,16 +73,16 @@ Hamburg | 53.55 9.99 | HAM f 6
 Lubeck | 53.87 10.69 | LUB f 7
 @ Holstein and Schleswig
 Kiel | 54.32 10.14 | HOL f 3
-Schleswig | 54.52 9.57 | HOL f 3
+Schleswig | 54.52 9.57 | SLE f 3
 Dithmarschen | 54.20 9.10 | DIT x 2
 @ Mecklenburg and Pomerania
 Schwerin | 53.63 11.41 | MKL f 3
 Rostock | 54.09 12.10 | MKL f 4
 Stralsund | 54.31 13.09 | POM f 4
-Stettin | 53.43 14.55 | POM f 4
+Stettin | 53.43 14.55 | PST f 4
 Wolgast | 54.05 13.77 | POM f 2
-Kolberg | 54.18 15.58 | POM f 2
-Stolp | 54.46 17.03 | POM w 2
+Kolberg | 54.18 15.58 | PSL f 2
+Stolp | 54.46 17.03 | PSL w 2
 @ Brandenburg
 Berlin | 52.52 13.40 | BRA f 4
 Brandenburg | 52.41 12.53 | BRA f 3
@@ -107,7 +107,7 @@ Pforzheim | 48.89 8.70 | BAD h 2
 Ulm | 48.40 9.99 | ULM f 5
 Augsburg | 48.37 10.90 | AUG f 6
 Konstanz | 47.66 9.17 | ULM f 3
-Freiburg | 47.99 7.85 | TIR h 3
+Freiburg | 47.99 7.85 | FUR h 3
 @ Bavaria
 Munich | 48.14 11.58 | BAV f 5
 Straubing | 48.88 12.57 | BAV f 3
@@ -159,9 +159,10 @@ Zurich | 47.37 8.54 | SWI h 4
 Bern | 46.95 7.45 | SWI h 4
 Lucerne | 47.05 8.31 | SWI m 3
 Altdorf | 46.88 8.64 | SWI m 2
-Basel | 47.56 7.59 | SWI f 4
-Sankt Gallen | 47.42 9.37 | SWI h 3
-Sion | 46.23 7.36 | SWI m 2
+Basel | 47.56 7.59 | BAS f 4
+Sankt Gallen | 47.42 9.37 | SGA h 3
+Frauenfeld | 47.56 8.90 | TIR h 2
+Sion | 46.23 7.36 | VAL m 2
 Chur | 46.85 9.53 | GRI m 2
 
 # Italy
@@ -211,7 +212,8 @@ Ferrara | 44.84 11.62 | FER x 5
 Modena | 44.65 10.93 | FER f 4
 Bologna | 44.49 11.34 | PAP f 7
 Ravenna | 44.42 12.20 | VEN x 3
-Rimini | 44.06 12.57 | PAP f 3
+Rimini | 44.06 12.57 | RIM f 3
+Cesena | 44.14 12.24 | CES f 3
 @ Tuscany
 Florence | 43.77 11.26 | FLO h 9
 Pisa | 43.72 10.40 | FLO f 5
