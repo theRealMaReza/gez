@@ -137,3 +137,32 @@ func test_cloth_may_move_and_buildings_do_not() -> void:
 	runner.check(mm.material_for("flag_cloth") != mm.material and mm.material_for("sail.islamic") != mm.material_for("sail.european"), "flags and sails get their own waving material")
 	runner.check(mm.material_for("house_a.european") == mm.material, "houses keep the plain material")
 	mm.free()
+func test_battle_smoke_from_stance_and_ammo() -> void:
+	var B3 := preload("res://scripts/BattleView3D.gd")
+	var gun := {"men": 500, "ammo": 5, "stance": "volley", "category": "ranged", "key": "handgunners"}
+	runner.check(B3.makes_smoke(gun), "handgunners shooting make smoke")
+	var dry := gun.duplicate(); dry["ammo"] = 0
+	runner.check(not B3.makes_smoke(dry), "no ammunition, no smoke")
+	var quiet := gun.duplicate(); quiet["stance"] = "holdFire"
+	runner.check(not B3.makes_smoke(quiet), "hold fire, no smoke")
+	var bows := gun.duplicate(); bows["key"] = "archers"
+	runner.check(not B3.makes_smoke(bows), "archers make no smoke")
+	runner.check(B3.makes_smoke({"men": 300, "ammo": 10, "stance": "hold", "category": "artillery"}), "guns with shot make smoke")
+
+func test_battle_figures_fill_the_rules_rectangle() -> void:
+	var B3 := preload("res://scripts/BattleView3D.gd")
+	var v = B3.new()
+	var st: Dictionary = preload("res://scripts/BattleShowcase.gd").state()
+	v.field_size = Vector2(1200, 800)
+	v._begin()
+	var u: Dictionary = st["units"][1]   # line infantry, 1,000 men
+	v._place_unit(u, "european", st)
+	var items: Array = v._batches["u|soldier_body"]["items"]
+	var c := Vector2(float(u["x"]), float(u["y"]))
+	var far := 0.0
+	for it in items:
+		far = maxf(far, absf(float(it[11]) - c.y))
+	var half_front := float(u["h"]) * 0.5
+	runner.check(items.size() >= 6 and items.size() <= 30, "a full regiment shows 6-30 soldiers (%d)" % items.size())
+	runner.check(far <= half_front and far >= half_front * 0.5, "soldiers reach out to the regiment's ends, not past them")
+	v.free()
