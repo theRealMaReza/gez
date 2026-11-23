@@ -176,6 +176,13 @@ public enum BuildingSystem {
             let income = world.countries.lastMonthlyIncome[c.index]
             let reserve = max(30, income * reserveMonths)
             guard world.countries.treasury[c.index] > reserve else { continue }
+            // Phase 20.5: a realm with more than two years of income saved
+            // builds up to three things a year and accepts slower payback.
+            let rich = world.countries.treasury[c.index] > max(200.0, income * ArmyModel.richTreasuryMonths)
+            let builds = rich ? 3 : 1
+            let payback = rich ? 25.0 : 15.0
+            for _ in 0..<builds {
+            guard world.countries.treasury[c.index] > reserve else { break }
             var best: (score: Double, p: ProvinceID, t: BuildingTypeID)?
             let maxInspect = (buildFocus == .economy) ? 12 : 8
             let owned = world.provinces(ownedBy: c)
@@ -206,13 +213,16 @@ public enum BuildingSystem {
                         }
                     }
                     let score = gain / cost
-                    if score > 1.0 / 15, best == nil || score > best!.score {
+                    if score > 1.0 / payback, best == nil || score > best!.score {
                         best = (score, p, t)
                     }
                 }
             }
             if let b = best {
                 start(&world, c, b.p, b.t)
+            } else {
+                break
+            }
             }
         }
     }
