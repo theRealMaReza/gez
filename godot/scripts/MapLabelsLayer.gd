@@ -9,6 +9,9 @@ var country_metrics: PackedFloat32Array = PackedFloat32Array()
 # Phase 20 part 8: [angle, length, bend] per country label (curved names).
 var country_curves: PackedFloat32Array = PackedFloat32Array()
 var _name_font: Font = null
+# Phase 20.6: measured label widths, keyed "font|size|text", so placement
+# never guesses (the old len x size x 0.55 guess cut names short).
+var _width_cache: Dictionary = {}
 
 var province_texts: PackedStringArray = PackedStringArray()
 var province_metrics: PackedFloat32Array = PackedFloat32Array()
@@ -83,7 +86,23 @@ func set_sea_labels(texts: PackedStringArray, metrics: PackedFloat32Array) -> vo
 	_cache_dirty = true
 	queue_redraw()
 
+# Width in screen pixels of `txt` at `fsize`, measured once and cached.
+# `which`: 0 = plain map font (seas, provinces), 1 = Cinzel (country names).
+func _text_width(which: int, txt: String, fsize: int) -> float:
+	var key := "%d|%d|%s" % [which, fsize, txt]
+	if _width_cache.has(key):
+		return _width_cache[key]
+	var font: Font = _name_font if which == 1 else ThemeDB.fallback_font
+	var w := float(txt.length()) * float(fsize) * 0.6
+	if font != null:
+		# + a little for the outline drawn around the letters
+		w = font.get_string_size(txt, HORIZONTAL_ALIGNMENT_LEFT, -1, fsize).x + 4.0
+	_width_cache[key] = w
+	return w
+
 func _place_labels_world(texts: PackedStringArray, metrics: PackedFloat32Array, is_sea: bool, show_provinces: bool) -> Array:
+	if _name_font == null:
+		_name_font = GezTheme.title_font()
 	var out: Array = []
 	var count := texts.size()
 	var z := map_zoom
@@ -109,15 +128,15 @@ func _place_labels_world(texts: PackedStringArray, metrics: PackedFloat32Array, 
 		if is_sea:
 			font_size = int(clampf(sqrt(screen_area) / 14.0, 10.0, 16.0))
 			label_text = texts[i]
-			w_screen = float(label_text.length()) * float(font_size) * 0.55
+			w_screen = _text_width(0, label_text, font_size)
 		elif show_provinces:
 			font_size = int(clampf(sqrt(screen_area) / 9.0, 10.0, 14.0))
 			label_text = texts[i]
-			w_screen = float(label_text.length()) * float(font_size) * 0.56
+			w_screen = _text_width(0, label_text, font_size)
 		else:
 			font_size = int(clampf(sqrt(screen_area) / 7.0, 10.0, 26.0))
 			label_text = texts[i].to_upper()
-			w_screen = float(label_text.length()) * float(font_size) * 0.68
+			w_screen = _text_width(1, label_text, font_size)
 
 		var h_screen := float(font_size) * 1.4
 		var w_world := w_screen * inv_z
@@ -242,8 +261,9 @@ func _draw() -> void:
 		var fsize: int = entry[3]
 		var txt: String = entry[4]
 		var baseline := Vector2(sx - w_scr * 0.5, sy + float(fsize) * 0.35)
-		draw_string_outline(font, baseline, txt, HORIZONTAL_ALIGNMENT_CENTER, w_scr, fsize, 3, halo)
-		draw_string(font, baseline, txt, HORIZONTAL_ALIGNMENT_CENTER, w_scr, fsize, ink)
+		var lf: Font = font if map_zoom >= 1.1 else _name_font
+		draw_string_outline(lf, baseline, txt, HORIZONTAL_ALIGNMENT_CENTER, w_scr, fsize, 3, halo)
+		draw_string(lf, baseline, txt, HORIZONTAL_ALIGNMENT_CENTER, w_scr, fsize, ink)
 
 # Phase 20 part 8: a country name in letter-spaced capitals along the curve
 # C + dir*t*L/2 + perp*bend*t^2 (t from -1 to 1, map pixels), projected
