@@ -148,10 +148,20 @@ func _build_province_panel() -> void:
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	vbox.add_child(scroll)
 
+	# Phase 20.6: room at the bottom, so the last row (scrolled or not)
+	# never sits on the gold frame, and a little gap for the scroll bar.
+	var pad := MarginContainer.new()
+	pad.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	pad.add_theme_constant_override("margin_bottom", 10)
+	pad.add_theme_constant_override("margin_right", 6)
+	scroll.add_child(pad)
 	prov_content_box = VBoxContainer.new()
 	prov_content_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	prov_content_box.add_theme_constant_override("separation", 5)
-	scroll.add_child(prov_content_box)
+	pad.add_child(prov_content_box)
+	var foot := Control.new()
+	foot.custom_minimum_size = Vector2(0.0, 6.0)
+	vbox.add_child(foot)
 
 	province_panel.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT, Control.PRESET_MODE_MINSIZE, 12)
 
