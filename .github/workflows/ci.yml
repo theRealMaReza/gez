@@ -10,10 +10,10 @@ on:
         description: "Run only one job (profile = time each system of the daily tick)"
         type: choice
         options: [all, profile, windows, balance]
+        default: all
       balance_end:
         description: "Balance runs: last year to simulate"
         default: "1550"
-        default: all
   schedule:
     - cron: '17 11 * * *'
 
