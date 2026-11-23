@@ -34,6 +34,7 @@ const TitleScreensScript := preload("res://scripts/TitleScreens.gd")
 const ProvinceDrawerScript := preload("res://scripts/ProvinceDrawer.gd")
 const MarketPanelScript := preload("res://scripts/MarketPanel.gd")
 const MapModeBarScript := preload("res://scripts/MapModeBar.gd")
+const OutlinerScript := preload("res://scripts/Outliner.gd")
 
 var bridge: RefCounted = null
 var warned_missing_methods: Dictionary = {}
@@ -142,6 +143,7 @@ var speed_buttons: Array[Button] = []
 # Map mode bar and zoom buttons (MapModeBar.gd, Phase 20.6 part 2)
 var map_mode_bar: Control
 var current_map_mode: String = "political"
+var outliner: Control   # Outliner.gd (Phase 20.6 part 3b)
 var map_mode_buttons: Dictionary:
 	get:
 		return map_mode_bar.map_mode_buttons if map_mode_bar != null else {}
@@ -434,6 +436,12 @@ func _build_scene_ui() -> void:
 	map_mode_bar.set_script(MapModeBarScript)
 	add_child(map_mode_bar)
 	map_mode_bar.call("setup", self)
+	# Right-hand outliner (Outliner.gd, Phase 20.6 part 3b)
+	outliner = Control.new()
+	outliner.name = "OutlinerControls"
+	outliner.set_script(OutlinerScript)
+	add_child(outliner)
+	outliner.call("setup", self)
 
 	# 6. Province panel & Sea panel (bottom-left): ProvinceDrawer.gd
 	province_drawer = Control.new()

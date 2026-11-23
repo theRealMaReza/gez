@@ -102,7 +102,7 @@ extension GezGodotController {
         return hasher.finalize()
     }
 
-    private func locationScreenPos(_ s: GameSession, location: FleetLocation) -> (Double, Double) {
+    func locationScreenPos(_ s: GameSession, location: FleetLocation) -> (Double, Double) {
         let w = s.world
         switch location {
         case .sea(let sz):
