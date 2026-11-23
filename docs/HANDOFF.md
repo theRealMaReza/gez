@@ -116,6 +116,23 @@ phases): chronicle (Phase 18, Gemini, in progress), multiplayer (Phase 19), miss
 - Helpers in `GezStyle.gd`: `medallion_button`, `close_button`, `title`,
   `good_icon`, `building_icon`, `trait_seal`, `painting`, `fs` (font size).
   Portraits: `Portrait.make(character_dict, size)`.
+- Where things live since Phase 20.6 part 2 (Main.gd split, about 3,100
+  lines now). Main.gd keeps the map, camera, input, selection, top bar,
+  side column, game menu, nation picker and the window toggles. Split out:
+  - `ProvinceDrawer.gd`: the province drawer (Overview, Economy, People
+    tabs) and the sea-zone panel, bottom left.
+  - `MarketPanel.gd`: the market window, bottom right.
+  - `MapModeBar.gd`: the 12 map-mode medallions (top right) and the zoom
+    buttons (bottom right). Part 3's dock starts here. The map state
+    (`current_map_mode`, `_select_map_mode`) stays in Main.
+  Each is a full-screen, click-through `Control` that Main adds and then
+  calls `setup(main)`. The old names still work through Main, so other
+  screens need no change: `_refresh_province_panel()`,
+  `_refresh_sea_panel()`, `_open_market_panel(i)`,
+  `_refresh_market_panel()`, `province_panel`, `sea_panel`,
+  `market_panel`, `current_prov_tab`, `prov_show_build`,
+  `map_mode_buttons`. New screens (the outliner, the dock) go in their own
+  script the same way; in Main add only the few lines that create them.
 - After changing `GezTheme.gd`, re-save the theme (HANDOFF pipeline table);
   `godot/tests/test_style_kit.gd` fails if it is stale.
 
