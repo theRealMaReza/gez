@@ -21,6 +21,8 @@ public enum ArmyModel {
     public static let levyUpkeepMultiplier = 0.60
     /// Global upkeep scale so 1453 standing armies leave realms with a peacetime budget surplus.
     public static let upkeepScale = 0.55
+    /// Months of income in the treasury above which the AI spends freely (Phase 20.5).
+    public static let richTreasuryMonths = 24.0
     /// Normal foot march speed in km per day on open plains.
     public static let baseMarchKmPerDay = 30.0
     /// Extra travel time multiplier when crossing a major river border.
@@ -1705,14 +1707,17 @@ public enum ArmySystem {
             // 4. Periodic recruitment of standing regiments (more frequent when building up army).
             let buildFocus = isFree ? nil : AIGoalSystem.activeBuildFocus(for: c, date: date, in: world)
             let traits = AIGoalSystem.traitProfile(for: c, in: world)
-            let wantFastRecruit = (buildFocus == .army) || !defendProvs.isEmpty || (isFree && traits.warMultiplier >= 1.15)
-            let recruitTurn = wantFastRecruit ? ((c.index + month) % 4 == 0) : (c.index % 12 == month % 12)
-            guard recruitTurn else { continue }
             let income = world.countries.lastMonthlyIncome[c.index]
             let expenses = world.countries.lastMonthlyExpenses[c.index]
             let surplus = income - expenses
+            // Phase 20.5: a realm sitting on more than two years of income
+            // recruits every month, deficit or not (treasuries piled up).
+            let rich = world.countries.treasury[c.index] > max(200.0, income * ArmyModel.richTreasuryMonths)
+            let wantFastRecruit = (buildFocus == .army) || !defendProvs.isEmpty || (isFree && traits.warMultiplier >= 1.15)
+            let recruitTurn = rich || (wantFastRecruit ? ((c.index + month) % 4 == 0) : (c.index % 12 == month % 12))
+            guard recruitTurn else { continue }
             let reserve = max(80.0, income * (buildFocus == .army ? 6.0 : 8.0))
-            guard surplus > 1.5,
+            guard surplus > 1.5 || rich,
                   world.countries.treasury[c.index] > reserve,
                   world.military.manpower[c.index] >= 2_000 else { continue }
 
