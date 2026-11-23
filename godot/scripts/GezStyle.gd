@@ -165,6 +165,21 @@ static func icon_rect(t: Texture2D, size := 24.0) -> TextureRect:
 	r.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	return r
 
+## A small engraved medallion icon beside a label (e.g. heart, cross, capital star).
+static func icon_badge(medallion_key: String, txt: String, col: Color, fsize := 12, icon_size := 16.0, on := false) -> HBoxContainer:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 3)
+	var icon := icon_rect(medallion(medallion_key, on), icon_size)
+	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_child(icon)
+	var lbl := Label.new()
+	lbl.text = txt
+	lbl.add_theme_color_override("font_color", ink(col))
+	lbl.add_theme_font_size_override("font_size", fs(fsize))
+	lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_child(lbl)
+	return row
+
 ## Font size for text on parchment: EB Garamond looks smaller than the old
 ## sans-serif at the same size, so small sizes get a little bigger.
 static func fs(n: int) -> int:

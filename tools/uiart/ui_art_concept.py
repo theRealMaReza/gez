@@ -423,6 +423,7 @@ ICONS = {
      'sword':'M18 3h3v3L9 18l-3-3zM5 14l5 5M7 17l-4 4',
      'eye':'M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12zM12 9a3 3 0 1 0 0 6a3 3 0 1 0 0-6',
      'gavel':'M13 4l5 5M11 6l5 5M12 5l-4 4 3 3 4-4M9.5 10.5L3 17l2 2 6.5-6.5M14 20h7',
+     'heart':'M12 20.5S4 15.2 4 9.6A4.4 4.4 0 0 1 12 7a4.4 4.4 0 0 1 8 2.6c0 5.6-8 10.9-8 10.9z',
     }
 
 # ---------------------------------------------------------------- concept pieces
@@ -788,6 +789,7 @@ MEDALLIONS = {
     # zoom and misc
     'zoom_in': 'plus', 'zoom_out': 'minus', 'zoom_fit': 'fit', 'alerts': 'bell', 'build': 'hammer',
     'capital': 'star', 'globe': 'globe', 'law': 'gavel', 'army': 'sword', 'watch': 'eye',
+    'heart': 'heart',
     # alerts row (Phase 20 part 5), one per alert kind of the game
     'alert_peaceOffer': 'scroll', 'alert_breach': 'tower', 'alert_underSiege': 'tower', 'alert_coalition': 'swords',
     'alert_lowStability': 'scales', 'alert_disloyalEstate': 'column', 'alert_refusingVassal': 'people',
@@ -800,6 +802,9 @@ TRAIT_SEALS = {   # seal colour by kind of trait
     'virtue': (176, 120, 40), 'vice': (150, 34, 26), 'skill': (40, 76, 112),
     'health': (52, 36, 36), 'temper': (70, 100, 50),
 }
+
+
+LATE_MEDALLIONS = {'heart'}   # added after build_kit so older art does not change
 
 
 def build_kit(out_dir):
@@ -823,8 +828,8 @@ def build_kit(out_dir):
     plain_medallion(j('grabber.png'), 20)
     plain_medallion(j('grabber_hover.png'), 20, enamel=(140, 30, 22))
     for key, icon in MEDALLIONS.items():
-        if key.startswith('alert_'):
-            continue   # made last (build_alerts), so adding them changed nothing else
+        if key.startswith('alert_') or key in LATE_MEDALLIONS:
+            continue   # made last, so adding them changed nothing else
         icon_medallion(j('medallions', f'{key}.png'), 48, ICONS[icon])
         icon_medallion(j('medallions', f'{key}_on.png'), 48, ICONS[icon], enamel=(140, 30, 22))
     for kind, colour in TRAIT_SEALS.items():
@@ -1242,6 +1247,15 @@ def build_alerts(out_dir):
             icon_medallion(os.path.join(out_dir, 'medallions', f'{key}_on.png'), 48, ICONS[icon], enamel=(140, 30, 22))
 
 
+def build_late_medallions(out_dir):
+    """Medallions added after Phase 20 (made last so earlier pieces stay byte-identical)."""
+    import os
+    for key in sorted(LATE_MEDALLIONS):
+        icon = MEDALLIONS[key]
+        icon_medallion(os.path.join(out_dir, 'medallions', f'{key}.png'), 48, ICONS[icon])
+        icon_medallion(os.path.join(out_dir, 'medallions', f'{key}_on.png'), 48, ICONS[icon], enamel=(140, 30, 22))
+
+
 # ---------------------------------------------------------------- Phase 20 part 8: chart decorations
 # Ink-and-wash drawings for the painted-chart look of the zoomed-out map
 # (sea creatures, a ship and a compass rose). Grid 128 x 96 (rose 128 x 128).
@@ -1367,6 +1381,7 @@ if __name__ == '__main__':
         build_alerts(sys.argv[2])
         build_chart(os.path.join(sys.argv[2], 'chart'))
         build_placeholders(sys.argv[2])
+        build_late_medallions(sys.argv[2])
         print('kit margins:', m)
     elif len(sys.argv) > 3 and sys.argv[1] == '--buildings':
         # ui_art_concept.py --buildings <renders folder> godot/assets/ui

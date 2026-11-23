@@ -33,11 +33,15 @@ func test_every_medallion_and_seal_exists() -> void:
 	for k in ["treasury", "stability", "faith", "manpower", "sailors", "inflation", "menu", "pause", "close",
 			"budget", "trade", "court", "government", "religion", "rebels", "technology", "diplomacy",
 			"wars", "armies", "fleets", "chronicle", "ledger", "timelapse", "zoom_in", "zoom_out", "zoom_fit",
+			"capital", "heart",
 			"map_political", "map_diplomatic", "map_states", "map_terrain", "map_religion", "map_culture",
 			"map_development", "map_goods", "map_markets", "map_plague", "map_unrest", "map_institutions"]:
 		runner.check(GezStyle.medallion(k) != null and GezStyle.medallion(k, true) != null, "medallion %s (+ _on)" % k)
 	for t in ["brave", "cruel", "scholar", "sickly", "blind", "ambitious"]:
 		runner.check(ResourceLoader.exists("res://assets/ui/seals/trait_%s.png" % t), "trait seal %s" % t)
+	var badge := GezStyle.icon_badge("heart", "42", Color(0.55, 0.90, 0.58), 11, 16.0)
+	runner.check(badge.get_child_count() == 2, "icon_badge builds icon + label")
+	badge.free()
 
 func test_ink_keeps_text_readable_on_parchment() -> void:
 	# light colours (made for dark panels) become dark; dark ones stay

@@ -102,6 +102,14 @@ func _run_captures() -> void:
 	for entry in windows:
 		root_node.call(entry[0])
 		await _save_shot(entry[1])
+		if entry[1] == "godot_court.png":
+			var court_ui: Variant = root_node.get("court_ui")
+			if court_ui is Node:
+				for ch_n in (court_ui as Node).find_children("", "ScrollContainer", true, false):
+					if ch_n is ScrollContainer:
+						(ch_n as ScrollContainer).scroll_vertical = 360
+						break
+				await _save_shot("godot_court_council.png")
 
 	root_node.call("_close_top_left_windows", "")
 

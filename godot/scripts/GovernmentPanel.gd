@@ -232,18 +232,23 @@ func _add_power_bar_row(label_txt: String, share: float, has_loyalty: bool, loya
 	pct_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	row.add_child(pct_lbl)
 
-	var loy_lbl := _make_label("", Color(0.86, 0.82, 0.74), 11)
-	loy_lbl.custom_minimum_size = Vector2(38.0, 0.0)
-	loy_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	var loy_box := HBoxContainer.new()
+	loy_box.custom_minimum_size = Vector2(44.0, 0.0)
+	loy_box.add_theme_constant_override("separation", 3)
 	if has_loyalty:
-		loy_lbl.text = "♥%.0f" % loyalty
 		var col := Color(0.80, 0.76, 0.68)
 		if loyalty >= loyal_at:
 			col = Color(0.55, 0.90, 0.58)
 		elif loyalty < disloyal_below:
 			col = Color(0.95, 0.45, 0.40)
-		loy_lbl.add_theme_color_override("font_color", GezStyle.ink(col))
-	row.add_child(loy_lbl)
+		var heart_icon := GezStyle.icon_rect(GezStyle.medallion("heart", loyalty < disloyal_below), 16.0)
+		heart_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		loy_box.add_child(heart_icon)
+		var loy_lbl := _make_label("%.0f" % loyalty, col, 11)
+		loy_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		loy_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		loy_box.add_child(loy_lbl)
+	row.add_child(loy_box)
 
 func _refresh_estates(d: Dictionary) -> void:
 	_clear_children(estates_box)

@@ -149,7 +149,7 @@ var prov_owner_arms: TextureRect
 var prov_owner_label: Label
 var prov_diplomacy_btn: Button
 var prov_owner_index: int = -1
-var prov_capital_label: Label
+var prov_capital_label: Control
 var prov_occupied_label: Label
 var prov_status_label: Label
 var prov_tab_buttons: Dictionary = {}
@@ -951,7 +951,7 @@ func _build_province_panel() -> void:
 			_open_diplomacy_with(prov_owner_index)
 	)
 	owner_row.add_child(prov_diplomacy_btn)
-	prov_capital_label = _make_label("★ Capital", Color(0.98, 0.84, 0.32), 12)
+	prov_capital_label = GezStyle.icon_badge("capital", "Capital", Color(0.98, 0.84, 0.32), 12, 18.0)
 	bind_tip(prov_capital_label, "National Capital", "Seat of government and court. Losing a capital yields major war score.")
 	owner_row.add_child(prov_capital_label)
 

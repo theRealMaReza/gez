@@ -408,9 +408,9 @@ func _refresh_council(d: Dictionary) -> void:
 				if bool(s.get("hasOpinion", false)):
 					var op: int = int(s.get("opinion", 0))
 					var op_col := Color(0.55, 0.90, 0.58) if op >= 0 else Color(0.95, 0.45, 0.40)
-					var op_lbl := _make_label("♥%d" % op if op >= 0 else "✗%d" % (-op), op_col, 11)
-					op_lbl.tooltip_text = "Opinion of your ruler"
-					row.add_child(op_lbl)
+					var op_badge := GezStyle.icon_badge("heart" if op >= 0 else "close", "%d" % abs(op), op_col, 11, 16.0, op < 0)
+					op_badge.tooltip_text = "Opinion of your ruler"
+					row.add_child(op_badge)
 
 			var menu := MenuButton.new()
 			menu.text = "Change"
@@ -491,7 +491,9 @@ func _refresh_vassals(d: Dictionary) -> void:
 
 				var op: int = int(v.get("opinion", 0))
 				var op_col := Color(0.55, 0.90, 0.58) if op >= 0 else Color(0.95, 0.45, 0.40)
-				row.add_child(_make_label("♥%d" % op if op >= 0 else "✗%d" % (-op), op_col, 11))
+				var op_badge := GezStyle.icon_badge("heart" if op >= 0 else "close", "%d" % abs(op), op_col, 11, 16.0, op < 0)
+				op_badge.tooltip_text = "Opinion of your ruler"
+				row.add_child(op_badge)
 
 				var holdings_var: Variant = v.get("holdings", [])
 				var holdings: Array = holdings_var if holdings_var is Array else []
