@@ -144,6 +144,31 @@ phases): chronicle (Phase 18, Gemini, in progress), multiplayer (Phase 19), miss
   `market_panel`, `current_prov_tab`, `prov_show_build`,
   `map_mode_buttons`. New screens (the outliner, the dock) go in their own
   script the same way; in Main add only the few lines that create them.
+- Small pictures inside a line of text (Phase 20.6): `GezStyle.glyph(key)`
+  and `GezStyle.with_glyph(key, label)`; keys `heart`, `heart_broken`,
+  `star`, and `battle_infantry` / `_cavalry` / `_ranged` / `_artillery`
+  (made by `build_glyphs` in `tools/uiart/ui_art_concept.py`, last in
+  `--kit` so older art never changes). Don't use text symbols (♥ ✗ ★).
+- Map names are measured (`MapLabelsLayer._text_width`, cached); straight
+  country names use Cinzel like the curved ones.
+- Court (Phase 20.6, owner's pick A): relatives are the clickable names
+  under the person, the heir is marked "· heir", "Back to <ruler>" returns.
+  The old Ruling Family buttons are hidden (`_refresh_family_tree` unused).
+- 3D models (Phase 20.6): `build_models.py` bakes ambient occlusion into
+  vertex colours (`AO_MESHES`), puts town buildings and forts on a dark
+  plinth (`with_plinth`), and stores a "may move" weight in colour alpha
+  for flags and sails; `MapModels.material_for()` gives those a waving
+  cloth material (`cloth_wave` in `map_model.gdshader`). Towns are capped
+  by province area and by how far the province reaches on the id map
+  (`town_radius_cap`, `_town_reach`).
+- Battle view (Phase 20.6): figures `FIGURE_SIZE` / `MEN_PER_FIGURE` /
+  `FIGURE_SPACING` in `BattleView3D.gd` (tune together so soldiers fill
+  the rules' rectangle); horizon skirt + depth fog; smoke billboards
+  (`battle_smoke.gdshader`, `makes_smoke()` from stance and ammo, gunpowder
+  units in `GUN_KEYS`); in `BattleView.gd` the 3D overlay draws a thin
+  ground outline and one label plate per regiment (`_draw_plates`, nudged
+  so they never overlap). `BattleShowcase.gd` + `BattleView.show_state()`
+  show a fixed battle without the bridge (CI shots and local checks).
 - After changing `GezTheme.gd`, re-save the theme (HANDOFF pipeline table);
   `godot/tests/test_style_kit.gd` fails if it is stale.
 

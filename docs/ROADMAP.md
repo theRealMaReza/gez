@@ -73,7 +73,7 @@ ruling systems and formables** → 21 mission trees and 19 multiplayer
 | 18 Chronicle ✅ | Gemini | History is recorded from Phase 18 on (no early recording); timelapse covers games started after it |
 | 20 Art | Claude (pipeline) | Frames, medallions, seals by our art script; building icons rendered from the 3D models; paintings (events, missions, portraits) made by the owner in the Gemini app from Claude's prompts. **No paid tools or per-image API costs** |
 | 20.5 Balance and play-test | Claude | Long AI-only runs plus the owner's play-throughs; fix balance, speed and bugs before Kayser |
-| 20.6 Polish | Gemini (parts 1, 3) and Claude (2, 4) | Interface and 3D polish, no rule changes; plan in the Project doc `claude/UI_3D_PROPOSAL_REVIEW.md`. Part 2 (Main.gd split, #26) and part 3 (map-mode dock #32, outliner #33; market stays its own window) done |
+| 20.6 Polish ✅ | Claude (parts 1–4; Gemini's parts were moved to Claude) | Interface and 3D polish, no rule changes; plan in the Project doc `claude/UI_3D_PROPOSAL_REVIEW.md`. Part 2 Main.gd split (#26); part 3 map-mode dock (#32), outliner (#33; market stays its own window); part 1 label widths (#35), glyphs (#36), drawer margin (#37), Court relatives once (#40, owner's pick A); part 4 models (#38) and battle view (#39) |
 | 20.7 Old World map | Decide when it starts | After the alpha, before 21, so mission trees are written once for the final list of countries |
 | 20.8 Ruling systems and formables | Decide when it starts | Before 21, so mission trees can lead into them (owner, 22 Nov 2026) |
 | 21 Mission trees | Gemini | After the alpha, the Old World map, and ruling systems and formables |

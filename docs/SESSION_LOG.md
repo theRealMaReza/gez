@@ -190,3 +190,25 @@ truce (Galata surrendered on 1 June 1453, two days after the start).
   `d:` date for people alive at the start. Check map colours against
   neighbours in `docs/map_preview.png`. Heraldry: put rows in `check.txt`,
   run the workflow in `check` mode on the branch, pick from the sheets.
+
+## Session 15 (23 Nov 2026): Phase 20.6 parts 1 and 4 (Claude)
+- Six PRs (#35–#40) at once; CI previews publish to one orphan branch
+  (`ci-snapshots-preview`), so a temporary branch merging all of them
+  (`claude/20.6-preview`, not merged) gave every shot in one run.
+- Straight country names were drawn in Godot's fallback Open Sans, not
+  Cinzel: `ThemeDB.fallback_font` is the engine font even with a project
+  theme. Measure with the font you draw with.
+- Town size by area alone missed Konstantiniyye (big but thin and
+  coastal); walking 12 rays on the id map catches the shape.
+- The field-battle CI shots had silently stopped (no battle prompt in the
+  snapshot run); a fixed `BattleShowcase` state keeps the battle view in
+  the shots whatever the campaign does.
+- Rendering locally works for 3D (`xvfb-run` + `--rendering-driver
+  opengl3`): a throwaway SceneTree script that builds the node, feeds it
+  data and saves the viewport. Depth fog shows in the Compatibility
+  renderer on Godot 4.7.2.
+- A "Godot extension (macOS)" failure cloning SwiftGodotBinary was a
+  passing glitch; rerun failed jobs once the run ends.
+- The old Metal app's "Render map snapshots" (arm64 runner) can wait in
+  the queue for an hour; GDScript-only PRs were merged with it pending.
+
