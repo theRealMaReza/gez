@@ -341,6 +341,65 @@
       "religions": [
         "zoroastrian"
       ]
+    },
+    {
+      "name": "Qufu",
+      "province": "Yanzhou",
+      "religions": [
+        "confucian"
+      ]
+    },
+    {
+      "name": "Mount Wudang",
+      "province": "Xiangyang",
+      "religions": [
+        "daoist"
+      ]
+    },
+    {
+      "name": "Mount Tai",
+      "province": "Jinan",
+      "religions": [
+        "daoist",
+        "confucian"
+      ]
+    },
+    {
+      "name": "Mount Wutai",
+      "province": "Datong",
+      "religions": [
+        "mahayana",
+        "tibetan"
+      ]
+    },
+    {
+      "name": "Mount Putuo",
+      "province": "Ningbo",
+      "religions": [
+        "mahayana"
+      ]
+    },
+    {
+      "name": "Ise Grand Shrine",
+      "province": "Ise",
+      "religions": [
+        "shinto"
+      ]
+    },
+    {
+      "name": "Mount Hiei",
+      "province": "Kyoto",
+      "religions": [
+        "mahayana",
+        "shinto"
+      ]
+    },
+    {
+      "name": "Gyeongju",
+      "province": "Gyeongju",
+      "religions": [
+        "mahayana"
+      ]
     }
   ]
 }

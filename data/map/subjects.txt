@@ -50,3 +50,28 @@ MOS ROS vassal
 LIT OKA vassal
 # Alaiye under Karaman
 KAR ALA vassal
+
+# Ming tributaries and southwest tusi (Phase 20.7)
+MNG JOS tributary
+MNG RYU tributary
+MNG CHL tributary
+MNG LIJ vassal
+MNG BOZ vassal
+MNG SHX vassal
+
+# Ashikaga Shogunate shugo vassals (1453)
+ASH HSK vassal
+ASH YMN vassal
+ASH HTK vassal
+ASH SHB vassal
+ASH OUC vassal
+ASH SMZ vassal
+ASH OTM vassal
+ASH SHN vassal
+ASH KNO vassal
+ASH KMK vassal
+ASH UES vassal
+ASH TKD vassal
+ASH IMG vassal
+ASH DTE vassal
+ASH AND vassal

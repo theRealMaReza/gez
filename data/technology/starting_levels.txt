@@ -50,6 +50,12 @@ region | Volga Steppe            | 2 | 2 | 2
 region | Kazakh Steppe           | 2 | 2 | 2
 region | Nubia                   | 2 | 2 | 2
 region | Horn of Africa          | 2 | 2 | 2
+region | North China             | 4 | 3 | 4
+region | Jiangnan                | 4 | 4 | 3
+region | Central China           | 3 | 3 | 3
+region | South China             | 3 | 3 | 3
+region | Korea                   | 4 | 3 | 4
+region | Japan                   | 3 | 3 | 3
 
 ## Country overrides (capital in a neighbouring region or distinct 1453 focus)
 country | TUR | 4 | 4 | 4

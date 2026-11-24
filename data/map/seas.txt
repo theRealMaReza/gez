@@ -170,3 +170,5 @@ Pacific off New Guinea | 0.5 138.0
 Sea off Western Australia | -25.0 110.0
 Great Australian Bight | -34.5 130.0
 Tasman Approaches | -34.5 147.0
+Canton Waters | 21.5 114.0
+Seto Inland Sea | 34.2 133.2

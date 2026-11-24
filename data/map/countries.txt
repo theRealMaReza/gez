@@ -320,3 +320,29 @@ BHY | Bhuyan Chiefs | 170 170 120 | tribal | hindu
 CHU | Chutia | 200 110 140 | monarchy | hindu
 KHS | Khasi Chiefs | 130 160 140 | tribal | folk
 JNT | Jaintia | 190 170 210 | monarchy | hindu
+
+# East Asia (Phase 20.7)
+MNG | Ming China | 210 115 55 | monarchy | confucian | Beijing
+BOZ | Bozhou | 165 135 85 | monarchy | highland
+SHX | Shuixi | 130 155 115 | tribal | highland
+LIJ | Lijiang | 150 180 155 | monarchy | highland
+CHL | Cheli | 120 175 135 | monarchy | theravada
+JOS | Joseon | 75 135 190 | monarchy | confucian | Hanyang
+ASH | Ashikaga Shogunate | 195 75 75 | monarchy | shinto | Kyoto
+HSK | Hosokawa | 150 175 195 | monarchy | shinto | Settsu
+YMN | Yamana | 185 110 70 | monarchy | shinto | Tajima
+HTK | Hatakeyama | 215 170 90 | monarchy | shinto | Kawachi
+SHB | Shiba | 115 155 110 | monarchy | shinto | Owari
+OUC | Ouchi | 145 95 160 | monarchy | shinto | Suo
+SMZ | Shimazu | 95 95 145 | monarchy | shinto | Satsuma
+OTM | Otomo | 200 135 120 | monarchy | shinto | Bungo
+SHN | Shoni | 165 185 115 | monarchy | shinto | Hizen
+KNO | Kono | 125 180 165 | monarchy | shinto | Iyo
+KMK | Kamakura Kubo | 220 140 70 | monarchy | shinto | Sagami
+UES | Uesugi | 105 145 180 | monarchy | shinto | Kozuke
+TKD | Takeda | 180 55 55 | monarchy | shinto | Kai
+IMG | Imagawa | 210 95 120 | monarchy | shinto | Suruga
+DTE | Date | 85 120 95 | monarchy | shinto | Yonezawa
+AND | Ando | 130 105 85 | monarchy | shinto | Tsugaru
+RYU | Ryukyu | 75 165 155 | monarchy | mahayana | Okinawa
+AIN | Ainu | 120 155 135 | tribal | siberian

@@ -217,3 +217,25 @@ tripuri | Tripuri | tibeto_burman
 meitei | Meitei | tibeto_burman
 kirati | Kirati | himalayan
 khasi | Khasi | austroasiatic
+
+northern_han | Northern Han | sinitic
+jianghuai | Jianghuai | sinitic
+wu | Wu | sinitic
+gan | Gan | sinitic
+xiang | Xiang | sinitic
+bashu | Bashu | sinitic
+min | Min | sinitic
+yue | Cantonese | sinitic
+hakka | Hakka | sinitic
+hui | Hui | sinitic
+zhuang | Zhuang | tai
+tai | Tai | tai
+li | Hlai | tai
+miao | Miao | hmong_mien
+yi | Yi | tibeto_burman
+naxi | Naxi | tibeto_burman
+bai | Bai | tibeto_burman
+korean | Korean | koreanic
+japanese | Japanese | japonic
+ryukyuan | Ryukyuan | japonic
+ainu | Ainu | ainu

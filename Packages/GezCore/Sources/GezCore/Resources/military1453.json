@@ -2119,6 +2119,353 @@
           "men": 1000
         }
       ]
+    },
+    {
+      "country": "MNG",
+      "name": "Capital Training Divisions",
+      "province": 1378,
+      "commander": "yu_qian",
+      "regiments": [
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "cavalry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "cavalry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "cavalry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "cavalry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "handgunners",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "handgunners",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "handgunners",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "artillery",
+          "origin": "professional",
+          "men": 500
+        },
+        {
+          "type": "artillery",
+          "origin": "professional",
+          "men": 500
+        }
+      ]
+    },
+    {
+      "country": "MNG",
+      "name": "Xuanfu Frontier Garrison",
+      "province": 1386,
+      "commander": "shi_heng",
+      "regiments": [
+        {
+          "type": "cavalry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "cavalry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "cavalry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "handgunners",
+          "origin": "professional",
+          "men": 1000
+        }
+      ]
+    },
+    {
+      "country": "MNG",
+      "name": "Nanjing Imperial Guard",
+      "province": 1427,
+      "commander": null,
+      "regiments": [
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "archers",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "archers",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "handgunners",
+          "origin": "professional",
+          "men": 1000
+        }
+      ]
+    },
+    {
+      "country": "JOS",
+      "name": "Five Military Commands",
+      "province": 1518,
+      "commander": "kim_jongseo",
+      "regiments": [
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "cavalry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "cavalry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "archers",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "archers",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "handgunners",
+          "origin": "professional",
+          "men": 1000
+        }
+      ]
+    },
+    {
+      "country": "ASH",
+      "name": "Bakufu Hokoshu",
+      "province": 1568,
+      "commander": null,
+      "regiments": [
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "cavalry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "archers",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "archers",
+          "origin": "professional",
+          "men": 1000
+        }
+      ]
+    },
+    {
+      "country": "HSK",
+      "name": "Hosokawa Retinue",
+      "province": 1569,
+      "commander": "hosokawa_k",
+      "regiments": [
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "cavalry",
+          "origin": "professional",
+          "men": 1000
+        }
+      ]
+    },
+    {
+      "country": "YMN",
+      "name": "Yamana Retinue",
+      "province": 1565,
+      "commander": "yamana_sozen",
+      "regiments": [
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "cavalry",
+          "origin": "professional",
+          "men": 1000
+        }
+      ]
+    },
+    {
+      "country": "OUC",
+      "name": "Ouchi Retinue",
+      "province": 1556,
+      "commander": "ouchi_n",
+      "regiments": [
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "archers",
+          "origin": "professional",
+          "men": 1000
+        }
+      ]
+    },
+    {
+      "country": "KMK",
+      "name": "Kamakura Retinue",
+      "province": 1588,
+      "commander": "ashikaga_su",
+      "regiments": [
+        {
+          "type": "cavalry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        }
+      ]
     }
   ]
 }

@@ -244,7 +244,7 @@ def main():
     def scope_level(scope):
         if scope == "*":
             return 0
-        if scope in ("Christian", "Muslim", "Dharmic", "Jewish", "Iranian", "Pagan"):
+        if scope in ("Christian", "Muslim", "Dharmic", "Jewish", "Iranian", "Pagan", "East Asian"):
             return 1
         if scope in regions:
             return 2

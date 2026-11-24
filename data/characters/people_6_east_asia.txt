@@ -1,0 +1,149 @@
+# Families and great vassals of East Asia, 1453.
+
+## Ming China and Southwest Tusi
+@ MNG
+dead   | yongle          | Yongle Emperor (Zhu Di) | Zhu      | m | 1360-05-02 | d:1424-08-12 | ambitious, strategist, brave, cruel | 3rd Ming Emperor
+dead   | hongxi          | Hongxi Emperor (Zhu Gaochi) | Zhu  | m | 1378-08-16 | f:yongle d:1425-05-29 | kind, scholar | 4th Ming Emperor
+dead   | xuande          | Xuande Emperor (Zhu Zhanji) | Zhu  | m | 1399-03-16 | f:hongxi d:1435-01-31 | scholar, administrator, generous | 5th Ming Emperor
+ruler  | zhu_qiyu        | Jingtai Emperor (Zhu Qiyu)  | Zhu  | m | 1428-09-21 | f:xuande s:empress_wang_jt,hang_jt | administrator, diligent, ambitious | 7th Ming Emperor (r. 1449-1457)
+heir   | zhu_jianji      | Zhu Jianji              | Zhu      | m | 1448-07-02 | f:zhu_qiyu m:hang_jt | sickly | Crown Prince from May 1452; died late 1453
+spouse | hang_jt         | Empress Hang            | Hang     | f | 1425       | | ambitious | Empress of Jingtai from 1452; birth year?
+kin    | empress_wang_jt | Empress Wang            | Wang     | f | 1427       | | just, honest | first Empress of Jingtai, deposed 1452; birth year?
+figure | zhu_qizhen      | Zhu Qizhen (Yingzong)   | Zhu      | m | 1427-11-29 | f:xuande s:qian_yz | content, patient | former Zhengtong Emperor, under house arrest in Beijing until 1457
+kin    | qian_yz         | Empress Qian            | Qian     | f | 1426       | | pious, kind | wife of Zhu Qizhen; birth year?
+kin    | zhu_jianshen    | Zhu Jianshen            | Zhu      | m | 1447-12-09 | f:zhu_qizhen | patient | former Crown Prince, later Chenghua Emperor
+figure | yu_qian         | Yu Qian                 | Yu       | m | 1398-05-13 | | administrator, strategist, honest, brave | Minister of War, defender of Beijing in 1449
+figure | chen_xun        | Chen Xun                | Chen     | m | 1385       | | scholar, administrator | Senior Grand Secretary in 1453; birth year?
+figure | shi_heng        | Shi Heng                | Shi      | m | 1405       | | brave, greedy, ambitious | general defending Beijing; later led the 1457 restoration; birth year?
+figure | wang_wen        | Wang Wen                | Wang     | m | 1393       | | deceitful, schemer | Grand Secretary and Censor-in-Chief; birth year?
+vassal | zhu_zhongxuan   | Zhu Zhongxuan           | Zhu      | m | 1428       | holds:Taiyuan | calm | Prince Zhuang of Jin (1442-1502)
+vassal | zhu_zhigeng     | Zhu Zhigeng             | Zhu      | m | 1412       | holds:Xi'an | content | Prince Kang of Qin (1428-1455); birth year?
+vassal | zhu_zisu        | Zhu Zisu                | Zhu      | m | 1423       | holds:Kaifeng | | Prince Yi of Zhou (1452-1485)
+vassal | zhu_jiwan       | Zhu Jiwan               | Zhu      | m | 1424       | holds:Wuchang | kind | Prince Kang of Chu (1444-1462)
+vassal | zhu_youjie      | Zhu Youjie              | Zhu      | m | 1420       | holds:Chengdu | scholar | Prince He of Shu (1446-1463); birth year?
+vassal | zhu_yangzhu     | Zhu Yangzhu             | Zhu      | m | 1448       | holds:Yanzhou | | Prince Zhuang of Lu (1449-1523)
+vassal | zhu_dianpei     | Zhu Dianpei             | Zhu      | m | 1418       | holds:Nanchang | ambitious | Prince Jing of Ning (1449-1491)
+vassal | zhu_shixian     | Zhu Shixian             | Zhu      | m | 1410       | holds:Datong | brave | Prince Yin of Dai (1448-1463)
+vassal | zhu_zhanxian    | Zhu Zhanxian            | Zhu      | m | 1406       | holds:Lanzhou | content | Prince Kang of Su (1424-1464)
+vassal | zhu_zhisong     | Zhu Zhisong             | Zhu      | m | 1415       | holds:Ningxia | diligent | Prince Kang of Qing (1438-1469)
+vassal | mu_lin          | Mu Lin                  | Mu       | m | 1429       | holds:Kunming | strategist, brave | Duke of Qianguo, hereditary viceroy of Yunnan
+
+@ BOZ
+ruler  | yang_hui        | Yang Hui                | Yang     | m | 1420       | | ambitious, strategist | Xuanweishi of Bozhou (c. 1442-1477); birth year?
+
+@ SHX
+ruler  | an_long         | An Long                 | An       | m | 1415       | | brave, content | Yi tusi of Shuixi; 1453 chief and birth year?
+
+@ LIJ
+ruler  | mu_chu          | Mu Chu                  | Mu       | m | 1418       | | diplomat, administrator | Naxi tusi of Lijiang (1442-1485); birth year?
+heir   | mu_qian         | Mu Qin                  | Mu       | m | 1440       | f:mu_chu | | heir of Lijiang; birth year?
+
+@ CHL
+ruler  | dao_ba          | Dao Ba                  | Dao      | m | 1420       | | diplomat | Tai Lue ruler of Cheli (Sipsongpanna); 1453 ruler and birth year?
+
+## Joseon Korea
+@ JOS
+dead   | sejong_yi       | Sejong the Great        | Yi       | m | 1397-05-15 | d:1450-04-08 | scholar, administrator, diligent, just | 4th King of Joseon
+dead   | munjong_yi      | Munjong                 | Yi       | m | 1414-11-15 | f:sejong_yi d:1452-06-01 | scholar, sickly | 5th King of Joseon
+ruler  | danjong         | Danjong                 | Yi       | m | 1441-08-09 | f:munjong_yi | kind, content, scholar | 6th King of Joseon, aged 11; deposed 1455
+figure | suyang_yi       | Grand Prince Suyang     | Yi       | m | 1417-11-02 | f:sejong_yi s:jeonghui_yun | ambitious, strategist, cruel, brave | uncle of Danjong; led the Gyeyu Jeongnan coup in late 1453
+kin    | jeonghui_yun    | Yun of Papyeong         | Yun      | f | 1418-12-08 | | ambitious, patient | wife of Grand Prince Suyang
+kin    | anpyeong_yi     | Grand Prince Anpyeong   | Yi       | m | 1418-10-18 | f:sejong_yi | scholar, generous | brother of Suyang; executed Nov 1453
+kin    | gyeonghye_yi    | Princess Gyeonghye      | Yi       | f | 1436       | f:munjong_yi | diligent | elder sister of Danjong; birth year?
+figure | kim_jongseo     | Kim Jong-seo            | Kim      | m | 1383       | | strategist, brave, just, administrator | Left State Councillor and general of the Six Garrisons; killed Nov 1453
+figure | hwangbo_in      | Hwangbo In              | Hwangbo  | m | 1387       | | honest, administrator | Chief State Councillor in May 1453; killed Nov 1453; birth year?
+figure | han_myeonghoe   | Han Myeong-hoe          | Han      | m | 1415-11-26 | | schemer, diplomat, ambitious | strategist for Grand Prince Suyang
+figure | shin_sukju      | Shin Suk-ju             | Shin     | m | 1417-08-02 | | scholar, diplomat | Hall of Worthies scholar and diplomat
+
+## Japan (Ashikaga Shogunate and Shugo)
+@ ASH
+dead   | yoshinori_a     | Ashikaga Yoshinori      | Ashikaga | m | 1394-07-12 | d:1441-07-12 | wrathful, cruel | 6th Shogun, assassinated in 1441
+dead   | yoshikatsu_a    | Ashikaga Yoshikatsu     | Ashikaga | m | 1434-03-19 | f:yoshinori_a d:1443-08-16 | | 7th Shogun, died young
+kin    | hino_shigeko    | Hino Shigeko            | Hino     | f | 1411       | | ambitious | mother of Ashikaga Yoshimasa; birth year?
+ruler  | yoshimasa       | Ashikaga Yoshimasa      | Ashikaga | m | 1436-01-20 | f:yoshinori_a m:hino_shigeko | generous, scholar, lazy | 8th Ashikaga Shogun; renamed from Yoshishige in 1453
+heir   | yoshimi_a       | Ashikaga Yoshimi        | Ashikaga | m | 1439-03-03 | f:yoshinori_a m:hino_shigeko | ambitious | younger brother of Yoshimasa
+figure | masatomo_a      | Ashikaga Masatomo       | Ashikaga | m | 1435-08-30 | f:yoshinori_a | | elder brother of Yoshimasa
+figure | go_hanazono     | Emperor Go-Hanazono     | Yamato   | m | 1419-07-10 | s:fujiko_o | scholar, patient, just | Emperor of Japan (r. 1428-1464)
+kin    | fujiko_o        | Fujiwara no Nobuko      | Fujiwara | f | 1411       | | pious | consort of Emperor Go-Hanazono; birth year?
+kin    | fusahito        | Prince Fusahito         | Yamato   | m | 1442-05-29 | f:go_hanazono m:fujiko_o | scholar | Imperial heir, later Emperor Go-Tsuchimikado
+figure | hino_tomiko     | Hino Tomiko             | Hino     | f | 1440       | | ambitious, greedy, schemer | later wife of Shogun Yoshimasa (married 1455)
+figure | ise_sadachika   | Ise Sadachika           | Ise      | m | 1417       | | administrator, schemer | head of the shogunal Mandokoro
+vassal | rokkaku_h       | Rokkaku Hisayori        | Rokkaku  | m | 1425       | holds:Omi | brave | shugo of southern Omi; birth year?
+vassal | toki_m          | Toki Mochimasu          | Toki     | m | 1406       | holds:Mino | administrator | shugo of Mino (1429-1467)
+vassal | kyogoku_m       | Kyogoku Mochikiyo       | Kyogoku  | m | 1407       | holds:Izumo | strategist, administrator | shugo of Izumo and Oki
+
+@ HSK
+ruler  | hosokawa_k      | Hosokawa Katsumoto      | Hosokawa | m | 1430       | | diplomat, schemer, administrator | Kanrei and head of Hosokawa
+figure | hosokawa_sy     | Hosokawa Shigeyuki      | Hosokawa | m | 1434       | | scholar, diligent | head of Awa Hosokawa branch
+
+@ YMN
+ruler  | yamana_sozen    | Yamana Sozen            | Yamana   | m | 1404-07-06 | | brave, wrathful, ambitious, strategist | Yamana Mochitoyo, head of Yamana
+heir   | yamana_noritoyo | Yamana Noritoyo         | Yamana   | m | 1424       | f:yamana_sozen | brave | eldest son and heir of Sozen
+child  | yamana_koretoyo | Yamana Koretoyo         | Yamana   | m | 1430       | f:yamana_sozen | ambitious | second son of Sozen; birth year?
+
+@ HTK
+ruler  | hatakeyama_m    | Hatakeyama Mochikuni    | Hatakeyama | m | 1398     | | arbitrary, wrathful | head of Hatakeyama; succession crisis in 1454
+dead   | hatakeyama_mm   | Hatakeyama Mochitomi    | Hatakeyama | m | 1405     | d:1452 | | brother of Mochikuni; birth year?
+heir   | hatakeyama_y    | Hatakeyama Yoshinari    | Hatakeyama | m | 1437     | f:hatakeyama_m | brave, ambitious | son of Mochikuni; birth year?
+kin    | hatakeyama_ms   | Hatakeyama Masanaga     | Hatakeyama | m | 1442     | f:hatakeyama_mm | diplomat, brave | nephew and rival heir; birth year?
+
+@ SHB
+ruler  | shiba_yt        | Shiba Yoshitoshi        | Shiba    | m | 1435       | | arbitrary | head of Shiba from 1452; birth year?
+figure | kai_joji        | Kai Joji                | Kai      | m | 1398       | | administrator, schemer | shugodai deputy of Shiba; birth year?
+figure | asakura_t       | Asakura Toshikage       | Asakura  | m | 1428-06-06 | | strategist, ambitious, administrator | Echizen retainer
+
+@ OUC
+ruler  | ouchi_n         | Ouchi Norihiro          | Ouchi    | m | 1420-07-04 | | diplomat, scholar, strategist | shugo of Suo, Nagato and Chikuzen
+heir   | ouchi_m         | Ouchi Masahiro          | Ouchi    | m | 1446-09-18 | f:ouchi_n | brave, ambitious | son and heir of Norihiro
+
+@ SMZ
+ruler  | shimazu_t       | Shimazu Tadakuni        | Shimazu  | m | 1403-01-13 | | brave, strategist | shugo of Satsuma, Osumi and Hyuga
+heir   | shimazu_ts      | Shimazu Tatsuhisa       | Shimazu  | m | 1432-08-29 | f:shimazu_t | diligent | son and heir of Tadakuni
+
+@ OTM
+ruler  | otomo_c         | Otomo Chikashige        | Otomo    | m | 1411       | | diplomat, administrator | shugo of Bungo
+heir   | otomo_m         | Otomo Masachika         | Otomo    | m | 1444       | f:otomo_c | | son of Chikashige; birth year?
+
+@ SHN
+ruler  | shoni_n         | Shoni Noriyori          | Shoni    | m | 1422       | | brave, ambitious | head of Shoni; birth year?
+figure | so_shigemoto    | So Shigemoto            | So       | m | 1420       | | diplomat | governor of Tsushima; birth year?
+
+@ KNO
+ruler  | kono_nm         | Kono Norimichi          | Kono     | m | 1410       | | brave | shugo of Iyo; died c. 1453-1455; birth year?
+heir   | kono_mh         | Kono Michiharu          | Kono     | m | 1435       | f:kono_nm | ambitious | son and successor of Norimichi; birth year?
+
+@ KMK
+dead   | mochiuji_a      | Ashikaga Mochiuji       | Ashikaga | m | 1398       | d:1439-03-24 | ambitious, wrathful | 4th Kamakura Kubo
+ruler  | ashikaga_su     | Ashikaga Shigeuji       | Ashikaga | m | 1438       | f:mochiuji_a | wrathful, ambitious, brave | Kamakura Kubo; Kyotoku Incident 1454; birth year?
+
+@ UES
+ruler  | uesugi_nt       | Uesugi Noritada         | Uesugi   | m | 1433       | | honest, diplomat | Kanto Kanrei, assassinated Dec 1454
+heir   | uesugi_fs       | Uesugi Fusasada         | Uesugi   | m | 1431       | | strategist, patient | shugo of Echigo; birth year?
+figure | ota_dokani      | Ota Dokan               | Ota      | m | 1432       | | strategist, scholar, administrator | Ogigayatsu Uesugi retainer; built Edo Castle in 1457
+
+@ TKD
+ruler  | takeda_nm       | Takeda Nobumori         | Takeda   | m | 1432       | | brave | shugo of Kai (1450-1455); birth year?
+heir   | takeda_nm2      | Takeda Nobumasa         | Takeda   | m | 1447       | f:takeda_nm | ambitious | son of Nobumori, succeeded 1455
+
+@ IMG
+ruler  | imagawa_n       | Imagawa Noritada        | Imagawa  | m | 1408       | | strategist, brave, administrator | shugo of Suruga
+heir   | imagawa_y       | Imagawa Yoshitada       | Imagawa  | m | 1436       | f:imagawa_n | brave | son and heir of Noritada
+
+@ DTE
+ruler  | date_m          | Date Mochimune          | Date     | m | 1393       | | strategist, generous, diplomat | 11th head of Date
+heir   | date_n          | Date Narimune           | Date     | m | 1435       | f:date_m | diligent | son and heir of Mochimune
+
+@ AND
+ruler  | ando_ms         | Ando Masasue            | Ando     | m | 1420       | | ambitious, brave | lord of Tsugaru, Akita and southern Ezo; birth year?
+figure | takeda_nobuhiro | Takeda Nobuhiro         | Kakizaki | m | 1431-03-11 | | brave, strategist | founder of the Kakizaki line in southern Ezo
+
+## Ryukyu and Ainu
+@ RYU
+dead   | sho_hashi       | Sho Hashi               | Sho      | m | 1371       | d:1439-06-01 | ambitious, strategist | unifier of the Ryukyu Kingdom
+dead   | sho_kinpuku     | Sho Kinpuku             | Sho      | m | 1398       | f:sho_hashi d:1453-05 | | 4th King of Ryukyu; death triggered Shiro-Furi crisis; death month?
+ruler  | sho_shiro       | Shiro                   | Sho      | m | 1430       | f:sho_kinpuku | arbitrary | claimant in the 1453 Shiro-Furi rebellion; birth year?
+heir   | sho_taikyu      | Sho Taikyu              | Sho      | m | 1415       | f:sho_hashi | diplomat, ambitious | brother of Kinpuku; enthroned 1454 after Shiro-Furi crisis
+figure | sho_furi        | Furi                    | Sho      | m | 1412       | f:sho_hashi | ambitious, wrathful | uncle of Shiro, rival in the 1453 Shiro-Furi rebellion; birth year?
+
+@ AIN
+ruler  | koshamain       | Koshamain               | Ainu     | m | 1420       | | brave, strategist | Ainu chieftain who led the 1457 uprising in Ezo; birth year?

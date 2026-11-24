@@ -67,7 +67,7 @@
   "neighbour_bonus_cap": 0.25,
   "neighbour_bonus_per_level": 0.05
  },
- "provinceCount": 1378,
+ "provinceCount": 1607,
  "startingLevels": {
   "countries": {
    "BOH": [
@@ -174,6 +174,11 @@
     3,
     3
    ],
+   "Central China": [
+    3,
+    3,
+    3
+   ],
    "Central India": [
     3,
     3,
@@ -224,6 +229,16 @@
     4,
     4
    ],
+   "Japan": [
+    3,
+    3,
+    3
+   ],
+   "Jiangnan": [
+    4,
+    4,
+    3
+   ],
    "Kazakh Steppe": [
     2,
     2,
@@ -233,6 +248,11 @@
     3,
     3,
     3
+   ],
+   "Korea": [
+    4,
+    3,
+    4
    ],
    "Levant": [
     4,
@@ -253,6 +273,11 @@
     3,
     3,
     3
+   ],
+   "North China": [
+    4,
+    3,
+    4
    ],
    "Northwest India": [
     3,
@@ -290,6 +315,11 @@
     3
    ],
    "Scandinavia": [
+    3,
+    3,
+    3
+   ],
+   "South China": [
     3,
     3,
     3

@@ -50,6 +50,13 @@ zone | Central Himalaya           | 28.6 | 82.5 | 420 | 0.020 | 0.9
 zone | Assam and the Eastern Himalaya | 26.5 | 92.0 | 330 | 0.015 | 1.0
 zone | Kutch                      | 23.4 | 70.0 | 180 | 0.008 | 0.9
 
+## East Asia
+zone | North China Plain and Bohai | 38.5 | 116.5 | 350 | 0.008 | 0.9
+zone | Wei River and Loess Plateau | 35.2 | 109.5 | 320 | 0.010 | 1.0
+zone | Sichuan and Yunnan          | 28.0 | 102.5 | 400 | 0.025 | 0.9
+zone | Honshu and Tokai            | 35.3 | 138.0 | 380 | 0.045 | 1.0
+zone | Kyushu and Ryukyu Arc       | 31.0 | 130.5 | 380 | 0.025 | 0.8
+
 ## Known earthquakes
 quake | 1456-12-05 | Naples         | 0.9 | The Great Earthquake of Naples
 quake | 1481-05-03 | Rhodes         | 0.7 | The Rhodes Earthquake

@@ -93,6 +93,16 @@ STRAIT_NAMES = [
     ("Lewis", "Skye"),
     ("Skye", "Dingwall"),
     ("Islay", "Inveraray"),
+    ("Leizhou", "Qiongzhou"),
+    ("Jeju", "Naju"),
+    ("Tsushima", "Busan"),
+    ("Tsushima", "Hizen"),
+    ("Nagato", "Buzen"),
+    ("Bizen", "Sanuki"),
+    ("Iyo", "Bungo"),
+    ("Kii", "Tokushima"),
+    ("Tsugaru", "Oshima"),
+    ("Okinawa", "Amami"),
 ]
 
 

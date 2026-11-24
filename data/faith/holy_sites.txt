@@ -52,3 +52,11 @@ site | Kandy | Senkadagala | theravada
 site | Kathmandu | Kathmandu | tibetan, hindu
 site | Yazd | Yazd | zoroastrian
 site | Shiraz | Shiraz | zoroastrian
+site | Qufu | Yanzhou | confucian
+site | Mount Wudang | Xiangyang | daoist
+site | Mount Tai | Jinan | daoist, confucian
+site | Mount Wutai | Datong | mahayana, tibetan
+site | Mount Putuo | Ningbo | mahayana
+site | Ise Grand Shrine | Ise | shinto
+site | Mount Hiei | Kyoto | mahayana, shinto
+site | Gyeongju | Gyeongju | mahayana

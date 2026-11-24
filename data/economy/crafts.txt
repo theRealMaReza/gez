@@ -74,3 +74,26 @@ Lubeck                 | beer 4, naval_supplies 3
 Danzig                 | beer 3, naval_supplies 4
 Hamburg                | beer 6
 Svealand               | tools 3, weapons 1
+East Asian             | pottery 3, paper 2, cotton_cloth 2
+North Zhili            | weapons 3, paper 2, books 2
+Shandong               | silk_cloth 3, cotton_cloth 3, salt 0
+South Zhili            | silk_cloth 5, cotton_cloth 4, books 2, paper 2
+Suzhou                 | silk_cloth 8, books 2
+Nanjing                | silk_cloth 5, books 3, weapons 2
+Zhejiang               | silk_cloth 6, paper 3, pottery 2
+Hangzhou               | silk_cloth 7, paper 3, books 2
+Jiangxi                | pottery 5, paper 3
+Raozhou                | pottery 9
+Fujian                 | pottery 4, books 3, naval_supplies 3, silk_cloth 2
+Jianning               | books 6, paper 4
+Quanzhou               | pottery 5, naval_supplies 4, silk_cloth 3
+Guangdong              | silk_cloth 5, pottery 3, naval_supplies 2
+Guangzhou              | silk_cloth 6, pottery 4, jewelry 2
+Sichuan                | silk_cloth 5, paper 3
+Korea                  | paper 4, pottery 3, cotton_cloth 3
+Hanyang                | books 4, paper 4, weapons 2
+Kansai                 | silk_cloth 4, weapons 4, pottery 3
+Kyoto                  | silk_cloth 6, pottery 4, books 2
+Chugoku                | weapons 4, tools 3, naval_supplies 2
+Kyushu                 | naval_supplies 4, pottery 3, weapons 3
+Ryukyu                 | naval_supplies 4, pottery 2, leather 2
