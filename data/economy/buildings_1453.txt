@@ -70,3 +70,9 @@ Aksu           | caravanserai 1, fort 1
 Turpan         | caravanserai 2
 Hami           | caravanserai 2, fort 1
 Dunhuang       | caravanserai 1
+Lhasa          | college 2, temple 2, caravanserai 1
+Shigatse       | college 1, temple 2
+Gyantse        | fort 1, temple 1
+Sakya          | college 2, temple 1
+Derge          | paper_mill 1, armourer 1
+Chakla         | caravanserai 2

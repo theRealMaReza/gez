@@ -68,3 +68,8 @@ JOS | paper        | Hanyang       | Beijing       | 20
 KDL | silk_cloth   | Xi'an         | Kashgar       | 15
 DUG | silk_cloth   | Kashgar       | Samarkand     | 12
 MGH | horses       | Kashgar       | Xi'an         | 20
+# Tea-Horse Road (Tibet)
+PHA | horses       | Lhasa         | Chengdu       | 20
+DRG | wool         | Lhasa         | Chengdu       | 25
+MNG | silk_cloth   | Chengdu       | Lhasa         | 10
+NEP | salt         | Lhasa         | Delhi         | 25

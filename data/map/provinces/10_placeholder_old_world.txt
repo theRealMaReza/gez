@@ -271,14 +271,6 @@
 # Placeholder wasteland: East Asia
 @ Unmapped East Asia
 ! Taiwan | 23.7 121.0
-! East 28N 100E | 28.0 100.0
-! East 30N 100E | 30.0 100.0
-! East 32N 100E | 32.0 100.0
-! East 32N 102E | 32.0 102.0
-! East 34N 100E | 34.0 100.0
-! East 34N 102E | 34.0 102.0
-! East 36N 100E | 36.0 100.0
-! East 38N 100E | 37.4 99.5
 ! East 40N 100E | 40.8 100.0
 ! East 40N 102E | 40.0 102.0
 ! East 40N 104E | 40.0 104.0

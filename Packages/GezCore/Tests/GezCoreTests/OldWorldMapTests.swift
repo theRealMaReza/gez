@@ -161,4 +161,33 @@ final class OldWorldMapTests: XCTestCase {
         XCTAssertTrue(world.provinces.neighbors[yumen.index].contains(jiuquan))
         XCTAssertTrue(world.provinces.neighbors[yumen.index].contains(dunhuang))
     }
+
+    /// Phase 20.7 Tibet and Bhutan: Phagmodrupa, Rinpungpa vassal, Guge,
+    /// Mangyul Gungthang, Derge (Kham), Amdo, Bhutan, and Himalayan/Sichuan links.
+    func testTibetAndBhutan() {
+        let world = Scenario1453.makeWorld()
+        guard let pha = world.countries.id(forTag: "PHA"),
+              let rin = world.countries.id(forTag: "RIN"),
+              let gug = world.countries.id(forTag: "GUG"),
+              let gnt = world.countries.id(forTag: "GNT"),
+              let drg = world.countries.id(forTag: "DRG"),
+              let amd = world.countries.id(forTag: "AMD"),
+              let bhu = world.countries.id(forTag: "BHU") else {
+            return XCTFail("missing Tibet countries")
+        }
+        for c in [pha, rin, gug, gnt, drg, amd, bhu] {
+            XCTAssertEqual(world.countries.religion[c.index], .tibetan)
+        }
+        XCTAssertEqual(world.countries.overlord[rin.index], pha)
+        XCTAssertEqual(world.countries.subjectType[rin.index], .vassal)
+
+        XCTAssertTrue(world.rivers.contains { $0.name == "Yarlung Tsangpo" })
+        for name in ["Lhasa", "Nedong", "Shigatse", "Tsaparang", "Dzongka", "Derge", "Rebkong", "Bumthang", "Xining"] {
+            guard let pid = world.provinces.id(named: name) else {
+                XCTFail("missing Tibetan province \(name)")
+                continue
+            }
+            XCTAssertFalse(world.provinces.neighbors[pid.index].isEmpty, name)
+        }
+    }
 }

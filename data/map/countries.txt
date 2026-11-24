@@ -350,3 +350,12 @@ AIN | Ainu | 120 155 135 | tribal | siberian
 # Tarim Basin and Moghulistan (Phase 20.7)
 DUG | Kashgar | 90 145 105 | monarchy | sunni | Kashgar
 KDL | Kara Del | 160 135 85 | monarchy | mahayana | Hami
+
+# Tibet and Bhutan (Phase 20.7)
+PHA | Phagmodrupa | 190 95 65 | monarchy | tibetan | Nedong
+RIN | Rinpungpa | 165 65 85 | monarchy | tibetan | Shigatse
+GUG | Guge | 215 165 85 | monarchy | tibetan | Tsaparang
+GNT | Gungthang | 145 120 170 | monarchy | tibetan | Dzongka
+DRG | Derge | 120 80 135 | monarchy | tibetan | Derge
+AMD | Amdo | 180 140 105 | tribal | tibetan | Rebkong
+BHU | Bhutan | 220 130 55 | theocracy | tibetan | Bumthang

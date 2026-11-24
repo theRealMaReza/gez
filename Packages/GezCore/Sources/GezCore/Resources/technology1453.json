@@ -67,7 +67,7 @@
   "neighbour_bonus_cap": 0.25,
   "neighbour_bonus_per_level": 0.05
  },
- "provinceCount": 1633,
+ "provinceCount": 1673,
  "startingLevels": {
   "countries": {
    "BOH": [
@@ -333,6 +333,11 @@
     3,
     3,
     3
+   ],
+   "Tibet": [
+    3,
+    2,
+    2
    ],
    "Transoxiana": [
     3,

@@ -44,3 +44,4 @@ South China | 14000000
 Korea | 7500000
 Japan | 11000000
 Tarim Basin | 1200000
+Tibet | 2500000

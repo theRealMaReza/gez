@@ -1,0 +1,52 @@
+# Tibet
+@ Ngari
+Tsaparang | 31.46 79.67 | GUG m 3
+Rutog | 33.38 79.70 | GUG m 1
+Gar | 32.50 80.10 | GUG m 2
+Purang | 30.29 81.17 | GUG m 2
+Dzongka | 28.85 85.29 | GNT m 3
+Kyirong | 28.40 85.32 | GNT m 2
+Mustang | 29.18 83.96 | GNT m 2
+Zhongba | 29.69 84.03 | GNT m 1
+
+@ Tsang
+Shigatse | 29.27 88.88 | RIN m 5
+Rinpung | 29.26 89.84 | RIN m 3
+Gyantse | 28.91 89.60 | RIN m 4
+Sakya | 28.90 88.02 | RIN m 3
+Lhatse | 29.09 87.64 | RIN m 2
+Tingri | 28.66 87.12 | RIN m 2
+
+@ Lhasa
+Lhasa | 29.65 91.13 | PHA m 6
+Nedong | 29.23 91.77 | PHA m 4
+Lhoka | 28.60 92.40 | PHA m 2
+Kongpo | 29.65 94.36 | PHA w 3
+Damxung | 30.48 91.10 | PHA m 2
+Nagqu | 31.48 92.05 | PHA s 2
+
+@ Bhutan and Sikkim
+Bumthang | 27.55 90.73 | BHU m 3
+Paro | 27.43 89.41 | BHU m 3
+Trashigang | 27.33 91.55 | BHU m 2
+Sikkim | 27.33 88.61 | BHU m 2
+
+@ Kham
+Derge | 31.81 98.58 | DRG m 4
+Chamdo | 31.14 97.17 | DRG m 4
+Nangchen | 32.20 96.48 | DRG m 3
+Markam | 29.68 98.59 | DRG m 2
+Batang | 30.00 99.11 | DRG m 2
+Litang | 29.99 100.27 | DRG m 3
+Chakla | 30.05 101.96 | DRG m 3
+Gyalthang | 27.83 99.70 | DRG m 2
+Garze | 31.62 99.99 | DRG m 2
+
+@ Amdo
+Xining | 36.62 101.78 | MNG h 4
+Rebkong | 35.51 102.02 | AMD m 3
+Kokonor | 36.30 100.62 | AMD s 2
+Golok | 34.47 100.24 | AMD s 2
+Labrang | 35.20 102.52 | AMD h 2
+Ngawa | 32.90 101.70 | AMD m 2
+Yushu | 33.00 97.01 | AMD s 2

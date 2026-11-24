@@ -241,3 +241,7 @@ ryukyuan | Ryukyuan | japonic
 ainu | Ainu | ainu
 uyghur | Uyghur | turkic
 oirat | Oirat | mongolic
+tibetan | Tibetan | tibetic
+khampa | Khampa | tibetic
+amdo | Amdo | tibetic
+bhutanese | Bhutanese | tibetic

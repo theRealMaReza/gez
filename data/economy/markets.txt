@@ -52,3 +52,4 @@ Hanyang       | Hanyang
 Kyoto         | Kyoto
 Hakata        | Chikuzen
 Kashgar       | Kashgar
+Lhasa         | Lhasa
