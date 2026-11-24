@@ -2449,8 +2449,18 @@ public final class GezGodotController {
         let sell = eco.markets.price(toM, good)
         let tollShare = Self.routeTollRateShare(world: w, owner: player, path: est.path)
         let tollsYearly = volume * buy * tollShare
+        let steps = max(1, est.path.count - 1)
         let hasCapacity = (w.tradeCapacityUsed(player) + est.capacity <= w.tradeCapacity(player))
-        let refusal = hasCapacity ? "" : TradeSystem.Refusal.noCapacity.reason
+        let inRange = steps <= w.tradeRangeSteps(player)
+        let canCreate = hasCapacity && inRange
+        let refusal: String
+        if !hasCapacity {
+            refusal = TradeSystem.Refusal.noCapacity.reason
+        } else if !inRange {
+            refusal = TradeSystem.Refusal.outOfRange.reason
+        } else {
+            refusal = ""
+        }
         let pathText = "Via " + est.path.map { eco.markets.name[$0.index] }.joined(separator: " → ")
         let summaryText = String(
             format: "Buy at %.1f, sell at %.1f · %+.0f/yr · tolls %.1f/yr · uses %.0f capacity",
@@ -2465,7 +2475,7 @@ public final class GezGodotController {
             "capacity": est.capacity,
             "pathText": pathText,
             "summaryText": summaryText,
-            "canCreate": hasCapacity,
+            "canCreate": canCreate,
             "refusalReason": refusal
         ]
     }
