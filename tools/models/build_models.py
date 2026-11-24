@@ -757,7 +757,7 @@ def tree(kind=0):
 PLINTH = (0.31, 0.26, 0.20)
 # Meshes (name before the style) that get baked ambient occlusion: towns,
 # forts, ports, armies and fleets.
-AO_MESHES = {"house_a", "house_b", "temple", "landmark", "market", "fort1", "fort2", "fort3",
+AO_MESHES = {"house_a", "house_b", "temple", "landmark", "market", "hagia_sophia", "fort1", "fort2", "fort3",
              "pier", "ship", "sail", "soldier_body", "soldier_gear", "archer_gear", "rider_body",
              "rider_gear", "flag_pole", "flag_cloth"}
 
@@ -914,6 +914,12 @@ def build_library():
         # Phase 20.6: town buildings and forts stand on a dark plinth.
         for kind in ("house_a", "house_b", "temple", "landmark", "market", "fort1", "fort2", "fort3"):
             lib[f"{kind}.{st}"] = with_plinth(lib[f"{kind}.{st}"], pad=0.09 if kind.startswith("fort") else 0.07)
+
+    # Phase 20.7: named landmarks, built in code (tools/models/landmarks.py).
+    # Hagia Sophia: the owner's pick B (24 Nov 2026), with Mehmed II's
+    # red-brick minaret, as it stood just after the conquest.
+    import landmarks
+    lib["hagia_sophia"] = with_plinth(normalise_base(landmarks.hagia_sophia(minarets=1), 2.8), pad=0.09)
 
     lib["pier"] = pier()
     lib["flag_pole"] = flag_pole()

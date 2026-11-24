@@ -1363,6 +1363,11 @@ func _init_bridge_and_map() -> void:
 	id_tex = ImageTexture.create_from_image(id_img)
 	map_models.set("id_image", id_img)
 	map_models.set("map_size", map_size)
+	# Phase 20.7: where the named landmarks stand (MapModels.LANDMARKS).
+	var landmark_pts: Array = []
+	for lm in map_models.call("landmark_list"):
+		landmark_pts.append(_call_bridge("getFocusPoint", [float(lm[1]), float(lm[2])], Vector2(-1, -1)))
+	map_models.call("set_landmark_points", landmark_pts)
 
 	var sea_bytes: PackedByteArray = _call_bridge("getSeaIDBytes", [], PackedByteArray())
 	var sea_img := Image.create_from_data(w, h, false, Image.FORMAT_RG8, sea_bytes)

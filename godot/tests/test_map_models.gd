@@ -179,3 +179,18 @@ func test_battle_figures_fill_the_rules_rectangle() -> void:
 	runner.check(items.size() >= 6 and items.size() <= 30, "a full regiment shows 6-30 soldiers (%d)" % items.size())
 	runner.check(far <= half_front and far >= half_front * 0.5, "soldiers reach out to the regiment's ends, not past them")
 	v.free()
+
+# Phase 20.7: named landmarks (Hagia Sophia, the owner's pick B).
+func test_named_landmark_replaces_the_great_building() -> void:
+	runner.check(Lib.has_mesh("hagia_sophia"), "mesh hagia_sophia exists")
+	var hs := Lib.get_mesh("hagia_sophia").get_aabb()
+	runner.near(hs.position.y, 0.0, 0.05, "Hagia Sophia stands on y=0")
+	runner.check(maxf(hs.size.x, hs.size.z) > 2.5 and maxf(hs.size.x, hs.size.z) < 3.4, "Hagia Sophia about 2.8 units wide")
+	runner.check(hs.size.y > 1.8, "its minaret rises above the dome")
+	for detail in [0, 1, 2]:
+		var parts: Array = ModelsScript.town_layout(3, 12, 4, true, "islamic", detail, 99.0, "hagia_sophia")
+		runner.check(_has(parts, "hagia_sophia") and not _has(parts, "landmark.islamic"), "landmark shown at detail %d" % detail)
+		for p in parts:
+			if p[0] != "hagia_sophia" and String(p[0]).begins_with("house"):
+				runner.check((p[1] as Vector2).length() > 1.5, "houses stand clear of the landmark")
+	runner.check(ModelsScript.LANDMARKS.size() >= 1 and ModelsScript.LANDMARKS[0][0] == "hagia_sophia", "Hagia Sophia is in the landmark list")
