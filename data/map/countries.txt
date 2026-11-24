@@ -346,3 +346,8 @@ DTE | Date | 85 120 95 | monarchy | shinto | Yonezawa
 AND | Ando | 130 105 85 | monarchy | shinto | Tsugaru
 RYU | Ryukyu | 75 165 155 | monarchy | mahayana | Okinawa
 AIN | Ainu | 120 155 135 | tribal | siberian
+
+# Manchuria / Jurchens (Phase 20.7)
+JZH | Jianzhou Jurchens | 215 160 55 | tribal | siberian | Hetu Ala
+HXI | Haixi Jurchens | 185 110 75 | tribal | siberian | Ula
+WJR | Wild Jurchens | 115 145 110 | tribal | siberian | Nurgan

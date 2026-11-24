@@ -332,3 +332,10 @@ Kanto | raw_silk 2, hemp 2, horses 1
 Tohoku | gold 3, horses 2, iron 2, wood 1
 Ryukyu | sugar 3, sulphur 2, fish 1
 Ezo | furs 5, fish 3, wood 2
+
+Manchuria @woods | furs 5, wood 4, hides 2
+Manchuria @steppe | horses 4, hides 3, wool 2
+Jianzhou | furs 5, wood 3, iron 2, horses 2, gold 1
+Haixi | horses 4, furs 3, hides 3, wood 2
+Amur and Ussuri | furs 6, wood 3, fish 2, gold 1
+Primorye and Sakhalin | furs 5, fish 4, wood 3

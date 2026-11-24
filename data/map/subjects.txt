@@ -55,6 +55,8 @@ KAR ALA vassal
 MNG JOS tributary
 MNG RYU tributary
 MNG CHL tributary
+MNG JZH tributary
+MNG HXI tributary
 MNG LIJ vassal
 MNG BOZ vassal
 MNG SHX vassal

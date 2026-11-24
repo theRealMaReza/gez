@@ -97,3 +97,5 @@ Kyoto                  | silk_cloth 6, pottery 4, books 2
 Chugoku                | weapons 4, tools 3, naval_supplies 2
 Kyushu                 | naval_supplies 4, pottery 3, weapons 3
 Ryukyu                 | naval_supplies 4, pottery 2, leather 2
+Manchuria              | leather 5, weapons 3, tools 2
+Ula                    | leather 5, weapons 4, tools 3

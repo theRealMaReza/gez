@@ -630,3 +630,26 @@ Enniskillen.
   chieftain in 1453; his birth year and 1453 leadership are uncertain (`?`).
   Ainu animism is grouped under `siberian`, and Ryukyu's state faith under
   `mahayana` with `mahayana`/`shinto`/`confucian` pops.
+
+## Manchuria and the Jurchens (Phase 20.7, 23 Nov 2026)
+
+- **Three Jurchen groups (`JZH`, `HXI`, `WJR`):** modelled along Ming's
+  15th-century division into **Jianzhou Jurchens** (`JZH`, Ming
+  tributary), **Haixi Jurchens** (`HXI`, Ming tributary), and **Wild
+  Jurchens** (`WJR`, independent Amur–Ussuri–Sakhalin tribes after the
+  1434 closure of the Ming Nurgan Commission). Jurchen shamanism is
+  grouped under `siberian`.
+- **Jianzhou leaders:** Li Manzhu (chief of Jianzhou Guard, d. 1467)
+  rules `JZH` with son Li Gunaha (d. 1467) as heir, while Aisin Gioro
+  Dongshan (`holds:Hetu_Ala`, Jianzhou Left Guard, d. 1466) and his uncle
+  Fanca (`holds:Changbai`, Jianzhou Right Guard, d. c. 1458) are modelled
+  as internal great vassals. Birth years of Ahachu, Li Manzhu, Li Gunaha,
+  Dongshan, and Fanca are approximate (`?`).
+- **Haixi and Wild Jurchens:** in 1453 the Haixi and Wild Jurchens were
+  divided into dozens of local *weisuo* guard chieftaincies prior to the
+  late-16th-century Four Hulun consolidation; `Tala of Haixi` and `Boji
+  of Nurgan` are placeholder 1453 chiefs (`?`).
+- **Shields:** `JZH` uses the 1601+ Manchu Plain Yellow Banner and `HXI`
+  uses the earlier Jurchen Jin banner from Wikimedia Commons; `WJR` uses
+  a plain map-colour banner where no Commons arms exist (owner's pick,
+  23 Nov 2026).

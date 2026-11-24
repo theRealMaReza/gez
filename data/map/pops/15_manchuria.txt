@@ -1,0 +1,68 @@
+# Manchuria
+@ Jianzhou
+jurchen siberian 85
+korean confucian 10
+northern_han confucian 5
+> Hetu Ala
+jurchen siberian 80
+northern_han confucian 15
+korean confucian 5
+> Yanji
+jurchen siberian 75
+korean confucian 25
+> Ningguta
+jurchen siberian 90
+jurchen mahayana 10
+
+@ Haixi
+jurchen siberian 80
+jurchen tengri 15
+northern_han confucian 5
+> Yehe
+jurchen siberian 75
+northern_han confucian 15
+jurchen tengri 10
+> Ula
+jurchen siberian 85
+jurchen tengri 10
+northern_han confucian 5
+> Qiqihar
+jurchen siberian 60
+evenk siberian 25
+jurchen tengri 15
+> Mergen
+evenk siberian 55
+jurchen siberian 45
+
+@ Amur and Ussuri
+jurchen siberian 60
+evenk siberian 25
+nivkh siberian 15
+> Ilan Hala
+jurchen siberian 85
+evenk siberian 15
+> Aigun
+evenk siberian 55
+jurchen siberian 45
+> Huma
+evenk siberian 70
+jurchen siberian 30
+> Nurgan
+nivkh siberian 60
+evenk siberian 25
+jurchen siberian 15
+
+@ Primorye and Sakhalin
+jurchen siberian 65
+evenk siberian 20
+nivkh siberian 15
+> Haishenwai
+jurchen siberian 80
+korean confucian 10
+nivkh siberian 10
+> Kuye South
+ainu siberian 65
+nivkh siberian 35
+> Kuye North
+nivkh siberian 75
+ainu siberian 25

@@ -79,3 +79,5 @@ HSK | Hosokawa Retinue           | Settsu  | hosokawa_k | infantry:2, cavalry:1
 YMN | Yamana Retinue             | Tajima  | yamana_sozen | infantry:2, cavalry:1
 OUC | Ouchi Retinue              | Suo     | ouchi_n    | infantry:2, archers:1
 KMK | Kamakura Retinue           | Sagami  | ashikaga_su | cavalry:1, infantry:2
+JZH | Jianzhou Riders            | Hetu Ala| li_manzhu  | cavalry:2, horse_archers:2
+HXI | Haixi Riders               | Ula     | tala_hxi   | cavalry:2, horse_archers:1

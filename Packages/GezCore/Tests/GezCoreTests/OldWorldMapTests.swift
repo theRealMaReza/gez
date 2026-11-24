@@ -124,4 +124,36 @@ final class OldWorldMapTests: XCTestCase {
         let taiyuan = world.provinces.id(named: "Taiyuan")!
         XCTAssertNotNil(world.provinces.holder[taiyuan.index])
     }
+
+    /// Phase 20.7 Manchuria: Jianzhou, Haixi, and Wild Jurchens, Ming tributaries,
+    /// Amur/Songhua rivers, Sakhalin straits, and Aisin Gioro great vassal.
+    func testManchuriaJurchens() {
+        let world = Scenario1453.makeWorld()
+        guard let jzh = world.countries.id(forTag: "JZH"),
+              let hxi = world.countries.id(forTag: "HXI"),
+              let wjr = world.countries.id(forTag: "WJR"),
+              let mng = world.countries.id(forTag: "MNG") else {
+            return XCTFail("missing Manchuria Jurchen countries")
+        }
+        for c in [jzh, hxi, wjr] {
+            XCTAssertEqual(world.countries.religion[c.index], .siberian)
+        }
+        XCTAssertEqual(world.countries.overlord[jzh.index], mng)
+        XCTAssertEqual(world.countries.subjectType[jzh.index], .tributary)
+        XCTAssertEqual(world.countries.overlord[hxi.index], mng)
+        XCTAssertEqual(world.countries.subjectType[hxi.index], .tributary)
+
+        XCTAssertTrue(world.rivers.contains { $0.name == "Amur River" })
+        XCTAssertTrue(world.rivers.contains { $0.name == "Songhua River" })
+        let hetuAla = world.provinces.id(named: "Hetu Ala")!
+        XCTAssertNotNil(world.provinces.holder[hetuAla.index])
+
+        // Sakhalin strait connectivity
+        let teshio = world.provinces.id(named: "Teshio")!
+        let kuyeSouth = world.provinces.id(named: "Kuye South")!
+        let nurgan = world.provinces.id(named: "Nurgan")!
+        let kuyeNorth = world.provinces.id(named: "Kuye North")!
+        XCTAssertTrue(world.provinces.neighbors[teshio.index].contains(kuyeSouth))
+        XCTAssertTrue(world.provinces.neighbors[nurgan.index].contains(kuyeNorth))
+    }
 }

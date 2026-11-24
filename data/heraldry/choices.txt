@@ -220,3 +220,7 @@ OCN | File:O'Conor.png
 OFL | File:Ó Conchobhair Uí Failghe.png
 EBR | File:Coat of arms of O'Reilly.svg
 FMN | File:Maguire.png
+
+# Manchuria / Jurchens (Phase 20.7, owner's picks)
+JZH | File:Plain Yellow Banner.svg | Manchu Plain Yellow Banner, 1601+ (owner's pick)
+HXI | File:Banner of the Jin (Jurchen) dynasty.png | Earlier Jurchen Jin banner (owner's pick)

@@ -46,3 +46,4 @@ japonic           | Yoshimasa, Katsumoto, Mochitoyo, Norihiro, Tadakuni, Masahir
 tai               | Dao, Meng, Kham, Sai, Som, Chai, Phaen, Phon | Nang, Kham, Chandara, Bua, Som
 hmong_mien        | Xiong, Yang, Vang, Moua, Lee, Thao, Lor | Mai, Yee, Mee, Joua, Pa
 ainu              | Koshamain, Shakushain, Menkakush, Onibishi, Kanari | Huci, Monok, Pirika, Cise
+tungusic          | Manzhu, Dongshan, Fanca, Mengtemu, Ahachu, Gunaha, Sibe, Boji, Talaha, Wangtai, Nikan, Yeren | Abahai, Yehe, Monggo, Nara, Fuca, Giyamuhun, Ula, Hoifa

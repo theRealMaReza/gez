@@ -239,3 +239,6 @@ korean | Korean | koreanic
 japanese | Japanese | japonic
 ryukyuan | Ryukyuan | japonic
 ainu | Ainu | ainu
+jurchen | Jurchen | tungusic
+evenk | Evenk | tungusic
+nivkh | Nivkh | tungusic

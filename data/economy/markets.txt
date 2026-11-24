@@ -51,3 +51,4 @@ Guangzhou     | Guangzhou
 Hanyang       | Hanyang
 Kyoto         | Kyoto
 Hakata        | Chikuzen
+Ula           | Ula

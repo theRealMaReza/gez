@@ -2466,6 +2466,57 @@
           "men": 1000
         }
       ]
+    },
+    {
+      "country": "JZH",
+      "name": "Jianzhou Riders",
+      "province": 1607,
+      "commander": "li_manzhu",
+      "regiments": [
+        {
+          "type": "cavalry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "cavalry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "horse_archers",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "horse_archers",
+          "origin": "professional",
+          "men": 1000
+        }
+      ]
+    },
+    {
+      "country": "HXI",
+      "name": "Haixi Riders",
+      "province": 1613,
+      "commander": "tala_hxi",
+      "regiments": [
+        {
+          "type": "cavalry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "cavalry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "horse_archers",
+          "origin": "professional",
+          "men": 1000
+        }
+      ]
     }
   ]
 }

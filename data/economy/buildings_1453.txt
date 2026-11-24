@@ -63,3 +63,5 @@ Shimotsuke     | college 1
 Kawachi        | armourer 2
 Chikuzen       | port 2, shipyard 1
 Okinawa        | port 2
+Hetu Ala       | barracks 1
+Ula            | caravanserai 1

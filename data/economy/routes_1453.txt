@@ -64,3 +64,7 @@ RYU | silk_cloth   | Guangzhou     | Kyoto         | 15
 RYU | pepper       | Calicut       | Guangzhou     | 10
 OUC | copper       | Hakata        | Guangzhou     | 20
 JOS | paper        | Hanyang       | Beijing       | 20
+# Manchurian fur and horse trade
+JZH | furs         | Ula           | Beijing       | 25
+HXI | horses       | Ula           | Beijing       | 15
+JZH | furs         | Ula           | Hanyang       | 10
