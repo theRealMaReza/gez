@@ -437,6 +437,13 @@
       "religions": [
         "tibetan"
       ]
+    },
+    {
+      "name": "Burkhan Khaldun",
+      "province": "Khentii",
+      "religions": [
+        "tengri"
+      ]
     }
   ]
 }

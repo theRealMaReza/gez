@@ -76,3 +76,8 @@ Gyantse        | fort 1, temple 1
 Sakya          | college 2, temple 1
 Derge          | paper_mill 1, armourer 1
 Chakla         | caravanserai 2
+Karakorum      | caravanserai 1, armourer 1, barracks 1
+Shangdu        | caravanserai 1, barracks 1
+Beshbalik      | caravanserai 1
+Hetu Ala       | barracks 1
+Ula            | caravanserai 1

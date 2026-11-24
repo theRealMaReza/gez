@@ -47,3 +47,4 @@ tai               | Dao, Meng, Kham, Sai, Som, Chai, Phaen, Phon | Nang, Kham, C
 hmong_mien        | Xiong, Yang, Vang, Moua, Lee, Thao, Lor | Mai, Yee, Mee, Joua, Pa
 ainu              | Koshamain, Shakushain, Menkakush, Onibishi, Kanari | Huci, Monok, Pirika, Cise
 tibetic           | Tashi, Dorje, Sonam, Karma, Lobsang, Gyaltsen, Namgyal, Phuntsok, Ngawang, Rinchen, Pema, Wangchuk | Drolma, Yangchen, Lhamo, Pema, Dechen, Chokyi, Tsering, Metok
+tungusic          | Manzhu, Dongshan, Fanca, Mengtemu, Ahachu, Gunaha, Sibe, Boji, Talaha, Wangtai, Nikan, Yeren | Abahai, Yehe, Monggo, Nara, Fuca, Giyamuhun, Ula, Hoifa

@@ -190,4 +190,65 @@ final class OldWorldMapTests: XCTestCase {
             XCTAssertFalse(world.provinces.neighbors[pid.index].isEmpty, name)
         }
     }
+
+    /// Phase 20.7 Mongols and Oirats: Oirat steppe horde under Esen Taishi,
+    /// Northern Yuan vassal, Uriankhai Three Guards Ming tributary, and Lake Baikal.
+    func testMongolsAndOirats() {
+        let world = Scenario1453.makeWorld()
+        guard let oir = world.countries.id(forTag: "OIR"),
+              let nyu = world.countries.id(forTag: "NYU"),
+              let uri = world.countries.id(forTag: "URI"),
+              let mng = world.countries.id(forTag: "MNG") else {
+            return XCTFail("missing Mongol/Oirat countries")
+        }
+        for c in [oir, nyu, uri] {
+            XCTAssertEqual(world.countries.religion[c.index], .tengri)
+            XCTAssertEqual(world.countries.government[c.index], .steppeHorde)
+        }
+        XCTAssertEqual(world.countries.overlord[nyu.index], oir)
+        XCTAssertEqual(world.countries.subjectType[nyu.index], .vassal)
+        XCTAssertEqual(world.countries.overlord[uri.index], mng)
+        XCTAssertEqual(world.countries.subjectType[uri.index], .tributary)
+
+        XCTAssertTrue(world.rivers.contains { $0.name == "Orkhon River" })
+        for name in ["Karakorum", "Kobdo", "Beshbalik", "Shangdu", "Ordos", "Hohhot", "Doyan", "Taining"] {
+            guard let pid = world.provinces.id(named: name) else {
+                XCTFail("missing Mongol province \(name)")
+                continue
+            }
+            XCTAssertFalse(world.provinces.neighbors[pid.index].isEmpty, name)
+        }
+    }
+
+    /// Phase 20.7 Manchuria: Jianzhou, Haixi, and Wild Jurchens, Ming tributaries,
+    /// Amur/Songhua rivers, Sakhalin straits, and Aisin Gioro great vassal.
+    func testManchuriaJurchens() {
+        let world = Scenario1453.makeWorld()
+        guard let jzh = world.countries.id(forTag: "JZH"),
+              let hxi = world.countries.id(forTag: "HXI"),
+              let wjr = world.countries.id(forTag: "WJR"),
+              let mng = world.countries.id(forTag: "MNG") else {
+            return XCTFail("missing Manchuria Jurchen countries")
+        }
+        for c in [jzh, hxi, wjr] {
+            XCTAssertEqual(world.countries.religion[c.index], .siberian)
+        }
+        XCTAssertEqual(world.countries.overlord[jzh.index], mng)
+        XCTAssertEqual(world.countries.subjectType[jzh.index], .tributary)
+        XCTAssertEqual(world.countries.overlord[hxi.index], mng)
+        XCTAssertEqual(world.countries.subjectType[hxi.index], .tributary)
+
+        XCTAssertTrue(world.rivers.contains { $0.name == "Amur River" })
+        XCTAssertTrue(world.rivers.contains { $0.name == "Songhua River" })
+        let hetuAla = world.provinces.id(named: "Hetu Ala")!
+        XCTAssertNotNil(world.provinces.holder[hetuAla.index])
+
+        // Sakhalin strait connectivity
+        let teshio = world.provinces.id(named: "Teshio")!
+        let kuyeSouth = world.provinces.id(named: "Kuye South")!
+        let nurgan = world.provinces.id(named: "Nurgan")!
+        let kuyeNorth = world.provinces.id(named: "Kuye North")!
+        XCTAssertTrue(world.provinces.neighbors[teshio.index].contains(kuyeSouth))
+        XCTAssertTrue(world.provinces.neighbors[nurgan.index].contains(kuyeNorth))
+    }
 }

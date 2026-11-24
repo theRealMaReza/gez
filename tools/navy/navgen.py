@@ -103,6 +103,8 @@ STRAIT_NAMES = [
     ("Kii", "Tokushima"),
     ("Tsugaru", "Oshima"),
     ("Okinawa", "Amami"),
+    ("Teshio", "Kuye South"),
+    ("Nurgan", "Kuye North"),
 ]
 
 

@@ -2573,6 +2573,161 @@
           "men": 1000
         }
       ]
+    },
+    {
+      "country": "OIR",
+      "name": "Oirat Tumen",
+      "province": 1686,
+      "commander": "esen_taishi",
+      "regiments": [
+        {
+          "type": "horse_archers",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "horse_archers",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "horse_archers",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "horse_archers",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "horse_archers",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "cavalry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "cavalry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "cavalry",
+          "origin": "professional",
+          "men": 1000
+        }
+      ]
+    },
+    {
+      "country": "NYU",
+      "name": "Eastern Mongol Tumen",
+      "province": 1700,
+      "commander": "agbarjin_nyu",
+      "regiments": [
+        {
+          "type": "horse_archers",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "horse_archers",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "horse_archers",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "cavalry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "cavalry",
+          "origin": "professional",
+          "men": 1000
+        }
+      ]
+    },
+    {
+      "country": "URI",
+      "name": "Three Guards Cavalry",
+      "province": 1703,
+      "commander": "toqtoa_uri",
+      "regiments": [
+        {
+          "type": "horse_archers",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "horse_archers",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "cavalry",
+          "origin": "professional",
+          "men": 1000
+        }
+      ]
+    },
+    {
+      "country": "JZH",
+      "name": "Jianzhou Riders",
+      "province": 1707,
+      "commander": "li_manzhu",
+      "regiments": [
+        {
+          "type": "cavalry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "cavalry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "horse_archers",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "horse_archers",
+          "origin": "professional",
+          "men": 1000
+        }
+      ]
+    },
+    {
+      "country": "HXI",
+      "name": "Haixi Riders",
+      "province": 1713,
+      "commander": "tala_hxi",
+      "regiments": [
+        {
+          "type": "cavalry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "cavalry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "horse_archers",
+          "origin": "professional",
+          "men": 1000
+        }
+      ]
     }
   ]
 }

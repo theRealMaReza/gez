@@ -1,0 +1,15 @@
+# Families of the Jurchens of Manchuria, 1453.
+
+@ JZH
+dead   | ahachu_jzh   | Ahachu            | Hurka      | m | 1365 | d:1422 | strategist, diplomat | founder of the Jianzhou Guard; birth year?
+dead   | mengtemu_jzh | Mengtemu          | Aisin Gioro| m | 1370 | d:1433 | brave, ambitious | chief of the Odori / Jianzhou Left Guard, ancestor of Nurhaci
+ruler  | li_manzhu    | Li Manzhu         | Hurka      | m | 1405 | | brave, ambitious, strategist | chief of the Jianzhou Guard on the Pozhu River (d. 1467); birth year?
+heir   | li_gunaha    | Li Gunaha         | Hurka      | m | 1430 | f:li_manzhu | brave | son of Li Manzhu, appointed deputy in 1455, killed 1467; birth year?
+vassal | dongshan_jzh | Dongshan          | Aisin Gioro| m | 1420 | f:mengtemu_jzh holds:Hetu_Ala | ambitious, brave, schemer | chief of the Jianzhou Left Guard (d. 1466); birth year?
+vassal | fanca_jzh    | Fanca             | Aisin Gioro| m | 1395 | holds:Changbai | diplomat, patient | younger brother of Mengtemu, chief of the Jianzhou Right Guard (d. c. 1458); birth year?
+
+@ HXI
+ruler  | tala_hxi     | Tala of Haixi     | Nara       | m | 1415 | | brave, ambitious | Haixi Jurchen guard commander along the Songhua; 1453 chief and birth year?
+
+@ WJR
+ruler  | boji_wjr     | Boji of Nurgan    | Yeren      | m | 1415 | | brave | Wild Jurchen chieftain of the lower Amur; 1453 chief and birth year?

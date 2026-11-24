@@ -67,7 +67,7 @@
   "neighbour_bonus_cap": 0.25,
   "neighbour_bonus_per_level": 0.05
  },
- "provinceCount": 1673,
+ "provinceCount": 1732,
  "startingLevels": {
   "countries": {
    "BOH": [
@@ -269,9 +269,19 @@
     3,
     3
    ],
+   "Manchuria": [
+    2,
+    2,
+    2
+   ],
    "Mesopotamia": [
     3,
     3,
+    3
+   ],
+   "Mongolia": [
+    2,
+    2,
     3
    ],
    "North China": [

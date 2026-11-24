@@ -349,3 +349,20 @@ Lhasa | wool 4, incense 3, salt 2, wood 1
 Bhutan and Sikkim | wood 4, incense 3, wool 2, furs 1
 Kham | horses 4, gold 2, furs 2, wood 2, wool 2
 Amdo | horses 5, wool 3, salt 2, livestock 2
+
+Mongolia @steppe | horses 5, wool 4, hides 3, livestock 3
+Mongolia @mountains | iron 3, furs 3, gold 1, wood 2
+Mongolia @woods | furs 5, wood 3, hides 2
+Dzungaria | horses 5, wool 3, iron 2, salt 2
+Western Mongolia | horses 5, hides 3, furs 3, wool 3
+Orkhon and Selenge | horses 5, hides 3, iron 2, furs 3
+Eastern Mongolia | horses 5, hides 4, wool 3, livestock 2
+Inner Mongolia and Ordos | horses 5, salt 3, hides 3, wool 3
+Uriankhai Three Guards | horses 5, hides 3, furs 2, iron 2
+
+Manchuria @woods | furs 5, wood 4, hides 2
+Manchuria @steppe | horses 4, hides 3, wool 2
+Jianzhou | furs 5, wood 3, iron 2, horses 2, gold 1
+Haixi | horses 4, furs 3, hides 3, wood 2
+Amur and Ussuri | furs 6, wood 3, fish 2, gold 1
+Primorye and Sakhalin | furs 5, fish 4, wood 3

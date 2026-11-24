@@ -127,3 +127,6 @@ stability | KMK | 0
 stability | RYU | -2
 stability | KDL | 0
 stability | PHA | 0
+stability | OIR | 0
+stability | NYU | -2
+stability | URI | 0

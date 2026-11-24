@@ -106,3 +106,7 @@ Tibet                  | wool_cloth 4, carpets 3, leather 2
 Lhasa                  | wool_cloth 5, carpets 4, books 3, jewelry 2
 Shigatse               | wool_cloth 5, carpets 4, books 2
 Derge                  | books 4, paper 3, weapons 3, tools 2
+Mongolia               | leather 5, weapons 3, wool_cloth 2
+Karakorum              | leather 5, weapons 4, tools 3, carpets 2
+Manchuria              | leather 5, weapons 3, tools 2
+Ula                    | leather 5, weapons 4, tools 3
