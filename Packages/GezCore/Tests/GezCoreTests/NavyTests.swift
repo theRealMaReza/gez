@@ -108,7 +108,7 @@ struct NavyTests {
         sim.world.countries.treasury[ven.index] = 1_000.0
         let initialTreasury = sim.world.countries.treasury[ven.index]
         let initialSailors = sim.world.navy.sailors[ven.index]
-        let initialShips = sim.world.navy.totalShips(of: ven)
+        let shipTableBefore = sim.world.navy.ships.count
         let wood = try #require(sim.world.economy.goods.id(forKey: "wood"))
         let navalSupplies = try #require(sim.world.economy.goods.id(forKey: "naval_supplies"))
         let cannons = try #require(sim.world.economy.goods.id(forKey: "cannons"))
@@ -133,7 +133,14 @@ struct NavyTests {
         for _ in 0..<370 {
             sim.tick()
         }
-        #expect(sim.world.navy.totalShips(of: ven) == initialShips + 1)
+        // The whole world runs for that year, so Venice may also lose ships
+        // at sea or in battle (it did after the 20.7 Mongolia data, #48): check
+        // that the carrack itself was launched, not Venice's fleet total.
+        #expect(!sim.world.navy.constructions.contains { $0.country == ven && $0.province == venice && $0.shipType == carrackId })
+        let launched = (shipTableBefore..<sim.world.navy.ships.count).contains { i in
+            sim.world.navy.ships.type[i] == carrackId && sim.world.navy.ships.originProvince[i] == venice
+        }
+        #expect(launched)
     }
 
     @Test("Save/load roundtrip preserves ships, fleets, constructions, and sailors")
