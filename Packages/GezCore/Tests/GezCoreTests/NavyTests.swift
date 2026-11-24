@@ -109,6 +109,7 @@ struct NavyTests {
         let initialTreasury = sim.world.countries.treasury[ven.index]
         let initialSailors = sim.world.navy.sailors[ven.index]
         let initialShips = sim.world.navy.totalShips(of: ven)
+        let shipTableBefore = sim.world.navy.ships.count
         let wood = try #require(sim.world.economy.goods.id(forKey: "wood"))
         let navalSupplies = try #require(sim.world.economy.goods.id(forKey: "naval_supplies"))
         let cannons = try #require(sim.world.economy.goods.id(forKey: "cannons"))
@@ -129,10 +130,18 @@ struct NavyTests {
         #expect(sim.world.economy.markets.pendingDemand[sim.world.economy.markets.slot(market, navalSupplies)] > beforeNavalDemand)
         #expect(sim.world.economy.markets.pendingDemand[sim.world.economy.markets.slot(market, cannons)] > beforeCannonsDemand)
 
-        // Advance simulation across 12 monthly ticks (first-of-month launches completed ship).
-        for _ in 0..<370 {
-            sim.tick()
+        // Run the shipyards' monthly step twelve times: the carrack takes 12
+        // months. (Running the whole world for a year made this test depend
+        // on wars: after #48 the build was cancelled that year, most likely
+        // because Venice was occupied, which by the rules ends a build.)
+        for _ in 0..<12 {
+            NavySystem.runMonthly(&sim.world)
         }
+        #expect(!sim.world.navy.constructions.contains { $0.country == ven && $0.province == venice && $0.shipType == carrackId })
+        let launched = (shipTableBefore..<sim.world.navy.ships.count).contains { i in
+            sim.world.navy.ships.type[i] == carrackId && sim.world.navy.ships.originProvince[i] == venice
+        }
+        #expect(launched)
         #expect(sim.world.navy.totalShips(of: ven) == initialShips + 1)
     }
 
