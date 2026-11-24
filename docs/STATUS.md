@@ -92,7 +92,9 @@ review of Gemini's #46–#48).
   A test fails if `edges.png` is stale. Timing tool for the M1:
   `godot/tools/profile_map.gd` (owner to run).
 - **20.7 landmarks** (Claude): Hagia Sophia built in code, owner's pick B
-  (Mehmed II's red-brick minaret), #54. Next: one landmark per region.
+  (Mehmed II's red-brick minaret), #54. A town with a named landmark
+  keeps its castle only if there is room beside it (Constantinople:
+  none). Next: one landmark per region.
 - **Phase 20.7 part 1, Old World map foundation** (Claude, PR #43, 23 Nov):
   map grown to Afro-Eurasia (25 W–148 E, 35 S–71.5 N) at **48 px/degree**
   (8304 × 5112, owner's pick after measuring: about +580 MB in the game);
