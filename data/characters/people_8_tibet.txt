@@ -5,7 +5,7 @@ dead   | drakpa_gyaltsen_pha | Drakpa Gyaltsen     | Phagmodrupa | m | 1374 | d:
 dead   | drakpa_jungne_pha   | Drakpa Jungne       | Phagmodrupa | m | 1414 | f:sangye_gyaltsen_pha d:1445 | scholar | 6th Phagmodrupa Gongma, elder brother of Kunga Lekpa
 figure | sangye_gyaltsen_pha | Sangye Gyaltsen     | Phagmodrupa | m | 1389 | s:dzompama_pha | patient, pious | father of Kunga Lekpa, residing at Tsetang (d. 1457)
 kin    | dzompama_pha        | Dzompama            | Rinpungpa   | f | 1410 | | diplomat | Rinpungpa noblewoman, mother of Kunga Lekpa; birth year?
-ruler  | kunga_lekpa         | Gongma Kunga Lekpa  | Phagmodrupa | m | 1443 | f:sangye_gyaltsen_pha m:dzompama_pha | arbitrary | 7th Phagmodrupa Gongma (r. 1448-1481), aged 10 in 1453
+ruler  | kunga_lekpa         | Gongma Kunga Lekpa  | Phagmodrupa | m | 1433 | f:sangye_gyaltsen_pha m:dzompama_pha | arbitrary | 7th Phagmodrupa Gongma (r. 1448-1481), aged 20 in 1453
 figure | gendun_drup         | Gendun Drup         |             | m | 1391 | | scholar, pious, diligent, patient | founder of Tashilhunpo Monastery (1447), posthumously 1st Dalai Lama
 figure | thongwa_donden      | Thongwa Donden      |             | m | 1416 | | pious, scholar | 6th Karmapa of the Karma Kagyu school (d. 1453)
 

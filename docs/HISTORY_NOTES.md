@@ -659,7 +659,7 @@ Enniskillen.
 ## Tibet and Bhutan (Phase 20.7, 23 Nov 2026)
 
 - **Phagmodrupa (`PHA`) and Rinpungpa (`RIN`):** Gongma Kunga Lekpa
-  (b. 1443, aged 10 in 1453) rules Ü from Nedong while his father Sangye
+  (b. 1433, aged 20 in 1453; corrected from 1443 by Claude, 24 Nov 2026) rules Ü from Nedong while his father Sangye
   Gyaltsen resides at Tsetang (d. 1457); Norzang of Rinpungpa (1403–1466)
   rules Tsang as a powerful `PHA` vassal (owner's pick, 23 Nov 2026).
   Birth years of Dzompama and Tsokye Dorje are approximate (`?`).
