@@ -1,5 +1,5 @@
 {
- "provinceCount": 1607,
+ "provinceCount": 1633,
  "faultZones": [
   {
    "name": "North Anatolian Fault",
@@ -301,7 +301,8 @@
     1051,
     1052,
     1054,
-    1063
+    1063,
+    1611
    ]
   },
   {
@@ -421,6 +422,22 @@
     1113,
     1162,
     1163
+   ]
+  },
+  {
+   "name": "Tian Shan and Pamir Front",
+   "yearlyChance": 0.02,
+   "strength": 0.9,
+   "provinces": [
+    1050,
+    1053,
+    1054,
+    1611,
+    1612,
+    1613,
+    1614,
+    1620,
+    1621
    ]
   },
   {

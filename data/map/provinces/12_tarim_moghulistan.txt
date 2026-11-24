@@ -1,0 +1,34 @@
+# Tarim Basin
+@ Ili and Tian Shan
+Almaliq | 44.20 80.50 | MGH s 2
+Ghulja | 43.92 81.32 | MGH f 3
+Kunes | 43.45 83.25 | MGH s 1
+Bortala | 44.90 82.07 | MGH s 1
+
+@ Kashgaria
+Kashgar | 39.47 75.99 | DUG f 5
+Yarkand | 38.42 77.25 | DUG f 4
+Yengisar | 38.93 76.17 | DUG p 2
+Maralbexi | 39.79 78.57 | DUG d 2
+Khotan | 37.11 79.93 | DUG f 4
+Keriya | 36.86 81.67 | DUG d 2
+Niya | 37.07 82.69 | DUG d 1
+Cherchen | 38.14 85.53 | DUG d 1
+Charklik | 39.02 88.17 | DUG d 1
+
+@ Northern Tarim
+Aksu | 41.17 80.26 | MGH f 4
+Uch Turfan | 41.21 79.23 | MGH h 2
+Bai | 41.80 81.87 | MGH h 2
+Kucha | 41.72 82.96 | MGH f 4
+Korla | 41.76 86.15 | MGH p 3
+Qarashahr | 42.06 86.57 | MGH s 2
+
+@ Turpan and Hami
+Turpan | 42.95 89.19 | MGH f 4
+Toksun | 42.79 88.66 | MGH d 2
+Lukchun | 42.72 89.70 | MGH d 2
+Hami | 42.83 93.51 | KDL f 3
+Barkol | 43.60 93.03 | KDL s 2
+Dunhuang | 40.14 94.66 | KDL d 2
+Yumen | 40.29 97.04 | MNG d 1

@@ -1741,6 +1741,62 @@
       ]
     },
     {
+      "country": "MGH",
+      "name": "Moghul Horde",
+      "province": 1620,
+      "commander": "esen_buqa",
+      "regiments": [
+        {
+          "type": "horse_archers",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "horse_archers",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "horse_archers",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "cavalry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "cavalry",
+          "origin": "professional",
+          "men": 1000
+        }
+      ]
+    },
+    {
+      "country": "DUG",
+      "name": "Kashgar Retinue",
+      "province": 1611,
+      "commander": "sayyid_ali_d",
+      "regiments": [
+        {
+          "type": "cavalry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "cavalry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "horse_archers",
+          "origin": "professional",
+          "men": 1000
+        }
+      ]
+    },
+    {
       "country": "MOR",
       "name": "Marinid Guard",
       "province": 928,

@@ -63,3 +63,10 @@ Shimotsuke     | college 1
 Kawachi        | armourer 2
 Chikuzen       | port 2, shipyard 1
 Okinawa        | port 2
+Kashgar        | caravanserai 2, college 1, carpet_maker 2
+Yarkand        | caravanserai 1, cotton_weaver 2
+Khotan         | silk_weaver 2, carpet_maker 1
+Aksu           | caravanserai 1, fort 1
+Turpan         | caravanserai 2
+Hami           | caravanserai 2, fort 1
+Dunhuang       | caravanserai 1

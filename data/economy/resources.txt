@@ -332,3 +332,11 @@ Kanto | raw_silk 2, hemp 2, horses 1
 Tohoku | gold 3, horses 2, iron 2, wood 1
 Ryukyu | sugar 3, sulphur 2, fish 1
 Ezo | furs 5, fish 3, wood 2
+
+Tarim Basin @farmland | cotton 3, fruit 2, raw_silk 2
+Tarim Basin @desert | camels 3, salt 2, wool 2
+Tarim Basin @steppe | horses 4, wool 3, livestock 2
+Ili and Tian Shan | horses 4, wool 3, furs 2, wood 1
+Kashgaria | gems 3, raw_silk 3, cotton 3, fruit 2
+Northern Tarim | copper 3, iron 2, wool 2, horses 2
+Turpan and Hami | fruit 4, cotton 3, horses 2, salt 1

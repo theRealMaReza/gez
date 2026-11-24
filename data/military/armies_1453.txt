@@ -54,6 +54,8 @@ QAR | Black Sheep Host      | Tabriz     | jahan_shah | horse_archers:4, cavalry
 AKK | White Sheep Host      | Diyarbakir | uzun_hasan | horse_archers:3, cavalry:2
 TIM | Gurkani Host          | Samarkand  | abu_said   | horse_archers:3, cavalry:2, infantry:1
 HRT | Khorasan Host         | Herat      | inv_hrt_marshal | horse_archers:2, cavalry:2, infantry:1
+MGH | Moghul Horde          | Aksu       | esen_buqa  | horse_archers:3, cavalry:2
+DUG | Kashgar Retinue       | Kashgar    | sayyid_ali_d | cavalry:2, horse_archers:1
 
 ## Maghreb & Horn of Africa
 MOR | Marinid Guard         | Fez          | inv_mor_marshal | camel_riders:2, infantry:2

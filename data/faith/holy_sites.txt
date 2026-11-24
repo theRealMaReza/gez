@@ -60,3 +60,4 @@ site | Mount Putuo | Ningbo | mahayana
 site | Ise Grand Shrine | Ise | shinto
 site | Mount Hiei | Kyoto | mahayana, shinto
 site | Gyeongju | Gyeongju | mahayana
+site | Dunhuang Mogao Caves | Dunhuang | mahayana

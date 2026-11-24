@@ -67,7 +67,7 @@
   "neighbour_bonus_cap": 0.25,
   "neighbour_bonus_per_level": 0.05
  },
- "provinceCount": 1607,
+ "provinceCount": 1633,
  "startingLevels": {
   "countries": {
    "BOH": [
@@ -326,6 +326,11 @@
    ],
    "South India": [
     4,
+    3,
+    3
+   ],
+   "Tarim Basin": [
+    3,
     3,
     3
    ],

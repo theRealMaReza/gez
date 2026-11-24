@@ -124,4 +124,41 @@ final class OldWorldMapTests: XCTestCase {
         let taiyuan = world.provinces.id(named: "Taiyuan")!
         XCTAssertNotNil(world.provinces.holder[taiyuan.index])
     }
+
+    /// Phase 20.7 Tarim Basin and Moghulistan: expanded Moghulistan, Dughlat
+    /// Emirate of Kashgar vassal, Kara Del (Hami) Ming tributary, and overland
+    /// Silk Road connectivity between China and Central Asia.
+    func testTarimBasinAndMoghulistan() {
+        let world = Scenario1453.makeWorld()
+        guard let mgh = world.countries.id(forTag: "MGH"),
+              let dug = world.countries.id(forTag: "DUG"),
+              let kdl = world.countries.id(forTag: "KDL"),
+              let mng = world.countries.id(forTag: "MNG") else {
+            return XCTFail("missing Tarim Basin countries")
+        }
+        XCTAssertEqual(world.countries.religion[mgh.index], .sunni)
+        XCTAssertEqual(world.countries.religion[dug.index], .sunni)
+        XCTAssertEqual(world.countries.religion[kdl.index], .mahayana)
+        XCTAssertEqual(world.countries.overlord[dug.index], mgh)
+        XCTAssertEqual(world.countries.subjectType[dug.index], .vassal)
+        XCTAssertEqual(world.countries.overlord[kdl.index], mng)
+        XCTAssertEqual(world.countries.subjectType[kdl.index], .tributary)
+
+        XCTAssertTrue(world.rivers.contains { $0.name == "Tarim River" })
+        XCTAssertTrue(world.rivers.contains { $0.name == "Ili River" })
+        XCTAssertNotNil(world.provinces.id(named: "Kashgar"))
+        XCTAssertNotNil(world.provinces.id(named: "Aksu"))
+        XCTAssertNotNil(world.provinces.id(named: "Turpan"))
+        XCTAssertNotNil(world.provinces.id(named: "Hami"))
+        XCTAssertNotNil(world.provinces.id(named: "Dunhuang"))
+
+        // Overland Silk Road: Yumen links Dunhuang to Jiuquan.
+        guard let yumen = world.provinces.id(named: "Yumen"),
+              let jiuquan = world.provinces.id(named: "Jiuquan"),
+              let dunhuang = world.provinces.id(named: "Dunhuang") else {
+            return XCTFail("missing Hexi-Tarim corridor provinces")
+        }
+        XCTAssertTrue(world.provinces.neighbors[yumen.index].contains(jiuquan))
+        XCTAssertTrue(world.provinces.neighbors[yumen.index].contains(dunhuang))
+    }
 }
