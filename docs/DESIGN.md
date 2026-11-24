@@ -669,6 +669,15 @@ The owner found the first flat-colour look ugly, so looks are a priority.
   elevation (hill shading, biomes, rock and snow, sea depth, rivers).
   Country colours are a tint over the terrain, with soft coloured bands at
   country borders, animated water and a light paper grain.
+- **Borders and coasts (Phase 20.7):** drawn from a baked distance field
+  (`tools/terrain/edge_field.py` → `edges.png`, distance from each pixel
+  to its own province's edge, smoothed by 1.2 px). The shader rebuilds a
+  signed distance from the four nearest pixels, so lines are smooth curves
+  at any zoom and fragments past the curve take the neighbour's colour.
+  Owner and state are looked up only next to an edge (one neighbour id,
+  found in those four pixels or one step down the distance slope), so
+  conquest still redraws borders at once. Coast foam and the chart's
+  coastal ripples read the same field.
 - **Map (later):** the same shading on a 3D terrain mesh with a camera
   that tilts as you zoom in, then 3D cities, forts and armies.
 - **Interface (Phase 20):** see "Interface and art (Phase 20)" below.

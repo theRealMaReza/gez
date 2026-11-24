@@ -172,6 +172,15 @@ func _run_captures() -> void:
 	var caucasus: Vector2 = bridge.call("getFocusPoint", 42.5, 44.0)
 	root_node.call("focus_map_point", caucasus, 4.0 / MapScale.k)
 	await _save_shot("godot_map_3d_caucasus.png")
+	# Phase 20.7: border and coast close-ups (smooth lines from the baked field).
+	root_node.call("focus_map_point", bosporus, 7.5 / MapScale.k)
+	await _save_shot("godot_map_borders_close.png")
+	var tuscany: Vector2 = bridge.call("getFocusPoint", 43.5, 11.5)
+	root_node.call("focus_map_point", tuscany, 2.2 / MapScale.k)
+	await _save_shot("godot_map_borders_italy.png")
+	var aegean: Vector2 = bridge.call("getFocusPoint", 38.0, 24.5)
+	root_node.call("focus_map_point", aegean, 0.6 / MapScale.k)
+	await _save_shot("godot_map_borders_chart.png")
 
 	# Phase 9 Battle & Siege Assault Snapshots:
 	# Start a fresh Ottoman game and march the Imperial Army to Kruje (660) to engage Albania.

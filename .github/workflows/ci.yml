@@ -336,7 +336,7 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw "Godot Windows export failed with exit code $LASTEXITCODE" }
           New-Item -ItemType Directory -Force -Path S:\godot\build\windows\Resources\data, S:\godot\build\windows\Resources\Terrain, S:\godot\build\windows\Resources\Heraldry | Out-Null
           Copy-Item -Force S:\Packages\GezCore\Sources\GezCore\Resources\* S:\godot\build\windows\Resources\data\
-          Copy-Item -Force S:\App\Resources\Terrain\terrain.jpg, S:\App\Resources\Terrain\height.png S:\godot\build\windows\Resources\Terrain\
+          Copy-Item -Force S:\App\Resources\Terrain\terrain.jpg, S:\App\Resources\Terrain\height.png, S:\App\Resources\Terrain\edges.png S:\godot\build\windows\Resources\Terrain\
           Copy-Item -Force S:\App\Resources\Heraldry\*.png S:\godot\build\windows\Resources\Heraldry\
           Get-ChildItem S:\godot\bin -Filter *.dll | Copy-Item -Force -Destination S:\godot\build\windows\
           # Start the exported game once and check the Swift part loads.

@@ -292,7 +292,9 @@ once: `tools/mapgen/fetch_coastlines.sh /tmp/geo`; needs ~4 GB of memory,
 → `calamitygen` → `techgen` → `eventgen` → `aigen` → `faithgen` →
 `chroniclegen` → `make_icon` → `python3 tools/terrain/bake_terrain.py`
 (the terrain picture is coloured by each province's terrain type, so
-rerun it for new provinces; 60 s, 1.4 GB) → `bake_heightmap.py` (only
+rerun it for new provinces; 60 s, 1.4 GB; it also bakes
+`App/Resources/Terrain/edges.png`, the smooth-border field: **without a
+fresh one the new provinces show no borders**) → `bake_heightmap.py` (only
 changes when coast or lakes change). Elevation is already fetched for the
 whole box.
 
@@ -411,7 +413,7 @@ of them are reproducible (same input, byte-identical output).
 | Data | Generator | Output (in `Packages/GezCore/Sources/GezCore/Resources/` unless noted) |
 |---|---|---|
 | `data/map/` | `python3 tools/mapgen/mapgen.py --land /tmp/geo/land10m.geojson` (coastlines once: `tools/mapgen/fetch_coastlines.sh /tmp/geo`; `pip install numpy scipy pillow --break-system-packages`) | `scenario1453.json`, `provinces1453.idmap`, `seas1453.idmap`, `docs/map_preview.png` |
-| terrain | `python3 tools/terrain/bake_terrain.py` (after mapgen; elevation comes from the "Fetch elevation" CI job: after a change of map box or detail, `gh api -X POST repos/theRealMaReza/gez/actions/workflows/terrain.yml/dispatches -f ref=<branch>`, which fetches, bakes terrain and height map and commits them to that branch) | `App/Resources/Terrain/terrain.jpg` |
+| terrain | `python3 tools/terrain/bake_terrain.py` (after mapgen; also writes `App/Resources/Terrain/edges.png`, the border distance field; `--edges-only` skips the picture; elevation comes from the "Fetch elevation" CI job: after a change of map box or detail, `gh api -X POST repos/theRealMaReza/gez/actions/workflows/terrain.yml/dispatches -f ref=<branch>`, which fetches, bakes terrain and height map and commits them to that branch) | `App/Resources/Terrain/terrain.jpg` |
 | height map (3D map) | `python3 tools/terrain/bake_heightmap.py` (after mapgen or new elevation) | `App/Resources/Terrain/height.png` |
 | 3D models | `python3 tools/models/build_models.py` (KayKit originals in `tools/models/kaykit/`; new kit models must be credited in `docs/CREDITS.md`) | `godot/assets/models/models.bin` |
 | `data/economy/` | `python3 tools/economy/econgen.py` (balance with `tools/economy/prototype.py`, a Python copy of the monthly market; keep constants in step) | `economy1453.json` |

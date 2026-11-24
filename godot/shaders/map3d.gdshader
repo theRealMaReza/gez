@@ -7,6 +7,16 @@ render_mode unshaded, cull_disabled, depth_draw_opaque;
 // pixels through screen-space derivatives, so they keep the same width when
 // the camera tilts.
 //
+// Phase 20.7: borders and coasts come from a baked distance field
+// (edge_tex, made by tools/terrain/edge_field.py): how far each map pixel is
+// from the edge of its own province (on water: from the coast). Near an edge
+// the shader rebuilds a smooth signed distance from the four nearest pixels,
+// so lines are smooth curves instead of pixel steps, and a fragment past the
+// smooth edge takes the neighbour's colours. Owners and states change with
+// conquest, so they are still looked up, but only next to an edge: the
+// neighbour is the other id in those four pixels, or one step across the
+// distance gradient when further away (country bands when zoomed out).
+//
 // Colours are worked out in sRGB like the 2D shader and converted to linear
 // at the very end when the renderer needs it, so the straight-down view looks
 // exactly as before.
@@ -30,6 +40,10 @@ uniform sampler2D terrain_tex : filter_linear, repeat_disable;
 uniform sampler2D sea_tex : filter_nearest, repeat_disable;
 uniform sampler2D style_tex : filter_nearest, repeat_disable;
 uniform sampler2D height_tex : filter_linear, repeat_disable;
+uniform sampler2D edge_tex : filter_linear, repeat_disable;
+
+// Must match DMAX in tools/terrain/edge_field.py (square-root encoding).
+const float EDGE_DMAX = 160.0;
 
 varying vec2 map_uv;
 
@@ -52,6 +66,109 @@ int id_at(sampler2D tex, vec2 m, vec2 size) {
 	int lo = int(round(raw.r * 255.0));
 	int hi = int(round(raw.g * 255.0));
 	return lo | (hi << 8);
+}
+
+int id_px(ivec2 c, vec2 size) {
+	if (c.x < 0 || c.y < 0 || c.x >= int(size.x) || c.y >= int(size.y)) {
+		return 0;
+	}
+	vec4 raw = texelFetch(id_tex, c, 0);
+	return int(round(raw.r * 255.0)) | (int(round(raw.g * 255.0)) << 8);
+}
+
+float edge_decode(float v) {
+	return EDGE_DMAX * v * v;
+}
+
+float edge_px(ivec2 c, vec2 size) {
+	ivec2 cc = clamp(c, ivec2(0), ivec2(size) - 1);
+	return edge_decode(texelFetch(edge_tex, cc, 0).r);
+}
+
+// Smooth distance from m to the edge of province `o`, rebuilt from the four
+// nearest pixels: pixels of `o` count positive, all others negative.
+float signed_edge(int o, int ids[4], float d[4], float w[4]) {
+	float s = 0.0;
+	for (int k = 0; k < 4; k++) {
+		s += (ids[k] == o ? d[k] : -d[k]) * w[k];
+	}
+	return s;
+}
+
+// The province a fragment belongs to once edges are smooth, how far it is
+// from that province's edge (map pixels) and the id across that edge
+// (-1 when not needed or not found). `reach`: how far out the caller needs
+// to know the neighbour; beyond it only the plain id is returned.
+void edge_info(vec2 m, int id0, float reach, out int own, out float dist, out int nb) {
+	own = id0;
+	nb = -1;
+	// One filtered read first: most fragments are far from any edge. The
+	// filtered square-root code never over-estimates the distance.
+	float quick = edge_decode(textureLod(edge_tex, m / map_size, 0.0).r);
+	dist = quick;
+	if (quick > reach + 1.5) {
+		return;
+	}
+	vec2 t = m - 0.5;
+	ivec2 c = ivec2(floor(t));
+	vec2 f = t - vec2(c);
+	int ids[4];
+	float d[4];
+	float w[4];
+	ivec2 offs[4] = ivec2[](ivec2(0, 0), ivec2(1, 0), ivec2(0, 1), ivec2(1, 1));
+	for (int k = 0; k < 4; k++) {
+		ids[k] = id_px(c + offs[k], map_size);
+		d[k] = edge_px(c + offs[k], map_size);
+	}
+	w[0] = (1.0 - f.x) * (1.0 - f.y);
+	w[1] = f.x * (1.0 - f.y);
+	w[2] = (1.0 - f.x) * f.y;
+	w[3] = f.x * f.y;
+	// Whichever of the (up to four) provinces here claims the fragment most.
+	float best = signed_edge(own, ids, d, w);
+	for (int k = 0; k < 4; k++) {
+		if (ids[k] != own) {
+			float sk = signed_edge(ids[k], ids, d, w);
+			if (sk > best) {
+				best = sk;
+				own = ids[k];
+			}
+		}
+	}
+	dist = max(best, 0.0);
+	// The neighbour: another id among the four pixels...
+	float nw = -1.0;
+	for (int k = 0; k < 4; k++) {
+		if (ids[k] != own && w[k] > nw) {
+			nw = w[k];
+			nb = ids[k];
+		}
+	}
+	if (nb >= 0 || dist > reach) {
+		return;
+	}
+	// ...or one step down the distance slope, just across the edge.
+	vec2 g = vec2(mix(d[1] - d[0], d[3] - d[2], f.y), mix(d[2] - d[0], d[3] - d[1], f.x));
+	float gl = length(g);
+	if (gl < 1e-4) {
+		return;
+	}
+	vec2 dir = g / gl;
+	int other = id_at(id_tex, m - dir * (dist + 0.8), map_size);
+	if (other == own) {
+		other = id_at(id_tex, m - dir * (dist + 2.5), map_size);
+	}
+	nb = other == own ? -1 : other;
+}
+
+// Country band strength at `ds` screen pixels from a border (the old
+// sampled bands of 1.2, 2.5, 4.5 and 7 pixels, made continuous).
+float band_weight(float ds) {
+	if (ds <= 1.2) return 1.0;
+	if (ds <= 2.5) return mix(1.0, 0.65, (ds - 1.2) / 1.3);
+	if (ds <= 4.5) return mix(0.65, 0.35, (ds - 2.5) / 2.0);
+	if (ds <= 7.0) return mix(0.35, 0.15, (ds - 4.5) / 2.5);
+	return max(0.15 * (8.0 - ds), 0.0);
 }
 
 vec4 style_color(int id) {
@@ -143,7 +260,21 @@ void fragment() {
 	if (m.x < 0.0 || m.y < 0.0 || m.x >= map_size.x || m.y >= map_size.y) {
 		color = vec3(0.16, 0.25, 0.33);
 	} else {
-		int id = id_at(id_tex, m, map_size);
+		int id0 = id_at(id_tex, m, map_size);
+		// How far out we need the neighbour: country bands (political mode),
+		// coast foam and chart ripples on water, else just the lines.
+		float reach;
+		if (id0 == 0) {
+			reach = (chart > 0.01 ? 15.0 : 3.5) * px_per_screen;
+		} else {
+			reach = (mode == 0 ? 8.0 : 2.0) * px_per_screen;
+		}
+		int id;
+		float edge_d;
+		int nb;
+		edge_info(m, id0, reach, id, edge_d, nb);
+		float ds = edge_d / px_per_screen;           // screen pixels to the edge
+		float line = 1.0 - smoothstep(0.7, 1.7, ds);  // a 1.2 px line, anti-aliased
 		vec3 base = texture(terrain_tex, map_uv).rgb;
 		vec4 s_color = style_color(id);
 		ivec2 s_keys = style_keys(id);
@@ -155,14 +286,9 @@ void fragment() {
 			float w = noise2(m * 0.08 + vec2(t * 0.15, t * 0.07)) * 0.6
 				+ noise2(m * 0.21 - vec2(t * 0.1, 0.0)) * 0.4;
 			color = base * (0.92 + 0.12 * w);
-			float coast = 0.0;
-			for (int k = 0; k < 8; k++) {
-				float ang = float(k) * 0.785398;
-				vec2 dir = vec2(cos(ang), sin(ang));
-				if (id_at(id_tex, m + dir * max(2.5 * px_per_screen, 1.2), map_size) != 0) {
-					coast = 1.0;
-				}
-			}
+			// light water along the coast, about 2.5 screen pixels wide
+			float foam_r = max(2.5 * px_per_screen, 1.2);
+			float coast = 1.0 - smoothstep(foam_r - 0.5 * px_per_screen, foam_r + 0.5 * px_per_screen, edge_d);
 			color = mix(color, vec3(0.82, 0.86, 0.80), coast * 0.35);
 
 			int zone = id_at(sea_tex, m, map_size);
@@ -172,18 +298,12 @@ void fragment() {
 			} else if (chart > 0.01) {
 				// a pale painted sea with ripple lines following the coasts
 				vec3 sea_wash = vec3(0.64, 0.75, 0.74) * (0.94 + 0.10 * noise2(m * 0.02));
-				int first = 6;
-				for (int ring = 1; ring <= 5; ring++) {
-					float rr = float(ring) * 3.5 * px_per_screen;
-					if (id_at(id_tex, m + vec2(rr, 0.0), map_size) != 0 || id_at(id_tex, m - vec2(rr, 0.0), map_size) != 0
-						|| id_at(id_tex, m + vec2(0.0, rr), map_size) != 0 || id_at(id_tex, m - vec2(0.0, rr), map_size) != 0) {
-						first = ring;
-						break;
-					}
-				}
-				if (first == 2 || first == 4) {
-					sea_wash *= 0.80;
-				}
+				// rings 2 and 4 (each 3.5 screen pixels wide) are darker
+				float rs = ds / 3.5;
+				float e = 1.0 / 3.5;
+				float rings = (smoothstep(1.0, 1.0 + e, rs) - smoothstep(2.0, 2.0 + e, rs))
+					+ (smoothstep(3.0, 3.0 + e, rs) - smoothstep(4.0, 4.0 + e, rs));
+				sea_wash *= 1.0 - 0.20 * rings;
 				color = mix(color, sea_wash, chart * 0.9);
 			}
 			if (zone != 0) {
@@ -223,29 +343,19 @@ void fragment() {
 				}
 			}
 
-			float country_edge = 0.0;
+			float country_edge = 0.0;   // band strength (1 on the line itself)
+			float country_line = 0.0;   // anti-aliased line coverage
 			float state_edge = 0.0;
 			float province_edge = 0.0;
-			const float band_radii[4] = { 1.2, 2.5, 4.5, 7.0 };
-			const float band_weight[4] = { 1.0, 0.65, 0.35, 0.15 };
-			for (int r = 0; r < 4; r++) {
-				float rad = band_radii[r] * px_per_screen;
-				for (int k = 0; k < 8; k++) {
-					float ang = float(k) * 0.785398;
-					int other = id_at(id_tex, m + vec2(cos(ang), sin(ang)) * rad, map_size);
-					if (other == id) {
-						continue;
-					}
-					ivec2 o_keys = style_keys(other);
-					if (o_keys.x != s_owner) {
-						country_edge = max(country_edge, band_weight[r]);
-					} else if (r == 0) {
-						if (o_keys.y != s_state) {
-							state_edge = 1.0;
-						} else {
-							province_edge = 1.0;
-						}
-					}
+			if (nb >= 0) {
+				ivec2 o_keys = style_keys(nb);
+				if (o_keys.x != s_owner) {
+					country_edge = band_weight(ds);
+					country_line = line;
+				} else if (o_keys.y != s_state) {
+					state_edge = line;
+				} else {
+					province_edge = line;
 				}
 			}
 
@@ -256,7 +366,7 @@ void fragment() {
 				color = mix(color, band, smoothstep(0.1, 0.7, country_edge) * 0.5);
 				edge_color = s_color.rgb * 0.35;
 			}
-			color = mix(color, edge_color, step(0.99, country_edge) * 0.8);
+			color = mix(color, edge_color, country_line * 0.8);
 			color = mix(color, color * 0.62, state_edge * 0.7);
 			float province_alpha = clamp((zoom - 0.25) * 1.0, 0.0, 0.4);
 			color = mix(color, color * 0.75, province_edge * province_alpha);
@@ -283,9 +393,7 @@ void fragment() {
 			if (id == selected && selected != 0) {
 				float pulse = 0.5 + 0.5 * sin(time_sec * 3.0);
 				color = mix(color, vec3(1.0, 0.97, 0.85), 0.18 + 0.08 * pulse);
-				if (province_edge > 0.0 || state_edge > 0.0 || country_edge > 0.99) {
-					color = vec3(1.0, 0.95, 0.7);
-				}
+				color = mix(color, vec3(1.0, 0.95, 0.7), max(max(province_edge, state_edge), country_line));
 			}
 		}
 	}

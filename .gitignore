@@ -26,6 +26,7 @@ godot/.godot/
 godot/bin/
 godot/build/
 godot/snapshots/
+godot/profile_map.txt
 *.import
 *.uid
 tools/models/icon_models.bin
