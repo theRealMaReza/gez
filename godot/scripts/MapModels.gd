@@ -328,6 +328,28 @@ static func town_reach_cap(reach_px: float, tier: int) -> float:
 	return maxf(reach_px * 1.25 / scale_for_zoom(z), 1.2)
 
 # metrics: stride 6 [x, y, dev, fort, capital, port]; data: stride 4 [style, r, g, b].
+# Phase 20.7: named landmarks, [mesh, latitude, longitude]. A town in the
+# province under that point shows the landmark instead of its great
+# building. More come one per region (tools/models/landmarks.py).
+const LANDMARKS := [
+	["hagia_sophia", 41.008, 28.980],   # Konstantiniyye (owner's pick B, 24 Nov 2026)
+]
+var _landmark_ids: Dictionary = {}   # province id (as in id_image) -> mesh
+
+func landmark_list() -> Array:
+	return LANDMARKS
+
+## Main.gd passes map points for LANDMARKS (bridge getFocusPoint) once loaded.
+func set_landmark_points(points: Array) -> void:
+	_landmark_ids.clear()
+	for k in range(mini(points.size(), LANDMARKS.size())):
+		var p: Vector2 = points[k]
+		var pid := _id_at(int(p.x), int(p.y))
+		if pid >= 2 and Lib.has_mesh(LANDMARKS[k][0]):
+			_landmark_ids[pid] = LANDMARKS[k][0]
+	_town_cache.clear()
+	_rebuild_towns()
+
 func set_towns(metrics: PackedFloat32Array, data: PackedFloat32Array) -> void:
 	_town_metrics = metrics
 	_town_data = data
@@ -385,7 +407,8 @@ func _build_town(i: int) -> void:
 		owner_col = Color(_town_data[i * 4 + 1], _town_data[i * 4 + 2], _town_data[i * 4 + 3])
 	var anchor := Vector3(m.x, _ground(m) - 0.05, m.y)
 	var cap := minf(town_radius_cap(_town_area(m), _town_tier), town_reach_cap(_town_reach(m), _town_tier))
-	for part in town_layout(i, dev, fort, is_cap, st, _town_tier, cap):
+	var landmark: String = _landmark_ids.get(_id_at(int(m.x), int(m.y)), "")
+	for part in town_layout(i, dev, fort, is_cap, st, _town_tier, cap, landmark):
 		_place("town", part[0], anchor, part[1], part[2])
 	if is_cap:
 		_place("town", "flag_pole", anchor, Vector2(0.15, -0.35), 0.0)
@@ -407,7 +430,9 @@ func _build_town(i: int) -> void:
 # detail: 0 zoomed out (main building and castle only), 1 a few houses, 2 everything.
 # max_r (Phase 20.6): houses and the market beyond this radius are left out
 # and the fort is drawn closer in, so small provinces get small towns.
-static func town_layout(i: int, dev: int, fort: int, is_cap: bool, st: String, detail: int = 2, max_r: float = 99.0) -> Array:
+# landmark (Phase 20.7): a named building (e.g. "hagia_sophia") shown in
+# place of the temple or great building, at every detail level.
+static func town_layout(i: int, dev: int, fort: int, is_cap: bool, st: String, detail: int = 2, max_r: float = 99.0, landmark: String = "") -> Array:
 	var parts: Array = []
 	var houses := clampi(1 + int(float(dev) * 0.65), 1, 7)
 	if detail == 0:
@@ -417,13 +442,17 @@ static func town_layout(i: int, dev: int, fort: int, is_cap: bool, st: String, d
 	var has_temple := dev >= 4 or is_cap
 	var has_market := dev >= 6
 	var has_landmark := dev >= 8 or (is_cap and dev >= 5)
-	if has_landmark:
+	if not landmark.is_empty():
+		parts.append([landmark, Vector2(0.0, -0.2), 0.0])
+	elif has_landmark:
 		parts.append(["landmark." + st, Vector2(0.0, -0.2), 0.0])
 	elif has_temple:
 		parts.append(["temple." + st, Vector2(0.0, -0.1), 0.0])
 	if has_market and detail >= 1 and max_r >= 2.2:
 		parts.append(["market." + st, Vector2(-1.45, 0.75), 0.4])
 	var ring := 1.15 if (has_temple or has_landmark) else 0.0
+	if not landmark.is_empty():
+		ring = 1.75   # named landmarks are wider than a great mosque
 	for h in range(houses):
 		var ang := TAU * (float(h) / float(houses)) + _hash01(i, 11) * TAU
 		var rad := ring + 0.55 * float(h / 4) + 0.25 * _hash01(i, h)
@@ -451,6 +480,12 @@ static func town_layout(i: int, dev: int, fort: int, is_cap: bool, st: String, d
 		var out := 2.2 if fort >= 4 else 1.8
 		var reach := (1.3 if fort >= 4 else 0.6) + 0.6
 		out = maxf(minf(out, max_r - reach), 1.0)
+		if not landmark.is_empty():
+			# clear of the wide landmark, or left out where there is no room
+			var half := 0.7 if fort >= 4 else 0.4
+			out = 1.5 + 0.1 + half
+			if out + half > max_r:
+				return parts
 		parts.append([fort_mesh + st, Vector2(out, -0.6), 0.0])
 	return parts
 
