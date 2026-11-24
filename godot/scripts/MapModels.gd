@@ -480,6 +480,12 @@ static func town_layout(i: int, dev: int, fort: int, is_cap: bool, st: String, d
 		var out := 2.2 if fort >= 4 else 1.8
 		var reach := (1.3 if fort >= 4 else 0.6) + 0.6
 		out = maxf(minf(out, max_r - reach), 1.0)
+		if not landmark.is_empty():
+			# clear of the wide landmark, or left out where there is no room
+			var half := 0.7 if fort >= 4 else 0.4
+			out = 1.5 + 0.1 + half
+			if out + half > max_r:
+				return parts
 		parts.append([fort_mesh + st, Vector2(out, -0.6), 0.0])
 	return parts
 

@@ -193,4 +193,10 @@ func test_named_landmark_replaces_the_great_building() -> void:
 		for p in parts:
 			if p[0] != "hagia_sophia" and String(p[0]).begins_with("house"):
 				runner.check((p[1] as Vector2).length() > 1.5, "houses stand clear of the landmark")
+	var roomy: Array = ModelsScript.town_layout(3, 12, 4, true, "islamic", 2, 99.0, "hagia_sophia")
+	for p in roomy:
+		if String(p[0]).begins_with("fort"):
+			runner.check((p[1] as Vector2).x >= 2.2, "castle stands clear of the landmark")
+	var tight: Array = ModelsScript.town_layout(3, 12, 4, true, "islamic", 2, 2.5, "hagia_sophia")
+	runner.check(not _has_prefix(tight, "fort") and _has(tight, "hagia_sophia"), "no room: landmark kept, castle left out")
 	runner.check(ModelsScript.LANDMARKS.size() >= 1 and ModelsScript.LANDMARKS[0][0] == "hagia_sophia", "Hagia Sophia is in the landmark list")
