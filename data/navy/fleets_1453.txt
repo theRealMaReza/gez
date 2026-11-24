@@ -50,3 +50,10 @@ CLT | Zamorin's Fleet   | Calicut    | inv_clt_marshal | ghurab:2, dhow:5, cog:2
 HOR | Fleet of Hormuz   | Hormuz     | -               | ghurab:1, dhow:4, cog:2
 VIJ | Malabar Squadron  | Honnavar   | -               | ghurab:2, dhow:3, cog:2
 BNG | Delta Fleet       | Chittagong | -               | ghurab:1, dhow:4, cog:2
+
+## East Asia
+MNG | Dengzhou Coastal Patrol | Dengzhou | - | galley:4, light_ship:2, cog:3
+MNG | Fujian Coastal Squadron | Quanzhou | - | light_ship:4, galley:4, cog:3
+JOS | Cholla Naval Command    | Suncheon | - | galley:6, light_ship:2, cog:2
+OUC | Ouchi Tally Fleet       | Nagato   | - | light_ship:2, galley:3, cog:3
+RYU | Shuri Trade Fleet       | Okinawa  | - | light_ship:3, cog:3

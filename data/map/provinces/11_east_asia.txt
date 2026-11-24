@@ -1,0 +1,296 @@
+# North China
+@ North Zhili
+Beijing | 39.90 116.40 | MNG f 10
+Baoding | 38.87 115.46 | MNG f 5
+Zhending | 38.14 114.57 | MNG f 5
+Hejian | 38.44 116.09 | MNG f 4
+Shunde | 37.07 114.49 | MNG f 4
+Guangping | 36.70 114.95 | MNG f 4
+Daming | 36.28 115.15 | MNG f 5
+Yongping | 39.88 118.88 | MNG p 4
+Xuanfu | 40.61 115.06 | MNG h 3
+Tianjin | 39.13 117.20 | MNG p 5
+
+@ Shandong
+Jinan | 36.67 117.00 | MNG f 7
+Qingzhou | 36.68 118.48 | MNG p 5
+Dengzhou | 37.81 120.76 | MNG h 4
+Laizhou | 37.18 119.94 | MNG p 4
+Yanzhou | 35.55 116.84 | MNG f 6
+Dongchang | 36.45 115.98 | MNG f 5
+
+@ Shanxi
+Taiyuan | 37.87 112.55 | MNG h 6
+Datong | 40.08 113.30 | MNG h 4
+Pingyang | 36.09 111.52 | MNG p 5
+Luan | 36.20 113.11 | MNG h 4
+Fenzhou | 37.26 111.79 | MNG h 4
+
+@ Henan
+Kaifeng | 34.79 114.31 | MNG f 8
+Luoyang | 34.62 112.45 | MNG f 6
+Nanyang | 33.00 112.53 | MNG p 5
+Guide | 34.41 115.65 | MNG f 5
+Runing | 33.00 114.36 | MNG f 4
+Huaiqing | 35.09 112.94 | MNG f 4
+Zhangde | 36.10 114.35 | MNG f 4
+
+@ Shaanxi
+Xi'an | 34.26 108.94 | MNG f 7
+Yan'an | 36.59 109.49 | MNG h 3
+Hanzhong | 33.07 107.02 | MNG h 4
+Fengxiang | 34.52 107.40 | MNG p 4
+Pingliang | 35.54 106.67 | MNG h 3
+Gongchang | 35.00 104.63 | MNG h 3
+Qingyang | 36.01 107.64 | MNG h 3
+Yulin | 38.29 109.73 | MNG s 2
+
+@ Gansu
+Lanzhou | 36.06 103.83 | MNG h 4
+Liangzhou | 37.93 102.64 | MNG s 3
+Zhangye | 38.93 100.45 | MNG s 2
+Gaotai | 39.38 99.43 | MNG d 1
+Jiuquan | 39.73 98.51 | MNG d 2
+Ningxia | 38.49 106.23 | MNG s 3
+
+@ Liaodong
+Liaoyang | 41.27 123.17 | MNG p 4
+Shenyang | 41.80 123.43 | MNG p 4
+Guangning | 41.60 121.80 | MNG s 2
+Jinzhou | 41.11 121.13 | MNG p 3
+Gaizhou | 40.40 122.36 | MNG p 3
+Lushun | 38.82 121.25 | MNG h 3
+Tieling | 42.29 123.84 | MNG w 2
+
+# Jiangnan
+@ South Zhili
+Nanjing | 32.06 118.79 | MNG f 11
+Suzhou | 31.30 120.59 | MNG f 10
+Songjiang | 31.00 121.23 | MNG f 8
+Changzhou | 31.81 119.97 | MNG f 7
+Zhenjiang | 32.20 119.45 | MNG f 6
+Yangzhou | 32.39 119.41 | MNG f 8
+Huaian | 33.55 119.14 | MNG f 6
+Fengyang | 32.87 117.56 | MNG f 5
+Luzhou | 31.86 117.28 | MNG f 5
+Anqing | 30.54 117.06 | MNG p 5
+Shexian | 29.87 118.43 | MNG h 5
+Ningguo | 30.94 118.76 | MNG p 4
+Xuzhou | 34.21 117.28 | MNG f 5
+
+@ Zhejiang
+Hangzhou | 30.27 120.15 | MNG f 10
+Ningbo | 29.87 121.55 | MNG f 7
+Shaoxing | 30.00 120.58 | MNG f 7
+Jiaxing | 30.75 120.75 | MNG f 7
+Huzhou | 30.89 120.09 | MNG f 6
+Wenzhou | 28.00 120.70 | MNG h 5
+Taizhou | 28.86 121.12 | MNG h 4
+Jinhua | 29.08 119.65 | MNG h 5
+Quzhou | 28.94 118.87 | MNG h 4
+Lishui | 28.47 119.92 | MNG m 3
+
+@ Jiangxi
+Nanchang | 28.68 115.86 | MNG f 7
+Jiujiang | 29.71 116.00 | MNG p 5
+Raozhou | 29.00 116.67 | MNG p 6
+Guangxin | 28.45 117.97 | MNG h 4
+Linchuan | 27.95 116.36 | MNG p 5
+Jian | 27.11 114.99 | MNG p 5
+Ganzhou | 25.83 114.94 | MNG h 5
+Yuanzhou | 27.81 114.42 | MNG h 4
+Nanan | 25.40 114.36 | MNG h 3
+
+@ Fujian
+Fuzhou | 26.07 119.30 | MNG f 7
+Quanzhou | 24.87 118.67 | MNG f 7
+Zhangzhou | 24.51 117.65 | MNG p 5
+Jianning | 27.04 118.32 | MNG h 5
+Yanping | 26.64 118.18 | MNG h 4
+Tingzhou | 25.84 116.35 | MNG m 3
+Shaowu | 27.34 117.49 | MNG h 3
+
+# Central China
+@ Hubei
+Wuchang | 30.55 114.31 | MNG f 7
+Jingzhou | 30.33 112.24 | MNG f 5
+Xiangyang | 32.01 112.12 | MNG p 5
+Huangzhou | 30.45 114.88 | MNG p 4
+Dean | 31.26 113.69 | MNG p 4
+Shinan | 30.29 109.49 | MNG m 2
+
+@ Hunan
+Changsha | 28.23 112.94 | MNG f 6
+Yuezhou | 29.36 113.13 | MNG p 5
+Changde | 29.03 111.70 | MNG p 4
+Hengzhou | 26.89 112.57 | MNG p 4
+Yongzhou | 26.42 111.61 | MNG h 3
+Chenzhou | 25.77 113.02 | MNG h 3
+Baoqing | 27.24 111.47 | MNG h 3
+
+@ Sichuan
+Chengdu | 30.66 104.07 | MNG f 8
+Chongqing | 29.56 106.55 | MNG h 6
+Baoning | 31.58 105.97 | MNG h 4
+Shunqing | 30.84 106.11 | MNG p 4
+Yibin | 28.75 104.64 | MNG h 4
+Kuizhou | 31.02 109.52 | MNG m 3
+Jiading | 29.55 103.77 | MNG p 4
+Yazhou | 29.99 103.00 | MNG m 2
+Jianchang | 27.89 102.26 | MNG m 2
+Songpan | 32.64 103.60 | MNG m 2
+
+# South China
+@ Guangdong
+Guangzhou | 23.13 113.26 | MNG f 9
+Chaozhou | 23.66 116.62 | MNG f 6
+Shaozhou | 24.81 113.60 | MNG h 4
+Huizhou | 23.11 114.42 | MNG p 5
+Zhaoqing | 23.05 112.46 | MNG p 5
+Gaozhou | 21.92 110.85 | MNG p 4
+Leizhou | 20.91 110.10 | MNG p 3
+Qiongzhou | 20.02 110.35 | MNG w 3
+
+@ Guangxi
+Guilin | 25.27 110.29 | MNG h 5
+Liuzhou | 24.33 109.43 | MNG h 4
+Nanning | 22.82 108.37 | MNG p 4
+Wuzhou | 23.48 111.28 | MNG p 4
+Xunzhou | 23.40 110.08 | MNG p 3
+Qingyuan | 24.49 108.63 | MNG m 2
+Taiping | 22.40 107.36 | MNG h 2
+
+@ Guizhou
+Guiyang | 26.65 106.63 | MNG m 4
+Zhenyuan | 27.05 108.43 | MNG m 3
+Sinan | 27.94 108.24 | MNG m 2
+Liping | 26.23 109.14 | MNG m 2
+Bozhou | 27.73 106.93 | BOZ m 3
+Shuixi | 27.14 105.61 | SHX m 3
+
+@ Yunnan
+Kunming | 25.04 102.72 | MNG h 5
+Dali | 25.69 100.16 | MNG m 4
+Chuxiong | 25.03 101.55 | MNG m 3
+Qujing | 25.49 103.80 | MNG h 3
+Linan | 23.62 102.83 | MNG m 3
+Yongchang | 25.11 99.16 | MNG m 2
+Lijiang | 26.87 100.23 | LIJ m 3
+Cheli | 22.01 100.80 | CHL w 2
+
+# Korea
+@ Gyeonggi and Hwanghae
+Hanyang | 37.57 126.98 | JOS f 7
+Kaesong | 37.97 126.55 | JOS f 5
+Suwon | 37.26 127.03 | JOS f 4
+Haeju | 38.04 125.71 | JOS p 4
+Hwangju | 38.67 125.78 | JOS p 3
+
+@ Pyongan and Hamgyong
+Pyongyang | 39.04 125.76 | JOS p 5
+Uiju | 40.20 124.54 | JOS h 3
+Kanggye | 40.97 126.59 | JOS m 2
+Hamhung | 39.92 127.54 | JOS p 4
+Kilju | 40.96 129.33 | JOS h 3
+Kyongsong | 41.59 129.60 | JOS m 2
+
+@ Gangwon and Chungcheong
+Wonju | 37.34 127.92 | JOS m 3
+Gangneung | 37.75 128.88 | JOS h 3
+Cheongju | 36.64 127.49 | JOS f 4
+Chungju | 36.99 127.93 | JOS h 4
+Gongju | 36.45 127.12 | JOS f 4
+
+@ Gyeongsang and Jeolla
+Gyeongju | 35.86 129.22 | JOS f 5
+Andong | 36.57 128.73 | JOS h 4
+Jinju | 35.18 128.11 | JOS p 4
+Busan | 35.18 129.08 | JOS h 5
+Jeonju | 35.82 127.15 | JOS f 5
+Naju | 35.02 126.71 | JOS f 4
+Suncheon | 34.95 127.49 | JOS h 3
+Jeju | 33.49 126.53 | JOS h 2
+
+# Japan
+@ Kyushu
+Satsuma | 31.60 130.45 | SMZ h 4
+Osumi | 31.40 130.95 | SMZ w 3
+Hyuga | 31.91 131.42 | SMZ h 3
+Bungo | 33.24 131.61 | OTM h 4
+Chikugo | 33.28 130.55 | OTM f 3
+Higo | 32.80 130.71 | OTM f 4
+Hizen | 33.15 129.95 | SHN h 4
+Tsushima | 34.20 129.29 | SHN h 2
+Chikuzen | 33.59 130.40 | OUC f 6
+Buzen | 33.88 130.88 | OUC h 3
+
+@ Shikoku
+Sanuki | 34.34 134.04 | HSK f 4
+Tokushima | 34.07 134.55 | HSK h 3
+Tosa | 33.56 133.53 | HSK m 3
+Iyo | 33.84 132.77 | KNO h 4
+
+@ Chugoku
+Suo | 34.18 131.47 | OUC h 5
+Nagato | 34.08 131.02 | OUC h 4
+Iwami | 34.80 132.08 | OUC m 3
+Aki | 34.40 132.45 | YMN h 4
+Bingo | 34.55 133.24 | YMN h 4
+Bizen | 34.66 133.92 | YMN f 5
+Harima | 34.83 134.69 | YMN f 5
+Inaba | 35.50 134.24 | YMN h 3
+Hoki | 35.43 133.83 | YMN h 3
+Tajima | 35.54 134.82 | YMN m 4
+Bitchu | 34.79 133.62 | HSK h 3
+Izumo | 35.47 133.05 | ASH h 4
+
+@ Kansai
+Kyoto | 35.01 135.77 | ASH f 10
+Settsu | 34.73 135.30 | HSK f 8
+Tanba | 35.22 135.25 | HSK h 4
+Kawachi | 34.58 135.55 | HTK f 6
+Kii | 34.23 135.17 | HTK m 4
+Yamato | 34.69 135.80 | ASH f 5
+Omi | 35.15 136.18 | ASH f 5
+Ise | 34.72 136.51 | ASH p 5
+Tango | 35.54 135.20 | ASH h 3
+
+@ Chubu
+Owari | 35.18 136.91 | SHB f 6
+Totomi | 34.71 137.73 | SHB p 4
+Echizen | 36.06 136.22 | SHB p 4
+Mino | 35.42 136.76 | ASH f 5
+Suruga | 34.98 138.38 | IMG h 5
+Kai | 35.66 138.57 | TKD m 4
+Shinano | 36.24 137.97 | ASH m 4
+Noto | 37.04 136.96 | HTK h 3
+Etchu | 36.70 137.21 | HTK p 4
+Kaga | 36.56 136.66 | ASH p 4
+Echigo | 37.92 139.04 | UES p 4
+
+@ Kanto
+Sagami | 35.32 139.55 | KMK h 6
+Shimosa | 36.19 139.71 | KMK p 4
+Kazusa | 35.38 140.15 | KMK p 4
+Shimotsuke | 36.56 139.88 | KMK p 4
+Hitachi | 36.34 140.45 | KMK p 4
+Musashi | 35.92 139.48 | UES f 6
+Kozuke | 36.39 139.06 | UES h 4
+
+@ Tohoku
+Yonezawa | 37.92 140.12 | DTE m 4
+Sendai | 38.27 140.87 | DTE p 4
+Yamagata | 38.26 140.33 | DTE m 3
+Morioka | 39.70 141.15 | DTE m 3
+Akita | 39.72 140.10 | AND h 3
+Tsugaru | 40.60 140.46 | AND h 3
+
+@ Ryukyu
+Okinawa | 26.21 127.72 | RYU h 4
+Amami | 28.38 129.49 | RYU w 1
+
+@ Ezo
+Oshima | 41.80 140.35 | AND w 2
+Ishikari | 43.10 141.40 | AIN w 1
+Tokachi | 42.92 143.20 | AIN w 1
+Teshio | 44.30 142.45 | AIN w 1

@@ -37,3 +37,9 @@ Central India | 6000000
 Bengal | 18000000
 Deccan | 14000000
 South India | 18000000
+North China | 28000000
+Jiangnan | 30000000
+Central China | 18000000
+South China | 14000000
+Korea | 7500000
+Japan | 11000000

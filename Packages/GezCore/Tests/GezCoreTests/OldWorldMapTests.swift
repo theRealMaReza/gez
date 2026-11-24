@@ -82,4 +82,46 @@ final class OldWorldMapTests: XCTestCase {
         guard let kaffa = world.countries.id(forTag: "KAF") else { return XCTFail("no Kaffa") }
         XCTAssertEqual(world.countries.religion[kaffa.index], .eastAfrican)
     }
+
+    /// Phase 20.7 East Asia core: Ming China, Joseon, Ashikaga and shugo
+    /// vassals, Ryukyu, Ainu, tributaries, and the East Asian faiths.
+    func testEastAsiaCore() {
+        let world = Scenario1453.makeWorld()
+        guard let mng = world.countries.id(forTag: "MNG"),
+              let jos = world.countries.id(forTag: "JOS"),
+              let ash = world.countries.id(forTag: "ASH"),
+              let ryu = world.countries.id(forTag: "RYU"),
+              let ain = world.countries.id(forTag: "AIN") else {
+            return XCTFail("missing East Asia core countries")
+        }
+        XCTAssertEqual(world.countries.religion[mng.index], .confucian)
+        XCTAssertEqual(world.countries.religion[jos.index], .confucian)
+        XCTAssertEqual(world.countries.religion[ash.index], .shinto)
+        XCTAssertEqual(world.countries.religion[ryu.index], .mahayana)
+        XCTAssertEqual(world.countries.religion[ain.index], .siberian)
+
+        XCTAssertEqual(world.countries.overlord[jos.index], mng)
+        XCTAssertEqual(world.countries.subjectType[jos.index], .tributary)
+        XCTAssertEqual(world.countries.overlord[ryu.index], mng)
+        XCTAssertEqual(world.countries.subjectType[ryu.index], .tributary)
+
+        for shugoTag in ["HSK", "YMN", "HTK", "SHB", "OUC", "SMZ", "OTM", "SHN", "KNO", "KMK", "UES", "TKD", "IMG", "DTE", "AND"] {
+            guard let shugo = world.countries.id(forTag: shugoTag) else {
+                XCTFail("missing shugo tag \(shugoTag)")
+                continue
+            }
+            XCTAssertEqual(world.countries.overlord[shugo.index], ash, shugoTag)
+            XCTAssertEqual(world.countries.subjectType[shugo.index], .vassal, shugoTag)
+        }
+
+        // Rivers and Jiuquan connectivity
+        XCTAssertTrue(world.rivers.contains { $0.name == "Yellow River" })
+        XCTAssertTrue(world.rivers.contains { $0.name == "Yangtze" })
+        guard let jiuquan = world.provinces.id(named: "Jiuquan") else { return XCTFail("missing Jiuquan") }
+        XCTAssertFalse(world.provinces.neighbors[jiuquan.index].isEmpty)
+
+        // Great vassal holdings in Ming China
+        let taiyuan = world.provinces.id(named: "Taiyuan")!
+        XCTAssertNotNil(world.provinces.holder[taiyuan.index])
+    }
 }

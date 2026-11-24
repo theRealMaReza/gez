@@ -141,6 +141,13 @@
       "note": "Crown protection over County of Foix"
     },
     {
+      "firstTag": "MNG",
+      "secondTag": "JOS",
+      "type": "guarantee",
+      "expiry": null,
+      "note": "Ming protection over tributary Joseon"
+    },
+    {
       "firstTag": "MEW",
       "secondTag": "MAR",
       "type": "non_aggression",

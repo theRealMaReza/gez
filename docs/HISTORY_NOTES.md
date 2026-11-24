@@ -587,3 +587,46 @@ Enniskillen.
 - "Highland traditions" is a game label for the spirit cults of mainland
   Southeast Asia's hill peoples (Tai *phi* worship outside Buddhist courts,
   Karen, Hmong, Mon-Khmer hill groups); it is not one historical religion.
+
+## East Asia core (Phase 20.7, 23 Nov 2026)
+
+- **Yellow River course:** drawn on its 1194–1855 southern course (past
+  Kaifeng and Xuzhou into the Yellow Sea near Huai'an), not its modern
+  Shandong channel.
+- **Ming China (`MNG`):** Jingtai Emperor rules; former Emperor Yingzong
+  (`zhu_qizhen`) is a court figure under house arrest in Beijing; Zhu Jianji
+  is Crown Prince on 30 May 1453 (died late 1453). Ten imperial princes
+  (Jin, Qin, Zhou, Chu, Shu, Lu, Ning, Dai, Su, Qing) plus Duke Mu Lin of
+  Yunnan are internal great vassals (`holds:`). Birth years of Empresses
+  Wang, Hang, and Qian, Chen Xun, Shi Heng, Wang Wen, and Princes Zhu
+  Zhigeng and Zhu Youjie are approximate (`?`).
+- **Southwest *tusi* (`BOZ`, `SHX`, `LIJ`, `CHL`):** Bozhou (Yang Hui),
+  Shuixi (An Long), and Lijiang (Mu Chu) are Ming vassals; Cheli /
+  Sipsongpanna (Dao Ba) is a Theravada tributary. Whether An Long and Dao
+  Ba were the exact ruling chiefs in May 1453 and the birth years of the
+  *tusi* leaders are uncertain (`?`).
+- **Joseon Korea (`JOS`):** 11-year-old King Danjong rules; Grand Prince
+  Suyang is a court figure ahead of the late-1453 *Gyeyu Jeongnan* coup.
+  Birth years of Hwangbo In and Princess Gyeonghye are estimates (`?`).
+  Joseon's hereditary *nobi* are approximated at 3% in `slavery.txt`
+  (distinct from chattel slavery).
+- **Ashikaga Japan (`ASH` + 15 *shugo* vassals):** modelled with `ASH`
+  holding Kyoto and central domains (with Rokkaku, Toki, and Kyōgoku as
+  internal `holds:` vassals) and the 15 named *shugo* houses as vassal
+  tags (`HSK`, `YMN`, `HTK`, `SHB`, `OUC`, `SMZ`, `OTM`, `SHN`, `KNO`,
+  `KMK`, `UES`, `TKD`, `IMG`, `DTE`, `AND`). State faith is `shinto` with
+  mixed `shinto` and `mahayana` pops (*shinbutsu-shūgō*). Birth years of
+  several *shugo* (Shiba Yoshitoshi, Kai Jōji, Hatakeyama Yoshinari and
+  Masanaga, Shōni Noriyori, Sō Shigemoto, Kōno Norimichi and Michiharu,
+  Ashikaga Shigeuji, Uesugi Fusasada, Takeda Nobumori, Andō Masasue,
+  Rokkaku Hisayori) and the exact year Andō Masasue consolidated Tsugaru
+  and southern Ezo in the 1450s are uncertain (`?`).
+- **Ryukyu (`RYU`):** Shō Kinpuku's death date (4th lunar month / May
+  1453?) and the mid-crisis succession during the 1453 Shiro–Furi Rebellion
+  (modelled with Shiro as ruler, Shō Taikyū as heir, Furi as rival figure,
+  and `-2` stability) are uncertain (`?`), as are Shiro and Furi's birth
+  years.
+- **Ainu (`AIN`):** Koshamain (recorded in the 1457 rising) is placed as
+  chieftain in 1453; his birth year and 1453 leadership are uncertain (`?`).
+  Ainu animism is grouped under `siberian`, and Ryukyu's state faith under
+  `mahayana` with `mahayana`/`shinto`/`confucian` pops.

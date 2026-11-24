@@ -35,6 +35,12 @@ staple Central India | millet
 staple Nubia | millet
 staple Horn of Africa | millet
 staple Hadramawt | millet
+staple Jiangnan | rice
+staple Central China | rice
+staple South China | rice
+staple Korea | rice
+staple Japan | rice
+staple Ezo | grain
 
 ## Defaults by terrain
 * @farmland  | livestock 3, wool 2, flax 1, hides 1
@@ -275,3 +281,54 @@ Kongu | cotton 2, livestock 1
 Pandya Country | pearls 3, cotton 1
 Malabar | pepper 6, fine_spices 0, fruit 1
 Lanka | cinnamon 6, gems 1, elephants 1
+
+## East Asia
+North China @farmland | grain 3, cotton 2, hemp 1, raw_silk 1
+North China @hills | iron 2, stone 2, wood 1
+North China @mountains | iron 3, copper 1, stone 2
+North Zhili | grain 3, iron 2, cotton 1, fruit 1
+Shandong | raw_silk 2, salt 2, cotton 2, iron 1
+Shanxi | iron 4, salt 2, copper 1
+Henan | grain 3, cotton 2, raw_silk 1
+Shaanxi | grain 3, livestock 2, horses 1, hemp 1
+Gansu | horses 3, wool 2, salt 1
+Liaodong | furs 2, iron 2, wood 2, horses 1
+
+Jiangnan @farmland | raw_silk 3, cotton 2, sugar 1
+Jiangnan @hills | wood 2, copper 1, iron 1
+South Zhili | raw_silk 3, cotton 3, salt 2
+Zhejiang | raw_silk 5, salt 1, fish 1
+Jiangxi | copper 2, wood 2, hemp 1, iron 1
+Fujian | sugar 3, wood 2, iron 1, raw_silk 1
+
+Central China @farmland | raw_silk 2, cotton 2, hemp 1
+Central China @mountains | wood 3, copper 2, iron 1
+Hubei | cotton 3, iron 2, raw_silk 1
+Hunan | wood 2, iron 2, copper 1, raw_silk 1
+Sichuan | raw_silk 3, salt 3, wood 1, horses 1
+
+South China @farmland | sugar 3, raw_silk 2, fruit 2
+South China @mountains | copper 3, silver 2, wood 2, gems 1
+Guangdong | raw_silk 3, sugar 2, pearls 1, fruit 1
+Guangxi | wood 3, silver 1, copper 1, sugar 1
+Guizhou | copper 2, silver 1, wood 2
+Yunnan | copper 4, silver 3, gems 2, horses 1
+
+Korea | iron 2, gold 1, hemp 2
+Gyeonggi and Hwanghae | iron 2, hemp 2, salt 1
+Pyongan and Hamgyong | gold 2, furs 2, wood 2, iron 1
+Gangwon and Chungcheong | wood 3, hemp 2, iron 1
+Gyeongsang and Jeolla | cotton 2, fish 2, iron 1, raw_silk 1
+
+Japan @farmland | raw_silk 2, cotton 1, hemp 1
+Japan @hills | iron 2, wood 2, copper 2
+Japan @mountains | copper 3, silver 2, gold 1, wood 2
+Kyushu | sulphur 2, iron 2, wood 2, fruit 1
+Shikoku | wood 3, copper 2, fish 1
+Chugoku | silver 3, iron 3, copper 1
+Kansai | raw_silk 3, wood 2, copper 1
+Chubu | raw_silk 3, gold 2, silver 1, wood 2
+Kanto | raw_silk 2, hemp 2, horses 1
+Tohoku | gold 3, horses 2, iron 2, wood 1
+Ryukyu | sugar 3, sulphur 2, fish 1
+Ezo | furs 5, fish 3, wood 2

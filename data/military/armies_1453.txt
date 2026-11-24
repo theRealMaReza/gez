@@ -68,3 +68,14 @@ MEW | Sisodia Rajput Host   | Chittor      | kumbha       | rajput_cavalry:3, in
 BAH | Deccani Royal Host    | Bidar        | humayun_b    | cavalry:3, war_elephants:1, infantry:2, artillery:1
 BNG | Shah's Paik Host      | Gaur         | nasiruddin   | infantry:3, war_elephants:1, archers:2
 GUJ | Sultanate Guard       | Ahmedabad    | qutb_ahmad   | cavalry:2, war_elephants:1, infantry:2
+
+## East Asia
+MNG | Capital Training Divisions | Beijing | yu_qian    | infantry:6, cavalry:4, handgunners:3, artillery:2
+MNG | Xuanfu Frontier Garrison   | Xuanfu  | shi_heng   | cavalry:3, infantry:3, handgunners:1
+MNG | Nanjing Imperial Guard     | Nanjing | -          | infantry:4, archers:2, handgunners:1
+JOS | Five Military Commands     | Hanyang | kim_jongseo | infantry:3, cavalry:2, archers:2, handgunners:1
+ASH | Bakufu Hokoshu             | Kyoto   | -          | infantry:3, cavalry:1, archers:2
+HSK | Hosokawa Retinue           | Settsu  | hosokawa_k | infantry:2, cavalry:1
+YMN | Yamana Retinue             | Tajima  | yamana_sozen | infantry:2, cavalry:1
+OUC | Ouchi Retinue              | Suo     | ouchi_n    | infantry:2, archers:1
+KMK | Kamakura Retinue           | Sagami  | ashikaga_su | cavalry:1, infantry:2

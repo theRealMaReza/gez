@@ -46,3 +46,20 @@ Lisbon         | shipyard 2
 Lubeck         | shipyard 2
 Cairo          | armourer 1
 Edirne         | barracks 2
+Beijing        | college 3, armourer 2, barracks 2
+Nanjing        | college 3, shipyard 3, silk_weaver 3
+Suzhou         | silk_weaver 5, college 2
+Hangzhou       | silk_weaver 4, college 2
+Raozhou        | potters 4
+Jianning       | bookmakers 2, paper_mill 2
+Quanzhou       | shipyard 2, port 2
+Guangzhou      | shipyard 2, port 2, silk_weaver 3
+Xi'an          | college 1, barracks 1
+Chengdu        | silk_weaver 2, paper_mill 2
+Hanyang        | college 2, armourer 1, paper_mill 2
+Suncheon       | shipyard 2
+Kyoto          | college 2, silk_weaver 2
+Shimotsuke     | college 1
+Kawachi        | armourer 2
+Chikuzen       | port 2, shipyard 1
+Okinawa        | port 2

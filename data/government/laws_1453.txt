@@ -63,6 +63,15 @@ set | TIM | learning | patronage
 set | QAR | learning | patronage
 set | ETH | faith | orthodoxy
 set | ETH | land | serfdom
+set | MNG | crown | centralised
+set | MNG | taxation | collectors
+set | MNG | army | standing
+set | MNG | faith | tolerance
+set | MNG | learning | universities
+set | JOS | crown | domain
+set | JOS | faith | orthodoxy
+set | JOS | land | serfdom
+set | JOS | learning | universities
 
 # Starting reforms (tier 1 unless listed): reform | TAG | key
 reform | TUR | sultanate
@@ -90,6 +99,9 @@ reform | SER | despotate
 reform | TEU | military_order
 reform | KNI | military_order
 reform | ZAY | imamate
+reform | MNG | divan
+reform | MNG | chancery
+reform | JOS | royal_council
 
 # Stability on 30 May 1453 (default +1). stability | TAG | −3…3
 stability | TUR | 2
@@ -107,3 +119,9 @@ stability | MOS | 0
 stability | FRA | 2
 stability | VEN | 2
 stability | KSH | 2
+stability | MNG | 0
+stability | JOS | -1
+stability | ASH | 0
+stability | HTK | 0
+stability | KMK | 0
+stability | RYU | -2

@@ -16,3 +16,6 @@ Multani Moneylenders         | Multan         | 1200 | 0.12 | Northwest India, H
 Gujarati Shroffs             | Cambay         | 2000 | 0.10 | Gujarat, Rajputana, Central India, Deccan, South India, Hindustan, Arabia, Horn of Africa
 Chetti Merchants             | Calicut        | 1200 | 0.11 | South India, Deccan, Bengal
 Bengal Sarrafs               | Sonargaon      | 1000 | 0.11 | Bengal, Hindustan, Central India, Deccan
+Shanxi Salt Merchants        | Taiyuan        | 2200 | 0.09 | North China, Jiangnan, Central China, South China
+Huizhou Guilds               | Shexian        | 2500 | 0.08 | Jiangnan, Central China, South China, North China, Korea
+Kyoto Doso                   | Kyoto          | 1000 | 0.10 | Japan, Korea

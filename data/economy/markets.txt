@@ -42,3 +42,12 @@ Sonargaon     | Sonargaon
 Kotte         | Kotte
 Aksum         | Aksum
 Mogadishu     | Mogadishu
+Beijing       | Beijing
+Xi'an         | Xi'an
+Nanjing       | Nanjing
+Wuchang       | Wuchang
+Chengdu       | Chengdu
+Guangzhou     | Guangzhou
+Hanyang       | Hanyang
+Kyoto         | Kyoto
+Hakata        | Chikuzen

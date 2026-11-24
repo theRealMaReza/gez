@@ -56,3 +56,11 @@ ENG | wine         | Paris         | London        | 150
 POR | wine         | Lisbon        | London        | 60
 POR | sugar        | Lisbon        | Bruges        | 20
 MOS | furs         | Kazan         | Moscow        | 25
+# East Asia and Maritime Silk Road
+MNG | silk_cloth   | Nanjing       | Beijing       | 60
+MNG | silk_cloth   | Guangzhou     | Calicut       | 15
+MNG | pottery      | Guangzhou     | Calicut       | 25
+RYU | silk_cloth   | Guangzhou     | Kyoto         | 15
+RYU | pepper       | Calicut       | Guangzhou     | 10
+OUC | copper       | Hakata        | Guangzhou     | 20
+JOS | paper        | Hanyang       | Beijing       | 20

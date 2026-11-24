@@ -35,6 +35,7 @@ TUR | SER | guarantee | - | Ottoman protection over vassal Despotate of Serbia
 MAM | HEJ | guarantee | - | Mamluk protection over Sharifate of Mecca
 FRA | BRI | guarantee | - | Crown protection over Duchy of Brittany
 FRA | FOI | guarantee | - | Crown protection over County of Foix
+MNG | JOS | guarantee | - | Ming protection over tributary Joseon
 
 ## Non-Aggression Pacts
 MEW | MAR | non_aggression | - | Treaty of 1453 between Rana Kumbha and Rao Jodha settling border

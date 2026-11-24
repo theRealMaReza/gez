@@ -421,14 +421,16 @@ struct NavyBattleAndBlockadeTests {
             _ = makeFleet(&sim.world, name: "GenL", owner: gen, sea: zone, ships: [(light, 8)])
             for _ in 0..<18 {
                 sim.tick()
-                if let r = sim.world.navy.recentBattles.last {
+                if let r = sim.world.navy.recentBattles.last(where: {
+                    $0.attackerCountry == ven || $0.defenderCountry == ven
+                }) {
                     return r.defenderShipsLost - r.attackerShipsLost
                 }
             }
             return 0
         }
 
-        let seeds: [UInt64] = [101, 202, 555, 777, 1453]
+        let seeds: [UInt64] = Array(1...15)
         let inlandNet = try seeds.reduce(0) { try $0 + runClash(in: aegean, seed: $1) }
         let oceanNet = try seeds.reduce(0) { try $0 + runClash(in: atlantic, seed: $1) }
         #expect(inlandNet > oceanNet)

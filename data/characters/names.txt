@@ -40,3 +40,9 @@ jewish        | Isaac, Abraham, Moses, Joseph, David, Samuel, Judah, Elijah | Sa
 # Name lists for Muslims of these culture families (family@muslim).
 indo_aryan@muslim | Mahmud, Ahmad, Husain, Bahlul, Barbak, Fath Khan, Ismail, Daud, Mubarak, Sikandar, Nasir, Jalal | Bibi Raji, Zainab, Fatima, Bibi Mato, Rukhsana, Amina
 dravidian@muslim  | Ahmad, Ali, Humayun, Mahmud, Yusuf, Qasim, Burhan, Malik | Fatima, Bibi Zainab, Amina, Mariam
+sinitic           | Wen, Ming, Qian, Zheng, Zhong, Ren, Heng, Jing, Xuan, Ting, Cheng, Guang, Liang | Ying, Mei, Lan, Xiu, Hua, Zhen, Fang, Shu, Jing
+koreanic          | Jong, Sejong, Su, Myeong, Suk, Hyeon, Deok, Won, Chang, Seong, Gyu | Jeong, Hye, Sun, Ok, Jin, Yeon, Myeong, Gyeong
+japonic           | Yoshimasa, Katsumoto, Mochitoyo, Norihiro, Tadakuni, Masahiro, Yoshitada, Nobumasa, Sadachika, Toshikage | Tomiko, Shigeko, Nobuko, Masako, Haruko, Chiyo, Fumiko
+tai               | Dao, Meng, Kham, Sai, Som, Chai, Phaen, Phon | Nang, Kham, Chandara, Bua, Som
+hmong_mien        | Xiong, Yang, Vang, Moua, Lee, Thao, Lor | Mai, Yee, Mee, Joua, Pa
+ainu              | Koshamain, Shakushain, Menkakush, Onibishi, Kanari | Huci, Monok, Pirika, Cise

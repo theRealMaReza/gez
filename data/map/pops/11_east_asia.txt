@@ -1,0 +1,288 @@
+# East Asia (Phase 20.7)
+
+# North China
+@ North Zhili
+northern_han confucian 55
+northern_han mahayana 25
+northern_han daoist 20
+
+@ Shandong
+northern_han confucian 60
+northern_han daoist 20
+northern_han mahayana 20
+
+@ Shanxi
+northern_han confucian 55
+northern_han mahayana 25
+northern_han daoist 20
+
+@ Henan
+northern_han confucian 55
+northern_han mahayana 25
+northern_han daoist 20
+
+@ Shaanxi
+northern_han confucian 50
+northern_han daoist 25
+northern_han mahayana 20
+hui sunni.hanafi 5
+
+> Xi'an
+northern_han confucian 45
+northern_han daoist 25
+northern_han mahayana 20
+hui sunni.hanafi 10
+
+@ Gansu
+northern_han confucian 45
+northern_han mahayana 25
+northern_han daoist 15
+hui sunni.hanafi 15
+
+> Lanzhou
+northern_han confucian 45
+northern_han mahayana 20
+northern_han daoist 15
+hui sunni.hanafi 20
+
+@ Liaodong
+northern_han confucian 55
+northern_han mahayana 25
+northern_han daoist 20
+
+# Jiangnan
+@ South Zhili
+jianghuai confucian 50
+jianghuai mahayana 30
+jianghuai daoist 20
+
+> Suzhou
+wu confucian 45
+wu mahayana 35
+wu daoist 20
+
+> Songjiang
+wu confucian 45
+wu mahayana 35
+wu daoist 20
+
+> Changzhou
+wu confucian 45
+wu mahayana 35
+wu daoist 20
+
+> Shexian
+wu confucian 55
+wu daoist 25
+wu mahayana 20
+
+@ Zhejiang
+wu confucian 45
+wu mahayana 35
+wu daoist 20
+
+@ Jiangxi
+gan confucian 50
+gan mahayana 25
+gan daoist 25
+
+> Ganzhou
+hakka confucian 45
+gan confucian 25
+hakka daoist 15
+gan mahayana 15
+
+> Nanan
+hakka confucian 45
+gan confucian 25
+hakka daoist 15
+gan mahayana 15
+
+@ Fujian
+min confucian 45
+min mahayana 30
+min daoist 25
+
+> Quanzhou
+min confucian 40
+min mahayana 30
+min daoist 25
+hui sunni.hanafi 5
+
+> Tingzhou
+hakka confucian 45
+hakka daoist 30
+hakka mahayana 25
+
+# Central China
+@ Hubei
+jianghuai confucian 45
+jianghuai daoist 30
+jianghuai mahayana 25
+
+> Shinan
+miao highland 45
+jianghuai confucian 35
+jianghuai daoist 20
+
+@ Hunan
+xiang confucian 45
+xiang mahayana 30
+xiang daoist 20
+miao highland 5
+
+> Baoqing
+xiang confucian 40
+xiang mahayana 25
+xiang daoist 15
+miao highland 20
+
+@ Sichuan
+bashu confucian 45
+bashu daoist 30
+bashu mahayana 25
+
+> Jianchang
+yi highland 55
+bashu confucian 30
+bashu daoist 15
+
+> Songpan
+bashu confucian 40
+yi highland 30
+bashu tibetan 30
+
+# South China
+@ Guangdong
+yue confucian 45
+yue mahayana 30
+yue daoist 25
+
+> Chaozhou
+min confucian 45
+min mahayana 30
+min daoist 25
+
+> Qiongzhou
+min confucian 40
+li highland 35
+min daoist 15
+min mahayana 10
+
+@ Guangxi
+zhuang highland 45
+yue confucian 35
+yue mahayana 10
+zhuang daoist 10
+
+> Guilin
+yue confucian 45
+zhuang highland 25
+yue daoist 15
+yue mahayana 15
+
+> Wuzhou
+yue confucian 50
+yue mahayana 25
+zhuang highland 15
+yue daoist 10
+
+@ Guizhou
+miao highland 35
+yi highland 20
+bashu confucian 30
+bashu mahayana 15
+
+> Bozhou
+bashu confucian 45
+miao highland 30
+bashu daoist 15
+bashu mahayana 10
+
+> Shuixi
+yi highland 80
+bashu confucian 20
+
+@ Yunnan
+bai mahayana 25
+northern_han confucian 35
+yi highland 30
+hui sunni.hanafi 10
+
+> Kunming
+northern_han confucian 45
+yi highland 25
+northern_han mahayana 15
+hui sunni.hanafi 15
+
+> Dali
+bai mahayana 65
+northern_han confucian 25
+yi highland 10
+
+> Lijiang
+naxi highland 80
+naxi tibetan 10
+northern_han confucian 10
+
+> Cheli
+tai theravada 85
+yi highland 15
+
+# Korea
+@ Gyeonggi and Hwanghae
+korean confucian 65
+korean mahayana 35
+
+@ Pyongan and Hamgyong
+korean confucian 60
+korean mahayana 40
+
+@ Gangwon and Chungcheong
+korean confucian 60
+korean mahayana 40
+
+@ Gyeongsang and Jeolla
+korean confucian 55
+korean mahayana 45
+
+# Japan
+@ Kyushu
+japanese shinto 60
+japanese mahayana 40
+
+@ Shikoku
+japanese shinto 60
+japanese mahayana 40
+
+@ Chugoku
+japanese shinto 55
+japanese mahayana 45
+
+@ Kansai
+japanese shinto 50
+japanese mahayana 50
+
+@ Chubu
+japanese shinto 55
+japanese mahayana 45
+
+@ Kanto
+japanese shinto 60
+japanese mahayana 40
+
+@ Tohoku
+japanese shinto 65
+japanese mahayana 35
+
+@ Ryukyu
+ryukyuan mahayana 60
+ryukyuan shinto 30
+ryukyuan confucian 10
+
+@ Ezo
+ainu siberian 100
+
+> Oshima
+japanese shinto 60
+ainu siberian 40
