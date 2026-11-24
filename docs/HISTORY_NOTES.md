@@ -655,3 +655,32 @@ Enniskillen.
 - **Shields:** `MGH` keeps its Wikimedia Commons Chagatai banner; `DUG`
   and `KDL` use plain map-colour banners as no 1453 arms exist on
   Wikimedia Commons (owner's pick, 23 Nov 2026).
+
+## Tibet and Bhutan (Phase 20.7, 23 Nov 2026)
+
+- **Phagmodrupa (`PHA`) and Rinpungpa (`RIN`):** Gongma Kunga Lekpa
+  (b. 1443, aged 10 in 1453) rules Ü from Nedong while his father Sangye
+  Gyaltsen resides at Tsetang (d. 1457); Norzang of Rinpungpa (1403–1466)
+  rules Tsang as a powerful `PHA` vassal (owner's pick, 23 Nov 2026).
+  Birth years of Dzompama and Tsokye Dorje are approximate (`?`).
+- **Western Tibet (`GUG`, `GNT`, `LDK`):** Tri Lhawang Gyaltsen
+  (1404–1464) rules Mangyül Gungthang (including allied Mustang); Lodrö
+  Chokden rules Ladakh ahead of Lhachen Bhagan's c. 1460 Namgyal coup.
+  Exact 1453 reign dates of Tri Namgyal De of Guge and birth years of
+  Lobzang Rabten, Tri Namgyal De of Gungthang, Lodrö Chokden, and Lhachen
+  Bhagan are uncertain (`?`).
+- **Eastern Tibet (`DRG`, `AMD`) and Ming Xining:** Derge under Botar
+  Tashi Senge (patron of Tangtong Gyalpo's 1448 monastery) represents the
+  Kham principalities; `AMD` represents the Amdo/Tsongkha tribes and
+  monasteries around Rebkong and Kokonor, with Ming holding the frontier
+  garrison of `Xining` (*Xining Wei*). Birth years of Botar Tashi Senge
+  and Amdo's 1453 chief (`Sonam Gyaltsen`) are uncertain (`?`).
+- **Bhutan and Sikkim (`BHU`):** in 1453 Bhutan was a cluster of Drukpa
+  Kagyu and Nyingma valleys rather than a unified state (unified 1616);
+  grouped here as `BHU` (theocracy) under 2nd Gyalwang Drukpa Kunga
+  Paljor (1428–1476), with young Pema Lingpa (b. 1450) in Bumthang.
+- **Shields:** `PHA` uses the later-era Tibetan Snow Lion flag, `DRG` the
+  historical Derge banner, `BHU` the 1949–1956 Bhutan dragon banner, and
+  `LDK` the Ladakh regional banner from Wikimedia Commons; `RIN`, `GUG`,
+  `GNT`, and `AMD` use plain map-colour banners where no Commons arms
+  exist (owner's pick, 23 Nov 2026).

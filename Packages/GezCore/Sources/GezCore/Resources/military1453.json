@@ -2522,6 +2522,57 @@
           "men": 1000
         }
       ]
+    },
+    {
+      "country": "PHA",
+      "name": "Yarlung Guard",
+      "province": 1648,
+      "commander": null,
+      "regiments": [
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "cavalry",
+          "origin": "professional",
+          "men": 1000
+        }
+      ]
+    },
+    {
+      "country": "RIN",
+      "name": "Tsang Retinue",
+      "province": 1641,
+      "commander": "norzang_rin",
+      "regiments": [
+        {
+          "type": "cavalry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "cavalry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        }
+      ]
     }
   ]
 }

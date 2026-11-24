@@ -220,3 +220,9 @@ OCN | File:O'Conor.png
 OFL | File:Ó Conchobhair Uí Failghe.png
 EBR | File:Coat of arms of O'Reilly.svg
 FMN | File:Maguire.png
+
+# Tibet and Bhutan (Phase 20.7, owner's picks)
+PHA | File:Flag of Tibet.svg | Tibetan Snow Lion flag, later era (owner's pick)
+DRG | File:Flag of the General Derge Se (Tibet).svg | Historical Derge banner (owner's pick)
+BHU | File:Flag of Bhutan (1949–1956).svg | Drukpa dragon banner, later era (owner's pick)
+LDK | File:Flag of Ladakh, India.svg | Ladakh regional banner, later era (owner's pick)

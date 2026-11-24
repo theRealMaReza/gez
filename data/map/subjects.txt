@@ -63,6 +63,9 @@ MNG SHX vassal
 # Moghulistan vassals (Phase 20.7)
 MGH DUG vassal
 
+# Tibet (Phase 20.7)
+PHA RIN vassal
+
 # Ashikaga Shogunate shugo vassals (1453)
 ASH HSK vassal
 ASH YMN vassal

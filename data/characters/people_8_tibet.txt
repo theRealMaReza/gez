@@ -1,0 +1,39 @@
+# Families of Tibet, Ladakh, and Bhutan, 1453.
+
+@ PHA
+dead   | drakpa_gyaltsen_pha | Drakpa Gyaltsen     | Phagmodrupa | m | 1374 | d:1432 | administrator, just | 5th Phagmodrupa Gongma of Tibet
+dead   | drakpa_jungne_pha   | Drakpa Jungne       | Phagmodrupa | m | 1414 | f:sangye_gyaltsen_pha d:1445 | scholar | 6th Phagmodrupa Gongma, elder brother of Kunga Lekpa
+figure | sangye_gyaltsen_pha | Sangye Gyaltsen     | Phagmodrupa | m | 1389 | s:dzompama_pha | patient, pious | father of Kunga Lekpa, residing at Tsetang (d. 1457)
+kin    | dzompama_pha        | Dzompama            | Rinpungpa   | f | 1410 | | diplomat | Rinpungpa noblewoman, mother of Kunga Lekpa; birth year?
+ruler  | kunga_lekpa         | Gongma Kunga Lekpa  | Phagmodrupa | m | 1443 | f:sangye_gyaltsen_pha m:dzompama_pha | arbitrary | 7th Phagmodrupa Gongma (r. 1448-1481), aged 10 in 1453
+figure | gendun_drup         | Gendun Drup         |             | m | 1391 | | scholar, pious, diligent, patient | founder of Tashilhunpo Monastery (1447), posthumously 1st Dalai Lama
+figure | thongwa_donden      | Thongwa Donden      |             | m | 1416 | | pious, scholar | 6th Karmapa of the Karma Kagyu school (d. 1453)
+
+@ RIN
+ruler  | norzang_rin         | Norzang             | Rinpungpa   | m | 1403 | | ambitious, strategist, administrator | founder of Rinpungpa power in Tsang (r. 1435-1466)
+heir   | kunzang_rin         | Kunzang             | Rinpungpa   | m | 1445 | f:norzang_rin | ambitious | son and successor of Norzang (r. 1466-1479)
+child  | tsokye_dorje_rin    | Tsokye Dorje        | Rinpungpa   | m | 1450 | f:norzang_rin | diplomat, strategist | fourth son of Norzang, later regent of Tsang (d. 1510); birth year?
+
+@ GUG
+ruler  | namgyal_de_gug      | Tri Namgyal De      | Guge        | m | 1422 | | pious, administrator | King of Guge in Western Tibet; exact 1453 reign dates and birth year?
+heir   | lobzang_rabten_gug  | Lobzang Rabten      | Guge        | m | 1445 | f:namgyal_de_gug | scholar | Western Tibetan prince of Guge; birth year?
+
+@ GNT
+ruler  | lhawang_gyaltsen_gnt| Tri Lhawang Gyaltsen| Gungthang   | m | 1404 | | diplomat, pious | King of Mangyul Gungthang (r. 1419-1464)
+heir   | namgyal_de_gnt      | Tri Namgyal De      | Gungthang   | m | 1425 | f:lhawang_gyaltsen_gnt | brave | son and successor of Lhawang Gyaltsen; birth year?
+child  | chokyi_dronma       | Chokyi Dronma       | Gungthang   | f | 1422 | f:lhawang_gyaltsen_gnt | pious, scholar | princess of Gungthang, 1st Samding Dorje Phagmo (d. 1455)
+
+@ LDK
+ruler  | lodro_chokden_ldk   | Lodro Chokden       | Maryul      | m | 1420 | | brave | last Maryul king of Ladakh, deposed c. 1460; birth year?
+figure | lhachen_bhagan      | Lhachen Bhagan      | Namgyal     | m | 1425 | | ambitious, strategist, brave | prince of Basgo who founded the Namgyal dynasty of Ladakh c. 1460; birth year?
+
+@ DRG
+ruler  | botar_tashi_senge   | Botar Tashi Senge   | Derge       | m | 1415 | | pious, generous | King of Derge, patron of Derge Gonchen Monastery (1448); birth year?
+figure | tangtong_gyalpo     | Tangtong Gyalpo     |             | m | 1385 | | scholar, pious, diligent | Tibetan master, iron-bridge builder, founder of Derge Gonchen (1448)
+
+@ AMD
+ruler  | sonam_gyaltsen_amd  | Sonam Gyaltsen      | Tsongkha    | m | 1415 | | brave | Amdo chieftain of Rebkong; 1453 chief and birth year?
+
+@ BHU
+ruler  | kunga_paljor_bhu    | Gyalwang Kunga Paljor | Drukpa    | m | 1428 | | pious, scholar, diplomat | 2nd Gyalwang Drukpa, active in Bumthang and Paro (d. 1476)
+figure | pema_lingpa         | Pema Lingpa         |             | m | 1450 | | pious, scholar | renowned Bhutanese terton born in Bumthang in 1450

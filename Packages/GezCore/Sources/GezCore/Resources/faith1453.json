@@ -407,6 +407,36 @@
       "religions": [
         "mahayana"
       ]
+    },
+    {
+      "name": "Lhasa",
+      "province": "Lhasa",
+      "religions": [
+        "tibetan"
+      ]
+    },
+    {
+      "name": "Mount Kailash",
+      "province": "Purang",
+      "religions": [
+        "tibetan",
+        "hindu",
+        "jain"
+      ]
+    },
+    {
+      "name": "Sakya Monastery",
+      "province": "Sakya",
+      "religions": [
+        "tibetan"
+      ]
+    },
+    {
+      "name": "Kumbum",
+      "province": "Xining",
+      "religions": [
+        "tibetan"
+      ]
     }
   ]
 }

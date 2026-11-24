@@ -1,0 +1,61 @@
+# Tibet
+@ Ngari
+tibetan tibetan 90
+ladakhi tibetan 10
+> Rutog
+ladakhi tibetan 55
+tibetan tibetan 45
+> Purang
+tibetan tibetan 85
+pahari hindu 15
+> Kyirong
+tibetan tibetan 85
+newar tibetan 15
+> Mustang
+tibetan tibetan 95
+khas hindu 5
+
+@ Tsang
+tibetan tibetan 100
+
+@ Lhasa
+tibetan tibetan 100
+> Kongpo
+tibetan tibetan 85
+tibetan highland 15
+
+@ Bhutan and Sikkim
+bhutanese tibetan 90
+bhutanese highland 10
+> Sikkim
+bhutanese tibetan 60
+kirati highland 30
+tibetan tibetan 10
+
+@ Kham
+khampa tibetan 95
+khampa highland 5
+> Gyalthang
+khampa tibetan 70
+naxi highland 30
+> Chakla
+khampa tibetan 80
+bashu confucian 20
+> Batang
+khampa tibetan 90
+khampa highland 10
+
+@ Amdo
+amdo tibetan 85
+amdo highland 15
+> Xining
+northern_han confucian 45
+amdo tibetan 35
+hui sunni.hanafi 20
+> Labrang
+amdo tibetan 75
+hui sunni.hanafi 15
+northern_han confucian 10
+> Kokonor
+amdo tibetan 85
+amdo tengri 15

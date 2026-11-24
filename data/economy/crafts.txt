@@ -102,3 +102,7 @@ Kashgar                | carpets 5, cotton_cloth 4, silk_cloth 3, leather 2
 Khotan                 | carpets 5, silk_cloth 4, jewelry 3
 Yarkand                | cotton_cloth 4, carpets 3, leather 3
 Turpan                 | cotton_cloth 4, leather 2, pottery 2
+Tibet                  | wool_cloth 4, carpets 3, leather 2
+Lhasa                  | wool_cloth 5, carpets 4, books 3, jewelry 2
+Shigatse               | wool_cloth 5, carpets 4, books 2
+Derge                  | books 4, paper 3, weapons 3, tools 2
