@@ -1,0 +1,97 @@
+# Tarim Basin
+@ Ili and Tian Shan
+moghul sunni.hanafi 55
+moghul tengri 25
+kyrgyz tengri 15
+uyghur sunni.hanafi 5
+> Ghulja
+uyghur sunni.hanafi 35
+moghul sunni.hanafi 45
+moghul tengri 20
+> Almaliq
+moghul sunni.hanafi 50
+uyghur sunni.hanafi 25
+moghul tengri 25
+
+@ Kashgaria
+uyghur sunni.hanafi 75
+moghul sunni.hanafi 15
+tajik sunni.hanafi 10
+> Kashgar
+uyghur sunni.hanafi 70
+moghul sunni.hanafi 15
+tajik sunni.hanafi 10
+kyrgyz tengri 5
+& Kashgar | naqshbandi 0.5
+> Yarkand
+uyghur sunni.hanafi 75
+moghul sunni.hanafi 15
+tajik sunni.hanafi 10
+& Yarkand | naqshbandi 0.4
+> Khotan
+uyghur sunni.hanafi 85
+moghul sunni.hanafi 10
+tajik sunni.hanafi 5
+> Cherchen
+uyghur sunni.hanafi 75
+oirat tengri 15
+moghul sunni.hanafi 10
+> Charklik
+uyghur sunni.hanafi 65
+oirat tengri 25
+uyghur mahayana 10
+
+@ Northern Tarim
+uyghur sunni.hanafi 65
+moghul sunni.hanafi 25
+uyghur mahayana 10
+> Aksu
+uyghur sunni.hanafi 65
+moghul sunni.hanafi 30
+kyrgyz tengri 5
+& Aksu | naqshbandi 0.4
+> Uch Turfan
+uyghur sunni.hanafi 55
+kyrgyz tengri 25
+moghul sunni.hanafi 20
+> Korla
+uyghur sunni.hanafi 55
+moghul sunni.hanafi 20
+uyghur mahayana 15
+oirat tengri 10
+> Qarashahr
+moghul sunni.hanafi 35
+oirat tengri 30
+uyghur sunni.hanafi 20
+uyghur mahayana 15
+
+@ Turpan and Hami
+uyghur mahayana 45
+uyghur sunni.hanafi 35
+oirat tengri 15
+hui sunni.hanafi 5
+> Turpan
+uyghur sunni.hanafi 50
+uyghur mahayana 35
+moghul sunni.hanafi 15
+> Lukchun
+uyghur mahayana 50
+uyghur sunni.hanafi 40
+moghul sunni.hanafi 10
+> Hami
+uyghur mahayana 45
+hui sunni.hanafi 25
+oirat tengri 20
+northern_han confucian 10
+> Barkol
+oirat tengri 55
+uyghur mahayana 25
+moghul sunni.hanafi 20
+> Dunhuang
+northern_han mahayana 45
+uyghur mahayana 30
+oirat tengri 25
+> Yumen
+northern_han confucian 60
+northern_han mahayana 25
+hui sunni.hanafi 15

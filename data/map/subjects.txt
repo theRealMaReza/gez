@@ -55,9 +55,13 @@ KAR ALA vassal
 MNG JOS tributary
 MNG RYU tributary
 MNG CHL tributary
+MNG KDL tributary
 MNG LIJ vassal
 MNG BOZ vassal
 MNG SHX vassal
+
+# Moghulistan vassals (Phase 20.7)
+MGH DUG vassal
 
 # Ashikaga Shogunate shugo vassals (1453)
 ASH HSK vassal

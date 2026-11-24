@@ -5,7 +5,7 @@ Kotte      | fine_spices 8
 Aden       | fine_spices 6, ivory 2, pearls 1
 Hormuz     | fine_spices 4, pearls 2, horses 10
 Sonargaon  | fine_spices 3, silk_cloth 1
-Samarkand  | silk_cloth 2, raw_silk 3
+Samarkand  | silk_cloth 1, raw_silk 2
 Herat      | raw_silk 1
 Fez        | gold 4, ivory 2
 Tunis      | gold 1.5

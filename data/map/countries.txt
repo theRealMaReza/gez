@@ -177,7 +177,7 @@ THE | Theodoro | 170 100 170 | monarchy | orthodox
 GRH | Great Horde | 175 145 80 | steppeHorde | sunni
 NOG | Nogai Horde | 200 170 110 | steppeHorde | sunni
 UZB | Uzbek Khanate | 70 150 170 | steppeHorde | sunni
-MGH | Moghulistan | 60 110 90 | steppeHorde | sunni
+MGH | Moghulistan | 60 110 90 | steppeHorde | sunni | Aksu
 TIM | Timurids of Samarkand | 145 75 165 | monarchy | sunni
 HRT | Timurids of Herat | 185 110 200 | monarchy | sunni
 BDK | Badakhshan | 120 150 200 | monarchy | sunni
@@ -346,3 +346,7 @@ DTE | Date | 85 120 95 | monarchy | shinto | Yonezawa
 AND | Ando | 130 105 85 | monarchy | shinto | Tsugaru
 RYU | Ryukyu | 75 165 155 | monarchy | mahayana | Okinawa
 AIN | Ainu | 120 155 135 | tribal | siberian
+
+# Tarim Basin and Moghulistan (Phase 20.7)
+DUG | Kashgar | 90 145 105 | monarchy | sunni | Kashgar
+KDL | Kara Del | 160 135 85 | monarchy | mahayana | Hami

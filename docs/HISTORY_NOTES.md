@@ -630,3 +630,28 @@ Enniskillen.
   chieftain in 1453; his birth year and 1453 leadership are uncertain (`?`).
   Ainu animism is grouped under `siberian`, and Ryukyu's state faith under
   `mahayana` with `mahayana`/`shinto`/`confucian` pops.
+
+## Tarim Basin and Moghulistan (Phase 20.7, 23 Nov 2026)
+
+- **Dughlat Emirate of Kashgar (`DUG`):** modelled as a vassal tag of
+  Moghulistan (`MGH`) under Amir Sayyid Ali Dughlat (r. 1435–1457), who
+  held Kashgar, Yarkand, and Khotan semi-independently while acknowledging
+  Esen Buqa II (owner's pick, 23 Nov 2026). Birth years of Sayyid Ali,
+  Sayyid Ahmad Mirza, Saniz Mirza, and Muhammad Haidar Mirza are
+  approximate (`?`).
+- **Moghulistan (`MGH`):** capital moved to Aksu (Esen Buqa II's Tarim
+  base in the 1450s); Yunus Khan is included as a court figure (in exile
+  in Persia until 1456). Birth years of Uwais Khan, Dost Muhammad, Yunus
+  Khan, and Mir Karim Berdi (and Mir Karim Berdi's exact 1453 holding in
+  Turpan) are uncertain (`?`).
+- **Kara Del / Hami (`KDL`):** modelled as a Mahayana Buddhist Ming
+  tributary under Dawadashiri (r. 1439–1457) with younger brother Buliege
+  as heir (owner's pick, 23 Nov 2026). Hami and Turpan in 1453 were in
+  religious transition between older Uyghur Mahayana Buddhism and Sunni
+  Islam; pops reflect this mix. Dunhuang (evacuated by the Ming Shazhou
+  Guard in 1446) is assigned to `KDL`, while Yumen forms the Ming Gansu
+  frontier link to Jiuquan. Birth years of Budashiri, Dawadashiri, and
+  Buliege are approximate (`?`).
+- **Shields:** `MGH` keeps its Wikimedia Commons Chagatai banner; `DUG`
+  and `KDL` use plain map-colour banners as no 1453 arms exist on
+  Wikimedia Commons (owner's pick, 23 Nov 2026).

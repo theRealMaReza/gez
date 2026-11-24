@@ -1,0 +1,20 @@
+# Families of the Tarim Basin and Moghulistan, 1453.
+
+@ MGH
+dead   | uwais_mgh         | Uwais Khan           | Chagatayid | m | 1400 | d:1429 | brave, zealous | Khan of Moghulistan, father of Esen Buqa II and Yunus Khan; birth year?
+link   | esen_buqa         | f:uwais_mgh
+heir   | dost_muhammad     | Dost Muhammad        | Chagatayid | m | 1445 | f:esen_buqa | wrathful, arbitrary | son and successor of Esen Buqa II (r. 1462-1468); birth year?
+figure | yunus_khan        | Yunus Khan           | Chagatayid | m | 1416 | f:uwais_mgh | scholar, diplomat, ambitious | elder brother of Esen Buqa II, exiled in Persia until 1456; birth year?
+vassal | mir_karim_berdi   | Mir Karim Berdi      | Dughlat    | m | 1415 | holds:Turpan | ambitious | Dughlat commander in eastern Moghulistan; 1453 holding and birth year?
+
+@ DUG
+dead   | khudaidad_d       | Amir Khudaidad       | Dughlat    | m | 1354 | d:1433 | diplomat, pious | powerful Dughlat ulusbeg of Moghulistan
+dead   | sayyid_ahmad_d    | Sayyid Ahmad Mirza   | Dughlat    | m | 1385 | f:khudaidad_d d:1435 | | father of Sayyid Ali; birth year?
+ruler  | sayyid_ali_d      | Amir Sayyid Ali      | Dughlat    | m | 1410 | f:sayyid_ahmad_d | strategist, brave, administrator | Dughlat Amir of Kashgar (1435-1457), reconquered Kashgar from the Timurids; birth year?
+heir   | saniz_mirza       | Saniz Mirza          | Dughlat    | m | 1435 | f:sayyid_ali_d | brave, ambitious | elder son of Sayyid Ali, ruled Kashgar and Yarkand (1457-1464); birth year?
+child  | muhammad_haidar_d | Muhammad Haidar Mirza| Dughlat    | m | 1438 | f:sayyid_ali_d | diplomat | younger son of Sayyid Ali, later Amir of Kashgar; birth year?
+
+@ KDL
+dead   | budashiri_kdl     | Budashiri            | Chagatayid | m | 1395 | d:1439 | diplomat | Prince of Zhongshun of Kara Del (1425-1439); birth year?
+ruler  | dawadashiri       | Dawadashiri          | Chagatayid | m | 1420 | f:budashiri_kdl | diplomat, patient | Prince of Zhongshun of Kara Del (1439-1457), Ming tributary under Oirat pressure; birth year?
+heir   | buliege_kdl       | Buliege              | Chagatayid | m | 1430 | f:budashiri_kdl | | younger brother and successor of Dawadashiri (r. 1457-1460); birth year?
