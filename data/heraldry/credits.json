@@ -183,6 +183,14 @@
   "note": "",
   "page": "https://commons.wikimedia.org/wiki/File:Flag_of_the_Rewa_State.svg"
  },
+ "BHU": {
+  "author": "See File history below for details.",
+  "file": "File:Flag of Bhutan (1949–1956).svg",
+  "license": "Public domain",
+  "licenseUrl": "",
+  "note": "Drukpa dragon banner, later era (owner's pick)",
+  "page": "https://commons.wikimedia.org/wiki/File:Flag_of_Bhutan_(1949%E2%80%931956).svg"
+ },
  "BHY": {
   "author": "Designed for Gez",
   "file": "data/heraldry/designed/BHY.svg",
@@ -462,6 +470,14 @@
   "licenseUrl": "",
   "note": "Invented: no historical symbol is known",
   "page": ""
+ },
+ "DRG": {
+  "author": "Flag of Derge Se: User:Felipe Fidelis Tobias\n\nSnow Lions: User:Sodacan",
+  "file": "File:Flag of the General Derge Se (Tibet).svg",
+  "license": "CC BY-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+  "note": "Historical Derge banner (owner's pick)",
+  "page": "https://commons.wikimedia.org/wiki/File:Flag_of_the_General_Derge_Se_(Tibet).svg"
  },
  "DUL": {
   "author": "Shiedist",
@@ -903,6 +919,14 @@
   "note": "",
   "page": "https://commons.wikimedia.org/wiki/File:Banner_of_Bavaria-Landshut.svg"
  },
+ "LDK": {
+  "author": "Government of India",
+  "file": "File:Flag of Ladakh, India.svg",
+  "license": "Public domain",
+  "licenseUrl": "",
+  "note": "Ladakh regional banner, later era (owner's pick)",
+  "page": "https://commons.wikimedia.org/wiki/File:Flag_of_Ladakh,_India.svg"
+ },
  "LEI": {
   "author": "Cookieman1.1.1",
   "file": "File:Kavanagh Coat of arms.svg",
@@ -1262,6 +1286,14 @@
   "licenseUrl": "",
   "note": "",
   "page": "https://commons.wikimedia.org/wiki/File:Emblem_of_the_Papacy_SE.svg"
+ },
+ "PHA": {
+  "author": "Unknown authorUnknown author",
+  "file": "File:Flag of Tibet.svg",
+  "license": "Public domain",
+  "licenseUrl": "",
+  "note": "Tibetan Snow Lion flag, later era (owner's pick)",
+  "page": "https://commons.wikimedia.org/wiki/File:Flag_of_Tibet.svg"
  },
  "POL": {
   "author": "Zygmunt Kamiński / Andrzej Heidrich",
