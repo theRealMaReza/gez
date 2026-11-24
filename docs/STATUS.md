@@ -4,7 +4,7 @@ The short version of `docs/HANDOFF.md` and `docs/ROADMAP.md`, mirrored to
 the claude.ai Project as `claude/STATUS.md`. Everything else lives in the
 repo (`theRealMaReza/gez`): read only the parts a task needs.
 
-Last updated: 23 November 2026 (Phase 20.7 part 1, Old World map foundation, PR #43).
+Last updated: 23 November 2026 (East Asia core #44; Gemini handover, PR #45).
 
 ## Repo move (21–22 Nov 2026)
 - Old account `yv28f5k922-dot` suspended (owner appealed). New repo
@@ -67,10 +67,17 @@ Last updated: 23 November 2026 (Phase 20.7 part 1, Old World map foundation, PR 
   `docs/ART_PROMPTS.md` (main menu, loading screen, 66 event pictures,
   29 portraits). Drop them in `godot/assets/paintings/{menu,events,portraits}/`
   or attach them in a chat; stand-ins show until then.
-- Gemini writes most code on `gemini/*` branches; Claude reviews
-  (routine: HANDOFF "Working with Gemini" and "How Claude reviews"). New
-  screens: plain controls, `add_window`, `add_side_button` (HANDOFF "New
-  screens and the Phase 20 look").
+- **Who does what (owner, 23 Nov 2026):** Gemini (Gemini 4 Neon, in
+  Antigravity) writes most code and tests and merges its own PRs when CI
+  is green. PRs labelled `needs-claude` wait for Claude: looks, region
+  PRs, save format, shared engine, multiplayer sync, weakened tests (list
+  in `GEMINI.md`). Claude does the 20.8 engine, borders and landmarks,
+  all visual design (mock-ups the owner picks; Gemini builds them) and
+  the screen check before "Kayser". Routine: HANDOFF "Who does what".
+- **20.7 East Asia core** (Gemini, #44, merged 23 Nov): Ming with its
+  princes and tusi, Joseon, the Ashikaga and 15 shugo, Ryukyu, the Ainu;
+  229 provinces (1,607). Mongolia, Manchuria, Tibet and the Tarim are
+  still wasteland.
 - **Phase 20.7 part 1, Old World map foundation** (Claude, PR #43, 23 Nov):
   map grown to Afro-Eurasia (25 W–148 E, 35 S–71.5 N) at **48 px/degree**
   (8304 × 5112, owner's pick after measuring: about +580 MB in the game);
@@ -89,11 +96,13 @@ Last updated: 23 November 2026 (Phase 20.7 part 1, Old World map foundation, PR 
    zoomed out (painted chart) and when windows open; try the Chronicle,
    Ledger and Timelapse medallions in the left column.
 2. **20.7 region PRs** (Gemini writes, Claude reviews; guide in HANDOFF):
-   East Asia, Southeast Asia, Siberia, Africa south of the Equator, and the
+   the rest of East Asia (Mongolia, Manchuria, Tibet, Tarim), Southeast
+   Asia, Siberia, Africa south of the Equator, and the
    still-empty Sahel and Guinea coast; then 20.8, then the rest of 20.5. Also on
    the Mac: frame rate of the new battle view (smoke, more haze) and of
    towns on first load.
-3. **20.5 balance and play-test** (Claude; Phases 18 and 20 are both
+3. **20.5 balance and play-test** (Gemini writes the fixes and builds
+   "Kayser", Claude checks the screens; Phases 18 and 20 are both
    merged; part 1, the 1453 border fixes, is merged as #19; the first
    six AI-only games to 1550 are in `docs/BALANCE_REPORT.md`; next the
    fixes listed there, one PR per area), then **alpha "Kayser"**, **20.7 Old

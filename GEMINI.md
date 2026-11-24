@@ -1,8 +1,14 @@
 # Notes for Gemini
 
-You are writing code for **Gez**, a grand strategy game for Mac and iPad.
-The owner does not write code. Claude reviews and tests every change you
-make before it reaches `main`.
+You are writing code for **Gez**, a grand strategy game for Mac and
+Windows. The owner does not write code. **You write most of the code and
+tests** (owner, 23 Nov 2026). Claude writes the 20.8 ruling-systems engine
+and does all visual design, and reviews only the pull requests listed in
+"Which pull requests wait for Claude" below. You merge the rest yourself
+when CI is green.
+
+Model: use **Gemini 4 Neon** for phase work. Gemini 4 Hydrogen is fine
+for small chores (a red CI fix, a rebase, a typo).
 
 **Read these first and follow them exactly:**
 1. `CLAUDE.md`: the project rules (they apply to you too).
@@ -24,7 +30,7 @@ make before it reaches `main`.
   in one step, or stop and report.
 - **Never push to `main`.** Make a branch named `gemini/<short-topic>`
   (for example `gemini/phase6-armies`), commit there, push it and open a
-  pull request into `main`. Claude reviews and merges it.
+  pull request into `main`. Then follow "Merging" below.
 - One topic per branch and pull request. Keep each change small enough to
   review; split big phases into steps (data, simulation, tests, UI).
 - Ask the owner design or history questions as multiple-choice questions
@@ -43,6 +49,53 @@ make before it reaches `main`.
   list doubtful facts in `docs/HISTORY_NOTES.md`.
 - Never ask for, print or commit API keys or tokens.
 
+## Which pull requests wait for Claude
+
+Add the label **`needs-claude`** to the pull request, tell the owner it
+is open, and do **not** merge it yourself, when it:
+1. **Changes the look**: anything that changes what is on screen (Godot
+   scenes, themes, panels, shaders, models, icons, art, `tools/uiart`,
+   `tools/models`, `tools/terrain`).
+2. **Is a 20.7 region pull request** (until all regions are merged).
+3. **Changes the save format**: what is written to or read from a save.
+4. **Changes the shared engine**: the order of the daily or monthly tick,
+   `GameRandom`, the Godot bridge (`@Callable` functions), or the 20.8
+   ruling-systems engine itself (adding data or a system *on top of* it
+   is fine).
+5. **Touches multiplayer sync** (lockstep, desync check, networking).
+6. **Weakens a test**: deletes an assertion, loosens a limit, or changes
+   random seeds to make a test pass. Updating expected counts because you
+   added data is fine; say so in the description.
+
+When unsure, add the label.
+
+## Merging (everything else)
+
+1. Push, open the pull request, and wait once for CI:
+   `tools/ci/status.sh <branch> --wait`.
+2. If any job fails, fix it on the same branch and wait again.
+3. When every job passes (skipped jobs are fine), merge it:
+   `gh pr merge <n> --squash --delete-branch`.
+4. Tell the owner in one or two plain sentences what was merged.
+
+If the change slows the daily tick, run the profile job first
+(`gh workflow run ci.yml --ref <branch> -f only=profile`) and compare
+with `main`. The game must stay smooth at top speed on an M1 with 8 GB.
+
+## Anything visual
+
+You never design a look yourself. A new screen, window, icon, or any
+change to how something looks goes like this:
+1. Claude draws mock-ups and the owner picks one.
+2. The pick is written in the prompt you get or in `docs/DESIGN.md`.
+3. You build it with the shared Phase 20 Theme (`docs/HANDOFF.md`, "New
+   screens and the Phase 20 look"); no hand styling.
+4. Label the pull request `needs-claude`; Claude checks the CI screenshots
+   and merges it.
+
+If a task needs a look nobody has picked yet, stop and tell the owner:
+"This needs Claude's mock-ups for <thing> first."
+
 ## In the pull request description, write
 
 - What you changed and why, in plain language.
@@ -50,7 +103,7 @@ make before it reaches `main`.
 - How you tested it (which tests you added; whether you built in Xcode).
 - Anything you were unsure about.
 
-Claude will check: CI (Linux and macOS tests, app build, snapshots), the
-rules above, the tests, the game balance where numbers changed, and that
-the docs were updated. Expect review comments and fix them on the same
-branch.
+For `needs-claude` pull requests, Claude checks CI, the rules above, the
+tests, the balance where numbers changed, the screenshots, and that the
+docs were updated. Expect review comments and fix them on the same
+branch; Claude merges when they are done.
