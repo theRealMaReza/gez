@@ -92,7 +92,11 @@ phases): chronicle (Phase 18, Gemini, in progress), multiplayer (Phase 19), miss
    Nation Picker `AI behaviour`, Diplomacy `AI Goal:` line; Phase 16:
    tooltips, sounds, Esc volume sliders). Check frame rate on the M1 when
    zoomed in over a busy area and in a big battle.
-2. **Phase 20.5: Balance and play-test** (Claude): 1453 border fixes (#19), then long AI-only runs.
+2. **Order from here** (who writes what: "Who does what" below): the
+   rest of the 20.7 regions (Gemini; East Asia core is #44) with Claude's
+   borders and landmarks alongside; 20.8 engine (Claude), then flavour,
+   formables, HRE and other systems (Gemini); 20.5 balance fixes and
+   "Kayser" (Gemini, with Claude's screen check); 21, then 19 (Gemini).
 3. Follow-ups: the campaign still uses platform maths (`MarketModel.km`
    distances, `hypot` in the AI), which can differ between Mac, Windows and
    Linux; move it to `Core/DetMath.swift` before multiplayer (Phase 19),
@@ -172,52 +176,60 @@ phases): chronicle (Phase 18, Gemini, in progress), multiplayer (Phase 19), miss
 - After changing `GezTheme.gd`, re-save the theme (HANDOFF pipeline table);
   `godot/tests/test_style_kit.gd` fails if it is stale.
 
-### How Claude reviews Gemini's pull requests (owner's choice, 15 Nov 2026)
-The owner found full reviews too slow (each CI round with the three game
-builds takes ~40 min, the long simulations ~50 min). From Phase 11 on:
-- **During review**, wait only for the fast jobs: Simulation tests (Linux,
-  macOS, Windows) and Godot extension (macOS), ~10-15 min. Also do the
-  checks that need no CI (headless Godot parse check, bridge-call names
-  and argument counts, generators reproducible, code reading).
-- **Merge** when those are green and the owner agrees.
-- **After merging**, the push to `main` runs the Godot exports (which start
-  the exported game), the screenshots and the long simulations. Check them
-  then, and fix anything red directly on `main` or in a small follow-up PR.
-- Still run the profile/fingerprint job by hand (~5 min) when a PR changes
-  the daily or monthly tick, since speed regressions are easy to miss.
+### Who does what (owner, 23 Nov 2026)
+- **Gemini** (Gemini 4 Neon, in Antigravity on the owner's Mac) writes
+  most code and tests: the 20.7 regions, 20.8 flavour, formables, the HRE
+  and the other ruling systems, the 20.5 balance fixes and the "Kayser"
+  builds, Phase 21 mission trees and Phase 19 multiplayer.
+- **Claude** writes the 20.8 ruling-systems engine and the smooth
+  borders and landmarks, does all visual design (mock-ups for the owner
+  to pick, then a screenshot check of what Gemini builds), the screen
+  check before "Kayser", and painting prompts.
+- **Merging:** Gemini merges its own pull requests once every CI job
+  passes. Pull requests labelled **`needs-claude`** wait for Claude (the
+  list is in `GEMINI.md`: looks, region PRs, save format, shared engine,
+  multiplayer sync, weakened tests).
+
+### How Claude reviews (owner's choice, 15 Nov 2026; updated 23 Nov)
+Claude reviews only `needs-claude` pull requests, plus a quick look
+after the fact at anything Gemini merged that should have had the label
+(`gh api "repos/theRealMaReza/gez/pulls?state=closed&per_page=10"`). If
+one slipped through, fix it in a small follow-up PR and tell the owner.
+- Start with `git diff --stat`, then read only the files that matter.
+- Wait for CI once with `tools/ci/status.sh <sha> --wait` (a branch name
+  with a slash can confuse it; pass the head commit).
+- Looks: compare the CI Godot screenshots with the mock-up the owner
+  picked. For a pull request, `gh workflow run ci.yml --ref <branch>`
+  puts its screenshots on the `ci-snapshots-preview` branch.
+- Run the profile job by hand (~5 min) when a PR changes the daily or
+  monthly tick.
+- Merge when CI is green (`gh api -X PUT repos/theRealMaReza/gez/pulls/<n>/merge -f merge_method=squash`).
+  The owner agreed to this on 23 Nov 2026; ask first only if the PR
+  changes how the game plays in a way they have not picked.
 
 ## Working with Gemini (from session 6)
 
-The owner now has **Gemini write the code** and **Claude test and review
-it**. Gemini's rules are in `GEMINI.md` (and the same text in `AGENTS.md`
-for Jules): it works on `gemini/<topic>` branches and opens pull requests
-into `main`; it never pushes to `main`.
+Gemini's rules are in `GEMINI.md` (and the same text in `AGENTS.md`): it
+works on `gemini/<topic>` branches, opens pull requests into `main`, and
+never pushes to `main`.
 
-When the owner asks Claude to test Gemini's work:
-1. `gh pr list` and `gh pr view <n>` / `gh pr diff <n>`; check out the
-   branch (`git fetch origin <branch> && git checkout <branch>`).
-2. Wait for CI on the pull request (all jobs, including the three Godot
-   exports, which take ~40 minutes) and read failing logs.
-3. Check the rules: GezCore pure Swift, `GameRandom` only, struct-of-arrays,
+When reviewing a `needs-claude` pull request:
+1. `gh api repos/theRealMaReza/gez/pulls/<n>` (REST; `gh pr list/view/review`
+   use GraphQL, which is blocked here). Fetch the branch:
+   `git fetch --depth=5 origin <branch>`.
+2. Check the rules: GezCore pure Swift, `GameRandom` only, struct-of-arrays,
    tests for every new system, regenerated data committed and
-   reproducible (rerun the generator, expect no diff), resources listed
-   in `Package.swift`, no `Gez.xcodeproj`, docs and HISTORY_NOTES updated.
-4. Read the logic for bugs, and run quick balance checks in Python where
-   numbers changed. Look at the `ci-snapshots` images for UI changes
-   (Godot ones in its `godot/` folder). Snapshots come from `main` pushes;
-   for a pull request, run `gh workflow run ci.yml --ref <branch>` (REST:
-   `gh api -X POST repos/theRealMaReza/gez/actions/workflows/ci.yml/dispatches -f ref=<branch> -f 'inputs[only]=all'`):
-   its Godot screenshots go to the `ci-snapshots-preview` branch, and it
-   also runs the long simulations. `gh pr list/view/review` use GraphQL,
-   which is blocked; use `gh api repos/.../pulls/<n>` (REST) instead.
-   Also check that every `_call_bridge("name", [args])` in the GDScript
-   matches an `@Callable` with the same number of arguments.
-5. Report to the owner in plain language: works or not, what is wrong,
-   and what to tell Gemini. Leave review comments on the pull request
-   (`gh pr review <n> --comment -b "..."` or `--request-changes`).
-6. Merge only when CI is green and the owner agrees
-   (`gh pr merge <n> --squash`), then update `docs/STATUS.md` and mirror it to the
-   Project if they changed.
+   reproducible, resources listed in `Package.swift`, no `Gez.xcodeproj`,
+   docs and HISTORY_NOTES updated, no weakened tests. Check that every
+   `_call_bridge("name", [args])` in the GDScript matches an `@Callable`
+   with the same number of arguments.
+3. Read the logic for bugs; quick balance checks in Python where numbers
+   changed.
+4. Report to the owner in plain language: works or not, and what to tell
+   Gemini. Leave a review on the pull request
+   (`gh api repos/theRealMaReza/gez/pulls/<n>/reviews -f event=COMMENT -f body=...`).
+5. Merge when green, then update `docs/STATUS.md` and mirror it to the
+   Project if it changed.
 
 ### Old World region pull requests (for Gemini, Phase 20.7)
 

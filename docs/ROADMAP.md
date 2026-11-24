@@ -72,12 +72,18 @@ ruling systems and formables** → 21 mission trees and 19 multiplayer
 | 17 3D ✅ | Claude | Built in Godot (not Metal); three parts: map, models, battles. Models from free CC0 kits (KayKit used; Quaternius and Kenney allowed) recoloured by region, plus simple models built in code; **no paid tools** |
 | 18 Chronicle ✅ | Gemini | History is recorded from Phase 18 on (no early recording); timelapse covers games started after it |
 | 20 Art | Claude (pipeline) | Frames, medallions, seals by our art script; building icons rendered from the 3D models; paintings (events, missions, portraits) made by the owner in the Gemini app from Claude's prompts. **No paid tools or per-image API costs** |
-| 20.5 Balance and play-test | Claude | Long AI-only runs plus the owner's play-throughs; fix balance, speed and bugs before Kayser |
+| 20.5 Balance and play-test | Claude (part 1, border fixes, first runs); **Gemini** (the remaining fixes and the Kayser builds), Claude (screen check) | Long AI-only runs plus the owner's play-throughs; fix balance, speed and bugs before Kayser |
 | 20.6 Polish ✅ | Claude (parts 1–4; Gemini's parts were moved to Claude) | Interface and 3D polish, no rule changes; plan in the Project doc `claude/UI_3D_PROPOSAL_REVIEW.md`. Part 2 Main.gd split (#26); part 3 map-mode dock (#32), outliner (#33; market stays its own window); part 1 label widths (#35), glyphs (#36), drawer margin (#37), Court relatives once (#40, owner's pick A); part 4 models (#38) and battle view (#39) |
-| 20.7 Old World map | Decide when it starts | After the alpha, before 21, so mission trees are written once for the final list of countries |
-| 20.8 Ruling systems and formables | Decide when it starts | Before 21, so mission trees can lead into them (owner, 22 Nov 2026) |
-| 21 Mission trees | Gemini | After the alpha, the Old World map, and ruling systems and formables |
-| 19 Multiplayer | Claude | After the alpha; Epic Online Services (EOS) with join codes, as decided in session 6 |
+| 20.7 Old World map | Claude (foundation #43, borders and landmarks); **Gemini** (regions, reviewed by Claude) | Before 21, so mission trees are written once for the final list of countries |
+| 20.8 Ruling systems and formables | Claude (engine); **Gemini** (regional flavour, formables, HRE, the other systems) | Before 21, so mission trees can lead into them (owner, 22 Nov 2026) |
+| 21 Mission trees | Gemini (screen built from Claude's mock-ups) | After the alpha, the Old World map, and ruling systems and formables |
+| 19 Multiplayer | **Gemini** (Claude reviews the sync) | After the alpha; Epic Online Services (EOS) with join codes, as decided in session 6 |
+
+Who does what from 23 Nov 2026 (owner): **Gemini writes most code and
+tests and merges its own pull requests when CI is green**; Claude does
+the visual design (mock-ups the owner picks), the 20.8 engine, and
+reviews pull requests labelled `needs-claude` (list in `GEMINI.md`).
+Gemini uses Gemini 4 Neon in Antigravity.
 
 Money: **no extra paid services** (owner, 16 Nov 2026); the owner already
 pays for Claude and Gemini.
@@ -398,7 +404,7 @@ tooltip cards; main menu on a parchment panel at the left.
 
 After Phase 20: the **alpha build "Kayser"** (see "Build names" above).
 
-### Phase 20.5: Balance and play-test (Claude)
+### Phase 20.5: Balance and play-test (Claude, then Gemini)
 Added by the owner on 16 Nov 2026. Long AI-only runs (balance lines in
 the CI logs), the owner's own play-throughs on the Mac, then fixes to
 balance, speed and bugs. Then the alpha build "Kayser".
@@ -425,7 +431,8 @@ Several pull requests per region, each green in CI on its own.
   Bantu, East African, Siberian, Austronesian, Highland). Guide for the
   region pull requests: `docs/HANDOFF.md`, "Old World region pull requests".
 - **Next, region pull requests (Gemini, reviewed by Claude)**: East Asia
-  (Ming, Korea, Japan, Ryukyu, Mongolia, Manchuria, Tibet, Tarim),
+  (Ming, Korea, Japan, Ryukyu, Mongolia, Manchuria, Tibet, Tarim; the
+  core, Ming, Korea, Japan, Ryukyu and the Ainu, is #44, 229 provinces),
   Southeast Asia (mainland, then islands), Siberia, Africa south of the
   Equator and Madagascar, plus the Sahel and Guinea coast inside the old
   box (still wasteland), then the in-map density work of research Part III.

@@ -3,9 +3,14 @@
 The owner does not write code; Claude writes everything. Explain changes in
 plain language, not jargon.
 
-**Gemini now writes the code and Claude tests and reviews it** (pull
-requests from `gemini/*` branches; routine in `docs/HANDOFF.md`, "Working
-with Gemini"). Don't merge without green CI and the owner's agreement.
+**Gemini writes most of the code and tests; Claude does the visual
+design, the 20.8 ruling-systems engine, and reviews** (owner, 23 Nov
+2026). Gemini merges its own `gemini/*` pull requests when CI is green,
+except those labelled `needs-claude` (looks, region PRs, saves, shared
+engine, multiplayer sync, weakened tests; list in `GEMINI.md`). Claude
+reviews and merges the labelled ones when CI is green. Routine in
+`docs/HANDOFF.md`, "Working with Gemini". Visual work: Claude draws
+mock-ups, the owner picks, Gemini builds, Claude checks the screenshots.
 
 **Start with `docs/HANDOFF.md`**: current state, the owner's wishes, how to
 build and verify from the cloud workspace. **The agreed plan is
