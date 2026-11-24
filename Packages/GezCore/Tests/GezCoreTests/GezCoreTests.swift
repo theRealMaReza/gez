@@ -513,7 +513,7 @@ final class EconomyTests: XCTestCase {
         let world = Scenario1453.makeWorld()
         let eco = world.economy
         XCTAssertEqual(eco.goods.count, 62)
-        XCTAssertEqual(eco.markets.count, 42)
+        XCTAssertEqual(eco.markets.count, 51)
         XCTAssertEqual(eco.provinceMarket.count, world.provinces.count)
         XCTAssertFalse(eco.marketLinks.isEmpty)
         for p in world.provinces.ids {
@@ -679,7 +679,7 @@ final class FinanceTests: XCTestCase {
 
     func testBanksLoad() {
         let world = Scenario1453.makeWorld()
-        XCTAssertEqual(world.finance.banks.count, 15)
+        XCTAssertEqual(world.finance.banks.count, 18)
         XCTAssertTrue(world.finance.loans.isEmpty)
     }
 
@@ -1227,7 +1227,7 @@ final class MilitaryDataTests: XCTestCase {
 
     func testStartingStandingArmiesOf1453() {
         let w = Scenario1453.makeWorld()
-        XCTAssertEqual(w.military.armies.count, 39)
+        XCTAssertEqual(w.military.armies.count, 48)
 
         let tur = w.countries.id(forTag: "TUR")!
         let konst = w.provinces.id(named: "Konstantiniyye")!
