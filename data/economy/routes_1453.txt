@@ -73,3 +73,11 @@ PHA | horses       | Lhasa         | Chengdu       | 20
 DRG | wool         | Lhasa         | Chengdu       | 25
 MNG | silk_cloth   | Chengdu       | Lhasa         | 10
 NEP | salt         | Lhasa         | Delhi         | 25
+# Steppe horse and fur trade
+OIR | horses       | Karakorum     | Beijing       | 30
+URI | horses       | Karakorum     | Beijing       | 15
+OIR | furs         | Karakorum     | Samarkand     | 10
+# Manchurian fur and horse trade
+JZH | furs         | Ula           | Beijing       | 25
+HXI | horses       | Ula           | Beijing       | 15
+JZH | furs         | Ula           | Hanyang       | 10

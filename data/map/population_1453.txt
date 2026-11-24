@@ -45,3 +45,5 @@ Korea | 7500000
 Japan | 11000000
 Tarim Basin | 1200000
 Tibet | 2500000
+Mongolia | 1500000
+Manchuria | 1200000

@@ -275,7 +275,7 @@ HAK | Hakkari Emirate | 140 100 120 | tribal | sunni
 MRD | Mordvins | 120 150 120 | tribal | folk
 KOM | Komi | 110 140 130 | tribal | folk
 SMI | Sami | 150 170 190 | tribal | folk
-OIR | Oirats | 170 110 110 | tribal | tengri
+OIR | Oirats | 170 110 110 | steppeHorde | tengri | Karakorum
 TKM | Turkmen Tribes | 180 140 120 | tribal | sunni
 KHK | Khokhars | 160 130 90 | tribal | sunni
 DRD | Dard Tribes | 130 130 160 | tribal | twelver
@@ -359,3 +359,12 @@ GNT | Gungthang | 145 120 170 | monarchy | tibetan | Dzongka
 DRG | Derge | 120 80 135 | monarchy | tibetan | Derge
 AMD | Amdo | 180 140 105 | tribal | tibetan | Rebkong
 BHU | Bhutan | 220 130 55 | theocracy | tibetan | Bumthang
+
+# Mongols and Oirats (Phase 20.7)
+NYU | Northern Yuan | 195 160 75 | steppeHorde | tengri | Shangdu
+URI | Uriankhai | 135 150 115 | steppeHorde | tengri | Taining
+
+# Manchuria / Jurchens (Phase 20.7)
+JZH | Jianzhou Jurchens | 215 160 55 | tribal | siberian | Hetu Ala
+HXI | Haixi Jurchens | 185 110 75 | tribal | siberian | Ula
+WJR | Wild Jurchens | 115 145 110 | tribal | siberian | Nurgan

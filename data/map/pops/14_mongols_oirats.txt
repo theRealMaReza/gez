@@ -1,0 +1,72 @@
+# Mongolia
+@ Dzungaria
+oirat tengri 75
+moghul sunni.hanafi 15
+kyrgyz tengri 10
+> Beshbalik
+oirat tengri 60
+moghul sunni.hanafi 25
+oirat mahayana 15
+> Urumqi
+oirat tengri 70
+moghul sunni.hanafi 20
+oirat mahayana 10
+
+@ Western Mongolia
+oirat tengri 85
+oirat tibetan 10
+buryat siberian 5
+> Tuva
+oirat tengri 55
+buryat siberian 45
+> Khovsgol
+oirat tengri 65
+buryat siberian 35
+
+@ Orkhon and Selenge
+mongol tengri 65
+oirat tengri 25
+mongol tibetan 10
+> Karakorum
+mongol tengri 50
+oirat tengri 30
+mongol tibetan 15
+northern_han confucian 5
+> Barguzin
+buryat tengri 65
+buryat siberian 35
+> Selenge
+mongol tengri 60
+buryat tengri 40
+
+@ Eastern Mongolia
+mongol tengri 90
+mongol tibetan 10
+> Hulunbuir
+mongol tengri 75
+buryat siberian 25
+
+@ Inner Mongolia and Ordos
+mongol tengri 80
+mongol tibetan 10
+northern_han confucian 10
+> Ordos
+mongol tengri 75
+northern_han confucian 15
+mongol tibetan 10
+> Hohhot
+mongol tengri 70
+northern_han confucian 20
+mongol tibetan 10
+> Shangdu
+mongol tengri 75
+mongol tibetan 15
+northern_han confucian 10
+
+@ Uriankhai Three Guards
+mongol tengri 80
+northern_han confucian 15
+mongol mahayana 5
+> Doyan
+mongol tengri 75
+northern_han confucian 25

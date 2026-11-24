@@ -83,3 +83,8 @@ OUC | Ouchi Retinue              | Suo     | ouchi_n    | infantry:2, archers:1
 KMK | Kamakura Retinue           | Sagami  | ashikaga_su | cavalry:1, infantry:2
 PHA | Yarlung Guard              | Nedong  | -          | infantry:2, cavalry:1
 RIN | Tsang Retinue              | Shigatse| norzang_rin | cavalry:2, infantry:2
+OIR | Oirat Tumen                | Karakorum | esen_taishi | horse_archers:5, cavalry:3
+NYU | Eastern Mongol Tumen       | Shangdu | agbarjin_nyu | horse_archers:3, cavalry:2
+URI | Three Guards Cavalry       | Taining | toqtoa_uri | horse_archers:2, cavalry:1
+JZH | Jianzhou Riders            | Hetu Ala| li_manzhu  | cavalry:2, horse_archers:2
+HXI | Haixi Riders               | Ula     | tala_hxi   | cavalry:2, horse_archers:1

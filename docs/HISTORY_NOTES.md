@@ -684,3 +684,47 @@ Enniskillen.
   `LDK` the Ladakh regional banner from Wikimedia Commons; `RIN`, `GUG`,
   `GNT`, and `AMD` use plain map-colour banners where no Commons arms
   exist (owner's pick, 23 Nov 2026).
+
+## Mongols and Oirats (Phase 20.7, 23 Nov 2026)
+
+- **Three-tag 1453 Mongolia (`OIR`, `NYU`, `URI`):** on 30 May 1453 Esen
+  Taishi of the Oirats (`OIR`, upgraded from `tribal` to `steppeHorde`,
+  capital `Karakorum`) dominated Dzungaria and western/central Mongolia
+  after killing Taisun Khan in 1452, months before proclaiming himself
+  Great Khan in autumn 1453; the Eastern Mongols / Northern Yuan (`NYU`,
+  under Agbarjin Jinong at `Shangdu`, with Kharghuchug, young Markörgis,
+  and Manduul) are modelled as a restless `OIR` vassal at `-2` stability;
+  and the Uriankhai Three Guards (`URI`: Doyan, Taining, Fuyu) form a
+  Ming tributary buffer along the Liaodong–Mongolia frontier (owner's
+  pick, 23 Nov 2026).
+- **Doubtful dates and chiefs:** birth years of Togon Taishi, Amasanj,
+  Öshtömör, Alag Chingsang, and Kharghuchug are approximate (`?`), as is
+  the 1453 Uriankhai Three Guards chief (`Toqto'a of Doyan`). The exact
+  month of Esen's banquet purge of Agbarjin in 1453 is uncertain (`?`).
+- **Shields:** `OIR` keeps its Wikimedia Commons Dzungar banner; `NYU`
+  uses the 1911–1921 Mongol Soyombo banner from Wikimedia Commons; `URI`
+  uses a plain map-colour banner where no Commons arms exist (owner's
+  pick, 23 Nov 2026).
+
+## Manchuria and the Jurchens (Phase 20.7, 23 Nov 2026)
+
+- **Three Jurchen groups (`JZH`, `HXI`, `WJR`):** modelled along Ming's
+  15th-century division into **Jianzhou Jurchens** (`JZH`, Ming
+  tributary), **Haixi Jurchens** (`HXI`, Ming tributary), and **Wild
+  Jurchens** (`WJR`, independent Amur–Ussuri–Sakhalin tribes after the
+  1434 closure of the Ming Nurgan Commission). Jurchen shamanism is
+  grouped under `siberian`.
+- **Jianzhou leaders:** Li Manzhu (chief of Jianzhou Guard, d. 1467)
+  rules `JZH` with son Li Gunaha (d. 1467) as heir, while Aisin Gioro
+  Dongshan (`holds:Hetu_Ala`, Jianzhou Left Guard, d. 1466) and his uncle
+  Fanca (`holds:Changbai`, Jianzhou Right Guard, d. c. 1458) are modelled
+  as internal great vassals. Birth years of Ahachu, Li Manzhu, Li Gunaha,
+  Dongshan, and Fanca are approximate (`?`).
+- **Haixi and Wild Jurchens:** in 1453 the Haixi and Wild Jurchens were
+  divided into dozens of local *weisuo* guard chieftaincies prior to the
+  late-16th-century Four Hulun consolidation; `Tala of Haixi` and `Boji
+  of Nurgan` are placeholder 1453 chiefs (`?`).
+- **Shields:** `JZH` uses the 1601+ Manchu Plain Yellow Banner and `HXI`
+  uses the earlier Jurchen Jin banner from Wikimedia Commons; `WJR` uses
+  a plain map-colour banner where no Commons arms exist (owner's pick,
+  23 Nov 2026).

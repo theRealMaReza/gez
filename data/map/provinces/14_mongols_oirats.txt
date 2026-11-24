@@ -1,0 +1,46 @@
+# Mongolia
+@ Dzungaria
+Tarbagatai | 46.75 82.98 | OIR s 2
+Zaysan | 47.47 84.87 | OIR s 2
+Altay | 47.85 88.14 | OIR m 1
+Manas | 44.30 86.22 | OIR s 2
+Beshbalik | 43.99 89.18 | OIR s 3
+Urumqi | 43.82 87.62 | OIR h 2
+
+@ Western Mongolia
+Kobdo | 48.01 91.64 | OIR s 3
+Ulaangom | 49.98 92.07 | OIR s 2
+Uliastai | 47.74 96.84 | OIR s 2
+Tsetserleg | 47.48 101.45 | OIR s 2
+Bayankhongor | 46.19 100.72 | OIR s 1
+Tuva | 51.71 94.45 | OIR m 1
+Khovsgol | 50.45 100.16 | OIR w 1
+
+@ Orkhon and Selenge
+Karakorum | 47.20 102.84 | OIR s 4
+Tuul | 47.92 106.92 | OIR s 3
+Mandalgovi | 45.76 106.27 | OIR s 1
+Selenge | 50.25 106.21 | OIR s 2
+Barguzin | 51.83 107.58 | OIR w 2
+Khentii | 48.50 109.00 | OIR m 2
+
+@ Eastern Mongolia
+Kerulen | 47.32 110.66 | NYU s 3
+Onon | 49.05 112.10 | NYU s 2
+Dornod | 48.07 114.53 | NYU s 2
+Hulunbuir | 49.21 119.76 | NYU s 2
+Sukhbaatar | 46.68 113.28 | NYU s 2
+
+@ Inner Mongolia and Ordos
+Ordos | 39.61 109.78 | NYU s 3
+Hohhot | 40.84 111.75 | NYU s 3
+Chahar | 42.20 114.80 | NYU s 2
+Shangdu | 42.36 116.18 | NYU s 3
+Xilinhot | 43.93 116.05 | NYU s 2
+
+@ Uriankhai Three Guards
+Doyan | 41.58 119.15 | URI h 3
+Taining | 43.62 122.26 | URI s 3
+Fuyu | 45.62 122.84 | URI s 2
+Ulanhot | 46.08 122.07 | URI h 2
+Bairin | 43.53 118.67 | URI s 2

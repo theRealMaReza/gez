@@ -56,6 +56,9 @@ MNG JOS tributary
 MNG RYU tributary
 MNG CHL tributary
 MNG KDL tributary
+MNG URI tributary
+MNG JZH tributary
+MNG HXI tributary
 MNG LIJ vassal
 MNG BOZ vassal
 MNG SHX vassal
@@ -65,6 +68,9 @@ MGH DUG vassal
 
 # Tibet (Phase 20.7)
 PHA RIN vassal
+
+# Oirat-Mongol suzerainty (Phase 20.7)
+OIR NYU vassal
 
 # Ashikaga Shogunate shugo vassals (1453)
 ASH HSK vassal

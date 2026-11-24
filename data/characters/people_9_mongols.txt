@@ -1,0 +1,18 @@
+# Families of the Oirats, Northern Yuan, and Uriankhai Three Guards, 1453.
+
+@ OIR
+dead   | togon_taishi    | Togon Taishi        | Choros    | m | 1390 | d:1439 | ambitious, strategist | Oirat taishi, father of Esen Taishi; birth year?
+ruler  | esen_taishi     | Esen Taishi         | Choros    | m | 1407 | f:togon_taishi | strategist, ambitious, brave, cruel | Oirat leader at the zenith of power after Tumu (1449); proclaimed Khagan in autumn 1453
+heir   | amasanj_oir     | Amasanj             | Choros    | m | 1430 | f:esen_taishi | brave, ambitious | son of Esen Taishi, appointed taishi in 1453; birth year?
+child  | oshtomor_oir    | Oshtomor            | Choros    | m | 1435 | f:esen_taishi | brave | son of Esen Taishi, later Oirat taishi (d. 1478); birth year?
+figure | alag_chingsang  | Alag Chingsang      | Oirat     | m | 1410 | | ambitious, wrathful, strategist | powerful Oirat grand councillor who later rebelled against Esen (1454-1455); birth year?
+
+@ NYU
+dead   | taisun_khan     | Taisun Khan (Toghtoa Bukha) | Borjigin | m | 1416 | d:1452 | brave | Khagan of the Northern Yuan, defeated and killed by Esen in 1452
+ruler  | agbarjin_nyu    | Agbarjin Jinong     | Borjigin  | m | 1423 | | ambitious, deceitful | younger brother of Taisun Khan, briefly elevated by Esen in 1453 before the banquet purge
+heir   | kharghuchug_nyu | Kharghuchug         | Borjigin  | m | 1437 | f:agbarjin_nyu | brave | son of Agbarjin, father of Bayan Mongke; birth year?
+figure | markorgis_nyu   | Markorgis           | Borjigin  | m | 1448 | f:taisun_khan | | young son of Taisun Khan, crowned Northern Yuan Khagan in 1455
+figure | manduul_nyu     | Manduul             | Borjigin  | m | 1438 | | patient, brave | younger brother of Taisun Khan and Agbarjin, later Khagan (r. 1475-1479)
+
+@ URI
+ruler  | toqtoa_uri      | Toqto'a of Doyan    | Uriankhai | m | 1415 | | diplomat, brave | chieftain of the Uriankhai Three Guards (Doyan, Taining, Fuyu); 1453 chief and birth year?

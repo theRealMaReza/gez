@@ -53,3 +53,5 @@ Kyoto         | Kyoto
 Hakata        | Chikuzen
 Kashgar       | Kashgar
 Lhasa         | Lhasa
+Karakorum     | Karakorum
+Ula           | Ula

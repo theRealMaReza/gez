@@ -226,3 +226,10 @@ PHA | File:Flag of Tibet.svg | Tibetan Snow Lion flag, later era (owner's pick)
 DRG | File:Flag of the General Derge Se (Tibet).svg | Historical Derge banner (owner's pick)
 BHU | File:Flag of Bhutan (1949–1956).svg | Drukpa dragon banner, later era (owner's pick)
 LDK | File:Flag of Ladakh, India.svg | Ladakh regional banner, later era (owner's pick)
+
+# Mongols (Phase 20.7, owner's pick)
+NYU | File:Flag of Mongolia (1911—1921).svg | Mongol Soyombo banner, later era (owner's pick)
+
+# Manchuria / Jurchens (Phase 20.7, owner's picks)
+JZH | File:Plain Yellow Banner.svg | Manchu Plain Yellow Banner, 1601+ (owner's pick)
+HXI | File:Banner of the Jin (Jurchen) dynasty.png | Earlier Jurchen Jin banner (owner's pick)

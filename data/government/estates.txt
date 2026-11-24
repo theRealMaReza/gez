@@ -32,7 +32,7 @@ where | mamluks | tags:MAM
 where | dhimmi | muslim
 where | rajputs | india
 where | tribes | government:tribal,steppeHorde
-where | tribes | tags:MOR,TUN,TLE,ZAY,HEJ,MSH,QAR,AKK,TIM,HRT,UZB,MGH,DUG,GRH,CRI,KAZ,MUL,DEL,SHI,DUL,RAM
+where | tribes | tags:MOR,TUN,TLE,ZAY,HEJ,MSH,QAR,AKK,TIM,HRT,UZB,MGH,DUG,OIR,NYU,URI,GRH,CRI,KAZ,MUL,DEL,SHI,DUL,RAM
 
 # Cultures whose rural people are organised as tribes (for the Tribes estate).
 tribal_cultures | bedouin, najdi, berber, tuareg, turkmen, nogai, uzbek, kyrgyz, baloch, pashtun, hazara, kurdish, luri, beja, somali, afar, oromo, bashkir, moghul
