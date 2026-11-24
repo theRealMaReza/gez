@@ -1387,6 +1387,23 @@ func _init_bridge_and_map() -> void:
 			height_img.convert(Image.FORMAT_L8)
 			projector.call("set_height_image", height_img)
 			map3d.call("set_height_texture", ImageTexture.create_from_image(height_img))
+	# Phase 20.7: smooth borders and coasts come from a baked distance field
+	# (tools/terrain/bake_terrain.py). Without it (or if it is stale) every
+	# pixel reads as far from any edge, so the map shows no borders.
+	var edge_tex: Texture2D = null
+	var edges_path := _find_asset_file("Terrain/edges.png", "res://../App/Resources/Terrain/edges.png")
+	if not edges_path.is_empty():
+		var edges_img := Image.load_from_file(edges_path)
+		if edges_img != null and edges_img.get_width() == w and edges_img.get_height() == h:
+			edges_img.convert(Image.FORMAT_R8)
+			edge_tex = ImageTexture.create_from_image(edges_img)
+		else:
+			push_error("Terrain/edges.png is missing or not the map's size: run tools/terrain/bake_terrain.py")
+	if edge_tex == null:
+		var blank := Image.create(1, 1, false, Image.FORMAT_R8)
+		blank.fill(Color(1, 1, 1))
+		edge_tex = ImageTexture.create_from_image(blank)
+	map_material.set_shader_parameter("edge_tex", edge_tex)
 	map_material.set_shader_parameter("map_size", map_size)
 	map_material.set_shader_parameter("id_tex", id_tex)
 	map_material.set_shader_parameter("sea_tex", sea_tex)

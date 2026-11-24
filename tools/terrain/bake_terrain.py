@@ -8,6 +8,8 @@ Inputs
   Packages/GezCore/Sources/GezCore/Resources/seas1453.idmap (unknown land)
 Output
   App/Resources/Terrain/terrain.jpg          (same size as the province map)
+  App/Resources/Terrain/edges.png            (border distance field, Phase 20.7;
+                                              see edge_field.py)
   docs/terrain_preview.jpg                   (small preview)
 
 How it paints:
@@ -21,13 +23,19 @@ How it paints:
 
 Run after mapgen.py whenever the map or terrain types change:
   python3 tools/terrain/bake_terrain.py
+Only the border field (no elevation needed):
+  python3 tools/terrain/bake_terrain.py --edges-only
 """
 import json
 import os
+import sys
 
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter
 from scipy import ndimage
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import edge_field  # noqa: E402
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 OFFSET = 12000
@@ -147,8 +155,19 @@ def paint(elev, ids, lat, prov_terrain, wobble, n1, n2, k):
     return color
 
 
+def bake_edges(ids):
+    """Phase 20.7: the smooth border and coast field (edge_field.py)."""
+    path = os.path.join(ROOT, "App/Resources/Terrain/edges.png")
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    Image.fromarray(edge_field.bake(ids), "L").save(path, optimize=True)
+    print(f"wrote {path} ({os.path.getsize(path) / 1e6:.1f} MB)")
+
+
 def main():
     ids = load_idmap(os.path.join(ROOT, "Packages/GezCore/Sources/GezCore/Resources/provinces1453.idmap"))
+    bake_edges(ids)
+    if "--edges-only" in sys.argv[1:]:
+        return
     elev = np.array(Image.open(os.path.join(ROOT, "data/terrain/elevation.png"))).astype(np.float32) - OFFSET
     scenario = json.load(open(os.path.join(ROOT, "Packages/GezCore/Sources/GezCore/Resources/scenario1453.json")))
     H, W = ids.shape

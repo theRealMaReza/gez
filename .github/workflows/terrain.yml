@@ -31,7 +31,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
-          git add data/terrain/elevation.png App/Resources/Terrain/terrain.jpg App/Resources/Terrain/height.png docs/terrain_preview.jpg
+          git add data/terrain/elevation.png App/Resources/Terrain/terrain.jpg App/Resources/Terrain/height.png App/Resources/Terrain/edges.png docs/terrain_preview.jpg
           git diff --cached --quiet && exit 0
           git commit -m "Update elevation and baked terrain (fetched by CI)"
           git pull --rebase origin "$GITHUB_REF_NAME"
