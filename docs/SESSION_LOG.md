@@ -239,3 +239,24 @@ truce (Galata surrendered on 1 June 1453, two days after the start).
 - The simulation had one pixel-based rule: sea travel (`baseSeaPixelsPerDay`
   over zone-centre distances). `seaDistance` now counts 32-px/degree
   pixels, so fleets keep their speed; NavyTests caught it.
+
+
+## Session 17 (24 Nov 2026): 20.7 smooth borders, Hagia Sophia, review of #46–#48 (Claude)
+- `needs-claude` PRs were merged from the owner's account; main went red
+  after #48 and nobody noticed. After a Gemini merge, check main's CI.
+- A year of full simulation inside a unit test makes it depend on wars:
+  the shipbuilding test broke because Venice was (most likely) occupied,
+  which cancels builds. Test one system by calling its step directly.
+- Smooth borders: an unsigned distance can't be blended across an id
+  edge (it is 0.5 on both sides). Rebuild a signed one from the 4 nearest
+  pixels (+ own id, − others); a signed blur with a floor of 0.3 rounds
+  the steps without losing 1-pixel straits.
+- The map shader can be rendered here without the Swift extension: a
+  PlaneMesh with the shader and PNGs of the id, sea and style textures
+  (made in Python from the idmaps and scenario JSON). Same for model
+  mock-ups (load models.bin in GDScript). Good for before/after pictures.
+- A dispatched run and a PR run of the same branch both queue for the Mac
+  runners; cancel one. Only dispatched runs publish preview shots, and
+  they overwrite each other on `ci-snapshots-preview`.
+- Lakes: `bake_heightmap.py` put them at sea level (pits on plateaus);
+  in the shader they still fall into the parchment branch (HANDOFF).

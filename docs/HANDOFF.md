@@ -509,6 +509,10 @@ docs/              HANDOFF (this), ROADMAP, DESIGN, HISTORY_NOTES, CREDITS, prev
 - GitHub warns that `actions/setup-python@v5` and `upload-artifact@v4` run
   on Node 20; bump to the next major versions when convenient (the
   workspace could not check which exist).
+- Lakes (Baikal, Ladoga, Van...) are drawn as pale parchment: in
+  `map3d.gdshader`, water outside every sea zone takes the old "terra
+  incognita" branch. Fix needs mapgen to mark lakes inside unknown land
+  (Australia) so they stay blank; then draw zone-0 water as water.
 - 208 uncertain facts about people and the 1453 government choices are
   waiting for the owner in `docs/HISTORY_NOTES.md`.
 
