@@ -4,7 +4,8 @@ The short version of `docs/HANDOFF.md` and `docs/ROADMAP.md`, mirrored to
 the claude.ai Project as `claude/STATUS.md`. Everything else lives in the
 repo (`theRealMaReza/gez`): read only the parts a task needs.
 
-Last updated: 23 November 2026 (East Asia core #44; Gemini handover, PR #45).
+Last updated: 24 November 2026 (session 17: smooth borders #51, Hagia Sophia #54,
+review of Gemini's #46–#48).
 
 ## Repo move (21–22 Nov 2026)
 - Old account `yv28f5k922-dot` suspended (owner appealed). New repo
@@ -78,6 +79,22 @@ Last updated: 23 November 2026 (East Asia core #44; Gemini handover, PR #45).
   princes and tusi, Joseon, the Ashikaga and 15 shugo, Ryukyu, the Ainu;
   229 provinces (1,607). Mongolia, Manchuria, Tibet and the Tarim are
   still wasteland.
+- **20.7 rest of East Asia** (Gemini, #46 Tarim and Moghulistan, #47 Tibet
+  and Bhutan, #48 Mongols, Oirats and Manchuria; 1,732 provinces). Merged
+  from the owner's account without Claude's review although labelled
+  `needs-claude`; Claude checked them afterwards (24 Nov): Kunga Lekpa's
+  birth year (#50); highland lakes were pits on the 3D map (#52); main
+  was red after #48 (shipbuilding test, #53). Several shields are
+  20th-century flags (owner's picks).
+- **20.7 smooth borders** (Claude, #51): borders and coasts from a baked
+  distance field (`tools/terrain/edge_field.py` → `edges.png`, made by
+  `bake_terrain.py`), smooth curves at every zoom; far fewer texture reads.
+  A test fails if `edges.png` is stale. Timing tool for the M1:
+  `godot/tools/profile_map.gd` (owner to run).
+- **20.7 landmarks** (Claude): Hagia Sophia built in code, owner's pick B
+  (Mehmed II's red-brick minaret), #54. A town with a named landmark
+  keeps its castle only if there is room beside it (Constantinople:
+  none). Next: one landmark per region.
 - **Phase 20.7 part 1, Old World map foundation** (Claude, PR #43, 23 Nov):
   map grown to Afro-Eurasia (25 W–148 E, 35 S–71.5 N) at **48 px/degree**
   (8304 × 5112, owner's pick after measuring: about +580 MB in the game);
@@ -91,13 +108,14 @@ Last updated: 23 November 2026 (East Asia core #44; Gemini handover, PR #45).
   expansion, regional governance, formables) with Claude's review notes.
 
 ## Next
-1. Owner, when convenient: the paintings; a look at the new interface on
+1. Owner, when convenient: on the M1, `./godot/build_mac.sh`, then
+   `/Applications/Godot.app/Contents/MacOS/Godot --path godot --script
+   res://tools/profile_map.gd` (border speed before/after); the paintings; a look at the new interface on
    the Mac (`git pull`, `./godot/build_mac.sh`): frame rate on the M1 when
    zoomed out (painted chart) and when windows open; try the Chronicle,
    Ledger and Timelapse medallions in the left column.
-2. **20.7 region PRs** (Gemini writes, Claude reviews; guide in HANDOFF):
-   the rest of East Asia (Mongolia, Manchuria, Tibet, Tarim), Southeast
-   Asia, Siberia, Africa south of the Equator, and the
+2. **20.7 region PRs** (Gemini writes, Claude reviews; guide in HANDOFF;
+   East Asia is done): Southeast Asia, Siberia, Africa south of the Equator, and the
    still-empty Sahel and Guinea coast; then 20.8, then the rest of 20.5. Also on
    the Mac: frame rate of the new battle view (smoke, more haze) and of
    towns on first load.

@@ -430,6 +430,11 @@ Several pull requests per region, each green in CI on its own.
   new land, new faiths (Mahayana, Confucian, Daoist, Shinto; West African,
   Bantu, East African, Siberian, Austronesian, Highland). Guide for the
   region pull requests: `docs/HANDOFF.md`, "Old World region pull requests".
+- **Done (24 Nov 2026)**: East Asia regions (Gemini #44, #46–#48);
+  smooth borders and coasts from a baked distance field (Claude #51);
+  first landmark, Hagia Sophia (Claude #54, owner's pick B).
+- **Next, landmarks**: one per region, built in code
+  (`tools/models/landmarks.py`, `MapModels.LANDMARKS`).
 - **Next, region pull requests (Gemini, reviewed by Claude)**: East Asia
   (Ming, Korea, Japan, Ryukyu, Mongolia, Manchuria, Tibet, Tarim; the
   core, Ming, Korea, Japan, Ryukyu and the Ainu, is #44, 229 provinces),
