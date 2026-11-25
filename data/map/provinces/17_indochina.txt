@@ -1,0 +1,59 @@
+# Siam and Lan Xang
+@ Chao Phraya
+Ayutthaya | 14.35 100.57 | AYU f 7
+Ratchaburi | 13.54 99.82 | AYU f 4
+Chanthaburi | 12.61 102.10 | AYU w 3
+Khorat | 14.97 102.10 | AYU p 4
+Phitsanulok | 16.82 100.26 | AYU f 5
+Kamphaeng Phet | 16.48 99.52 | AYU p 3
+
+@ Tenasserim and Kra
+Tenasserim | 12.09 99.01 | AYU w 3
+Chaiya | 9.39 99.20 | AYU w 2
+Ligor | 8.43 99.96 | AYU f 4
+Pattani | 6.87 101.25 | PAT f 4
+Kelantan | 6.12 102.24 | PAT w 2
+Kedah | 6.12 100.37 | KED f 3
+
+@ Lan Na
+Chiang Mai | 18.79 98.98 | LNA f 6
+Chiang Rai | 19.91 99.83 | LNA h 4
+Lampang | 18.29 99.49 | LNA h 3
+Nan | 18.78 100.77 | LNA m 3
+Phrae | 18.14 100.14 | LNA h 2
+
+@ Lan Xang
+Luang Prabang | 19.89 102.13 | LXA m 5
+Vientiane | 17.97 102.63 | LXA f 5
+Xiangkhouang | 19.45 103.18 | LXA m 2
+Savannakhet | 16.55 104.75 | LXA p 3
+Champasak | 14.89 105.88 | LXA f 3
+Ubon | 15.23 104.86 | LXA p 2
+
+@ Cambodia
+Chaktomuk | 11.56 104.92 | KHM f 6
+Angkor | 13.41 103.87 | KHM f 4
+Battambang | 13.10 103.20 | KHM f 3
+Kampot | 10.61 104.18 | KHM w 2
+Prey Nokor | 10.78 106.70 | KHM f 4
+Kratie | 12.49 106.02 | KHM w 2
+
+# Dai Viet and Champa
+@ Red River Delta
+Thang Long | 21.03 105.85 | DAI f 7
+Nam Dinh | 20.43 106.17 | DAI f 5
+Lang Son | 21.85 106.76 | DAI m 3
+Tuyen Quang | 21.82 105.21 | DAI m 2
+Son La | 21.33 103.91 | DAI m 2
+
+@ Central Viet
+Thanh Hoa | 19.81 105.78 | DAI f 5
+Nghe An | 18.67 105.69 | DAI f 4
+Thuan Hoa | 16.46 107.59 | DAI f 4
+
+@ Champa
+Vijaya | 13.78 109.22 | CHA f 5
+Amaravati | 15.88 108.33 | CHA h 3
+Kauthara | 12.24 109.19 | CHA h 3
+Panduranga | 11.56 108.99 | CHA h 3
+Kon Tum | 14.35 108.00 | CHA m 2

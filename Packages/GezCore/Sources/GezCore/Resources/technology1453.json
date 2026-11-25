@@ -67,7 +67,7 @@
   "neighbour_bonus_cap": 0.25,
   "neighbour_bonus_per_level": 0.05
  },
- "provinceCount": 1763,
+ "provinceCount": 1805,
  "startingLevels": {
   "countries": {
    "BOH": [
@@ -188,6 +188,11 @@
     3,
     3,
     3
+   ],
+   "Dai Viet and Champa": [
+    3,
+    3,
+    4
    ],
    "Deccan": [
     3,
@@ -330,6 +335,11 @@
     3
    ],
    "Scandinavia": [
+    3,
+    3,
+    3
+   ],
+   "Siam and Lan Xang": [
     3,
     3,
     3

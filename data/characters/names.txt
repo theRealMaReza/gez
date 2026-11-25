@@ -48,3 +48,4 @@ hmong_mien        | Xiong, Yang, Vang, Moua, Lee, Thao, Lor | Mai, Yee, Mee, Jou
 ainu              | Koshamain, Shakushain, Menkakush, Onibishi, Kanari | Huci, Monok, Pirika, Cise
 tibetic           | Tashi, Dorje, Sonam, Karma, Lobsang, Gyaltsen, Namgyal, Phuntsok, Ngawang, Rinchen, Pema, Wangchuk | Drolma, Yangchen, Lhamo, Pema, Dechen, Chokyi, Tsering, Metok
 tungusic          | Manzhu, Dongshan, Fanca, Mengtemu, Ahachu, Gunaha, Sibe, Boji, Talaha, Wangtai, Nikan, Yeren | Abahai, Yehe, Monggo, Nara, Fuca, Giyamuhun, Ula, Hoifa
+austronesian      | Iskandar, Mansur, Muzaffar, Jaya, Kertawijaya, Hayam, Wijaya, Suraprabhawa, Sulaiman, Bolkiah | Tun Fatimah, Suhita, Putri, Dewi, Ratna, Siti, Kencana

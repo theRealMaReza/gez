@@ -88,3 +88,14 @@ Ava            | fort 2, temple 2, barracks 1
 Pagan          | temple 2
 Toungoo        | fort 1
 Mrauk U        | fort 1, port 1, temple 1
+Ayutthaya      | fort 2, port 2, shipyard 1, temple 2, barracks 1
+Phitsanulok    | fort 1, temple 1
+Ligor          | port 1
+Pattani        | port 1
+Chiang Mai     | fort 2, temple 2, barracks 1
+Luang Prabang  | temple 2, fort 1
+Chaktomuk      | port 1, temple 2, fort 1
+Angkor         | temple 3
+Thang Long     | fort 2, temple 2, college 1, barracks 1
+Nam Dinh       | port 1
+Vijaya         | fort 1, port 1, temple 2

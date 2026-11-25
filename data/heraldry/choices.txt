@@ -238,3 +238,11 @@ HXI | File:Banner of the Jin (Jurchen) dynasty.png | Earlier Jurchen Jin banner 
 AVA | File:Royal Standard of Konbaung Dynasty (Peacock).svg | Burmese Peacock banner, later era (owner's pick)
 PEG | File:Golden Hintar flag of Burma.svg | Mon golden Hintha bird banner (owner's pick)
 ARK | File:Flag of Rakhine.svg | Rakhine regional emblem, later era (owner's pick)
+
+# Siam, Indochina, and Dai Viet (Phase 20.7, owner's picks)
+AYU | File:Flag of Thailand (Ayutthaya period).svg | Ayutthaya red banner (owner's pick)
+LNA | File:Flag of Siam (1855).svg | White elephant banner, later era (owner's pick)
+LXA | File:Flag of Laos (1952–1975).svg | Three-headed elephant banner of Lan Xang (owner's pick)
+KHM | File:Flag of Cambodia (1863–1948).svg | Angkor Wat banner, later era (owner's pick)
+DAI | File:Flag of Later Le dynasty.svg | Later Le dynasty banner (owner's pick)
+KED | File:Flag of Kedah.svg | Kedah regional banner, later era (owner's pick)

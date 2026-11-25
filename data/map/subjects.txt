@@ -92,3 +92,8 @@ MNG MOG tributary
 AVA HSE tributary
 AVA HSI tributary
 AVA KAL vassal
+AYU PAT tributary
+AYU KED tributary
+MNG DAI tributary
+MNG AYU tributary
+MNG CHA tributary

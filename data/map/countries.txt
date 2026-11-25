@@ -377,3 +377,13 @@ MOG | Mong Mao | 105 150 90 | monarchy | theravada | Mong Mao
 HSE | Hsenwi | 165 125 80 | monarchy | theravada | Hsenwi
 HSI | Hsipaw | 135 160 110 | monarchy | theravada | Hsipaw
 KAL | Kale | 150 110 130 | monarchy | theravada | Kale
+
+# Siam, Indochina, and Dai Viet (Phase 20.7)
+AYU | Ayutthaya | 190 70 70 | monarchy | theravada | Ayutthaya
+LNA | Lan Na | 115 160 100 | monarchy | theravada | Chiang Mai
+LXA | Lan Xang | 185 110 55 | monarchy | theravada | Luang Prabang
+KHM | Cambodia | 135 90 155 | monarchy | theravada | Chaktomuk
+DAI | Dai Viet | 180 150 55 | monarchy | mahayana | Thang Long
+CHA | Champa | 150 85 110 | monarchy | hindu | Vijaya
+PAT | Pattani | 85 145 115 | monarchy | sunni | Pattani
+KED | Kedah | 105 130 170 | monarchy | sunni | Kedah

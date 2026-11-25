@@ -133,3 +133,8 @@ stability | URI | 0
 stability | AVA | 1
 stability | PEG | 1
 stability | ARK | 1
+stability | AYU | 1
+stability | LNA | 1
+stability | LXA | 0
+stability | KHM | 0
+stability | DAI | 0

@@ -148,6 +148,13 @@
       "note": "Ming protection over tributary Joseon"
     },
     {
+      "firstTag": "MNG",
+      "secondTag": "DAI",
+      "type": "guarantee",
+      "expiry": null,
+      "note": "Ming tributary recognition of Later Le Dai Viet"
+    },
+    {
       "firstTag": "MEW",
       "secondTag": "MAR",
       "type": "non_aggression",

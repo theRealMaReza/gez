@@ -85,3 +85,8 @@ JZH | furs         | Ula           | Hanyang       | 10
 PEG | wood         | Pegu          | Sonargaon     | 25
 PEG | gems         | Pegu          | Sonargaon     | 15
 BNG | cotton_cloth | Sonargaon     | Pegu          | 20
+# Siam and Dai Viet trade
+AYU | wood         | Ayutthaya     | Guangzhou     | 25
+AYU | pepper       | Ayutthaya     | Pegu          | 20
+DAI | silk_cloth   | Thang Long    | Guangzhou     | 25
+MNG | paper        | Guangzhou     | Thang Long    | 15

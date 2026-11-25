@@ -48,3 +48,5 @@ Tibet | 2500000
 Mongolia | 1500000
 Manchuria | 1200000
 Burma | 4500000
+Siam and Lan Xang | 5500000
+Dai Viet and Champa | 4500000

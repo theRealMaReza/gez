@@ -61,3 +61,6 @@ RYU | Shuri Trade Fleet       | Okinawa  | - | light_ship:3, cog:3
 ## Southeast Asia
 PEG | Martaban Fleet          | Pegu     | - | ghurab:1, dhow:3, cog:2
 ARK | Mrauk U Coastal Fleet   | Mrauk U  | - | ghurab:1, dhow:2, cog:1
+AYU | Gulf of Siam Fleet      | Ayutthaya | - | galley:3, light_ship:2, cog:2
+DAI | Red River Fleet         | Nam Dinh | - | galley:3, light_ship:2, cog:2
+CHA | Champa Coastal Fleet    | Vijaya   | - | galley:2, light_ship:2, cog:1

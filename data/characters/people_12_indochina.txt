@@ -1,0 +1,36 @@
+# Families of Siam, Lan Na, Lan Xang, Cambodia, Dai Viet, and Champa, 1453.
+
+@ AYU
+ruler  | trailok_ayu          | Borommatrailokkanat   | Suphannaphum | m | 1431 | | administrator, diplomat, pious | King of Ayutthaya (r. 1448-1488)
+heir   | borommaracha3_ayu    | Borommarachathirat III| Suphannaphum | m | 1450 | f:trailok_ayu | brave | Son of Trailok (r. 1488-1491); birth year?
+vassal | yutthisthira_ayu     | Phraya Yutthisthira   | Phra Ruang   | m | 1420 | holds:Phitsanulok | ambitious, brave | Lord of Phitsanulok / Sukhothai; birth year?
+vassal | si_thammarat_ayu     | Phraya Si Thammarat   | Ligor        | m | 1415 | holds:Ligor | diplomat, patient | Lord of Ligor (Nakhon Si Thammarat); birth year?
+
+@ LNA
+ruler  | tilokarat_lna        | Tilokarat             | Mangrai      | m | 1409 | | strategist, ambitious, pious | King of Lan Na (r. 1441-1487)
+heir   | bunruang_lna         | Thao Bunruang         | Mangrai      | m | 1435 | f:tilokarat_lna | brave | Son of Tilokarat; birth year?
+
+@ LXA
+ruler  | chakkaphat_lxa       | Chakkaphat Phaen Phaeo| Khun Lo      | m | 1415 | | patient, diplomat | King of Lan Xang (r. 1442-1479)
+heir   | suvanna_banlang_lxa  | Suvanna Banlang       | Khun Lo      | m | 1445 | f:chakkaphat_lxa | brave | Son of Chakkaphat (r. 1479-1486)
+
+@ KHM
+ruler  | ponhea_yat_khm       | Ponhea Yat            | Varman       | m | 1396 | | strategist, diligent | King of Cambodia, founder of Chaktomuk (r. 1431-1463)
+heir   | narayanaraja_khm     | Narayanaraja I        | Varman       | m | 1425 | f:ponhea_yat_khm | pious | Son of Ponhea Yat (r. 1463-1469); birth year?
+
+@ DAI
+dead   | le_thai_tong_dai     | Le Thai Tong          | Later Le     | m | 1423 | d:1442 | brave, diligent | Emperor of Dai Viet (r. 1433-1442)
+figure | nguyen_thi_anh_dai   | Nguyen Thi Anh        | Nguyen       | f | 1422 | s:le_thai_tong_dai | schemer, administrator | Empress Dowager and regent of Dai Viet until 1453
+ruler  | le_nhan_tong_dai     | Le Nhan Tong          | Later Le     | m | 1441 | f:le_thai_tong_dai m:nguyen_thi_anh_dai | kind, pious | Emperor of Dai Viet (r. 1442-1459), assumed personal rule in 1453
+heir   | le_thanh_tong_dai    | Le Tu Thanh           | Later Le     | m | 1442 | f:le_thai_tong_dai | scholar, administrator, strategist | Prince of Binh Nguyen, future Emperor Le Thanh Tong (r. 1460-1497)
+figure | le_nghi_dan_dai      | Le Nghi Dan           | Later Le     | m | 1439 | f:le_thai_tong_dai | ambitious, schemer | Prince of Lang Son, eldest half-brother of Le Nhan Tong
+
+@ CHA
+ruler  | maha_qui_do_cha      | Maha Quy Do           | Vijaya       | m | 1415 | | brave, patient | King of Champa (r. 1452-1458); birth year?
+heir   | maha_ban_la_cha      | Maha Ban La Tra Toan  | Vijaya       | m | 1430 | | brave | Heir of Champa; birth year?
+
+@ PAT
+ruler  | sri_wangsa_pat       | Phaya Tu Nakpa        | Sri Wangsa   | m | 1415 | | diplomat | Ruler of Pattani; 1453 ruler and birth year?
+
+@ KED
+ruler  | sulaiman_shah_ked    | Sulaiman Shah I       | Kedah        | m | 1405 | | pious, patient | Sultan of Kedah (r. 1423-1473); birth year?

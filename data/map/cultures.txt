@@ -257,3 +257,10 @@ shan | Shan | tai
 karen | Karen | tibeto_burman
 kachin | Kachin | tibeto_burman
 chin | Chin | tibeto_burman
+siamese | Siamese | tai
+northern_thai | Northern Thai | tai
+lao | Lao | tai
+khmer | Khmer | austroasiatic
+vietnamese | Vietnamese | austroasiatic
+cham | Cham | austronesian
+malay | Malay | austronesian

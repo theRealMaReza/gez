@@ -91,3 +91,9 @@ HXI | Haixi Riders               | Ula     | tala_hxi   | cavalry:2, horse_arche
 AVA | Royal Army of Ava          | Ava     | narapati_ava | infantry:4, cavalry:2, archers:2
 PEG | Hanthawaddy Guard          | Pegu    | dhammazedi_peg | infantry:3, archers:2, cavalry:1
 ARK | Arakanese Levies           | Mrauk U | min_khayi_ark | infantry:2, archers:1
+AYU | Royal Army of Ayutthaya    | Ayutthaya | trailok_ayu | infantry:5, cavalry:2, archers:2
+LNA | Chiang Mai Host            | Chiang Mai | tilokarat_lna | infantry:3, cavalry:1, archers:2
+LXA | Lan Xang Elephants         | Luang Prabang | chakkaphat_lxa | infantry:3, cavalry:2
+KHM | Chaktomuk Guard            | Chaktomuk | ponhea_yat_khm | infantry:3, archers:1
+DAI | Imperial Army of Dai Viet  | Thang Long | - | infantry:5, archers:3, cavalry:1
+CHA | Vijaya Guard               | Vijaya | maha_qui_do_cha | infantry:2, archers:1

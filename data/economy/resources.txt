@@ -375,3 +375,16 @@ Lower Irrawaddy | grain 5, wood 4, cotton 2
 Lower Burma | grain 6, wood 4, fish 3, salt 2
 Arakan | grain 4, fish 4, salt 3, wood 3
 Shan States | silver 3, gems 4, wood 4, iron 2
+
+Siam and Lan Xang @farmland | grain 6, sugar 3, wood 2
+Siam and Lan Xang @woods | wood 5, pepper 3, tin 2
+Chao Phraya | grain 7, sugar 3, fish 3, wood 2
+Tenasserim and Kra | tin 4, pepper 3, wood 3, fish 3
+Lan Na | wood 5, grain 4, iron 2, silver 1
+Lan Xang | wood 5, grain 4, iron 2, gems 2
+Cambodia | grain 6, fish 4, wood 3, pepper 2
+
+Dai Viet and Champa @farmland | grain 6, raw_silk 3, sugar 2
+Red River Delta | grain 7, raw_silk 4, fish 3, iron 2
+Central Viet | grain 5, wood 4, fish 3, salt 2
+Champa | wood 4, pepper 3, fish 3, gold 2

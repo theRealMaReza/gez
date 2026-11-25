@@ -56,3 +56,5 @@ Lhasa         | Lhasa
 Karakorum     | Karakorum
 Ula           | Ula
 Pegu          | Pegu
+Ayutthaya     | Ayutthaya
+Thang Long    | Thang Long
