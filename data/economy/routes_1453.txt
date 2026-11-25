@@ -81,3 +81,7 @@ OIR | furs         | Karakorum     | Samarkand     | 10
 JZH | furs         | Ula           | Beijing       | 25
 HXI | horses       | Ula           | Beijing       | 15
 JZH | furs         | Ula           | Hanyang       | 10
+# Burma and Bay of Bengal trade
+PEG | wood         | Pegu          | Sonargaon     | 25
+PEG | gems         | Pegu          | Sonargaon     | 15
+BNG | cotton_cloth | Sonargaon     | Pegu          | 20

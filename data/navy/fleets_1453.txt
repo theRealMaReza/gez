@@ -57,3 +57,7 @@ MNG | Fujian Coastal Squadron | Quanzhou | - | light_ship:4, galley:4, cog:3
 JOS | Cholla Naval Command    | Suncheon | - | galley:6, light_ship:2, cog:2
 OUC | Ouchi Tally Fleet       | Nagato   | - | light_ship:2, galley:3, cog:3
 RYU | Shuri Trade Fleet       | Okinawa  | - | light_ship:3, cog:3
+
+## Southeast Asia
+PEG | Martaban Fleet          | Pegu     | - | ghurab:1, dhow:3, cog:2
+ARK | Mrauk U Coastal Fleet   | Mrauk U  | - | ghurab:1, dhow:2, cog:1

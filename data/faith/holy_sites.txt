@@ -66,3 +66,5 @@ site | Mount Kailash | Purang | tibetan, hindu, jain
 site | Sakya Monastery | Sakya | tibetan
 site | Kumbum | Xining | tibetan
 site | Burkhan Khaldun | Khentii | tengri
+site | Shwedagon Pagoda | Dagon | theravada
+site | Bagan | Pagan | theravada

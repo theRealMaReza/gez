@@ -88,3 +88,7 @@ ASH TKD vassal
 ASH IMG vassal
 ASH DTE vassal
 ASH AND vassal
+MNG MOG tributary
+AVA HSE tributary
+AVA HSI tributary
+AVA KAL vassal

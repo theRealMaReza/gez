@@ -1,0 +1,32 @@
+# Families of Burma and the Shan States, 1453.
+
+@ AVA
+dead   | mohnyin_thado_ava    | Mohnyin Thado          | Ava      | m | 1379 | d:1439 | brave, ambitious | King of Ava (r. 1426-1439)
+ruler  | narapati_ava         | Narapati I             | Ava      | m | 1413 | f:mohnyin_thado_ava | strategist, diligent, pious | King of Ava (r. 1442-1468)
+spouse | atula_thiri_ava      | Atula Thiri            | Ava      | f | 1415 | s:narapati_ava | pious, kind | Chief Queen of Ava; birth year?
+heir   | thihathura_ava       | Thihathura I           | Ava      | m | 1431 | f:narapati_ava m:atula_thiri_ava | brave, ambitious | Crown Prince of Ava (r. 1468-1480)
+vassal | minye_kyawswa_prome  | Minye Kyawswa of Prome | Ava      | m | 1415 | f:mohnyin_thado_ava holds:Prome | brave, strategist | Viceroy of Prome; birth year?
+vassal | minkhaung_toungoo    | Minkhaung of Toungoo   | Toungoo  | m | 1420 | holds:Toungoo | ambitious, schemer | Governor of Toungoo (r. 1451-1458); birth year?
+
+@ PEG
+dead   | razadarit_peg        | Razadarit              | Wareru   | m | 1368 | d:1421 | strategist, brave | King of Hanthawaddy (r. 1384-1421)
+ruler  | shin_sawbu_peg       | Shin Sawbu             | Wareru   | f | 1394 | f:razadarit_peg | pious, diplomat, just | Queen of Hanthawaddy (r. 1453-1471)
+heir   | dhammazedi_peg       | Dhammazedi             | Wareru   | m | 1409 | | pious, scholar, diplomat | Former monk and heir of Shin Sawbu (r. 1471-1492)
+child  | mi_pakahtaw_peg      | Mi Pakahtaw            | Wareru   | f | 1425 | m:shin_sawbu_peg s:dhammazedi_peg | kind, pious | Daughter of Shin Sawbu and wife of Dhammazedi; birth year?
+
+@ ARK
+ruler  | min_khayi_ark        | Min Khayi              | Mrauk U  | m | 1392 | | brave, strategist, diplomat | King of Arakan (Ali Khan, r. 1434-1459)
+heir   | ba_saw_phyu_ark      | Ba Saw Phyu            | Mrauk U  | m | 1430 | f:min_khayi_ark | ambitious, pious | Crown Prince of Arakan (r. 1459-1482)
+
+@ MOG
+ruler  | si_lufa_mog          | Si Lufa                | Mong Mao | m | 1420 | | brave, diligent | Shan sawbwa of Mong Mao / Mengyang after 1449; birth year?
+heir   | si_hongfa_mog        | Si Hongfa              | Mong Mao | m | 1440 | f:si_lufa_mog | brave | Heir of Mong Mao; birth year?
+
+@ HSE
+ruler  | hkam_hkai_hse        | Hkam Hkai Hpa          | Hsenwi   | m | 1415 | | diplomat, patient | Sawbwa of Hsenwi; 1453 ruler and birth year?
+
+@ HSI
+ruler  | hkam_hom_hsi         | Hkam Hom Hpa           | Hsipaw   | m | 1418 | | pious, diplomat | Sawbwa of Hsipaw; 1453 ruler and birth year?
+
+@ KAL
+ruler  | min_udi_kal          | Min Udi                | Kale     | m | 1415 | | brave | Sawbwa of Kale; 1453 ruler and birth year?

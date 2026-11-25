@@ -60,6 +60,7 @@ region | Tarim Basin             | 3 | 3 | 3
 region | Tibet                   | 3 | 2 | 2
 region | Mongolia                | 2 | 2 | 3
 region | Manchuria               | 2 | 2 | 2
+region | Burma                   | 3 | 3 | 3
 
 ## Country overrides (capital in a neighbouring region or distinct 1453 focus)
 country | TUR | 4 | 4 | 4

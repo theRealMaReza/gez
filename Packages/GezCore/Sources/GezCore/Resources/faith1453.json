@@ -444,6 +444,20 @@
       "religions": [
         "tengri"
       ]
+    },
+    {
+      "name": "Shwedagon Pagoda",
+      "province": "Dagon",
+      "religions": [
+        "theravada"
+      ]
+    },
+    {
+      "name": "Bagan",
+      "province": "Pagan",
+      "religions": [
+        "theravada"
+      ]
     }
   ]
 }

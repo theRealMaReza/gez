@@ -47,3 +47,4 @@ Tarim Basin | 1200000
 Tibet | 2500000
 Mongolia | 1500000
 Manchuria | 1200000
+Burma | 4500000

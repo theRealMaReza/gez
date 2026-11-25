@@ -110,3 +110,7 @@ Mongolia               | leather 5, weapons 3, wool_cloth 2
 Karakorum              | leather 5, weapons 4, tools 3, carpets 2
 Manchuria              | leather 5, weapons 3, tools 2
 Ula                    | leather 5, weapons 4, tools 3
+Burma                  | cotton_cloth 4, pottery 3, naval_supplies 3, jewelry 2
+Ava                    | cotton_cloth 5, jewelry 4, weapons 3
+Pegu                   | naval_supplies 5, pottery 4, cotton_cloth 3
+Martaban               | pottery 5, naval_supplies 4, tools 2

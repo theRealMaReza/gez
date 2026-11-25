@@ -1,0 +1,41 @@
+# Burma
+@ Upper Burma
+Ava | 21.85 95.98 | AVA f 6
+Pagan | 21.17 94.86 | AVA p 4
+Shwebo | 22.57 95.70 | AVA p 3
+Meiktila | 20.88 95.86 | AVA p 3
+Magway | 20.15 94.95 | AVA p 2
+Tagaung | 23.50 96.01 | AVA w 2
+
+@ Lower Irrawaddy
+Prome | 18.82 95.22 | AVA f 4
+Toungoo | 18.94 96.43 | AVA w 4
+Taungdwingyi | 20.00 95.55 | AVA p 2
+Tharrawaddy | 17.65 95.79 | AVA f 2
+
+@ Lower Burma
+Pegu | 17.33 96.48 | PEG f 6
+Dagon | 16.80 96.15 | PEG f 5
+Bassein | 16.78 94.73 | PEG f 4
+Myaungmya | 16.59 95.25 | PEG f 3
+Martaban | 16.53 97.62 | PEG h 4
+Ye | 15.25 97.86 | PEG w 2
+
+@ Arakan
+Mrauk U | 20.59 93.19 | ARK f 5
+Ramu | 21.43 92.10 | ARK h 2
+Sandoway | 18.46 94.37 | ARK h 3
+Ramree | 19.09 93.87 | ARK h 2
+
+@ Shan States
+Mong Mao | 24.01 97.85 | MOG h 3
+Bhamo | 24.25 97.23 | MOG w 2
+Myitkyina | 25.39 97.40 | MOG m 2
+Hsenwi | 23.30 97.96 | HSE h 3
+Mong Mit | 23.11 96.68 | HSE w 2
+Tangyan | 22.40 98.60 | HSE m 2
+Kengtung | 21.29 99.60 | HSE m 3
+Hsipaw | 22.62 97.30 | HSI h 3
+Yawnghwe | 20.66 96.93 | HSI h 3
+Kale | 23.19 94.06 | KAL w 2
+Homalin | 24.87 94.91 | KAL m 1

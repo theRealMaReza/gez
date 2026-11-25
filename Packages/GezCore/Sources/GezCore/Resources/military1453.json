@@ -2728,6 +2728,115 @@
           "men": 1000
         }
       ]
+    },
+    {
+      "country": "AVA",
+      "name": "Royal Army of Ava",
+      "province": 1732,
+      "commander": "narapati_ava",
+      "regiments": [
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "cavalry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "cavalry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "archers",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "archers",
+          "origin": "professional",
+          "men": 1000
+        }
+      ]
+    },
+    {
+      "country": "PEG",
+      "name": "Hanthawaddy Guard",
+      "province": 1742,
+      "commander": "dhammazedi_peg",
+      "regiments": [
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "archers",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "archers",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "cavalry",
+          "origin": "professional",
+          "men": 1000
+        }
+      ]
+    },
+    {
+      "country": "ARK",
+      "name": "Arakanese Levies",
+      "province": 1748,
+      "commander": "min_khayi_ark",
+      "regiments": [
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "archers",
+          "origin": "professional",
+          "men": 1000
+        }
+      ]
     }
   ]
 }

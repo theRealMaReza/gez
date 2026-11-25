@@ -67,7 +67,7 @@
   "neighbour_bonus_cap": 0.25,
   "neighbour_bonus_per_level": 0.05
  },
- "provinceCount": 1732,
+ "provinceCount": 1763,
  "startingLevels": {
   "countries": {
    "BOH": [
@@ -160,6 +160,11 @@
     3
    ],
    "British Isles": [
+    3,
+    3,
+    3
+   ],
+   "Burma": [
     3,
     3,
     3

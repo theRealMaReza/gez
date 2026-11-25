@@ -81,3 +81,10 @@ Shangdu        | caravanserai 1, barracks 1
 Beshbalik      | caravanserai 1
 Hetu Ala       | barracks 1
 Ula            | caravanserai 1
+Pegu           | port 2, shipyard 1, temple 2, fort 1
+Dagon          | temple 2, port 1
+Martaban       | port 2
+Ava            | fort 2, temple 2, barracks 1
+Pagan          | temple 2
+Toungoo        | fort 1
+Mrauk U        | fort 1, port 1, temple 1
