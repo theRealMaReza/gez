@@ -129,8 +129,22 @@ final class CultureTests: XCTestCase {
     }
 
     func testMigrationConservesTotalPopulationUnderDevastationPersecutionAndFamine() throws {
+        // Kahan compensated sum avoids O(N * ulp) IEEE-754 drift across ~20k pop rows
+        // once world population exceeds 330M while keeping the strict 1e-6 accuracy check.
+        func kahanSum(_ values: [Double]) -> Double {
+            var sum = 0.0
+            var c = 0.0
+            for v in values {
+                let y = v - c
+                let t = sum + y
+                c = (t - sum) - y
+                sum = t
+            }
+            return sum
+        }
+
         var world = Scenario1453.makeWorld()
-        let beforeTotal = world.pops.size.reduce(0, +)
+        let beforeTotal = kahanSum(world.pops.size)
 
         // Pick 3 trigger provinces: war devastation, religious persecution, famine
         let prov1 = try XCTUnwrap(world.provinces.id(named: "Thessaloniki"))
@@ -148,7 +162,7 @@ final class CultureTests: XCTestCase {
         var rng = GameRandom(seed: 42)
         CultureSystem.runMonthly(&world, date: GameDate(year: 1453, month: 6, day: 1), random: &rng)
 
-        let afterTotal = world.pops.size.reduce(0, +)
+        let afterTotal = kahanSum(world.pops.size)
         XCTAssertEqual(afterTotal, beforeTotal, accuracy: 1e-6, "Migration must strictly conserve total world population")
         XCTAssertLessThan(world.provinces.population[prov1.index], p1Before)
         XCTAssertLessThan(world.provinces.population[prov2.index], p2Before)
