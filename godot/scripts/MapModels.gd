@@ -332,7 +332,22 @@ static func town_reach_cap(reach_px: float, tier: int) -> float:
 # province under that point shows the landmark instead of its great
 # building. More come one per region (tools/models/landmarks.py).
 const LANDMARKS := [
-	["hagia_sophia", 41.008, 28.980],   # Konstantiniyye (owner's pick B, 24 Nov 2026)
+	["hagia_sophia", 41.008, 28.980],       # Konstantiniyye (owner's pick B, 24 Nov 2026)
+	["florence_cathedral", 43.770, 11.260], # Florence
+	["notre_dame", 48.860, 2.350],          # Paris
+	["cologne_cathedral", 50.940, 6.960],   # Cologne (unfinished with crane)
+	["westminster_abbey", 51.510, -0.130],  # London
+	["alhambra", 37.180, -3.600],           # Granada
+	["pyramids_of_giza", 30.040, 31.240],   # Cairo
+	["dome_of_the_rock", 31.770, 35.210],   # Jerusalem
+	["lalibela", 12.030, 39.040],           # Lalibela
+	["gur_e_amir", 39.650, 66.960],         # Samarkand
+	["qutb_minar", 28.610, 77.210],         # Delhi
+	["virupaksha_temple", 15.340, 76.460],  # Vijayanagara
+	["gyantse_kumbum", 28.910, 89.600],     # Gyantse
+	["forbidden_city", 39.900, 116.400],    # Beijing
+	["kinkaku_ji", 35.010, 135.770],        # Kyoto
+	["gyeongbokgung", 37.570, 126.980],     # Hanyang
 ]
 var _landmark_ids: Dictionary = {}   # province id (as in id_image) -> mesh
 

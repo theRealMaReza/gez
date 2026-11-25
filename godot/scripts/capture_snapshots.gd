@@ -182,6 +182,28 @@ func _run_captures() -> void:
 	root_node.call("focus_map_point", aegean, 0.6 / MapScale.k)
 	await _save_shot("godot_map_borders_chart.png")
 
+	# Phase 20.7: close-up shots of the 1453 landmarks.
+	for lm in [
+		["godot_landmark_florence.png", 43.770, 11.260],
+		["godot_landmark_paris.png", 48.860, 2.350],
+		["godot_landmark_cologne.png", 50.940, 6.960],
+		["godot_landmark_london.png", 51.510, -0.130],
+		["godot_landmark_granada.png", 37.180, -3.600],
+		["godot_landmark_cairo.png", 30.040, 31.240],
+		["godot_landmark_jerusalem.png", 31.770, 35.210],
+		["godot_landmark_lalibela.png", 12.030, 39.040],
+		["godot_landmark_samarkand.png", 39.650, 66.960],
+		["godot_landmark_delhi.png", 28.610, 77.210],
+		["godot_landmark_vijayanagara.png", 15.340, 76.460],
+		["godot_landmark_gyantse.png", 28.910, 89.600],
+		["godot_landmark_beijing.png", 39.900, 116.400],
+		["godot_landmark_kyoto.png", 35.010, 135.770],
+		["godot_landmark_hanyang.png", 37.570, 126.980],
+	]:
+		var lpt: Vector2 = bridge.call("getFocusPoint", lm[1], lm[2])
+		root_node.call("focus_map_point", lpt, 5.5 / MapScale.k)
+		await _save_shot(lm[0])
+
 	# Phase 9 Battle & Siege Assault Snapshots:
 	# Start a fresh Ottoman game and march the Imperial Army to Kruje (660) to engage Albania.
 	bridge.call("startNewGame", "TUR")

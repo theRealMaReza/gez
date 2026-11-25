@@ -757,7 +757,12 @@ def tree(kind=0):
 PLINTH = (0.31, 0.26, 0.20)
 # Meshes (name before the style) that get baked ambient occlusion: towns,
 # forts, ports, armies and fleets.
-AO_MESHES = {"house_a", "house_b", "temple", "landmark", "market", "hagia_sophia", "fort1", "fort2", "fort3",
+AO_MESHES = {"house_a", "house_b", "temple", "landmark", "market", "hagia_sophia",
+             "florence_cathedral", "notre_dame", "cologne_cathedral", "westminster_abbey", "alhambra",
+             "pyramids_of_giza", "dome_of_the_rock", "lalibela",
+             "gur_e_amir", "qutb_minar", "virupaksha_temple", "gyantse_kumbum",
+             "forbidden_city", "kinkaku_ji", "gyeongbokgung",
+             "fort1", "fort2", "fort3",
              "pier", "ship", "sail", "soldier_body", "soldier_gear", "archer_gear", "rider_body",
              "rider_gear", "flag_pole", "flag_cloth"}
 
@@ -920,6 +925,24 @@ def build_library():
     # red-brick minaret, as it stood just after the conquest.
     import landmarks
     lib["hagia_sophia"] = with_plinth(normalise_base(landmarks.hagia_sophia(minarets=1), 2.8), pad=0.09)
+    for name, fn, width in [
+        ("florence_cathedral", landmarks.florence_cathedral, 2.7),
+        ("notre_dame", landmarks.notre_dame, 2.6),
+        ("cologne_cathedral", landmarks.cologne_cathedral, 2.6),
+        ("westminster_abbey", landmarks.westminster_abbey, 2.6),
+        ("alhambra", landmarks.alhambra, 2.7),
+        ("pyramids_of_giza", landmarks.pyramids_of_giza, 2.8),
+        ("dome_of_the_rock", landmarks.dome_of_the_rock, 2.5),
+        ("lalibela", landmarks.lalibela, 2.4),
+        ("gur_e_amir", landmarks.gur_e_amir, 2.5),
+        ("qutb_minar", landmarks.qutb_minar, 2.4),
+        ("virupaksha_temple", landmarks.virupaksha_temple, 2.6),
+        ("gyantse_kumbum", landmarks.gyantse_kumbum, 2.5),
+        ("forbidden_city", landmarks.forbidden_city, 2.8),
+        ("kinkaku_ji", landmarks.kinkaku_ji, 2.4),
+        ("gyeongbokgung", landmarks.gyeongbokgung, 2.6),
+    ]:
+        lib[name] = with_plinth(normalise_base(fn(), width), pad=0.09)
 
     lib["pier"] = pier()
     lib["flag_pole"] = flag_pole()
