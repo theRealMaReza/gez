@@ -67,7 +67,7 @@
   "neighbour_bonus_cap": 0.25,
   "neighbour_bonus_per_level": 0.05
  },
- "provinceCount": 1970,
+ "provinceCount": 2021,
  "startingLevels": {
   "countries": {
    "BOH": [
@@ -194,6 +194,11 @@
     3,
     2
    ],
+   "Congo Basin": [
+    2,
+    2,
+    2
+   ],
    "Dai Viet and Champa": [
     3,
     3,
@@ -298,6 +303,11 @@
     4,
     4,
     3
+   ],
+   "Madagascar": [
+    2,
+    2,
+    2
    ],
    "Maghreb": [
     3,
@@ -412,6 +422,11 @@
    "Western Sahel": [
     3,
     3,
+    2
+   ],
+   "Zambezi and Southern Africa": [
+    2,
+    2,
     2
    ]
   }

@@ -434,3 +434,20 @@ RWA | Rwanda | 135 120 175 | monarchy | bantu | Nyanza
 BRD | Burundi | 185 100 115 | monarchy | bantu | Muramvya
 ORO | Borana | 195 140 85 | tribal | east_african | Borena
 SHL | Shilluk | 125 145 120 | tribal | east_african | Fashoda
+
+# Central Africa, Southern Africa, and Madagascar (Phase 20.7)
+KON | Kongo | 190 70 70 | monarchy | bantu | Mbanza Kongo
+LOA | Loango | 115 155 125 | monarchy | bantu | Buali
+NDG | Ndongo | 175 110 75 | monarchy | bantu | Kabasa
+TIO | Tio | 145 120 165 | monarchy | bantu | Mbe
+LBA | Luba | 195 145 65 | monarchy | bantu | Mwibele
+LND | Lunda | 125 145 170 | monarchy | bantu | Musumba
+MTP | Mutapa | 205 160 55 | monarchy | bantu | Mount Fura
+BTW | Butua | 165 100 90 | monarchy | bantu | Khami
+SOT | Sotho-Tswana | 150 135 90 | tribal | bantu | Kaditshwene
+NGU | Nguni | 110 155 105 | tribal | bantu | Natal
+KHO | Khoikhoi | 180 140 110 | tribal | bantu | Cape of Good Hope
+MER | Merina | 185 85 95 | monarchy | austronesian | Alasora
+SAK | Sakalava | 115 145 160 | tribal | austronesian | Menabe
+ANT | Antemoro | 155 165 95 | monarchy | sunni | Vohipeno
+BTS | Betsimisaraka | 140 165 130 | tribal | austronesian | Tamatave

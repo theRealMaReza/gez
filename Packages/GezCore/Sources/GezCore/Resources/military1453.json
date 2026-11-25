@@ -3588,6 +3588,143 @@
           "men": 1000
         }
       ]
+    },
+    {
+      "country": "KON",
+      "name": "Kongo Royal Guard",
+      "province": 1970,
+      "commander": "nkuwu_a_ntinu_kon",
+      "regiments": [
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "archers",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "archers",
+          "origin": "professional",
+          "men": 1000
+        }
+      ]
+    },
+    {
+      "country": "LBA",
+      "name": "Luba Warriors",
+      "province": 1987,
+      "commander": "kalala_ilunga_lba",
+      "regiments": [
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "archers",
+          "origin": "professional",
+          "men": 1000
+        }
+      ]
+    },
+    {
+      "country": "MTP",
+      "name": "Mutapa Royal Host",
+      "province": 1993,
+      "commander": "matope_mtp",
+      "regiments": [
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "archers",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "archers",
+          "origin": "professional",
+          "men": 1000
+        }
+      ]
+    },
+    {
+      "country": "MER",
+      "name": "Imerina Guard",
+      "province": 2012,
+      "commander": "andrianamponga_mer",
+      "regiments": [
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "archers",
+          "origin": "professional",
+          "men": 1000
+        }
+      ]
     }
   ]
 }

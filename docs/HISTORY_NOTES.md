@@ -811,3 +811,18 @@ Enniskillen.
   and exact 1453 rulers for `MBA`, `MLD`, `BRD`, and `ORO`.
 - **Shields:** `BGD` and `KIL` use verified Wikimedia Commons banners;
   remaining East African tags use plain map-colour banners (owner's pick).
+
+### Central Africa, Southern Africa, and Madagascar (Phase 20.7, May 1453)
+- **Southern Africa**: Kalahari and Namib kept as permanent wasteland in
+  `data/map/provinces/09_wasteland.txt`; habitable lands south of Mutapa
+  and Butua populated with Sotho-Tswana (`SOT`), Nguni (`NGU`), and
+  Khoikhoi (`KHO`) down to the Cape of Good Hope (owner's pick).
+- **Mutapa and Great Zimbabwe**: `MTP` under `Matope Nyanhehwe Nebedza`
+  (r. c. 1450–1480) holds Mount Fura, Great Zimbabwe, Tete, Manyika, and
+  Maravi, with Torwa Butua (`BTW`) at Khami and Mapungubwe.
+- **Approximate (`?`) dates**: birth years for `Nkuwu a Ntinu`, `Nzinga
+  a Nkuwu`, `Matope`, `Nyahuma`, and exact 1453 rulers for `LOA`, `NDG`,
+  `TIO`, `LBA`, `LND`, `BTW`, `SOT`, `NGU`, `KHO`, `MER`, `SAK`, `ANT`,
+  and `BTS`.
+- **Shields:** `KON` and `MER` use verified Wikimedia Commons banners;
+  remaining tags use plain map-colour banners (owner's pick).

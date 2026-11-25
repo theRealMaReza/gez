@@ -1,0 +1,48 @@
+# Families of Central Africa, Southern Africa, and Madagascar, 1453.
+
+@ KON
+ruler  | nkuwu_a_ntinu_kon    | Nkuwu a Ntinu          | Lukeni    | m | 1415 | | diplomat, administrator | Manikongo of Kongo (r. c. 1450-1470); birth year?
+heir   | nzinga_a_nkuwu_kon   | Nzinga a Nkuwu         | Lukeni    | m | 1440 | f:nkuwu_a_ntinu_kon | ambitious, diplomat | Future King Joao I of Kongo (r. 1470-1509); birth year?
+
+@ LOA
+ruler  | njimbe_loa           | Maloango Njimbe        | Loango    | m | 1415 | | diplomat | Ruler of Loango; 1453 ruler and birth year?
+
+@ NDG
+ruler  | ngola_inene_ndg      | Ngola Inene            | Ndongo    | m | 1415 | | brave | Ruler of Ndongo; 1453 ruler and birth year?
+
+@ TIO
+ruler  | nkwia_tio            | Makoko Nkwia           | Teke      | m | 1415 | | patient | Ruler of Tio (Anziku); 1453 ruler and birth year?
+
+@ LBA
+ruler  | kalala_ilunga_lba    | Kalala Ilunga          | Luba      | m | 1415 | | brave, strategist | Mulopwe of the Luba Kingdom; 1453 ruler and birth year?
+
+@ LND
+ruler  | yala_mwaku_lnd       | Mwata Yala Mwaku       | Lunda     | m | 1415 | | patient | Ruler of Lunda; 1453 ruler and birth year?
+
+@ MTP
+ruler  | matope_mtp           | Matope Nyanhehwe Nebedza | Mutapa  | m | 1415 | | strategist, ambitious, brave | Mwene Mutapa expanding from Great Zimbabwe to the Zambezi (r. c. 1450-1480); birth year?
+heir   | nyahuma_mtp          | Nyahuma Mukombero      | Mutapa    | m | 1440 | f:matope_mtp | patient | Heir of Mutapa (r. c. 1480-1490); birth year?
+
+@ BTW
+ruler  | chibundule_btw       | Torwa Chibundule       | Torwa     | m | 1415 | | diligent, administrator | Ruler of Butua at Khami; 1453 ruler and birth year?
+
+@ SOT
+ruler  | masilo_sot           | Kgosi Masilo           | Kwena     | m | 1415 | | patient | Sotho-Tswana chief; 1453 leader and birth year?
+
+@ NGU
+ruler  | malandela_ngu        | Inkosi Malandela       | Nguni     | m | 1415 | | brave | Nguni chief; 1453 leader and birth year?
+
+@ KHO
+ruler  | goringhai_kho        | Chief Goringhai        | Khoikhoi  | m | 1415 | | patient | Khoikhoi chief at the Cape; 1453 leader and birth year?
+
+@ MER
+ruler  | andrianamponga_mer   | Andrianamponga         | Imerina   | m | 1415 | | diligent, just | Early Merina ruler at Alasora; 1453 ruler and birth year?
+
+@ SAK
+ruler  | andriamandazoala_sak | Andriamandazoala       | Maroserana| m | 1415 | | brave | Sakalava chief in western Madagascar; 1453 ruler and birth year?
+
+@ ANT
+ruler  | ramakararo_ant       | Ramakararo             | Antemoro  | m | 1415 | | pious, scholar | Antemoro leader in southeastern Madagascar; 1453 ruler and birth year?
+
+@ BTS
+ruler  | antavaratra_bts      | Chief Antavaratra      | Betsimisaraka | m | 1415 | | brave | Eastern Malagasy chief; 1453 leader and birth year?

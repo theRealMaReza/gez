@@ -502,6 +502,13 @@
       "religions": [
         "sunni"
       ]
+    },
+    {
+      "name": "Great Zimbabwe",
+      "province": "Great Zimbabwe",
+      "religions": [
+        "bantu"
+      ]
     }
   ]
 }

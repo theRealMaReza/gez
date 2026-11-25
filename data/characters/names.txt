@@ -56,3 +56,4 @@ chadic            | Yakubu, Rumfa, Korau, Bagauda, Kanajeji, Umaru, Abdullahi, I
 saharan           | Idris, Ali, Muhammad, Dunama, Biri, Umar, Othman, Dawud | Magira, Aissa, Gumsu, Fatima, Maryam, Halima
 yoruba            | Ewuare, Ozolua, Kori, Oranyan, Oduduwa, Ajaka, Sango, Olua, Aganju | Idia, Moremi, Yemoja, Adeola, Funke, Folake
 akan              | Asaman, Ameyaw, Osei, Kwame, Kofi, Kwaku, Nana, Yaw | Akosua, Abena, Afua, Ama, Yaa, Adwoa
+khoisan           | Autshumao, Krotoa, Goringhai, Nama, Doman, Oedasoa | Krotoa, Sara, Nisa, Xoa

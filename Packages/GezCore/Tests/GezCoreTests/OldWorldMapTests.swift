@@ -443,4 +443,33 @@ final class OldWorldMapTests: XCTestCase {
         let bagamoyo = world.provinces.id(named: "Bagamoyo")!
         XCTAssertTrue(world.provinces.neighbors[zanzibar.index].contains(bagamoyo))
     }
+
+    /// Phase 20.7 Central Africa, Southern Africa, and Madagascar: Kongo,
+    /// Loango, Ndongo, Tio, Luba, Lunda, Mutapa, Butua, Sotho-Tswana, Nguni,
+    /// Khoikhoi, and Malagasy polities.
+    func testCentralSouthernAfricaAndMadagascar() {
+        let world = Scenario1453.makeWorld()
+        guard let kon = world.countries.id(forTag: "KON"),
+              let lba = world.countries.id(forTag: "LBA"),
+              let mtp = world.countries.id(forTag: "MTP"),
+              let btw = world.countries.id(forTag: "BTW"),
+              let kho = world.countries.id(forTag: "KHO"),
+              let mer = world.countries.id(forTag: "MER"),
+              let ant = world.countries.id(forTag: "ANT") else {
+            return XCTFail("missing Central/Southern Africa or Madagascar countries")
+        }
+        for c in [kon, lba, mtp, btw, kho] {
+            XCTAssertEqual(world.countries.religion[c.index], .bantu)
+        }
+        XCTAssertEqual(world.countries.religion[mer.index], .austronesian)
+        XCTAssertEqual(world.countries.religion[ant.index], .sunni)
+        XCTAssertTrue(world.rivers.contains { $0.name == "Congo River" })
+        for name in ["Mbanza Kongo", "Soyo", "Mwibele", "Musumba", "Mount Fura", "Great Zimbabwe", "Khami", "Kaditshwene", "Natal", "Cape of Good Hope", "Alasora", "Menabe", "Vohipeno"] {
+            guard let pid = world.provinces.id(named: name) else {
+                XCTFail("missing Southern Africa/Madagascar province \(name)")
+                continue
+            }
+            XCTAssertFalse(world.provinces.neighbors[pid.index].isEmpty, name)
+        }
+    }
 }
