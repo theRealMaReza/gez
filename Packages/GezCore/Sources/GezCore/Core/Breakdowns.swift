@@ -512,31 +512,31 @@ public enum Breakdowns {
             BreakdownEntry(label: "Ruler \(track.rulerSkill.displayName)", value: b.rulerSkillContrib, formattedValue: signedTwoDecimals(b.rulerSkillContrib)),
             BreakdownEntry(label: "Council (\(track.councilSeat.displayName))", value: b.seatSkillContrib, formattedValue: signedTwoDecimals(b.seatSkillContrib))
         ]
-        if b.sharedCharContrib > 0.0005 {
+        if b.sharedCharContrib > 1e-6 {
             let v = b.sharedCharContrib * f
             entries.append(BreakdownEntry(label: "Court Learning (\(Int((f * 100).rounded()))% focus)", value: v, formattedValue: signedTwoDecimals(v)))
         }
-        if b.sharedCollegeContrib > 0.0005 {
+        if b.sharedCollegeContrib > 1e-6 {
             let v = b.sharedCollegeContrib * f
             entries.append(BreakdownEntry(label: "Colleges & Universities", value: v, formattedValue: signedTwoDecimals(v)))
         }
-        if b.sharedPaperContrib > 0.0005 {
+        if b.sharedPaperContrib > 1e-6 {
             let v = b.sharedPaperContrib * f
             entries.append(BreakdownEntry(label: "Capital Paper supply", value: v, formattedValue: signedTwoDecimals(v)))
         }
-        if b.sharedBooksContrib > 0.0005 {
+        if b.sharedBooksContrib > 1e-6 {
             let v = b.sharedBooksContrib * f
             entries.append(BreakdownEntry(label: "Capital Books supply", value: v, formattedValue: signedTwoDecimals(v)))
         }
         let lawDelta = (sharedAfterLaw - rawShared) * f
-        if abs(lawDelta) > 0.0005 {
+        if abs(lawDelta) > 1e-6 {
             entries.append(BreakdownEntry(
                 label: String(format: "Learning laws (%+.0f%%)", b.govLearningMod * 100.0),
                 value: lawDelta,
                 formattedValue: signedTwoDecimals(lawDelta)
             ))
         }
-        if b.institutionSpeedBonus > 0.0005 {
+        if b.institutionSpeedBonus > 1e-6 {
             let instDelta = preInstSum * b.institutionSpeedBonus
             entries.append(BreakdownEntry(
                 label: "Embraced institutions (\(b.embracedInstitutions) × +5%)",
