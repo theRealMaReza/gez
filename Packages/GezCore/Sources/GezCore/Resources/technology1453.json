@@ -67,7 +67,7 @@
   "neighbour_bonus_cap": 0.25,
   "neighbour_bonus_per_level": 0.05
  },
- "provinceCount": 1859,
+ "provinceCount": 1866,
  "startingLevels": {
   "countries": {
    "BOH": [
@@ -159,11 +159,6 @@
     3,
     3
    ],
-   "Borneo, Philippines and Moluccas": [
-    2,
-    3,
-    2
-   ],
    "British Isles": [
     3,
     3,
@@ -203,6 +198,11 @@
     3,
     3,
     3
+   ],
+   "Eastern Archipelago": [
+    2,
+    3,
+    2
    ],
    "Egypt": [
     4,

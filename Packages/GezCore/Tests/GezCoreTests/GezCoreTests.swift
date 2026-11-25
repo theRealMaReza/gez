@@ -679,7 +679,7 @@ final class FinanceTests: XCTestCase {
 
     func testBanksLoad() {
         let world = Scenario1453.makeWorld()
-        XCTAssertEqual(world.finance.banks.count, 18)
+        XCTAssertEqual(world.finance.banks.count, 19)
         XCTAssertTrue(world.finance.loans.isEmpty)
     }
 

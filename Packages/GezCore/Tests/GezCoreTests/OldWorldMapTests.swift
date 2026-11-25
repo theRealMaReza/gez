@@ -363,8 +363,22 @@ final class OldWorldMapTests: XCTestCase {
         XCTAssertEqual(world.countries.overlord[plb.index], maj)
         XCTAssertEqual(world.countries.subjectType[plb.index], .tributary)
 
-        for name in ["Malacca", "Pasai", "Palembang", "Pakuan", "Trowulan", "Gelgel", "Brunei", "Tondo", "Cebu", "Makassar", "Ternate", "Tidore"] {
-            XCTAssertNotNil(world.provinces.id(named: name), "missing Maritime SEA province \(name)")
+        for name in ["Malacca", "Pasai", "Palembang", "Bangka", "Pakuan", "Trowulan", "Gelgel", "Brunei", "Palawan", "Tondo", "Mindoro", "Cebu", "Makassar", "Buton", "Ternate", "Tidore", "Seram", "Buru"] {
+            guard let pid = world.provinces.id(named: name) else {
+                XCTFail("missing Maritime SEA province \(name)")
+                continue
+            }
+            XCTAssertFalse(world.provinces.neighbors[pid.index].isEmpty, name)
         }
+        // Key archipelago straits
+        let malacca = world.provinces.id(named: "Malacca")!
+        let siak = world.provinces.id(named: "Siak")!
+        let lampung = world.provinces.id(named: "Lampung")!
+        let banten = world.provinces.id(named: "Banten")!
+        let blambangan = world.provinces.id(named: "Blambangan")!
+        let gelgel = world.provinces.id(named: "Gelgel")!
+        XCTAssertTrue(world.provinces.neighbors[malacca.index].contains(siak))
+        XCTAssertTrue(world.provinces.neighbors[lampung.index].contains(banten))
+        XCTAssertTrue(world.provinces.neighbors[blambangan.index].contains(gelgel))
     }
 }

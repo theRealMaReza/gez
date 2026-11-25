@@ -33,6 +33,7 @@ Bhamo | 24.25 97.23 | MOG w 2
 Myitkyina | 25.39 97.40 | MOG m 2
 Hsenwi | 23.30 97.96 | HSE h 3
 Mong Mit | 23.11 96.68 | HSE w 2
+Tangyan | 22.40 98.60 | HSE m 2
 Kengtung | 21.29 99.60 | HSE m 3
 Hsipaw | 22.62 97.30 | HSI h 3
 Yawnghwe | 20.66 96.93 | HSI h 3

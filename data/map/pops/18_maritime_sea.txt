@@ -83,6 +83,9 @@ moluccan austronesian 25
 > Tidore
 moluccan sunni.shafii 70
 moluccan austronesian 30
-> Ambon
+> Seram
 moluccan austronesian 65
 moluccan sunni.shafii 35
+> Buru
+moluccan austronesian 70
+moluccan sunni.shafii 30

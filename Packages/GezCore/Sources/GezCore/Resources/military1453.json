@@ -2841,7 +2841,7 @@
     {
       "country": "AYU",
       "name": "Royal Army of Ayutthaya",
-      "province": 1762,
+      "province": 1763,
       "commander": "trailok_ayu",
       "regiments": [
         {
@@ -2894,7 +2894,7 @@
     {
       "country": "LNA",
       "name": "Chiang Mai Host",
-      "province": 1774,
+      "province": 1775,
       "commander": "tilokarat_lna",
       "regiments": [
         {
@@ -2932,7 +2932,7 @@
     {
       "country": "LXA",
       "name": "Lan Xang Elephants",
-      "province": 1779,
+      "province": 1780,
       "commander": "chakkaphat_lxa",
       "regiments": [
         {
@@ -2965,7 +2965,7 @@
     {
       "country": "KHM",
       "name": "Chaktomuk Guard",
-      "province": 1785,
+      "province": 1786,
       "commander": "ponhea_yat_khm",
       "regiments": [
         {
@@ -2993,7 +2993,7 @@
     {
       "country": "DAI",
       "name": "Imperial Army of Dai Viet",
-      "province": 1791,
+      "province": 1792,
       "commander": null,
       "regiments": [
         {
@@ -3046,7 +3046,7 @@
     {
       "country": "CHA",
       "name": "Vijaya Guard",
-      "province": 1799,
+      "province": 1800,
       "commander": "maha_qui_do_cha",
       "regiments": [
         {
@@ -3069,7 +3069,7 @@
     {
       "country": "MLC",
       "name": "Malacca Royal Guard",
-      "province": 1804,
+      "province": 1805,
       "commander": "tun_perak_mlc",
       "regiments": [
         {
@@ -3102,7 +3102,7 @@
     {
       "country": "PSA",
       "name": "Pasai Guard",
-      "province": 1809,
+      "province": 1810,
       "commander": "abu_zaid_psa",
       "regiments": [
         {
@@ -3125,7 +3125,7 @@
     {
       "country": "MAJ",
       "name": "Majapahit Bhayangkara",
-      "province": 1825,
+      "province": 1828,
       "commander": "rajasawardhana_maj",
       "regiments": [
         {
@@ -3168,7 +3168,7 @@
     {
       "country": "SUN",
       "name": "Pajajaran Guard",
-      "province": 1821,
+      "province": 1824,
       "commander": "sri_baduga_sun",
       "regiments": [
         {
@@ -3196,7 +3196,7 @@
     {
       "country": "BNI",
       "name": "Brunei Guard",
-      "province": 1835,
+      "province": 1838,
       "commander": "sulaiman_bni",
       "regiments": [
         {

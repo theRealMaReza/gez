@@ -130,3 +130,17 @@ stability | PHA | 0
 stability | OIR | 0
 stability | NYU | -2
 stability | URI | 0
+stability | AVA | 1
+stability | PEG | 1
+stability | ARK | 1
+stability | AYU | 1
+stability | LNA | 1
+stability | LXA | 0
+stability | KHM | 0
+stability | DAI | 0
+stability | MLC | 2
+stability | MAJ | 0
+stability | SUN | 1
+stability | PSA | 1
+stability | BNI | 1
+stability | TER | 1
