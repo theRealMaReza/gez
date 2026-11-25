@@ -235,6 +235,6 @@ JZH | File:Plain Yellow Banner.svg | Manchu Plain Yellow Banner, 1601+ (owner's 
 HXI | File:Banner of the Jin (Jurchen) dynasty.png | Earlier Jurchen Jin banner (owner's pick)
 
 # Burma (Phase 20.7, owner's picks)
-AVA | File:Flag of Konbaung dynasty.svg | Burmese Peacock banner, later era (owner's pick)
-PEG | File:Flag of Hanthawaddy Kingdom.svg | Mon Hintha bird banner (owner's pick)
-ARK | File:Flag of Rakhine State.svg | Rakhine regional emblem, later era (owner's pick)
+AVA | File:Royal Standard of Konbaung Dynasty (Peacock).svg | Burmese Peacock banner, later era (owner's pick)
+PEG | File:Golden Hintar flag of Burma.svg | Mon golden Hintha bird banner (owner's pick)
+ARK | File:Flag of Rakhine.svg | Rakhine regional emblem, later era (owner's pick)

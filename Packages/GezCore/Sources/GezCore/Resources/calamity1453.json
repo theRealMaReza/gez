@@ -1,5 +1,5 @@
 {
- "provinceCount": 1762,
+ "provinceCount": 1763,
  "faultZones": [
   {
    "name": "North Anatolian Fault",
@@ -669,6 +669,29 @@
     1556,
     1557,
     1602
+   ]
+  },
+  {
+   "name": "Sagaing Fault",
+   "yearlyChance": 0.02,
+   "strength": 0.9,
+   "provinces": [
+    1732,
+    1733,
+    1734,
+    1735,
+    1736,
+    1737,
+    1738,
+    1739,
+    1740,
+    1748,
+    1755,
+    1756,
+    1757,
+    1759,
+    1760,
+    1761
    ]
   }
  ],

@@ -130,3 +130,6 @@ stability | PHA | 0
 stability | OIR | 0
 stability | NYU | -2
 stability | URI | 0
+stability | AVA | 1
+stability | PEG | 1
+stability | ARK | 1
