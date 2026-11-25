@@ -40,9 +40,6 @@
 ! Africa 24S 24E | -24.0 24.0
 ! Africa 24S 26E | -24.0 26.0
 ! Africa 24S 28E | -24.0 28.0
-! Africa 24S 30E | -24.0 30.0
-! Africa 24S 32E | -24.0 32.0
-! Africa 24S 34E | -24.0 34.0
 ! Africa 24S 44E | -24.0 44.0
 ! Africa 24S 46E | -24.0 46.0
 ! Africa 22S 16E | -22.0 16.0
@@ -52,9 +49,6 @@
 ! Africa 22S 24E | -22.0 24.0
 ! Africa 22S 26E | -22.0 26.0
 ! Africa 22S 28E | -22.0 28.0
-! Africa 22S 30E | -22.0 30.0
-! Africa 22S 32E | -22.0 32.0
-! Africa 22S 34E | -22.0 34.0
 ! Africa 22S 44E | -22.0 44.0
 ! Africa 22S 46E | -22.0 46.0
 ! Africa 22S 48E | -22.0 48.0
@@ -66,9 +60,6 @@
 ! Africa 20S 24E | -20.0 24.0
 ! Africa 20S 26E | -20.0 26.0
 ! Africa 20S 28E | -20.0 28.0
-! Africa 20S 30E | -20.0 30.0
-! Africa 20S 32E | -20.0 32.0
-! Africa 20S 34E | -20.0 34.0
 ! Africa 20S 46E | -20.0 46.0
 ! Africa 20S 48E | -20.0 48.0
 ! Africa 18S 12E | -18.0 12.0
@@ -80,10 +71,6 @@
 ! Africa 18S 24E | -18.0 24.0
 ! Africa 18S 26E | -18.0 26.0
 ! Africa 18S 28E | -18.0 28.0
-! Africa 18S 30E | -18.0 30.0
-! Africa 18S 32E | -18.0 32.0
-! Africa 18S 34E | -18.0 34.0
-! Africa 18S 36E | -18.0 36.0
 ! Africa 18S 44E | -18.0 44.0
 ! Africa 18S 46E | -18.0 46.0
 ! Africa 18S 48E | -18.0 48.0
@@ -96,12 +83,6 @@
 ! Africa 16S 24E | -16.0 24.0
 ! Africa 16S 26E | -16.0 26.0
 ! Africa 16S 28E | -16.0 28.0
-! Africa 16S 30E | -16.0 30.0
-! Africa 16S 32E | -16.0 32.0
-! Africa 16S 34E | -16.0 34.0
-! Africa 16S 36E | -16.0 36.0
-! Africa 16S 38E | -16.0 38.0
-! Africa 16S 40E | -16.0 40.0
 ! Africa 16S 46E | -16.0 46.0
 ! Africa 16S 48E | -16.0 48.0
 ! Africa 14S 14E | -14.0 14.0
@@ -112,12 +93,6 @@
 ! Africa 14S 24E | -14.0 24.0
 ! Africa 14S 26E | -14.0 26.0
 ! Africa 14S 28E | -14.0 28.0
-! Africa 14S 30E | -14.0 30.0
-! Africa 14S 32E | -14.0 32.0
-! Africa 14S 34E | -14.0 34.0
-! Africa 14S 36E | -14.0 36.0
-! Africa 14S 38E | -14.0 38.0
-! Africa 14S 40E | -14.0 40.0
 ! Africa 14S 48E | -14.0 48.0
 ! Africa 14S 50E | -14.0 50.0
 ! Africa 12S 14E | -12.0 14.0
@@ -128,12 +103,6 @@
 ! Africa 12S 24E | -12.0 24.0
 ! Africa 12S 26E | -12.0 26.0
 ! Africa 12S 28E | -12.0 28.0
-! Africa 12S 30E | -12.0 30.0
-! Africa 12S 32E | -12.0 32.0
-! Africa 12S 34E | -12.0 34.0
-! Africa 12S 36E | -12.0 36.0
-! Africa 12S 38E | -12.0 38.0
-! Africa 12S 40E | -12.0 40.0
 ! Africa 10S 14E | -10.0 14.0
 ! Africa 10S 16E | -10.0 16.0
 ! Africa 10S 18E | -10.0 18.0
@@ -142,11 +111,6 @@
 ! Africa 10S 24E | -10.0 24.0
 ! Africa 10S 26E | -10.0 26.0
 ! Africa 10S 28E | -10.0 28.0
-! Africa 10S 30E | -10.0 30.0
-! Africa 10S 32E | -10.0 32.0
-! Africa 10S 34E | -10.0 34.0
-! Africa 10S 36E | -10.0 36.0
-! Africa 10S 38E | -10.0 38.0
 ! Africa 8S 14E | -8.0 14.0
 ! Africa 8S 16E | -8.0 16.0
 ! Africa 8S 18E | -8.0 18.0
@@ -155,11 +119,6 @@
 ! Africa 8S 24E | -8.0 24.0
 ! Africa 8S 26E | -8.0 26.0
 ! Africa 8S 28E | -8.0 28.0
-! Africa 8S 30E | -8.0 30.0
-! Africa 8S 32E | -8.0 32.0
-! Africa 8S 34E | -8.0 34.0
-! Africa 8S 36E | -8.0 36.0
-! Africa 8S 38E | -8.0 38.0
 ! Africa 6S 14E | -6.0 14.0
 ! Africa 6S 16E | -6.0 16.0
 ! Africa 6S 18E | -6.0 18.0
@@ -168,11 +127,6 @@
 ! Africa 6S 24E | -6.0 24.0
 ! Africa 6S 26E | -6.0 26.0
 ! Africa 6S 28E | -6.0 28.0
-! Africa 6S 30E | -6.0 30.0
-! Africa 6S 32E | -6.0 32.0
-! Africa 6S 34E | -6.0 34.0
-! Africa 6S 36E | -6.0 36.0
-! Africa 6S 38E | -6.0 38.0
 ! Africa 4S 12E | -4.0 12.0
 ! Africa 4S 14E | -4.0 14.0
 ! Africa 4S 16E | -4.0 16.0
@@ -182,11 +136,6 @@
 ! Africa 4S 24E | -4.0 24.0
 ! Africa 4S 26E | -4.0 26.0
 ! Africa 4S 28E | -4.0 28.0
-! Africa 4S 30E | -4.0 30.0
-! Africa 4S 32E | -4.0 32.0
-! Africa 4S 34E | -4.0 34.0
-! Africa 4S 36E | -4.0 36.0
-! Africa 4S 38E | -4.0 38.0
 
 # Placeholder wasteland: East Asia
 @ Unmapped East Asia

@@ -495,6 +495,13 @@
       "religions": [
         "west_african"
       ]
+    },
+    {
+      "name": "Great Mosque of Kilwa",
+      "province": "Kilwa",
+      "religions": [
+        "sunni"
+      ]
     }
   ]
 }

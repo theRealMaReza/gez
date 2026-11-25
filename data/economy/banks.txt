@@ -21,3 +21,4 @@ Huizhou Guilds               | Shexian        | 2500 | 0.08 | Jiangnan, Central 
 Kyoto Doso                   | Kyoto          | 1000 | 0.10 | Japan, Korea
 Malacca Guilds               | Malacca        | 1400 | 0.10 | Malaya and Sumatra, Java and Nusa Tenggara, Eastern Archipelago, Siam and Lan Xang, Burma
 Wangara Gold Merchants       | Jenne          | 1100 | 0.11 | Western Sahel, Guinea Coast, Central Sahel, Maghreb
+Swahili Shirazi Merchants    | Kilwa          | 1200 | 0.10 | Swahili Coast, Great Lakes and Upper Nile, Horn of Africa, Arabia

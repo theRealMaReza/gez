@@ -1,0 +1,54 @@
+# Great Lakes and Upper Nile
+@ Upper Nile
+Fashoda | 9.89 32.11 | SHL x 2
+Wau | 7.70 28.00 | SHL s 2
+Juba | 4.85 31.60 | SHL s 2
+Borena | 4.89 38.09 | ORO s 2
+Turkana | 3.12 35.60 | ORO d 1
+Wajir | 1.75 40.06 | ORO d 1
+
+@ Kitara and Buganda
+Bigo | 0.16 31.26 | BNY h 4
+Masindi | 1.68 31.71 | BNY p 3
+Nkore | -0.60 30.65 | BNY h 3
+Karagwe | -1.55 31.13 | BNY h 2
+Mengo | 0.31 32.58 | BGD f 4
+Busoga | 0.65 33.48 | BGD f 3
+Lango | 2.25 32.90 | BGD p 2
+
+@ Rwanda and Burundi
+Nyanza | -2.35 29.75 | RWA m 4
+Kivu | -1.68 29.22 | RWA m 3
+Muramvya | -3.26 29.61 | BRD m 3
+Buha | -4.55 30.10 | BRD h 2
+Ufipa | -7.97 31.62 | BRD h 2
+
+@ Rift Highlands
+Kikuyu | -0.72 37.15 | MLD h 3
+Rift Valley | -0.30 36.07 | BGD h 2
+Kilimanjaro | -3.35 37.34 | MBA m 3
+Unyamwezi | -5.02 32.82 | KIL p 3
+Dodoma | -6.17 35.74 | KIL s 2
+Uhehe | -7.77 35.70 | KIL h 2
+
+# Swahili Coast
+@ Northern Swahili Coast
+Malindi | -3.22 40.12 | MLD f 4
+Lamu | -1.90 40.35 | MLD s 2
+Mombasa | -4.04 39.67 | MBA f 5
+Pangani | -5.43 38.97 | MBA f 3
+
+@ Kilwa and Zanzibar
+Kilwa | -8.96 39.50 | KIL f 6
+Zanzibar | -6.16 39.20 | KIL f 5
+Bagamoyo | -6.44 38.90 | KIL f 3
+Lindi | -10.00 39.72 | KIL w 3
+Ruvuma | -10.70 35.65 | KIL h 2
+
+@ Mozambique Coast
+Mozambique | -15.03 40.73 | KIL f 4
+Angoche | -16.23 39.91 | KIL f 4
+Quelimane | -17.88 36.89 | KIL f 3
+Sofala | -20.15 34.72 | KIL f 5
+Inhambane | -23.86 35.38 | KIL p 2
+Comoros | -11.70 43.25 | KIL h 2
