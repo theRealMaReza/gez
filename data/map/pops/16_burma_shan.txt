@@ -1,0 +1,40 @@
+# Burma and Shan States (1453)
+
+@ Upper Burma
+burmese theravada 85
+shan theravada 10
+chin highland 5
+
+@ Lower Irrawaddy
+burmese theravada 80
+mon theravada 10
+karen highland 10
+
+@ Lower Burma
+mon theravada 75
+burmese theravada 15
+karen highland 10
+
+@ Arakan
+arakanese theravada 70
+bengali sunni.hanafi 20
+chin highland 10
+> Ramu
+arakanese theravada 55
+bengali sunni.hanafi 45
+
+@ Shan States
+shan theravada 75
+burmese theravada 10
+kachin highland 15
+> Myitkyina
+kachin highland 55
+shan theravada 45
+> Kale
+shan theravada 55
+chin highland 30
+burmese theravada 15
+> Homalin
+shan theravada 45
+chin highland 35
+kachin highland 20

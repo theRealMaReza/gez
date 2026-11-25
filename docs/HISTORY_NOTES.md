@@ -728,3 +728,22 @@ Enniskillen.
   uses the earlier Jurchen Jin banner from Wikimedia Commons; `WJR` uses
   a plain map-colour banner where no Commons arms exist (owner's pick,
   23 Nov 2026).
+
+### Burma and Shan States (Phase 20.7, May 1453)
+- **Hanthawaddy Pegu (`PEG`)**: chronicles differ on whether Queen Shin
+  Sawbu ascended in 1453 or early 1454 (after the brief 7-month reign of
+  Leik Munhtaw). Placed Shin Sawbu on the throne in May 1453 with
+  Dhammazedi as heir (owner's pick).
+- **Shan States (`MOG`, `HSE`, `HSI`, `KAL`)**: split into four major
+  *sawbwa* polities (owner's pick). Mong Mao (`MOG`, rump Mengyang after
+  the 1449 Ming campaigns) is a Ming tributary; Hsenwi (`HSE`) and Hsipaw
+  (`HSI`) are Ava tributaries; Kale (`KAL`) is an Ava vassal. Exact 1453
+  *sawbwa* names and birth years for `HSE`, `HSI`, and `KAL` (and birth
+  years for `Si Lufa`, `Si Hongfa`, `Atula Thiri`, `Minye Kyawswa of
+  Prome`, `Minkhaung of Toungoo`, and `Mi Pakahtaw`) are approximate (`?`).
+- **Toungoo and Prome**: modelled as Ava provinces held by internal great
+  vassals (`Minkhaung of Toungoo` and `Minye Kyawswa of Prome`).
+- **Shields:** `AVA` uses the Burmese Peacock banner, `PEG` uses the Mon
+  Hintha bird banner, and `ARK` uses the Rakhine regional emblem from
+  Wikimedia Commons; `MOG`, `HSE`, `HSI`, and `KAL` use plain map-colour
+  banners where no 1453 Commons arms exist (owner's pick).

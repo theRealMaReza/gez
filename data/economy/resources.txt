@@ -366,3 +366,12 @@ Jianzhou | furs 5, wood 3, iron 2, horses 2, gold 1
 Haixi | horses 4, furs 3, hides 3, wood 2
 Amur and Ussuri | furs 6, wood 3, fish 2, gold 1
 Primorye and Sakhalin | furs 5, fish 4, wood 3
+
+Burma @farmland | grain 6, cotton 3, wood 2
+Burma @woods | wood 5, pepper 2, iron 2
+Burma @hills | wood 4, iron 2, silver 1
+Upper Burma | grain 5, cotton 4, gems 2
+Lower Irrawaddy | grain 5, wood 4, cotton 2
+Lower Burma | grain 6, wood 4, fish 3, salt 2
+Arakan | grain 4, fish 4, salt 3, wood 3
+Shan States | silver 3, gems 4, wood 4, iron 2

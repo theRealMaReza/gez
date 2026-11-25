@@ -368,3 +368,12 @@ URI | Uriankhai | 135 150 115 | steppeHorde | tengri | Taining
 JZH | Jianzhou Jurchens | 215 160 55 | tribal | siberian | Hetu Ala
 HXI | Haixi Jurchens | 185 110 75 | tribal | siberian | Ula
 WJR | Wild Jurchens | 115 145 110 | tribal | siberian | Nurgan
+
+# Burma and Shan States (Phase 20.7)
+AVA | Ava | 195 145 55 | monarchy | theravada | Ava
+PEG | Hanthawaddy | 175 65 85 | monarchy | theravada | Pegu
+ARK | Arakan | 120 85 155 | monarchy | theravada | Mrauk U
+MOG | Mong Mao | 105 150 90 | monarchy | theravada | Mong Mao
+HSE | Hsenwi | 165 125 80 | monarchy | theravada | Hsenwi
+HSI | Hsipaw | 135 160 110 | monarchy | theravada | Hsipaw
+KAL | Kale | 150 110 130 | monarchy | theravada | Kale

@@ -250,3 +250,10 @@ buryat | Buryat | mongolic
 jurchen | Jurchen | tungusic
 evenk | Evenk | tungusic
 nivkh | Nivkh | tungusic
+burmese | Burmese | tibeto_burman
+arakanese | Arakanese | tibeto_burman
+mon | Mon | austroasiatic
+shan | Shan | tai
+karen | Karen | tibeto_burman
+kachin | Kachin | tibeto_burman
+chin | Chin | tibeto_burman

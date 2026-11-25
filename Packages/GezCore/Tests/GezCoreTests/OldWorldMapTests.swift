@@ -251,4 +251,43 @@ final class OldWorldMapTests: XCTestCase {
         XCTAssertTrue(world.provinces.neighbors[teshio.index].contains(kuyeSouth))
         XCTAssertTrue(world.provinces.neighbors[nurgan.index].contains(kuyeNorth))
     }
+
+    /// Phase 20.7 Burma and Shan States: Ava, Hanthawaddy Pegu, Arakan,
+    /// and the four Shan sawbwa polities (Mong Mao, Hsenwi, Hsipaw, Kale).
+    func testBurmaAndShanStates() {
+        let world = Scenario1453.makeWorld()
+        guard let ava = world.countries.id(forTag: "AVA"),
+              let peg = world.countries.id(forTag: "PEG"),
+              let ark = world.countries.id(forTag: "ARK"),
+              let mog = world.countries.id(forTag: "MOG"),
+              let hse = world.countries.id(forTag: "HSE"),
+              let hsi = world.countries.id(forTag: "HSI"),
+              let kal = world.countries.id(forTag: "KAL"),
+              let mng = world.countries.id(forTag: "MNG") else {
+            return XCTFail("missing Burma or Shan countries")
+        }
+        for c in [ava, peg, ark, mog, hse, hsi, kal] {
+            XCTAssertEqual(world.countries.religion[c.index], .theravada)
+        }
+        XCTAssertEqual(world.countries.overlord[mog.index], mng)
+        XCTAssertEqual(world.countries.subjectType[mog.index], .tributary)
+        XCTAssertEqual(world.countries.overlord[hse.index], ava)
+        XCTAssertEqual(world.countries.subjectType[hse.index], .tributary)
+        XCTAssertEqual(world.countries.overlord[hsi.index], ava)
+        XCTAssertEqual(world.countries.subjectType[hsi.index], .tributary)
+        XCTAssertEqual(world.countries.overlord[kal.index], ava)
+        XCTAssertEqual(world.countries.subjectType[kal.index], .vassal)
+
+        XCTAssertTrue(world.rivers.contains { $0.name == "Irrawaddy" })
+        XCTAssertTrue(world.rivers.contains { $0.name == "Salween" })
+        for name in ["Ava", "Pagan", "Prome", "Toungoo", "Pegu", "Dagon", "Martaban", "Mrauk U", "Mong Mao", "Hsenwi", "Hsipaw", "Kale"] {
+            guard let pid = world.provinces.id(named: name) else {
+                XCTFail("missing Burma/Shan province \(name)")
+                continue
+            }
+            XCTAssertFalse(world.provinces.neighbors[pid.index].isEmpty, name)
+        }
+        XCTAssertNotNil(world.provinces.holder[world.provinces.id(named: "Toungoo")!.index])
+        XCTAssertNotNil(world.provinces.holder[world.provinces.id(named: "Prome")!.index])
+    }
 }

@@ -55,3 +55,4 @@ Kashgar       | Kashgar
 Lhasa         | Lhasa
 Karakorum     | Karakorum
 Ula           | Ula
+Pegu          | Pegu

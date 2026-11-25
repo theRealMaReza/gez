@@ -88,3 +88,6 @@ NYU | Eastern Mongol Tumen       | Shangdu | agbarjin_nyu | horse_archers:3, cav
 URI | Three Guards Cavalry       | Taining | toqtoa_uri | horse_archers:2, cavalry:1
 JZH | Jianzhou Riders            | Hetu Ala| li_manzhu  | cavalry:2, horse_archers:2
 HXI | Haixi Riders               | Ula     | tala_hxi   | cavalry:2, horse_archers:1
+AVA | Royal Army of Ava          | Ava     | narapati_ava | infantry:4, cavalry:2, archers:2
+PEG | Hanthawaddy Guard          | Pegu    | dhammazedi_peg | infantry:3, archers:2, cavalry:1
+ARK | Arakanese Levies           | Mrauk U | min_khayi_ark | infantry:2, archers:1

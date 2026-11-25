@@ -263,7 +263,6 @@
 ! Southeast 20N 102E | 20.0 102.0
 ! Southeast 20N 104E | 20.0 104.0
 ! Southeast 20N 106E | 20.0 106.0
-! Southeast 22N 98E | 23.5 98.0
 ! Southeast 22N 102E | 22.0 102.0
 ! Southeast 22N 104E | 22.0 104.0
 ! Southeast 22N 106E | 22.0 106.0
