@@ -405,3 +405,21 @@ MGN | Maguindanao | 125 115 165 | monarchy | sunni | Cotabato
 MKS | Gowa | 170 105 95 | monarchy | austronesian | Makassar
 TER | Ternate | 105 165 130 | monarchy | sunni | Ternate
 TID | Tidore | 175 140 90 | monarchy | sunni | Tidore
+
+# West Africa, Sahel, and Guinea Coast (Phase 20.7)
+MAL | Mali | 215 165 55 | monarchy | sunni | Niani
+TRG | Timbuktu | 115 145 185 | tribal | sunni | Timbuktu
+SON | Songhai | 190 95 65 | monarchy | sunni | Gao
+JOL | Jolof | 165 135 80 | monarchy | sunni | Diourbel
+WAG | Wagadugu | 175 110 95 | monarchy | west_african | Wagadugu
+YAT | Yatenga | 150 95 120 | monarchy | west_african | Yatenga
+KAO | Kano | 85 155 115 | monarchy | sunni | Kano
+KTS | Katsina | 110 140 165 | monarchy | sunni | Katsina
+ZAZ | Zazzau | 175 140 90 | monarchy | west_african | Zaria
+KBO | Kanem-Bornu | 95 135 170 | monarchy | sunni | Birni Gazargamu
+BUL | Bulala | 165 120 75 | monarchy | sunni | Njimi
+DFR | Darfur | 185 135 100 | monarchy | sunni | El Fasher
+BEN | Benin | 175 65 75 | monarchy | west_african | Benin City
+OYO | Oyo | 195 125 65 | monarchy | west_african | Oyo-Ile
+NUP | Nupe | 135 110 155 | monarchy | west_african | Bida
+BON | Bono Manso | 200 170 85 | monarchy | west_african | Bono Manso

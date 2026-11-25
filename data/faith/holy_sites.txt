@@ -71,3 +71,5 @@ site | Bagan | Pagan | theravada
 site | Angkor Wat | Angkor | theravada, hindu
 site | Borobudur | Mataram | mahayana, hindu
 site | Pura Besakih | Gelgel | hindu
+site | Sankore Mosque | Timbuktu | sunni
+site | Ile-Ife | Ife | west_african

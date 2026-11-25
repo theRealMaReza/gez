@@ -1,0 +1,89 @@
+# Western Sahel
+@ Senegambia
+Diourbel | 14.65 -16.23 | JOL p 4
+Cayor | 15.40 -16.40 | JOL p 3
+Waalo | 16.35 -15.80 | JOL s 2
+Sine | 13.95 -16.45 | JOL p 3
+Tekrur | 16.05 -13.75 | JOL s 3
+Kaabu | 12.60 -14.80 | MAL w 3
+Gambia | 13.45 -15.50 | MAL p 3
+
+@ Upper Niger
+Niani | 11.38 -8.38 | MAL p 6
+Bambuk | 13.40 -11.30 | MAL h 4
+Kita | 13.04 -9.49 | MAL p 3
+Kankan | 10.39 -9.30 | MAL w 3
+Futa Jallon | 10.80 -12.30 | MAL h 3
+Segu | 13.44 -6.26 | MAL f 4
+Jenne | 13.91 -4.55 | MAL f 5
+
+@ Niger Bend
+Timbuktu | 16.77 -3.01 | TRG d 6
+Walata | 17.30 -7.03 | TRG d 3
+Macina | 15.00 -4.80 | TRG p 3
+Gao | 16.27 -0.04 | SON s 6
+Kukiya | 15.05 0.90 | SON s 4
+Dendi | 12.20 3.00 | SON p 3
+Tadmekka | 18.00 1.20 | SON d 2
+
+@ Mossi Lands
+Wagadugu | 12.37 -1.52 | WAG p 4
+Tenkodogo | 11.78 -0.37 | WAG p 3
+Fada Ngourma | 12.06 0.36 | WAG p 2
+Kong | 9.15 -4.61 | WAG w 3
+Yatenga | 13.58 -2.42 | YAT s 4
+
+# Guinea Coast
+@ Upper Guinea Coast
+Temne | 8.50 -12.60 | MAL w 2
+Kru Coast | 5.50 -9.50 | MAL w 2
+Sassandra | 4.95 -6.08 | MAL w 2
+
+@ Akan and Volta
+Bono Manso | 7.67 -1.87 | BON w 5
+Kumasi | 6.69 -1.62 | BON w 4
+Elmina | 5.10 -1.35 | BON w 3
+Assinie | 5.14 -3.28 | BON w 2
+Dagbon | 9.40 -0.84 | BON p 3
+Abomey | 7.18 1.99 | BON w 3
+
+@ Yorubaland and Nupe
+Oyo-Ile | 8.99 4.33 | OYO p 5
+Ife | 7.48 4.56 | OYO w 5
+Ijebu | 6.82 3.92 | OYO w 3
+Bida | 9.08 6.01 | NUP p 4
+Idah | 7.11 6.74 | NUP w 3
+
+@ Benin and Niger Delta
+Benin City | 6.34 5.63 | BEN w 6
+Warri | 5.52 5.75 | BEN x 3
+Nri | 6.15 7.03 | BEN w 4
+Bonny | 4.45 7.17 | BEN x 3
+Calabar | 4.95 8.32 | BEN w 3
+Duala | 4.05 9.70 | BEN w 2
+
+# Central Sahel
+@ Hausaland
+Kano | 12.00 8.52 | KAO p 6
+Daura | 13.04 8.32 | KAO s 3
+Hadejia | 12.45 10.04 | KAO s 3
+Katsina | 12.99 7.60 | KTS s 5
+Gobir | 13.80 6.20 | KTS s 3
+Kebbi | 12.45 4.20 | KTS p 3
+Zaria | 11.07 7.70 | ZAZ p 5
+Bauchi | 10.31 9.84 | ZAZ h 3
+Adamawa | 9.20 12.48 | ZAZ h 2
+
+@ Bornu and Kanem
+Birni Gazargamu | 13.00 12.32 | KBO s 6
+Dikwa | 12.03 13.92 | KBO s 4
+Damagaram | 13.80 8.98 | KBO s 3
+Mandara | 10.70 14.15 | KBO h 3
+Njimi | 14.15 15.32 | BUL s 4
+Bagirmi | 11.40 16.17 | BUL p 3
+Wadai | 13.83 20.83 | BUL s 3
+
+@ Darfur and Kordofan
+El Fasher | 13.63 25.35 | DFR s 4
+Nyala | 12.05 24.88 | DFR s 3
+El Obeid | 13.18 30.22 | DFR s 3

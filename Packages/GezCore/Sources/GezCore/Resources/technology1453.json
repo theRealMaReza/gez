@@ -67,7 +67,7 @@
   "neighbour_bonus_cap": 0.25,
   "neighbour_bonus_per_level": 0.05
  },
- "provinceCount": 1866,
+ "provinceCount": 1931,
  "startingLevels": {
   "countries": {
    "BOH": [
@@ -189,6 +189,11 @@
     3,
     3
    ],
+   "Central Sahel": [
+    3,
+    3,
+    2
+   ],
    "Dai Viet and Champa": [
     3,
     3,
@@ -218,6 +223,11 @@
     4,
     3,
     4
+   ],
+   "Guinea Coast": [
+    2,
+    3,
+    2
    ],
    "Gujarat": [
     3,
@@ -387,6 +397,11 @@
    "Volga Steppe": [
     2,
     2,
+    2
+   ],
+   "Western Sahel": [
+    3,
+    3,
     2
    ]
   }

@@ -783,3 +783,17 @@ Enniskillen.
   `PGR` use Wikimedia Commons historical/regional banners; `PSA`, `PLB`,
   `SUN`, `BAL`, `TND`, `CEB`, `MGN`, and `MKS` use plain map-colour
   banners where no 1453 Commons arms exist (owner's pick).
+
+### West Africa, Sahel, and Guinea Coast (Phase 20.7, May 1453)
+- **Timbuktu and Walata (`TRG`)**: held by an independent Tuareg
+  sultanate under `Akil ag Malwal` (captured from Mali c. 1433), with
+  Mali (`MAL`) centered on Niani/Bambuk/Jenne/Kaabu and Songhai (`SON`)
+  at Gao under `Sulaiman Dama` with `Sonni Ali` as heir (owner's pick).
+- **Off-map gold imports**: lowered off-map `gold` imports at `Fez`,
+  `Tunis`, and `Cairo` in `data/economy/imports.txt` now that Bambuk,
+  Upper Niger, and Akan goldfields are on the map.
+- **Approximate (`?`) dates**: birth years for all 1453 Sahel/Guinea
+  rulers and exact 1453 rulers for `YAT`, `ZAZ`, `BUL`, `DFR`, and `NUP`.
+- **Shields:** `MAL`, `BEN`, and `KBO` use verified Wikimedia Commons
+  banners; remaining West African tags use plain map-colour banners where
+  no 1453 Commons arms exist (owner's pick).

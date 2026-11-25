@@ -111,3 +111,14 @@ Brunei         | port 2, fort 1
 Tondo          | port 2
 Makassar       | port 2
 Ternate        | port 1, fort 1
+Timbuktu       | college 3, temple 2, caravanserai 2
+Jenne          | temple 2, caravanserai 2
+Niani          | fort 1, temple 1, barracks 1
+Gao            | fort 2, caravanserai 2, temple 1, barracks 1
+Kano           | fort 2, caravanserai 2, temple 2, barracks 1
+Katsina        | fort 1, college 1, caravanserai 1
+Birni Gazargamu| fort 2, caravanserai 2, barracks 1, temple 1
+Benin City     | fort 2, temple 2, barracks 2
+Oyo-Ile        | fort 1, barracks 1
+Ife            | temple 2
+Bono Manso     | caravanserai 2, fort 1

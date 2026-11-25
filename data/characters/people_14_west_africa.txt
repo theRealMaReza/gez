@@ -1,0 +1,56 @@
+# Families of West Africa, Sahel, and Guinea Coast, 1453.
+
+@ MAL
+ruler  | mansa_uli_mal        | Mansa Uli II           | Keita       | m | 1415 | | diplomat, patient | Mansa of the Mali Empire (r. c. 1430s-1460s); birth year?
+heir   | mahmud_mal           | Mahmud II              | Keita       | m | 1438 | f:mansa_uli_mal | patient | Future Mansa of Mali; birth year?
+
+@ TRG
+ruler  | akil_ag_malwal_trg   | Akil ag Malwal         | Kel Essuk   | m | 1405 | | brave, ambitious, strategist | Tuareg Amenokal who captured Timbuktu in 1433; birth year?
+heir   | ammar_trg            | Ammar ag Malwal        | Kel Essuk   | m | 1430 | f:akil_ag_malwal_trg | brave | Tuareg heir of Timbuktu; birth year?
+
+@ SON
+ruler  | sulaiman_dama_son    | Sonni Sulaiman Dama    | Sonni       | m | 1410 | | brave, strategist | Ruler of Songhai at Gao (r. c. 1440-1464); birth year?
+heir   | sonni_ali_son        | Sonni Ali              | Sonni       | m | 1430 | f:sulaiman_dama_son | strategist, ambitious, brave | Future founder of the Songhai Empire (r. 1464-1492); birth year?
+
+@ JOL
+ruler  | leeyti_tyukuli_jol   | Leeyti Tyukuli Ndiaye  | Ndiaye      | m | 1410 | | diplomat, patient | Buurba Jolof of Senegambia (c. 1450s); birth year?
+
+@ WAG
+ruler  | niandfo_wag          | Moogo Naaba Niandfo    | Ouedraogo   | m | 1415 | | brave, just | Mossi ruler of Wagadugu (c. 1450s); birth year?
+
+@ YAT
+ruler  | nasbire_yat          | Naaba Nasbire          | Rawa        | m | 1415 | | brave | Mossi ruler of Yatenga; 1453 ruler and birth year?
+
+@ KAO
+ruler  | yakubu_kao           | Sarkin Yakubu          | Bagauda     | m | 1418 | | diplomat, administrator, pious | Ruler of Kano (r. 1452-1463); birth year?
+heir   | muhammad_rumfa_kao   | Muhammad Rumfa         | Bagauda     | m | 1440 | f:yakubu_kao | scholar, administrator, pious | Future great reformer of Kano (r. 1463-1499); birth year?
+
+@ KTS
+ruler  | muhammad_korau_kts   | Muhammad Korau         | Korau       | m | 1415 | | pious, ambitious | First Muslim Sarkin Katsina (r. c. 1445-1495); birth year?
+
+@ ZAZ
+ruler  | gunguma_zaz          | Sarkin Gunguma         | Zazzau      | m | 1415 | | brave | Ruler of Zazzau; 1453 ruler and birth year?
+
+@ KBO
+ruler  | muhammad3_kbo        | Mai Muhammad III       | Sayfawa     | m | 1415 | | diligent, pious | Mai of Kanem-Bornu (r. c. 1453-1458); birth year?
+heir   | ali_gaji_kbo         | Ali Gaji               | Sayfawa     | m | 1435 | | strategist, administrator, pious | Future Mai who founded Birni Gazargamu (r. 1465-1497); birth year?
+
+@ BUL
+ruler  | abdallah_bul         | Abdallah of Kanem      | Bulala      | m | 1415 | | brave | Bulala Sultan of Kanem at Njimi; 1453 ruler and birth year?
+
+@ DFR
+ruler  | shau_dorsid_dfr      | Shau Dorsid            | Tunjur      | m | 1410 | | brave, diligent | Tunjur ruler of Darfur; 1453 ruler and birth year?
+
+@ BEN
+ruler  | ewuare_ben           | Oba Ewuare the Great   | Eweka       | m | 1410 | | strategist, administrator, ambitious | Great Oba of Benin (r. c. 1440-1473); birth year?
+heir   | olua_ben             | Prince Olua            | Eweka       | m | 1435 | f:ewuare_ben | generous | Son of Oba Ewuare (r. 1473-1480); birth year?
+child  | ozolua_ben           | Prince Ozolua          | Eweka       | m | 1440 | f:ewuare_ben | brave, ambitious | Son of Oba Ewuare, future Oba Ozolua; birth year?
+
+@ OYO
+ruler  | alaafin_kori_oyo     | Alaafin Kori           | Oranyan     | m | 1410 | | strategist, brave | Alaafin of Oyo (c. 1450s); birth year?
+
+@ NUP
+ruler  | jigba_nup            | Etsu Jigba             | Nupe        | m | 1415 | | patient | Ruler of Nupe; 1453 ruler and birth year?
+
+@ BON
+ruler  | akumfi_ameyaw_bon    | Akumfi Ameyaw I        | Bono        | m | 1410 | | administrator, diplomat | Bonohene of Bono Manso (c. 1450s); birth year?

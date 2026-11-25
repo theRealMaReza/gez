@@ -1,0 +1,99 @@
+# West Africa, Sahel, and Guinea Coast (1453)
+
+@ Senegambia
+wolof sunni.maliki 55
+wolof west_african 25
+fulani sunni.maliki 20
+> Kaabu
+mandinka west_african 70
+mandinka sunni.maliki 30
+> Gambia
+mandinka sunni.maliki 55
+wolof sunni.maliki 25
+mandinka west_african 20
+
+@ Upper Niger
+mandinka sunni.maliki 55
+mandinka west_african 35
+fulani sunni.maliki 10
+> Jenne
+soninke sunni.maliki 65
+mandinka sunni.maliki 25
+fulani sunni.maliki 10
+
+@ Niger Bend
+songhai sunni.maliki 65
+tuareg sunni.maliki 20
+songhai west_african 15
+> Timbuktu
+tuareg sunni.maliki 45
+songhai sunni.maliki 40
+soninke sunni.maliki 15
+> Walata
+tuareg sunni.maliki 60
+soninke sunni.maliki 40
+
+@ Mossi Lands
+mossi west_african 85
+fulani sunni.maliki 10
+mandinka sunni.maliki 5
+
+@ Upper Guinea Coast
+mandinka west_african 85
+mandinka sunni.maliki 15
+
+@ Akan and Volta
+akan west_african 90
+mandinka sunni.maliki 10
+
+@ Yorubaland and Nupe
+yoruba west_african 75
+nupe west_african 25
+> Bida
+nupe west_african 85
+hausa sunni.maliki 15
+> Idah
+nupe west_african 60
+igbo west_african 40
+
+@ Benin and Niger Delta
+edo west_african 55
+igbo west_african 45
+> Benin City
+edo west_african 90
+yoruba west_african 10
+> Nri
+igbo west_african 95
+edo west_african 5
+> Calabar
+igbo west_african 85
+edo west_african 15
+> Duala
+igbo west_african 75
+edo west_african 25
+
+@ Hausaland
+hausa sunni.maliki 55
+hausa west_african 35
+fulani sunni.maliki 10
+> Kano
+hausa sunni.maliki 75
+hausa west_african 15
+fulani sunni.maliki 10
+> Katsina
+hausa sunni.maliki 70
+hausa west_african 20
+tuareg sunni.maliki 10
+> Zaria
+hausa west_african 65
+hausa sunni.maliki 35
+
+@ Bornu and Kanem
+kanuri sunni.maliki 75
+hausa sunni.maliki 10
+kanuri west_african 15
+
+@ Darfur and Kordofan
+fur sunni.maliki 60
+fur east_african 25
+nubian sunni.maliki 15

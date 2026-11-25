@@ -481,6 +481,20 @@
       "religions": [
         "hindu"
       ]
+    },
+    {
+      "name": "Sankore Mosque",
+      "province": "Timbuktu",
+      "religions": [
+        "sunni"
+      ]
+    },
+    {
+      "name": "Ile-Ife",
+      "province": "Ife",
+      "religions": [
+        "west_african"
+      ]
     }
   ]
 }
