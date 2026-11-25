@@ -226,46 +226,19 @@
 ! Southeast 4N 108E | 4.0 108.0
 ! Southeast 4N 114E | 4.0 114.0
 ! Southeast 4N 116E | 4.0 116.0
-! Southeast 6N 102E | 6.0 102.0
 ! Southeast 6N 116E | 6.0 116.0
 ! Southeast 6N 118E | 6.0 118.0
-! Southeast 8N 100E | 8.0 100.0
 ! Southeast 8N 124E | 8.0 124.0
 ! Southeast 8N 126E | 8.0 126.0
-! Southeast 10N 106E | 10.0 106.0
 ! Southeast 10N 124E | 10.0 124.0
 ! Southeast 10N 126E | 10.0 126.0
-! Southeast 12N 104E | 12.0 104.0
-! Southeast 12N 106E | 12.0 106.0
-! Southeast 12N 108E | 12.0 108.0
 ! Southeast 12N 120E | 12.0 120.0
 ! Southeast 12N 122E | 12.0 122.0
 ! Southeast 12N 124E | 12.0 124.0
-! Southeast 14N 100E | 14.0 100.0
-! Southeast 14N 102E | 14.0 102.0
-! Southeast 14N 104E | 14.0 104.0
-! Southeast 14N 106E | 14.0 106.0
-! Southeast 14N 108E | 14.0 108.0
 ! Southeast 14N 122E | 14.0 122.0
 ! Southeast 14N 124E | 14.0 124.0
-! Southeast 16N 100E | 16.0 100.0
-! Southeast 16N 102E | 16.0 102.0
-! Southeast 16N 104E | 16.0 104.0
-! Southeast 16N 106E | 16.0 106.0
-! Southeast 16N 108E | 16.0 108.0
 ! Southeast 16N 120E | 16.0 120.0
-! Southeast 18N 100E | 18.0 100.0
-! Southeast 18N 102E | 18.0 102.0
-! Southeast 18N 104E | 18.0 104.0
-! Southeast 18N 106E | 18.0 106.0
 ! Southeast 18N 122E | 18.0 122.0
-! Southeast 20N 100E | 20.0 100.0
-! Southeast 20N 102E | 20.0 102.0
-! Southeast 20N 104E | 20.0 104.0
-! Southeast 20N 106E | 20.0 106.0
-! Southeast 22N 102E | 22.0 102.0
-! Southeast 22N 104E | 22.0 104.0
-! Southeast 22N 106E | 22.0 106.0
 
 # Placeholder wasteland: East Asia
 @ Unmapped East Asia

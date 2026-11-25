@@ -290,4 +290,47 @@ final class OldWorldMapTests: XCTestCase {
         XCTAssertNotNil(world.provinces.holder[world.provinces.id(named: "Toungoo")!.index])
         XCTAssertNotNil(world.provinces.holder[world.provinces.id(named: "Prome")!.index])
     }
+
+    /// Phase 20.7 Indochina and Siam: Ayutthaya, Lan Na, Lan Xang, Cambodia,
+    /// Dai Viet, Champa, Pattani, and Kedah.
+    func testIndochinaAndSiam() {
+        let world = Scenario1453.makeWorld()
+        guard let ayu = world.countries.id(forTag: "AYU"),
+              let lna = world.countries.id(forTag: "LNA"),
+              let lxa = world.countries.id(forTag: "LXA"),
+              let khm = world.countries.id(forTag: "KHM"),
+              let dai = world.countries.id(forTag: "DAI"),
+              let cha = world.countries.id(forTag: "CHA"),
+              let pat = world.countries.id(forTag: "PAT"),
+              let ked = world.countries.id(forTag: "KED"),
+              let mng = world.countries.id(forTag: "MNG") else {
+            return XCTFail("missing Indochina countries")
+        }
+        for c in [ayu, lna, lxa, khm] {
+            XCTAssertEqual(world.countries.religion[c.index], .theravada)
+        }
+        XCTAssertEqual(world.countries.religion[dai.index], .mahayana)
+        XCTAssertEqual(world.countries.religion[cha.index], .hindu)
+        XCTAssertEqual(world.countries.religion[pat.index], .sunni)
+        XCTAssertEqual(world.countries.religion[ked.index], .sunni)
+
+        XCTAssertEqual(world.countries.overlord[pat.index], ayu)
+        XCTAssertEqual(world.countries.overlord[ked.index], ayu)
+        XCTAssertEqual(world.countries.overlord[dai.index], mng)
+        XCTAssertEqual(world.countries.overlord[ayu.index], mng)
+        XCTAssertEqual(world.countries.overlord[cha.index], mng)
+
+        XCTAssertTrue(world.rivers.contains { $0.name == "Mekong" })
+        XCTAssertTrue(world.rivers.contains { $0.name == "Chao Phraya" })
+        XCTAssertTrue(world.rivers.contains { $0.name == "Red River" })
+        for name in ["Ayutthaya", "Phitsanulok", "Ligor", "Chiang Mai", "Luang Prabang", "Chaktomuk", "Angkor", "Thang Long", "Vijaya", "Pattani", "Kedah"] {
+            guard let pid = world.provinces.id(named: name) else {
+                XCTFail("missing Indochina province \(name)")
+                continue
+            }
+            XCTAssertFalse(world.provinces.neighbors[pid.index].isEmpty, name)
+        }
+        XCTAssertNotNil(world.provinces.holder[world.provinces.id(named: "Ligor")!.index])
+        XCTAssertNotNil(world.provinces.holder[world.provinces.id(named: "Phitsanulok")!.index])
+    }
 }

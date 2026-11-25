@@ -1,0 +1,57 @@
+# Siam, Lan Xang, Cambodia, Dai Viet, and Champa (1453)
+
+@ Chao Phraya
+siamese theravada 85
+mon theravada 10
+khmer theravada 5
+
+@ Tenasserim and Kra
+siamese theravada 50
+malay sunni.shafii 40
+mon theravada 10
+> Pattani
+malay sunni.shafii 80
+siamese theravada 20
+> Kelantan
+malay sunni.shafii 85
+siamese theravada 15
+> Kedah
+malay sunni.shafii 85
+siamese theravada 15
+
+@ Lan Na
+northern_thai theravada 85
+shan theravada 10
+karen highland 5
+
+@ Lan Xang
+lao theravada 80
+khmer theravada 10
+miao highland 10
+
+@ Cambodia
+khmer theravada 90
+cham hindu 5
+siamese theravada 5
+
+@ Red River Delta
+vietnamese mahayana 75
+vietnamese confucian 20
+tai highland 5
+> Son La
+tai highland 65
+vietnamese mahayana 35
+
+@ Central Viet
+vietnamese mahayana 80
+vietnamese confucian 15
+cham hindu 5
+
+@ Champa
+cham hindu 65
+cham sunni.shafii 15
+vietnamese mahayana 10
+khmer highland 10
+> Kon Tum
+khmer highland 65
+cham hindu 35

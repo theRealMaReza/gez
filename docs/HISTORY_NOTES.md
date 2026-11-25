@@ -747,3 +747,21 @@ Enniskillen.
   Hintha bird banner, and `ARK` uses the Rakhine regional emblem from
   Wikimedia Commons; `MOG`, `HSE`, `HSI`, and `KAL` use plain map-colour
   banners where no 1453 Commons arms exist (owner's pick).
+
+### Siam, Lan Na, Lan Xang, Cambodia, Dai Viet, and Champa (Phase 20.7, May 1453)
+- **Ayutthaya's Malay Peninsula tributaries**: `PAT` (Pattani) and `KED`
+  (Kedah) are separate tributaries of `AYU`, while `Ligor` (Nakhon Si
+  Thammarat) is an `AYU` province held by a great vassal (`Phraya Si
+  Thammarat`), alongside `Phitsanulok` held by `Phraya Yutthisthira`
+  (owner's pick).
+- **Dai Viet (`DAI`)**: Emperor Le Nhan Tong assumed personal rule in
+  1453 at age 12 after the regency of Empress Dowager Nguyen Thi Anh;
+  his younger half-brother Le Tu Thanh (future Emperor Le Thanh Tong) is
+  placed as heir, with eldest half-brother Le Nghi Dan as a court figure.
+- **Approximate (`?`) dates**: birth years of `Borommarachathirat III`,
+  `Phraya Yutthisthira`, `Phraya Si Thammarat`, `Thao Bunruang`,
+  `Narayanaraja I`, `Maha Quy Do`, `Maha Ban La Tra Toan`, `Phaya Tu
+  Nakpa` (and exact 1453 Pattani ruler), and `Sulaiman Shah I`.
+- **Shields:** `AYU`, `LNA`, `LXA`, `KHM`, `DAI`, and `KED` use
+  Wikimedia Commons historical/regional banners; `CHA` and `PAT` use
+  plain map-colour banners where no 1453 Commons arms exist (owner's pick).
