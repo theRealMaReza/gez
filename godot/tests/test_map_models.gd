@@ -199,4 +199,12 @@ func test_named_landmark_replaces_the_great_building() -> void:
 			runner.check((p[1] as Vector2).x >= 2.2, "castle stands clear of the landmark")
 	var tight: Array = ModelsScript.town_layout(3, 12, 4, true, "islamic", 2, 2.5, "hagia_sophia")
 	runner.check(not _has_prefix(tight, "fort") and _has(tight, "hagia_sophia"), "no room: landmark kept, castle left out")
-	runner.check(ModelsScript.LANDMARKS.size() >= 1 and ModelsScript.LANDMARKS[0][0] == "hagia_sophia", "Hagia Sophia is in the landmark list")
+	runner.check(ModelsScript.LANDMARKS.size() >= 16 and ModelsScript.LANDMARKS[0][0] == "hagia_sophia", "Hagia Sophia and 15 regional landmarks are in the landmark list")
+	for entry in ModelsScript.LANDMARKS:
+		var lname: String = entry[0]
+		runner.check(Lib.has_mesh(lname), "landmark mesh %s exists" % lname)
+		var bb := Lib.get_mesh(lname).get_aabb()
+		runner.near(bb.position.y, 0.0, 0.05, "landmark %s stands on y=0" % lname)
+		var w := maxf(bb.size.x, bb.size.z)
+		runner.check(w > 2.0 and w < 3.4, "landmark %s sensible width (%.2f)" % [lname, w])
+		runner.check(bb.size.y > 0.7, "landmark %s has real height (%.2f)" % [lname, bb.size.y])
