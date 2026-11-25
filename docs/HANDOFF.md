@@ -231,6 +231,51 @@ When reviewing a `needs-claude` pull request:
 5. Merge when green, then update `docs/STATUS.md` and mirror it to the
    Project if it changed.
 
+### Landmarks (for Gemini, Phase 20.7; owner, 24 Nov 2026)
+
+Claude built the first one, Hagia Sophia (#54); the owner handed the rest
+to Gemini. A landmark is a named 3D building that stands in a town in
+place of its great mosque/church/temple, at every zoom.
+
+**How to add one**
+1. `tools/models/landmarks.py`: one function per building, made only from
+   the `Mesh` primitives (box, frustum, dome, `partial_dome`, `arch_wall`,
+   prism...) or pieces of the CC0 KayKit kits. No downloaded models or
+   art, nothing from Paradox or Creative Assembly. Work from the real
+   building's proportions (note them in the docstring) and **as it stood
+   in 1453**: nothing built later (no Potala, no St Basil's, no Taj Mahal).
+   Low-poly, flat colours, same look as `hagia_sophia()`.
+2. `tools/models/build_models.py`: in `build_library()`, `lib["<name>"] =
+   with_plinth(normalise_base(landmarks.<fn>(), <width>), pad=0.09)`, width
+   2.0–3.0 units (a house is 1); add the name to `AO_MESHES`. Run
+   `python3 tools/models/build_models.py` and commit `models.bin`.
+3. `godot/scripts/MapModels.gd`, `LANDMARKS`: `["<name>", lat, lon]`. The
+   point must fall inside the province whose town shows it (check the
+   province under it on `docs/map_preview.png`). Only one landmark per
+   province.
+4. `godot/tests/test_map_models.gd`: extend the Hagia Sophia test (mesh
+   exists, stands on y=0, sensible width).
+5. `godot/scripts/capture_snapshots.gd`: one close shot per pull request
+   (`godot_landmarks_<region>.png`, `focus_map_point(point, 5.5 /
+   MapScale.k)`), then `gh workflow run ci.yml --ref <branch>` so the
+   preview shots appear on `ci-snapshots-preview`.
+
+**Pull requests:** 3–5 landmarks each, one region at a time, labelled
+`needs-claude` (it is a look): Claude checks the shots before merging.
+Show the owner the preview shot of each new landmark; if the owner wants
+changes, change them before asking Claude.
+
+**Suggested list** (all standing in 1453; ask the owner which first):
+Florence cathedral and Brunelleschi's dome; Notre-Dame de Paris; Cologne
+cathedral, unfinished with its crane; Westminster Abbey; the Alhambra
+(Granada); St Sophia of Novgorod; the Pyramids of Giza (Cairo); the Dome
+of the Rock (Jerusalem); the Kaaba and its mosque (Mecca); the Registan's
+Ulugh Beg madrasa or Gur-e Amir (Samarkand); Qutb Minar (Delhi); the
+Virupaksha temple (Vijayanagara); the Forbidden City (Beijing); Kinkaku-ji
+(Kyoto); Gyeongbokgung (Hanseong); the Gyantse Kumbum (Tibet); Angkor Wat;
+Borobudur; Lalibela's rock churches; the Djinguereber mosque (Timbuktu);
+Great Zimbabwe (after its region is filled).
+
 ### Old World region pull requests (for Gemini, Phase 20.7)
 
 Part 1 (Claude, PR "Old World map foundation") grew the map to Afro-Eurasia
