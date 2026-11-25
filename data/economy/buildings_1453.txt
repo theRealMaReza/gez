@@ -99,3 +99,15 @@ Angkor         | temple 3
 Thang Long     | fort 2, temple 2, college 1, barracks 1
 Nam Dinh       | port 1
 Vijaya         | fort 1, port 1, temple 2
+Malacca        | port 3, shipyard 2, fort 2, temple 2
+Pasai          | port 2, temple 2
+Palembang      | port 2
+Pakuan         | fort 1, temple 1
+Trowulan       | fort 2, temple 3, barracks 1
+Tuban          | port 2, shipyard 1
+Demak          | port 2, temple 1
+Gelgel         | temple 2, port 1
+Brunei         | port 2, fort 1
+Tondo          | port 2
+Makassar       | port 2
+Ternate        | port 1, fort 1

@@ -333,4 +333,38 @@ final class OldWorldMapTests: XCTestCase {
         XCTAssertNotNil(world.provinces.holder[world.provinces.id(named: "Ligor")!.index])
         XCTAssertNotNil(world.provinces.holder[world.provinces.id(named: "Phitsanulok")!.index])
     }
+
+    /// Phase 20.7 Maritime Southeast Asia: Malacca, Sumatra, Java (Majapahit,
+    /// Sunda, Bali), Borneo (Brunei), Philippines, Sulawesi, and the Spice Islands.
+    func testMaritimeSoutheastAsia() {
+        let world = Scenario1453.makeWorld()
+        guard let mlc = world.countries.id(forTag: "MLC"),
+              let psa = world.countries.id(forTag: "PSA"),
+              let maj = world.countries.id(forTag: "MAJ"),
+              let sun = world.countries.id(forTag: "SUN"),
+              let bal = world.countries.id(forTag: "BAL"),
+              let plb = world.countries.id(forTag: "PLB"),
+              let bni = world.countries.id(forTag: "BNI"),
+              let ter = world.countries.id(forTag: "TER"),
+              let tid = world.countries.id(forTag: "TID"),
+              let mng = world.countries.id(forTag: "MNG") else {
+            return XCTFail("missing Maritime Southeast Asia countries")
+        }
+        for c in [mlc, psa, plb, bni, ter, tid] {
+            XCTAssertEqual(world.countries.religion[c.index], .sunni)
+        }
+        for c in [maj, sun, bal] {
+            XCTAssertEqual(world.countries.religion[c.index], .hindu)
+        }
+        XCTAssertEqual(world.countries.overlord[mlc.index], mng)
+        XCTAssertEqual(world.countries.subjectType[mlc.index], .tributary)
+        XCTAssertEqual(world.countries.overlord[bal.index], maj)
+        XCTAssertEqual(world.countries.subjectType[bal.index], .vassal)
+        XCTAssertEqual(world.countries.overlord[plb.index], maj)
+        XCTAssertEqual(world.countries.subjectType[plb.index], .tributary)
+
+        for name in ["Malacca", "Pasai", "Palembang", "Pakuan", "Trowulan", "Gelgel", "Brunei", "Tondo", "Cebu", "Makassar", "Ternate", "Tidore"] {
+            XCTAssertNotNil(world.provinces.id(named: name), "missing Maritime SEA province \(name)")
+        }
+    }
 }

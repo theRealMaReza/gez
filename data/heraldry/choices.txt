@@ -246,3 +246,13 @@ LXA | File:Flag of Laos (1952–1975).svg | Three-headed elephant banner of Lan 
 KHM | File:Flag of Cambodia (1863–1948).svg | Angkor Wat banner, later era (owner's pick)
 DAI | File:Flag of the Later Le dynasty.svg | Later Le dynasty banner (owner's pick)
 KED | File:Flag of Kedah.svg | Kedah regional banner, later era (owner's pick)
+
+# Maritime Southeast Asia (Phase 20.7, owner's picks)
+MAJ | File:Flag of Majapahit.svg | Majapahit red-and-white stripes (owner's pick)
+MLC | File:Flag of Malacca.svg | Malacca regional banner, later era (owner's pick)
+BNI | File:Flag of Brunei (1906–1959).svg | Brunei royal banner, later era (owner's pick)
+SUL | File:Flag of Sulu.svg | Sultanate of Sulu banner (owner's pick)
+TER | File:Flag of the Sultanate of Ternate.svg | Sultanate of Ternate banner (owner's pick)
+TID | File:Flag of the Sultanate of Tidore.svg | Sultanate of Tidore banner (owner's pick)
+ACE | File:Flag of the Sultanate of Aceh.svg | Aceh/Pedir banner, later era (owner's pick)
+PGR | File:Flag of Pagaruyung.svg | Minangkabau Pagaruyung tricolour (owner's pick)

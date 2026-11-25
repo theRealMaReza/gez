@@ -264,3 +264,14 @@ khmer | Khmer | austroasiatic
 vietnamese | Vietnamese | austroasiatic
 cham | Cham | austronesian
 malay | Malay | austronesian
+javanese | Javanese | austronesian
+sundanese | Sundanese | austronesian
+balinese | Balinese | austronesian
+acehnese | Acehnese | austronesian
+minangkabau | Minangkabau | austronesian
+bornean | Bornean | austronesian
+tagalog | Tagalog | austronesian
+visayan | Visayan | austronesian
+moro | Moro | austronesian
+sulawesi | Bugis-Makassar | austronesian
+moluccan | Moluccan | austronesian

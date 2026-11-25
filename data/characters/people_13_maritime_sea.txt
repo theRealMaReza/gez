@@ -1,0 +1,57 @@
+# Families of Maritime Southeast Asia, 1453.
+
+@ MLC
+ruler  | muzaffar_shah_mlc    | Muzaffar Shah          | Malacca     | m | 1415 | | diplomat, administrator, pious | Sultan of Malacca (r. 1445-1459); birth year?
+heir   | mansur_shah_mlc      | Raja Abdullah          | Malacca     | m | 1435 | f:muzaffar_shah_mlc | ambitious, diplomat | Future Sultan Mansur Shah (r. 1459-1477); birth year?
+figure | tun_perak_mlc        | Tun Perak              | Bendahara   | m | 1420 | | strategist, administrator, diplomat | Great Bendahara of Malacca; birth year?
+
+@ PSA
+ruler  | abu_zaid_psa         | Abu Zaid Malik az-Zahir| Pasai       | m | 1405 | | pious, diplomat | Sultan of Samudera Pasai (r. 1428-1455); birth year?
+heir   | mahmud_psa           | Mahmud Malik az-Zahir  | Pasai       | m | 1430 | f:abu_zaid_psa | pious | Heir of Pasai; birth year?
+
+@ ACE
+ruler  | munawar_shah_ace     | Munawar Shah           | Lamuri      | m | 1415 | | brave, pious | Sultan of Pedir / Lamuri; 1453 ruler and birth year?
+
+@ PGR
+ruler  | ananggawarman_pgr    | Ananggawarman          | Pagaruyung  | m | 1410 | | patient, pious | Raja of Pagaruyung; 1453 ruler and birth year?
+
+@ PLB
+ruler  | arya_damar_plb       | Arya Damar             | Palembang   | m | 1415 | | brave, administrator | Duke of Palembang under Majapahit; birth year?
+
+@ MAJ
+ruler  | rajasawardhana_maj   | Rajasawardhana         | Rajasa      | m | 1415 | | diligent, pious | King of Majapahit (r. 1451-1453); birth year?
+heir   | girishawardhana_maj  | Girishawardhana        | Rajasa      | m | 1425 | | patient, pious | Future King of Majapahit (r. 1456-1466); birth year?
+
+@ SUN
+ruler  | susuk_tunggal_sun    | Susuk Tunggal          | Sunda       | m | 1385 | | patient, just | King of Sunda (Pakuan Pajajaran); birth year?
+heir   | sri_baduga_sun       | Sri Baduga Maharaja    | Sunda       | m | 1401 | | strategist, just, pious | Prince of Sunda-Galuh (Prabu Siliwangi)
+
+@ BAL
+ruler  | ketut_ngulesir_bal   | Dalem Ketut Ngulesir   | Gelgel      | m | 1385 | | pious, patient | King of Bali at Gelgel; birth year?
+heir   | baturenggong_bal     | Dalem Baturenggong     | Gelgel      | m | 1425 | f:ketut_ngulesir_bal | ambitious, pious | Heir of Gelgel; birth year?
+
+@ BNI
+ruler  | sulaiman_bni         | Sulaiman of Brunei     | Bolkiah     | m | 1410 | | pious, diplomat | Sultan of Brunei (r. 1432-1485); birth year?
+heir   | bolkiah_bni          | Bolkiah                | Bolkiah     | m | 1445 | f:sulaiman_bni | brave, ambitious | Future Sultan Bolkiah; birth year?
+
+@ SUL
+ruler  | sharif_hashim_sul    | Sharif ul-Hashim       | Sulu        | m | 1415 | | pious, scholar, diplomat | Founder of the Sultanate of Sulu (Abu Bakr); birth year?
+
+@ TND
+ruler  | lakan_gambang_tnd    | Lakan Gambang          | Tondo       | m | 1415 | | diplomat | Lakan of Tondo; 1453 ruler and birth year?
+
+@ CEB
+ruler  | sri_bantug_ceb       | Sri Bantug             | Cebu        | m | 1415 | | brave | Rajah of Cebu; 1453 ruler and birth year?
+
+@ MGN
+ruler  | ruma_bichara_mgn     | Datu Ruma Bichara      | Maguindanao | m | 1415 | | brave | Datu of Maguindanao; 1453 ruler and birth year?
+
+@ MKS
+ruler  | tunatangka_lopi_mks  | Tunatangka Lopi        | Gowa        | m | 1415 | | strategist, brave | 6th Karaeng of Gowa (Makassar); birth year?
+
+@ TER
+ruler  | marhum_ter           | Marhum of Ternate      | Ternate     | m | 1415 | | pious, diplomat | Kolano of Ternate (r. 1432-1486); birth year?
+heir   | zainal_abidin_ter    | Zainal Abidin          | Ternate     | m | 1440 | f:marhum_ter | pious | Future Sultan of Ternate; birth year?
+
+@ TID
+ruler  | ciriliyati_tid       | Ciriliyati             | Tidore      | m | 1420 | | diplomat | Kolano of Tidore; 1453 ruler and birth year?
