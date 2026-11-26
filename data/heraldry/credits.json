@@ -655,6 +655,14 @@
   "note": "",
   "page": "https://commons.wikimedia.org/wiki/File:Small_coat_of_arms_of_Friesland.png"
  },
+ "FRL": {
+  "author": "MostEpic",
+  "file": "File:Arms of the house of Ordelaffi.svg",
+  "license": "CC BY-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+  "note": "House of Ordelaffi (Forlì) coat of arms",
+  "page": "https://commons.wikimedia.org/wiki/File:Arms_of_the_house_of_Ordelaffi.svg"
+ },
  "FUR": {
   "author": "W!B:",
   "file": "File:Bindenschild Privilegium maius 1512.svg",
@@ -1550,6 +1558,14 @@
   "licenseUrl": "",
   "note": "Tibetan Snow Lion flag, later era (owner's pick)",
   "page": "https://commons.wikimedia.org/wiki/File:Flag_of_Tibet.svg"
+ },
+ "PIO": {
+  "author": "MostEpic",
+  "file": "File:Arms of the house of Appiano.svg",
+  "license": "CC BY-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+  "note": "House of Appiani (Piombino) coat of arms",
+  "page": "https://commons.wikimedia.org/wiki/File:Arms_of_the_house_of_Appiano.svg"
  },
  "POL": {
   "author": "Zygmunt Kamiński / Andrzej Heidrich",
