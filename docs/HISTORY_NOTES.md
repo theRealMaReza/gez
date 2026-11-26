@@ -849,3 +849,24 @@ Enniskillen.
 - **Shields:** `SIB` uses `File:Flag of Siberian Khanate.svg` from
   Wikimedia Commons; `PEL`, `KOD`, `BYA`, `EVK`, and `YAK` use plain
   map-colour banners (owner's pick).
+### HRE & Alps Detail (Phase 20.7 Part III, May 1453)
+- **New independent HRE tags (8)**: `ANH` (Anhalt-Dessau under George I),
+  `OSN` (Osnabrück & Minden under Albert of Hoya), `PAD` (Paderborn in
+  personal union under Archbishop Dietrich II of Moers of Cologne `CLN`),
+  `FLD` (Prince-Abbey of Fulda under Reinhard von Weilnau), `NAS`
+  (Nassau-Wiesbaden under John II), `KNZ` (Prince-Bishopric of Konstanz
+  under Heinrich von Hewen), `LAU` (Saxe-Lauenburg under Bernard II), and
+  `HLD` (Prince-Bishopric of Hildesheim under Bernhard II of
+  Brunswick-Lüneburg) (owner's pick).
+- **Lower Lusatia (`Lubben`)**: Assigned to `BRA` (Elector Frederick II
+  of Brandenburg held the Lower Lusatian *Landvogtei* pledge from 1448
+  until the Peace of Guben in 1462, per `MAP_EXPANSION_RESEARCH.md`
+  review note #1).
+- **Silesian duchies**: Added `Cieszyn` (Teschen), `Oswiecim`, `Olesnica`
+  (Oels), and `Zagan` (Sagan) as `BOH` provinces held by real 1453 Piast
+  dukes (`Przemyslaus II`, `Jan IV`, `Conrad IX`, `Balthasar`) as
+  internal `BOH` great vassals (matching Opole).
+- **Approximate (`?`) birth years**: Birth years are approximate for
+  `George I of Anhalt-Dessau`, `Albert of Hoya`, `Reinhard von Weilnau`,
+  `Heinrich von Hewen`, `Bernard II of Saxe-Lauenburg`, `Bernhard II of
+  Hildesheim`, and the four Silesian Piast dukes.

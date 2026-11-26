@@ -34,19 +34,25 @@ Cologne | 50.94 6.96 | CLN f 8
 Arnsberg | 51.40 8.06 | CLN h 3
 Julich | 50.92 6.36 | JUL f 4
 Dusseldorf | 51.23 6.78 | JUL f 3
+Solingen | 51.17 7.08 | JUL h 3
 Kleve | 51.79 6.14 | KLE f 3
 Hamm | 51.68 7.82 | KLE f 3
+Unna | 51.53 7.69 | KLE f 3
 @ Westphalia
 Munster | 51.96 7.63 | MUN f 4
-Osnabruck | 52.28 8.05 | MUN f 3
-Paderborn | 51.72 8.75 | MUN h 3
+Osnabruck | 52.28 8.05 | OSN f 3
+Minden | 52.29 8.92 | OSN f 3
+Paderborn | 51.72 8.75 | PAD h 3
 Oldenburg | 53.14 8.21 | OLD x 2
 Bremen | 53.08 8.80 | BRE f 5
 Stade | 53.60 9.48 | BRE x 2
+Verden | 52.92 9.23 | BRE f 2
 @ Middle Rhine
 Mainz | 50.00 8.27 | MAI f 5
 Aschaffenburg | 49.98 9.15 | MAI h 3
 Frankfurt | 50.11 8.68 | FFM f 5
+Wiesbaden | 50.25 8.25 | NAS h 3
+Siegen | 50.87 8.02 | NAS h 3
 Trier | 49.75 6.64 | TRI h 4
 Koblenz | 50.36 7.59 | TRI h 3
 Heidelberg | 49.40 8.69 | PAL f 5
@@ -54,9 +60,11 @@ Kaiserslautern | 49.44 7.77 | PAL w 3
 @ Hesse and Thuringia
 Kassel | 51.31 9.48 | HES h 3
 Marburg | 50.81 8.77 | HES h 3
-Fulda | 50.55 9.68 | HES h 2
+Fulda | 50.55 9.68 | FLD h 2
 Erfurt | 50.98 11.03 | MAI f 5
 Weimar | 50.98 11.33 | SAX f 3
+Eisenach | 50.98 10.32 | SAX h 3
+Gotha | 50.95 10.70 | SAX f 3
 @ Saxony
 Wittenberg | 51.87 12.65 | SAX f 3
 Leipzig | 51.34 12.37 | SAX f 5
@@ -64,13 +72,16 @@ Dresden | 51.05 13.74 | SAX h 4
 Zwickau | 50.72 12.49 | SAX h 4
 Magdeburg | 52.13 11.63 | MAG f 5
 Halle | 51.48 11.97 | MAG f 4
+Dessau | 51.84 12.24 | ANH f 3
 @ Lower Saxony
 Brunswick | 52.27 10.52 | BRU f 5
 Luneburg | 53.25 10.41 | BRU f 4
 Gottingen | 51.54 9.93 | BRU h 3
 Hanover | 52.37 9.73 | BRU f 3
+Hildesheim | 52.15 9.95 | HLD f 4
 Hamburg | 53.55 9.99 | HAM f 6
 Lubeck | 53.87 10.69 | LUB f 7
+Lauenburg | 53.37 10.56 | LAU f 3
 @ Holstein and Schleswig
 Kiel | 54.32 10.14 | HOL f 3
 Schleswig | 54.52 9.57 | SLE f 3
@@ -98,6 +109,7 @@ Bayreuth | 49.95 11.58 | ANS h 3
 Wurzburg | 49.79 9.95 | WBZ f 4
 Bamberg | 49.89 10.89 | BAM f 3
 Amberg | 49.44 11.86 | PAL h 3
+Neumarkt | 49.28 11.46 | PAL h 3
 @ Swabia
 Stuttgart | 48.78 9.18 | WUR f 4
 Urach | 48.49 9.40 | WUR h 3
@@ -106,7 +118,7 @@ Baden | 48.76 8.24 | BAD h 3
 Pforzheim | 48.89 8.70 | BAD h 2
 Ulm | 48.40 9.99 | ULM f 5
 Augsburg | 48.37 10.90 | AUG f 6
-Konstanz | 47.66 9.17 | ULM f 3
+Konstanz | 47.66 9.17 | KNZ f 3
 Freiburg | 47.99 7.85 | FUR h 3
 @ Bavaria
 Munich | 48.14 11.58 | BAV f 5
@@ -132,8 +144,13 @@ Legnica | 51.21 16.16 | BOH f 3
 Glogow | 51.66 16.08 | BOH f 3
 Swidnica | 50.84 16.49 | BOH h 3
 Opole | 50.67 17.93 | BOH f 3
+Olesnica | 51.21 17.38 | BOH f 3
+Zagan | 51.62 15.31 | BOH w 2
+Cieszyn | 49.75 18.63 | BOH h 3
+Oswiecim | 50.04 19.22 | BOH f 2
 @ Lusatia
 Bautzen | 51.18 14.42 | BOH h 3
+Lubben | 51.94 13.90 | BRA x 2
 
 # Alps
 @ Austria
@@ -144,6 +161,7 @@ Wiener Neustadt | 47.81 16.24 | HAB f 3
 @ Inner Austria
 Graz | 47.07 15.44 | HAB h 4
 Klagenfurt | 46.62 14.31 | HAB m 3
+Villach | 46.61 13.85 | HAB m 3
 Ljubljana | 46.05 14.51 | HAB h 3
 Trieste | 45.65 13.78 | HAB h 3
 Celje | 46.23 15.27 | CIL h 3
@@ -154,12 +172,15 @@ Innsbruck | 47.27 11.39 | TIR m 4
 Bozen | 46.50 11.35 | TIR m 3
 Trento | 46.07 11.12 | TIR m 3
 Feldkirch | 47.24 9.60 | TIR m 2
+Bregenz | 47.50 9.75 | TIR m 2
 @ Switzerland
 Zurich | 47.37 8.54 | SWI h 4
 Bern | 46.95 7.45 | SWI h 4
 Lucerne | 47.05 8.31 | SWI m 3
 Altdorf | 46.88 8.64 | SWI m 2
 Basel | 47.56 7.59 | BAS f 4
+Porrentruy | 47.42 7.08 | BAS h 2
+Neuchatel | 46.99 6.93 | SWI h 2
 Sankt Gallen | 47.42 9.37 | SGA h 3
 Frauenfeld | 47.56 8.90 | TIR h 2
 Sion | 46.23 7.36 | VAL m 2

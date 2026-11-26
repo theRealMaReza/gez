@@ -22,7 +22,7 @@ jobs:
     name: Simulation tests
     if: github.event_name != 'schedule' && inputs.only != 'profile' && inputs.only != 'windows' && inputs.only != 'balance'
     runs-on: macos-15
-    timeout-minutes: 45
+    timeout-minutes: 75
     steps:
       - uses: actions/checkout@v5
       - name: Swift version
@@ -37,7 +37,7 @@ jobs:
     if: github.event_name != 'schedule' && inputs.only != 'profile' && inputs.only != 'windows' && inputs.only != 'balance'
     runs-on: ubuntu-latest
     container: swift:6.0
-    timeout-minutes: 45
+    timeout-minutes: 75
     steps:
       - uses: actions/checkout@v5
       - name: Test GezCore

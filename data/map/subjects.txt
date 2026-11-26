@@ -48,6 +48,8 @@ DAN SLE vassal
 # Rostov princes under Moscow; Upper Oka princes under Lithuania
 MOS ROS vassal
 LIT OKA vassal
+# Dietrich II of Moers: Archbishop of Cologne and Administrator of Paderborn
+CLN PAD personal_union
 # Alaiye under Karaman
 KAR ALA vassal
 

@@ -502,4 +502,37 @@ final class OldWorldMapTests: XCTestCase {
             XCTAssertFalse(world.provinces.neighbors[pid.index].isEmpty, name)
         }
     }
+
+    /// Phase 20.7 HRE & Alps Part III detail: 8 new HRE tags, Lower Lusatia
+    /// pledge under Brandenburg, and 4 Silesian Piast internal BOH vassals.
+    func testHREDetailPartIII() {
+        let world = Scenario1453.makeWorld()
+        for tag in ["ANH", "OSN", "PAD", "FLD", "NAS", "KNZ", "LAU", "HLD"] {
+            guard let cid = world.countries.id(forTag: tag) else {
+                XCTFail("missing HRE tag \(tag)")
+                continue
+            }
+            XCTAssertEqual(world.countries.religion[cid.index], .catholic, tag)
+        }
+        let cln = world.countries.id(forTag: "CLN")!
+        let pad = world.countries.id(forTag: "PAD")!
+        XCTAssertEqual(world.countries.overlord[pad.index], cln)
+        XCTAssertEqual(world.countries.subjectType[pad.index], .personalUnion)
+
+        let bra = world.countries.id(forTag: "BRA")!
+        let lubben = world.provinces.id(named: "Lubben")!
+        XCTAssertEqual(world.provinces.owner[lubben.index], bra)
+
+        for name in ["Dessau", "Osnabruck", "Minden", "Paderborn", "Fulda", "Wiesbaden", "Siegen", "Konstanz", "Lauenburg", "Hildesheim", "Solingen", "Unna", "Verden", "Eisenach", "Gotha", "Neumarkt", "Villach", "Bregenz", "Porrentruy", "Neuchatel"] {
+            guard let pid = world.provinces.id(named: name) else {
+                XCTFail("missing HRE/Alps province \(name)")
+                continue
+            }
+            XCTAssertFalse(world.provinces.neighbors[pid.index].isEmpty, name)
+        }
+        for silesia in ["Cieszyn", "Oswiecim", "Olesnica", "Zagan"] {
+            let pid = world.provinces.id(named: silesia)!
+            XCTAssertNotNil(world.provinces.holder[pid.index], silesia)
+        }
+    }
 }

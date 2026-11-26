@@ -163,3 +163,11 @@ stability | KOD | 1
 stability | BYA | 1
 stability | EVK | 1
 stability | YAK | 1
+stability | ANH | 1
+stability | OSN | 0
+stability | PAD | 1
+stability | FLD | 1
+stability | NAS | 1
+stability | KNZ | 1
+stability | LAU | 1
+stability | HLD | 1

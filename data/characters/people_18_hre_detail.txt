@@ -1,0 +1,36 @@
+# HRE Part III detail (30 May 1453): Anhalt, Osnabruck, Paderborn, Fulda,
+# Nassau, Konstanz, Saxe-Lauenburg, Hildesheim, and Silesian Piast vassals.
+
+@ ANH
+ruler  | george1_anh  | George I of Anhalt-Dessau | Ascania | m | 1390 | | pious, patient | Prince of Anhalt-Dessau (r. 1405-1474); birth year?
+heir   | waldemar6_anh| Waldemar VI of Anhalt     | Ascania | m | 1450 | f:george1_anh | | eldest son of George I; future Prince of Anhalt-Köthen
+
+@ OSN
+ruler  | albert_hoya  | Albert of Hoya            | Hoya    | m | 1410 | | diplomat, administrator | Prince-Bishop of Minden (1436-1473) and Administrator of Osnabrück (1450-1454); birth year?
+
+@ PAD
+ruler  | =dietrich_m
+
+@ FLD
+ruler  | reinhard_fld | Reinhard von Weilnau      | Weilnau | m | 1415 | | pious, just | Prince-Abbot of Fulda (r. 1449-1472); birth year?
+
+@ NAS
+ruler  | john2_nas    | John II of Nassau-Wiesbaden | Nassau | m | 1419 | | diligent, diplomat | Count of Nassau-Wiesbaden-Idstein (r. 1426-1480)
+heir   | adolf3_nas   | Adolf III of Nassau       | Nassau  | m | 1443-11-10 | f:john2_nas | | son of John II
+kin    | john4_nas    | John IV of Nassau-Dillenburg | Nassau | m | 1410-08-01 | | strategist, ambitious | Count of Nassau-Dillenburg and Baron of Breda
+
+@ KNZ
+ruler  | heinrich_knz | Heinrich von Hewen        | Hewen   | m | 1398 | | diplomat, pious | Prince-Bishop of Konstanz (r. 1436-1462); birth year?
+
+@ LAU
+ruler  | bernard2_lau | Bernard II of Saxe-Lauenburg | Ascania | m | 1385 | | patient | Duke of Saxe-Lauenburg (r. 1436-1463); birth year?
+heir   | john5_lau    | John V of Saxe-Lauenburg  | Ascania | m | 1439-07-18 | f:bernard2_lau | | son of Bernard II
+
+@ HLD
+ruler  | bernhard2_hld| Bernhard II of Brunswick-Lüneburg | Welf | m | 1432 | f:frederick2_bl | pious, scholar | Prince-Bishop of Hildesheim (r. 1452-1458), son of Frederick II of Lüneburg; birth year?
+
+@ BOH
+vassal | przemyslaus2_cie | Przemyslaus II of Cieszyn | Piast | m | 1420 | holds:Cieszyn | diplomat, brave | Duke of Cieszyn (Teschen); birth year?
+vassal | jan4_osw     | Jan IV of Oświęcim        | Piast   | m | 1426 | holds:Oswiecim | ambitious, wrathful | Duke of Oświęcim (swore fealty to Poland in 1454); birth year?
+vassal | conrad9_ole  | Conrad IX the Black       | Piast   | m | 1415 | holds:Olesnica | brave | Duke of Oleśnica (Oels); birth year?
+vassal | balthasar_zag| Balthasar of Żagań        | Piast   | m | 1415 | holds:Zagan | ambitious, brave | Duke of Żagań (Sagan); birth year?

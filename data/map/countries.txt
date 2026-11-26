@@ -459,3 +459,12 @@ KOD | Kod | 125 145 135 | tribal | siberian | Kod
 BYA | Buryats | 150 125 90 | tribal | tengri | Olkhon
 EVK | Evenks | 135 155 120 | tribal | siberian | Yeniseysk
 YAK | Yakuts | 165 145 110 | tribal | siberian | Tuymaada
+# HRE Part III detail (Phase 20.7)
+ANH | Anhalt | 185 110 115 | monarchy | catholic | Dessau
+OSN | Osnabruck | 160 100 130 | theocracy | catholic | Osnabruck
+PAD | Paderborn | 145 90 120 | theocracy | catholic | Paderborn
+FLD | Fulda | 135 120 105 | theocracy | catholic | Fulda
+NAS | Nassau | 95 130 190 | monarchy | catholic | Wiesbaden
+KNZ | Konstanz | 175 135 155 | theocracy | catholic | Konstanz
+LAU | Saxe-Lauenburg | 115 155 170 | monarchy | catholic | Lauenburg
+HLD | Hildesheim | 185 155 95 | theocracy | catholic | Hildesheim

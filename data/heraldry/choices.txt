@@ -272,3 +272,12 @@ MER | File:Flag of the Merina Kingdom.svg | Merina Kingdom banner, later era (ow
 
 # Siberia (Phase 20.7, owner's pick)
 SIB | File:Flag of Siberian Khanate.svg | Khanate of Sibir tamga banner (owner's pick)
+# HRE Part III detail (Phase 20.7)
+ANH | File:Wappen Anhalt.svg | Principality of Anhalt coat of arms
+OSN | File:Osnabrück Wappen.svg | Osnabrück wheel coat of arms
+PAD | File:DEU Paderborn COA.svg | Prince-Bishopric of Paderborn cross coat of arms
+FLD | File:Wappen Fulda.svg | Prince-Abbey of Fulda cross coat of arms
+NAS | File:Arms of Nassau.svg | House of Nassau coat of arms
+KNZ | File:Coat of Arms of the Bishopric of Konstanz.svg | Prince-Bishopric of Konstanz coat of arms
+LAU | File:Wappen Grafschaft Sachsen-Lauenburg.svg | Duchy of Saxe-Lauenburg coat of arms
+HLD | File:Coat of Arms of the Bishopric of Hildesheim.svg | Prince-Bishopric of Hildesheim coat of arms

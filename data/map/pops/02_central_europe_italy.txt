@@ -98,6 +98,14 @@ ashkenazi jewish 2
 upper_saxon catholic 80
 silesian catholic 17
 ashkenazi jewish 3
+> Cieszyn
+silesian catholic 60
+polish catholic 30
+upper_saxon catholic 10
+> Oswiecim
+polish catholic 75
+silesian catholic 20
+upper_saxon catholic 5
 @ Lusatia
 sorbian catholic 60
 upper_saxon catholic 40
@@ -135,6 +143,12 @@ swiss catholic 40
 > Chur
 swiss catholic 70
 lombard catholic 30
+> Porrentruy
+french catholic 80
+swiss catholic 20
+> Neuchatel
+arpitan catholic 80
+swiss catholic 20
 
 # Italy
 @ Savoy
