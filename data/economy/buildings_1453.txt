@@ -140,3 +140,9 @@ Boina          | port 1
 Qashliq        | fort 1, barracks 1
 Chimgi-Tura    | fort 1
 Pelym          | fort 1
+Hildesheim     | temple 1, fort 1
+Paderborn      | temple 1
+Osnabruck      | temple 1
+Fulda          | temple 1
+Konstanz       | temple 1
+Dessau         | fort 1
