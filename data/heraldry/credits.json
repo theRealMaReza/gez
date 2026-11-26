@@ -1,4 +1,12 @@
 {
+ "ACE": {
+  "author": "Orange Tuesday (talk).\n\nThe original uploader was Orange Tuesday at English Wikipedia.",
+  "file": "File:Flag of the Sultanate of Aceh.svg",
+  "license": "Public domain",
+  "licenseUrl": "",
+  "note": "Aceh/Pedir banner, later era (owner's pick)",
+  "page": "https://commons.wikimedia.org/wiki/File:Flag_of_the_Sultanate_of_Aceh.svg"
+ },
  "ADA": {
   "author": "FDRMRZUSA",
   "file": "File:Flag of Adal Sultanate.svg",
@@ -238,6 +246,14 @@
   "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
   "note": "banner of Husain Shah, c.1500 (nearest known)",
   "page": "https://commons.wikimedia.org/wiki/File:Alam_(banner)_of_Ala-ud-din_Husain_Shah.svg"
+ },
+ "BNI": {
+  "author": "Orange Tuesday at English Wikipedia\n\n(Original text: Orange Tuesday (talk))",
+  "file": "File:Flag of Brunei 1906-1959.svg",
+  "license": "Public domain",
+  "licenseUrl": "",
+  "note": "Brunei royal banner, later era (owner's pick)",
+  "page": "https://commons.wikimedia.org/wiki/File:Flag_of_Brunei_1906-1959.svg"
  },
  "BOH": {
   "author": "Redraw: SamhaninHistorical original works: Hugo Gerhard Ströhl",
@@ -1079,6 +1095,14 @@
   "note": "",
   "page": "https://commons.wikimedia.org/wiki/File:Wappen_Erzbistum_Mainz.png"
  },
+ "MAJ": {
+  "author": "source: BP47Dhorifah, svg: Puck04",
+  "file": "File:Naval flag of Majapahit Kingdom.svg",
+  "license": "Public domain",
+  "licenseUrl": "",
+  "note": "Majapahit red-and-white stripes (owner's pick)",
+  "page": "https://commons.wikimedia.org/wiki/File:Naval_flag_of_Majapahit_Kingdom.svg"
+ },
  "MAM": {
   "author": "Original:  Producer Vector:  Ryucloud",
   "file": "File:Mameluke Flag.svg",
@@ -1150,6 +1174,14 @@
   "licenseUrl": "",
   "note": "",
   "page": "https://commons.wikimedia.org/wiki/File:Wappen_Mecklenburg_2.svg"
+ },
+ "MLC": {
+  "author": "User Mysid on en.wikipedia",
+  "file": "File:Flag of Malacca.svg",
+  "license": "Public domain",
+  "licenseUrl": "",
+  "note": "Malacca regional banner, later era (owner's pick)",
+  "page": "https://commons.wikimedia.org/wiki/File:Flag_of_Malacca.svg"
  },
  "MLO": {
   "author": "F l a n k e r",
@@ -1382,6 +1414,14 @@
   "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
   "note": "Mon golden Hintha bird banner (owner's pick)",
   "page": "https://commons.wikimedia.org/wiki/File:Golden_Hintar_flag_of_Burma.svg"
+ },
+ "PGR": {
+  "author": "RahmatdenasMuffin Wizard This W3C-unspecified vector image was created with Inkscape .",
+  "file": "File:Flag of Minang.svg",
+  "license": "Public domain",
+  "licenseUrl": "",
+  "note": "Minangkabau Pagaruyung tricolour (owner's pick)",
+  "page": "https://commons.wikimedia.org/wiki/File:Flag_of_Minang.svg"
  },
  "PHA": {
   "author": "Unknown authorUnknown author",
@@ -1647,6 +1687,14 @@
   "note": "",
   "page": "https://commons.wikimedia.org/wiki/File:Blason_Strasbourg.svg"
  },
+ "SUL": {
+  "author": "Provincial Government of Sulu and the National Historical Commission of the Philippines",
+  "file": "File:Flag of Sulu.svg",
+  "license": "Public domain",
+  "licenseUrl": "",
+  "note": "Sultanate of Sulu banner (owner's pick)",
+  "page": "https://commons.wikimedia.org/wiki/File:Flag_of_Sulu.svg"
+ },
  "SWE": {
   "author": "Sodacan",
   "file": "File:Coat of arms of Sweden.svg",
@@ -1671,6 +1719,14 @@
   "note": "modern guess",
   "page": "https://commons.wikimedia.org/wiki/File:Flag_of_the_Tahirids.svg"
  },
+ "TER": {
+  "author": "Kailanmapper",
+  "file": "File:Flag of the Ternate Sultanate.png",
+  "license": "CC0",
+  "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+  "note": "Sultanate of Ternate banner (owner's pick)",
+  "page": "https://commons.wikimedia.org/wiki/File:Flag_of_the_Ternate_Sultanate.png"
+ },
  "TEU": {
   "author": "",
   "file": "File:Insignia Germany Order Teutonic.svg",
@@ -1686,6 +1742,14 @@
   "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
   "note": "",
   "page": "https://commons.wikimedia.org/wiki/File:Coat_of_arms_of_Gothia.svg"
+ },
+ "TID": {
+  "author": "Fazoffic",
+  "file": "File:Flag of the Sultanate of Tidore.png",
+  "license": "Public domain",
+  "licenseUrl": "",
+  "note": "Sultanate of Tidore banner (owner's pick)",
+  "page": "https://commons.wikimedia.org/wiki/File:Flag_of_the_Sultanate_of_Tidore.png"
  },
  "TIM": {
   "author": "HetmanTheResearcher",
