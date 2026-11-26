@@ -269,3 +269,6 @@ KIL | File:Flag of the Sultanate of Zanzibar.svg | Swahili/Zanzibar Sultanate ba
 # Central, Southern Africa, and Madagascar (Phase 20.7, owner's picks)
 KON | File:Flag of the Kingdom of Kongo.svg | Kingdom of Kongo royal banner (owner's pick)
 MER | File:Flag of the Merina Kingdom.svg | Merina Kingdom banner, later era (owner's pick)
+
+# Siberia (Phase 20.7, owner's pick)
+SIB | File:Flag of Siberian Khanate.svg | Khanate of Sibir tamga banner (owner's pick)

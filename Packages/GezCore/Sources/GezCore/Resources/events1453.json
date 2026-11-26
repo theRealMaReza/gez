@@ -1,5 +1,5 @@
 {
-  "provinceCount": 2021,
+  "provinceCount": 2054,
   "events": [
     {
       "id": "hist_end_hundred_years_war_fra",
@@ -5175,7 +5175,7 @@
             {
               "kind": "add_claim",
               "str": "Samarkand",
-              "int": 1056
+              "int": 1054
             },
             {
               "kind": "add_cb",
@@ -5259,7 +5259,7 @@
             {
               "kind": "add_claim",
               "str": "Delhi",
-              "int": 1114
+              "int": 1112
             },
             {
               "kind": "prestige",
@@ -5300,7 +5300,7 @@
             {
               "kind": "add_claim",
               "str": "Samarkand",
-              "int": 1056
+              "int": 1054
             },
             {
               "kind": "manpower",
@@ -5365,12 +5365,12 @@
             {
               "kind": "add_claim",
               "str": "Delhi",
-              "int": 1114
+              "int": 1112
             },
             {
               "kind": "add_claim",
               "str": "Agra",
-              "int": 1125
+              "int": 1123
             },
             {
               "kind": "add_cb",
@@ -5610,7 +5610,7 @@
         {
           "kind": "owns",
           "str": "Delhi",
-          "int": 1114
+          "int": 1112
         }
       ],
       "options": [
@@ -5690,7 +5690,7 @@
         {
           "kind": "owns",
           "str": "Chittor",
-          "int": 1181
+          "int": 1179
         }
       ],
       "options": [
@@ -5710,7 +5710,7 @@
             {
               "kind": "province_fort",
               "target": "province",
-              "int": 1181,
+              "int": 1179,
               "int2": 1
             },
             {
@@ -5847,7 +5847,7 @@
         {
           "kind": "owns",
           "str": "Vijayanagara",
-          "int": 1328
+          "int": 1326
         }
       ],
       "options": [
@@ -5867,7 +5867,7 @@
             {
               "kind": "province_dev",
               "target": "province",
-              "int": 1328,
+              "int": 1326,
               "int2": 1
             },
             {
@@ -5890,7 +5890,7 @@
             {
               "kind": "spawn_units",
               "target": "province",
-              "int": 1328,
+              "int": 1326,
               "str": "cavalry",
               "int2": 2
             },

@@ -302,3 +302,7 @@ nguni | Nguni | bantu
 sotho | Sotho-Tswana | bantu
 khoisan | Khoisan | khoisan
 malagasy | Malagasy | austronesian
+siberian_tatar | Siberian Tatar | turkic
+mansi | Mansi | volga_ural
+khanty | Khanty | volga_ural
+yakut | Yakut | turkic

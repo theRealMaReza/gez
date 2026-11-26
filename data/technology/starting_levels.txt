@@ -74,6 +74,8 @@ region | Swahili Coast           | 3 | 4 | 2
 region | Congo Basin             | 2 | 2 | 2
 region | Zambezi and Southern Africa | 2 | 2 | 2
 region | Madagascar              | 2 | 2 | 2
+region | Western Siberia         | 2 | 2 | 2
+region | Eastern Siberia         | 2 | 2 | 2
 
 ## Country overrides (capital in a neighbouring region or distinct 1453 focus)
 country | TUR | 4 | 4 | 4

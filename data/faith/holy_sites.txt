@@ -75,3 +75,4 @@ site | Sankore Mosque | Timbuktu | sunni
 site | Ile-Ife | Ife | west_african
 site | Great Mosque of Kilwa | Kilwa | sunni
 site | Great Zimbabwe | Great Zimbabwe | bantu
+site | Shaman Rock | Olkhon | siberian, tengri

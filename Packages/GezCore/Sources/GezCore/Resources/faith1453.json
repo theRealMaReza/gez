@@ -509,6 +509,14 @@
       "religions": [
         "bantu"
       ]
+    },
+    {
+      "name": "Shaman Rock",
+      "province": "Olkhon",
+      "religions": [
+        "siberian",
+        "tengri"
+      ]
     }
   ]
 }

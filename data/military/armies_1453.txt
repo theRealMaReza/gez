@@ -117,3 +117,6 @@ KON | Kongo Royal Guard          | Mbanza Kongo | nkuwu_a_ntinu_kon | infantry:4
 LBA | Luba Warriors              | Mwibele | kalala_ilunga_lba | infantry:3, archers:1
 MTP | Mutapa Royal Host          | Mount Fura | matope_mtp | infantry:5, archers:2
 MER | Imerina Guard              | Alasora | andrianamponga_mer | infantry:3, archers:1
+SIB | Sibir Steppe Riders        | Qashliq | mar_sib | cavalry:3, infantry:1
+PEL | Pelym Forest Guard         | Pelym   | asyka_pel | infantry:2, archers:1
+BYA | Buryat Baikal Riders       | Olkhon  | barga_bya | cavalry:2, archers:1

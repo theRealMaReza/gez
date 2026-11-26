@@ -451,3 +451,11 @@ MER | Merina | 185 85 95 | monarchy | austronesian | Alasora
 SAK | Sakalava | 115 145 160 | tribal | austronesian | Menabe
 ANT | Antemoro | 155 165 95 | monarchy | sunni | Vohipeno
 BTS | Betsimisaraka | 140 165 130 | tribal | austronesian | Tamatave
+
+# Siberia (Phase 20.7)
+SIB | Sibir | 105 150 175 | steppeHorde | sunni | Qashliq
+PEL | Pelym | 115 140 100 | tribal | siberian | Pelym
+KOD | Kod | 125 145 135 | tribal | siberian | Kod
+BYA | Buryats | 150 125 90 | tribal | tengri | Olkhon
+EVK | Evenks | 135 155 120 | tribal | siberian | Yeniseysk
+YAK | Yakuts | 165 145 110 | tribal | siberian | Tuymaada

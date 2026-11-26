@@ -110,3 +110,6 @@ MBA | ivory        | Kilwa         | Hormuz        | 15
 MTP | gold         | Mount Fura    | Kilwa         | 25
 BTW | gold         | Mount Fura    | Kilwa         | 15
 SAK | wood         | Alasora       | Kilwa         | 15
+# Siberian fur trade
+SIB | furs         | Qashliq       | Kazan         | 20
+SIB | furs         | Qashliq       | Samarkand     | 15

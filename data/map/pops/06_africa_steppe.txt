@@ -223,13 +223,6 @@ turkmen sunni.hanafi 100
 @ Uzbek Steppe
 uzbek sunni.hanafi 75
 uzbek tengri 25
-> Chimgi-Tura
-uzbek sunni.hanafi 60
-uzbek tengri 20
-komi folk 20
-> Ishim
-uzbek tengri 60
-uzbek sunni.hanafi 40
 > Yasi
 uzbek sunni.hanafi 70
 chagatai sunni.hanafi 30
