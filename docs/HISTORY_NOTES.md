@@ -870,3 +870,18 @@ Enniskillen.
   `George I of Anhalt-Dessau`, `Albert of Hoya`, `Reinhard von Weilnau`,
   `Heinrich von Hewen`, `Bernard II of Saxe-Lauenburg`, `Bernhard II of
   Hildesheim`, and the four Silesian Piast dukes.
+### Italy Detail (Phase 20.7 Part III, May 1453)
+- **Piombino (`PIO`) and Forlì (`FRL`)**: Added independent `PIO`
+  (Appiani lordship under Emanuele Appiani, heir Jacopo III) and Papal
+  vassal `FRL` (Ordelaffi vicarage under young co-lords Cecco III and
+  Pino III and their mother-regent Caterina Rangoni) (owner's pick).
+- **Subdivided Italian provinces (10 new)**: `Finale` (`GEN`, held by
+  internal great vassal `Giovanni I Del Carretto`), `Massa` (`FLO`, held
+  by internal great vassal `Jacopo I Malaspina`), `Crema` (`VEN`, taken
+  1449), `Benevento` (Papal enclave inside `NAP`), `Forli` (`FRL`),
+  `Piombino` (`PIO`), and `Capua`, `Chieti`, `Brindisi`, `Catanzaro`
+  (`NAP`).
+- **Approximate (`?`) birth years**: Birth years are approximate for
+  `Emanuele Appiani`, `Jacopo III Appiani`, `Caterina Rangoni`,
+  `Cecco III Ordelaffi`, `Pino III Ordelaffi`, `Giovanni I Del Carretto`,
+  and `Jacopo I Malaspina`.

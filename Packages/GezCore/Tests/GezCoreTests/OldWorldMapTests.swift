@@ -535,4 +535,35 @@ final class OldWorldMapTests: XCTestCase {
             XCTAssertNotNil(world.provinces.holder[pid.index], silesia)
         }
     }
+
+    /// Phase 20.7 Italy Part III detail: Piombino (Appiani), Forli (Ordelaffi
+    /// papal vicar), Benevento papal enclave, Crema (Venice), Finale/Massa
+    /// internal vassals, and Naples subdivisions.
+    func testItalyDetailPartIII() {
+        let world = Scenario1453.makeWorld()
+        guard let pio = world.countries.id(forTag: "PIO"),
+              let frl = world.countries.id(forTag: "FRL"),
+              let pap = world.countries.id(forTag: "PAP"),
+              let ven = world.countries.id(forTag: "VEN") else {
+            return XCTFail("missing Italy Part III tags")
+        }
+        XCTAssertEqual(world.countries.religion[pio.index], .catholic)
+        XCTAssertEqual(world.countries.overlord[frl.index], pap)
+        XCTAssertEqual(world.countries.subjectType[frl.index], .vassal)
+
+        let benevento = world.provinces.id(named: "Benevento")!
+        XCTAssertEqual(world.provinces.owner[benevento.index], pap)
+        let crema = world.provinces.id(named: "Crema")!
+        XCTAssertEqual(world.provinces.owner[crema.index], ven)
+
+        for name in ["Piombino", "Forli", "Crema", "Benevento", "Finale", "Massa", "Capua", "Chieti", "Brindisi", "Catanzaro"] {
+            guard let pid = world.provinces.id(named: name) else {
+                XCTFail("missing Italy province \(name)")
+                continue
+            }
+            XCTAssertFalse(world.provinces.neighbors[pid.index].isEmpty, name)
+        }
+        XCTAssertNotNil(world.provinces.holder[world.provinces.id(named: "Finale")!.index])
+        XCTAssertNotNil(world.provinces.holder[world.provinces.id(named: "Massa")!.index])
+    }
 }

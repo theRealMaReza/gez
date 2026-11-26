@@ -171,3 +171,5 @@ stability | NAS | 1
 stability | KNZ | 1
 stability | LAU | 1
 stability | HLD | 1
+stability | PIO | 1
+stability | FRL | 0

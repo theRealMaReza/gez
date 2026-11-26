@@ -215,6 +215,7 @@ Mantua | 45.16 10.79 | MAN f 5
 @ Liguria
 Genoa | 44.41 8.93 | GEN h 8
 Savona | 44.31 8.48 | GEN h 3
+Finale | 44.17 8.34 | GEN h 2
 Sarzana | 44.11 9.96 | GEN h 2
 Bastia | 42.70 9.45 | GEN m 2
 Ajaccio | 41.93 8.74 | GEN m 1
@@ -225,6 +226,7 @@ Vicenza | 45.55 11.55 | VEN f 4
 Verona | 45.44 10.99 | VEN f 6
 Treviso | 45.67 12.24 | VEN f 4
 Brescia | 45.54 10.21 | VEN f 5
+Crema | 45.36 9.69 | VEN f 4
 Bergamo | 45.70 9.67 | VEN h 4
 Udine | 46.06 13.24 | VEN f 3
 Capodistria | 45.55 13.73 | VEN h 2
@@ -233,15 +235,18 @@ Ferrara | 44.84 11.62 | FER x 5
 Modena | 44.65 10.93 | FER f 4
 Bologna | 44.49 11.34 | PAP f 7
 Ravenna | 44.42 12.20 | VEN x 3
+Forli | 44.22 12.04 | FRL f 4
 Rimini | 44.06 12.57 | RIM f 3
 Cesena | 44.14 12.24 | CES f 3
 @ Tuscany
 Florence | 43.77 11.26 | FLO h 9
 Pisa | 43.72 10.40 | FLO f 5
+Massa | 44.04 10.14 | FLO h 2
 Arezzo | 43.46 11.88 | FLO h 3
 Lucca | 43.84 10.50 | LUC h 4
 Siena | 43.32 11.33 | SIE h 5
 Grosseto | 42.76 11.11 | SIE x 2
+Piombino | 42.92 10.53 | PIO h 3
 @ Papal States
 Rome | 41.90 12.50 | PAP f 7
 Viterbo | 42.42 12.11 | PAP h 3
@@ -251,15 +256,20 @@ Urbino | 43.73 12.64 | URB h 3
 Spoleto | 42.73 12.74 | PAP m 3
 @ Naples
 Naples | 40.85 14.27 | NAP f 10
+Capua | 41.11 14.21 | NAP f 4
 Salerno | 40.68 14.77 | NAP h 4
+Benevento | 41.13 14.78 | PAP h 3
 L'Aquila | 42.35 13.40 | NAP m 3
+Chieti | 42.35 14.17 | NAP h 3
 Campobasso | 41.56 14.66 | NAP m 2
 Foggia | 41.46 15.55 | NAP p 3
 Bari | 41.12 16.87 | NAP f 4
+Brindisi | 40.63 17.94 | NAP f 3
 Taranto | 40.47 17.24 | NAP f 3
 Lecce | 40.35 18.17 | NAP f 3
 Potenza | 40.64 15.80 | NAP m 2
 Cosenza | 39.30 16.25 | NAP m 3
+Catanzaro | 38.91 16.59 | NAP m 3
 Reggio | 38.11 15.65 | NAP m 2
 @ Sicily
 Palermo | 38.12 13.36 | ARA h 7

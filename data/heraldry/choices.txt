@@ -281,3 +281,6 @@ NAS | File:Arms of Nassau.svg | House of Nassau coat of arms
 KNZ | File:Coat of Arms of the Bishopric of Konstanz.svg | Prince-Bishopric of Konstanz coat of arms
 LAU | File:Wappen Grafschaft Sachsen-Lauenburg.svg | Duchy of Saxe-Lauenburg coat of arms
 HLD | File:Coat of Arms of the Bishopric of Hildesheim.svg | Prince-Bishopric of Hildesheim coat of arms
+# Italy Part III detail (Phase 20.7)
+PIO | File:Arms of the house of Appiano.svg | House of Appiani (Piombino) coat of arms
+FRL | File:Arms of the house of Ordelaffi.svg | House of Ordelaffi (Forlì) coat of arms
