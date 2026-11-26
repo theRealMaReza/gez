@@ -67,7 +67,7 @@
   "neighbour_bonus_cap": 0.25,
   "neighbour_bonus_per_level": 0.05
  },
- "provinceCount": 1931,
+ "provinceCount": 1970,
  "startingLevels": {
   "countries": {
    "BOH": [
@@ -224,6 +224,11 @@
     3,
     4
    ],
+   "Great Lakes and Upper Nile": [
+    2,
+    2,
+    2
+   ],
    "Guinea Coast": [
     2,
     3,
@@ -378,6 +383,11 @@
     4,
     3,
     3
+   ],
+   "Swahili Coast": [
+    3,
+    4,
+    2
    ],
    "Tarim Basin": [
     3,

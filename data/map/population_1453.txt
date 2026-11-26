@@ -56,3 +56,5 @@ Eastern Archipelago | 2500000
 Western Sahel | 6000000
 Guinea Coast | 7500000
 Central Sahel | 6500000
+Great Lakes and Upper Nile | 5500000
+Swahili Coast | 3000000

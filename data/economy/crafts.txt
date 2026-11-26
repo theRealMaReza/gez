@@ -138,3 +138,7 @@ Ife                    | jewelry 5, pottery 4, cotton_cloth 4
 Central Sahel          | leather 6, cotton_cloth 5, weapons 4
 Kano                   | cotton_cloth 6, leather 6, weapons 4, tools 3
 Birni Gazargamu        | leather 5, weapons 5, cotton_cloth 4
+Great Lakes and Upper Nile | tools 4, weapons 4, leather 4
+Swahili Coast          | naval_supplies 5, cotton_cloth 4, jewelry 4
+Kilwa                  | naval_supplies 6, jewelry 5, cotton_cloth 4, pottery 3
+Mombasa                | naval_supplies 5, cotton_cloth 4, weapons 3

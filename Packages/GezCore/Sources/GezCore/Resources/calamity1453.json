@@ -1,5 +1,5 @@
 {
- "provinceCount": 1931,
+ "provinceCount": 1970,
  "faultZones": [
   {
    "name": "North Anatolian Fault",
@@ -756,6 +756,23 @@
     1863,
     1864,
     1865
+   ]
+  },
+  {
+   "name": "East African Rift",
+   "yearlyChance": 0.015,
+   "strength": 0.8,
+   "provinces": [
+    1937,
+    1939,
+    1940,
+    1941,
+    1942,
+    1944,
+    1945,
+    1946,
+    1947,
+    1952
    ]
   }
  ],

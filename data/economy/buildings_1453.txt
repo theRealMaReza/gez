@@ -122,3 +122,10 @@ Benin City     | fort 2, temple 2, barracks 2
 Oyo-Ile        | fort 1, barracks 1
 Ife            | temple 2
 Bono Manso     | caravanserai 2, fort 1
+Kilwa          | port 3, shipyard 2, fort 2, temple 2
+Zanzibar       | port 2, temple 1
+Mombasa        | port 2, fort 1, temple 1
+Malindi        | port 2, temple 1
+Sofala         | port 2, fort 1
+Bigo           | fort 1
+Mengo          | barracks 1

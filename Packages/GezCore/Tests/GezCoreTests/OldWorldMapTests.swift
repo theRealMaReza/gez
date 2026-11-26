@@ -411,4 +411,36 @@ final class OldWorldMapTests: XCTestCase {
             XCTAssertFalse(world.provinces.neighbors[pid.index].isEmpty, name)
         }
     }
+
+    /// Phase 20.7 East Africa, Great Lakes, and Swahili Coast: Kilwa, Mombasa,
+    /// Malindi, Bunyoro-Kitara, Buganda, Rwanda, Burundi, Borana, Shilluk.
+    func testEastAfricaAndSwahiliCoast() {
+        let world = Scenario1453.makeWorld()
+        guard let kil = world.countries.id(forTag: "KIL"),
+              let mba = world.countries.id(forTag: "MBA"),
+              let mld = world.countries.id(forTag: "MLD"),
+              let bny = world.countries.id(forTag: "BNY"),
+              let bgd = world.countries.id(forTag: "BGD"),
+              let rwa = world.countries.id(forTag: "RWA"),
+              let brd = world.countries.id(forTag: "BRD") else {
+            return XCTFail("missing East Africa countries")
+        }
+        for c in [kil, mba, mld] {
+            XCTAssertEqual(world.countries.religion[c.index], .sunni)
+        }
+        for c in [bny, bgd, rwa, brd] {
+            XCTAssertEqual(world.countries.religion[c.index], .bantu)
+        }
+        XCTAssertTrue(world.rivers.contains { $0.name == "White Nile" })
+        for name in ["Kilwa", "Zanzibar", "Mombasa", "Malindi", "Sofala", "Comoros", "Bigo", "Mengo", "Nyanza", "Muramvya"] {
+            guard let pid = world.provinces.id(named: name) else {
+                XCTFail("missing East Africa province \(name)")
+                continue
+            }
+            XCTAssertFalse(world.provinces.neighbors[pid.index].isEmpty, name)
+        }
+        let zanzibar = world.provinces.id(named: "Zanzibar")!
+        let bagamoyo = world.provinces.id(named: "Bagamoyo")!
+        XCTAssertTrue(world.provinces.neighbors[zanzibar.index].contains(bagamoyo))
+    }
 }

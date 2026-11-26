@@ -797,3 +797,17 @@ Enniskillen.
 - **Shields:** `MAL`, `BEN`, and `KBO` use verified Wikimedia Commons
   banners; remaining West African tags use plain map-colour banners where
   no 1453 Commons arms exist (owner's pick).
+
+### East Africa, Great Lakes, and Swahili Coast (Phase 20.7, May 1453)
+- **Swahili Coast (`KIL`, `MBA`, `MLD`)**: Kilwa Sultanate (`Sultan
+  Sulaiman al-Malik al-Adil`, r. 1442–1454) holds Kilwa, Zanzibar,
+  Mozambique, Angoche, Quelimane, Sofala, Inhambane, and Comoros, with
+  independent Mombasa and Malindi alongside existing Pate (owner's pick).
+- **Off-map ivory and gold imports**: lowered off-map imports at
+  `Mogadishu`, `Aden`, and `Cairo` in `data/economy/imports.txt` now that
+  Kilwa and Sofala are on the map.
+- **Approximate (`?`) dates**: birth years for 1453 East African rulers
+  (`Sulaiman`, `Wamara`, `Kiggala`, `Mibambwe I Mutabazi`, `Nyikang`),
+  and exact 1453 rulers for `MBA`, `MLD`, `BRD`, and `ORO`.
+- **Shields:** `BGD` and `KIL` use verified Wikimedia Commons banners;
+  remaining East African tags use plain map-colour banners (owner's pick).

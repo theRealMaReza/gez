@@ -109,3 +109,7 @@ KAO | Kano Cavalry               | Kano   | yakubu_kao | cavalry:3, infantry:2
 KBO | Sayfawa Mail Riders        | Birni Gazargamu | muhammad3_kbo | cavalry:4, infantry:2
 BEN | Benin Royal Warriors       | Benin City | ewuare_ben | infantry:5, archers:2
 OYO | Oyo Eso Cavalry            | Oyo-Ile | alaafin_kori_oyo | cavalry:3, infantry:2
+KIL | Kilwa Coastal Guard        | Kilwa  | sulaiman_kil | infantry:3, archers:2
+BNY | Kitara Spears              | Bigo   | wamara_bny | infantry:3, archers:1
+BGD | Buganda Warriors           | Mengo  | kiggala_bgd | infantry:3, archers:1
+RWA | Nyiginya Royal Guard       | Nyanza | mibambwe1_rwa | infantry:2, archers:2

@@ -289,3 +289,8 @@ edo | Edo | yoruba
 igbo | Igbo | yoruba
 nupe | Nupe | yoruba
 akan | Akan | akan
+nilotic | Nilotic | nilo_saharan
+ganda | Ganda-Nyoro | bantu
+rwandan | Rwanda-Rundi | bantu
+nyamwezi | Nyamwezi | bantu
+makua | Makua | bantu

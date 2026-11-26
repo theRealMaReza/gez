@@ -418,3 +418,14 @@ Central Sahel @steppe | millet 5, hides 5, horses 4, livestock 4
 Hausaland | cotton 6, hides 5, iron 4, millet 5
 Bornu and Kanem | horses 5, hides 5, salt 4, ivory 3
 Darfur and Kordofan | ivory 4, hides 4, livestock 4, millet 4
+
+Great Lakes and Upper Nile @hills | millet 5, livestock 5, iron 4, hides 3
+Upper Nile | livestock 6, hides 5, ivory 4, millet 4
+Kitara and Buganda | millet 6, livestock 5, iron 5, ivory 4
+Rwanda and Burundi | livestock 6, millet 5, iron 4, hides 4
+Rift Highlands | livestock 5, ivory 5, hides 4, iron 3
+
+Swahili Coast @farmland | ivory 6, gold 4, fish 4, wood 3
+Northern Swahili Coast | ivory 6, fish 4, wood 4, cotton 3
+Kilwa and Zanzibar | ivory 7, gold 5, fish 4, wood 4
+Mozambique Coast | gold 7, ivory 6, fish 4, wood 3

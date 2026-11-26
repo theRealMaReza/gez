@@ -150,3 +150,6 @@ stability | KAO | 1
 stability | KBO | 0
 stability | BEN | 2
 stability | OYO | 1
+stability | KIL | 1
+stability | BGD | 1
+stability | RWA | 1

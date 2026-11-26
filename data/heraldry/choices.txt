@@ -261,3 +261,7 @@ PGR | File:Flag of Minang.svg | Minangkabau Pagaruyung tricolour (owner's pick)
 MAL | File:Flag of the Mali Empire.svg | Mali Empire banner (owner's pick)
 BEN | File:Flag of the Benin Empire.svg | Benin Empire banner (owner's pick)
 KBO | File:Flag of the Bornu Empire.svg | Kanem-Bornu banner (owner's pick)
+
+# East Africa and Swahili Coast (Phase 20.7, owner's picks)
+BGD | File:Flag of Buganda.svg | Buganda royal banner (owner's pick)
+KIL | File:Flag of the Sultanate of Zanzibar.svg | Swahili/Zanzibar Sultanate banner, later era (owner's pick)

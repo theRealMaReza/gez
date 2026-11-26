@@ -69,3 +69,8 @@ PSA | Pasai Trade Fleet       | Pasai    | - | light_ship:2, cog:2
 MAJ | Majapahit Jong Fleet    | Tuban    | - | light_ship:4, galley:3, cog:3
 BNI | Brunei Sea Fleet        | Brunei   | - | light_ship:2, galley:2, cog:2
 TER | Moluccan Kora-Kora      | Ternate  | - | galley:3, cog:1
+
+## Swahili Coast
+KIL | Kilwa Dhow Fleet        | Kilwa    | - | dhow:4, ghurab:1, cog:2
+MBA | Mombasa Squadron        | Mombasa  | - | dhow:3, cog:1
+MLD | Malindi Dhow Fleet      | Malindi  | - | dhow:2, cog:1

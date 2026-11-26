@@ -166,6 +166,10 @@ STRAITS = [
     ("Tidore", "Seram"),
     ("Buru", "Seram"),
     ("Buton", "Buru"),
+    ("Zanzibar", "Bagamoyo"),
+    ("Zanzibar", "Pangani"),
+    ("Lindi", "Comoros"),
+    ("Comoros", "Mozambique"),
 ]
 
 

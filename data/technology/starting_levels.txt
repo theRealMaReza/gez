@@ -69,6 +69,8 @@ region | Eastern Archipelago     | 2 | 3 | 2
 region | Western Sahel           | 3 | 3 | 2
 region | Guinea Coast            | 2 | 3 | 2
 region | Central Sahel           | 3 | 3 | 2
+region | Great Lakes and Upper Nile | 2 | 2 | 2
+region | Swahili Coast           | 3 | 4 | 2
 
 ## Country overrides (capital in a neighbouring region or distinct 1453 focus)
 country | TUR | 4 | 4 | 4

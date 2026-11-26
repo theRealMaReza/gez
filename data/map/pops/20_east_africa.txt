@@ -1,0 +1,62 @@
+# East Africa, Great Lakes, and Swahili Coast (1453)
+
+@ Upper Nile
+nilotic east_african 70
+oromo east_african 30
+> Borena
+oromo east_african 90
+somali sunni.shafii 10
+> Turkana
+nilotic east_african 75
+oromo east_african 25
+> Wajir
+oromo east_african 60
+somali sunni.shafii 40
+
+@ Kitara and Buganda
+ganda bantu 95
+nilotic east_african 5
+> Lango
+nilotic east_african 65
+ganda bantu 35
+
+@ Rwanda and Burundi
+rwandan bantu 90
+ganda bantu 10
+> Ufipa
+nyamwezi bantu 70
+rwandan bantu 30
+
+@ Rift Highlands
+nyamwezi bantu 60
+ganda bantu 20
+nilotic east_african 20
+> Kikuyu
+ganda bantu 75
+nilotic east_african 25
+> Rift Valley
+nilotic east_african 70
+ganda bantu 30
+> Kilimanjaro
+nyamwezi bantu 65
+swahili sunni.shafii 20
+nilotic east_african 15
+
+@ Northern Swahili Coast
+swahili sunni.shafii 70
+nyamwezi bantu 20
+somali sunni.shafii 10
+
+@ Kilwa and Zanzibar
+swahili sunni.shafii 70
+nyamwezi bantu 30
+> Ruvuma
+makua bantu 75
+swahili sunni.shafii 25
+
+@ Mozambique Coast
+swahili sunni.shafii 45
+makua bantu 55
+> Comoros
+swahili sunni.shafii 85
+makua bantu 15

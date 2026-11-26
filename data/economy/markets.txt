@@ -64,3 +64,4 @@ Tondo         | Tondo
 Timbuktu      | Timbuktu
 Kano          | Kano
 Benin City    | Benin City
+Kilwa         | Kilwa

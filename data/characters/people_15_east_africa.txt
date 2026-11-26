@@ -1,0 +1,32 @@
+# Families of East Africa, Great Lakes, and the Swahili Coast, 1453.
+
+@ KIL
+ruler  | sulaiman_kil         | Sultan Sulaiman al-Malik al-Adil | Mahdali | m | 1405 | | diplomat, administrator, pious | Sultan of Kilwa (r. 1442-1454); birth year?
+heir   | muhammad_husayn_kil  | Muhammad ibn al-Husayn | Mahdali | m | 1425 | | pious, patient | Successor at Kilwa (r. 1454-1455); birth year?
+
+@ MBA
+ruler  | ahmad_mba            | Sheikh Ahmad of Mombasa | Shirazi | m | 1415 | | diplomat, brave | Ruler of Mombasa; 1453 ruler and birth year?
+
+@ MLD
+ruler  | yusuf_mld            | Sheikh Yusuf of Malindi | Shirazi | m | 1415 | | diplomat, patient | Ruler of Malindi; 1453 ruler and birth year?
+
+@ BNY
+ruler  | wamara_bny           | Omukama Wamara         | Bachwezi | m | 1410 | | pious, patient | Last Bachwezi ruler of Kitara (mid-15th c.); birth year?
+heir   | rukidi_mpuga_bny     | Isingoma Mpuga Rukidi  | Bito     | m | 1430 | | brave, ambitious | Founder of the Bito dynasty of Bunyoro-Kitara; birth year?
+
+@ BGD
+ruler  | kiggala_bgd          | Kabaka Kiggala         | Buganda  | m | 1410 | | brave, strategist | 5th Kabaka of Buganda (r. c. 1434-1464); birth year?
+heir   | kiyimba_bgd          | Prince Kiyimba         | Buganda  | m | 1435 | f:kiggala_bgd | brave | Heir of Buganda; birth year?
+
+@ RWA
+ruler  | mibambwe1_rwa        | Mwami Mibambwe I Mutabazi | Nyiginya | m | 1415 | | brave, strategist | Mwami of Rwanda (r. c. 1444-1477); birth year?
+heir   | yuhi2_rwa            | Yuhi II Gahima         | Nyiginya | m | 1440 | f:mibambwe1_rwa | ambitious | Heir of Rwanda; birth year?
+
+@ BRD
+ruler  | ntare_brd            | Mwami Ntare            | Ganwa    | m | 1415 | | brave | Early Mwami of Burundi; 1453 ruler and birth year?
+
+@ ORO
+ruler  | dawwe_oro            | Abba Gadaa Dawwe       | Borana   | m | 1415 | | brave, just | Borana Oromo leader; 1453 leader and birth year?
+
+@ SHL
+ruler  | nyikang_shl          | Reth Nyikang           | Shilluk  | m | 1415 | | brave, pious | Founder of the Shilluk Kingdom on the White Nile; birth year?
