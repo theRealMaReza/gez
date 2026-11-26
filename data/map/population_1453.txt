@@ -58,3 +58,6 @@ Guinea Coast | 7500000
 Central Sahel | 6500000
 Great Lakes and Upper Nile | 5500000
 Swahili Coast | 3000000
+Congo Basin | 5500000
+Zambezi and Southern Africa | 3500000
+Madagascar | 1500000

@@ -153,3 +153,7 @@ stability | OYO | 1
 stability | KIL | 1
 stability | BGD | 1
 stability | RWA | 1
+stability | KON | 1
+stability | MTP | 2
+stability | BTW | 1
+stability | MER | 1

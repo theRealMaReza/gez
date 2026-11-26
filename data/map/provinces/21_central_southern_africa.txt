@@ -1,0 +1,71 @@
+# Congo Basin
+@ Kongo Coast
+Mbanza Kongo | -6.27 14.25 | KON w 6
+Soyo | -6.13 12.37 | KON w 4
+Nsundi | -4.80 15.10 | KON w 3
+Mbata | -5.90 15.80 | KON w 3
+Mbamba | -7.75 13.75 | KON w 3
+Buali | -4.65 11.85 | LOA w 4
+Gabon | -0.70 9.50 | LOA w 2
+Kabasa | -9.55 15.80 | NDG h 4
+Luanda | -8.84 13.23 | NDG p 3
+Benguela | -12.58 13.41 | NDG s 2
+Ovimbundu | -12.78 15.74 | NDG h 3
+
+@ Congo Interior
+Mbe | -3.50 16.00 | TIO w 4
+Sangha | 1.60 16.00 | TIO w 2
+Ubangi | 4.36 18.56 | TIO w 2
+Mbandaka | 0.05 18.26 | TIO w 2
+Kisangani | 0.52 25.20 | TIO w 2
+Kuba | -4.40 21.40 | LND w 3
+Mwibele | -8.15 26.50 | LBA h 5
+Katanga | -10.70 26.20 | LBA h 4
+Bemba | -10.20 31.18 | LBA h 2
+Musumba | -8.35 23.15 | LND w 4
+Kasai | -6.00 22.80 | LND w 2
+Barotse | -15.25 23.15 | LND p 2
+
+# Zambezi and Southern Africa
+@ Zimbabwe Plateau
+Mount Fura | -16.80 31.50 | MTP h 6
+Great Zimbabwe | -20.27 30.93 | MTP h 5
+Tete | -16.16 33.59 | MTP p 4
+Manyika | -18.97 32.67 | MTP h 4
+Maravi | -13.96 33.77 | MTP h 3
+Khami | -20.15 28.37 | BTW h 5
+Mapungubwe | -22.20 29.37 | BTW s 3
+
+@ Highveld
+Kaditshwene | -25.35 26.15 | SOT s 4
+Highveld | -26.20 28.05 | SOT p 3
+Thaba Bosiu | -29.37 27.67 | SOT m 3
+Limpopo | -23.90 29.45 | SOT s 2
+
+@ Nguni Coast
+Natal | -29.85 30.95 | NGU h 4
+Delagoa | -25.97 32.58 | NGU p 3
+Swazi | -26.52 31.37 | NGU h 2
+Xhosa | -32.60 28.00 | NGU h 3
+
+@ Cape
+Cape of Good Hope | -33.92 18.42 | KHO h 3
+Mossel Bay | -34.18 22.15 | KHO h 2
+Algoa | -33.96 25.60 | KHO p 2
+Namaqualand | -29.67 17.88 | KHO d 1
+
+# Madagascar
+@ Central Highlands
+Alasora | -18.96 47.57 | MER h 5
+Betsileo | -21.45 47.08 | MER m 3
+
+@ Western Madagascar
+Menabe | -20.29 44.28 | SAK p 4
+Boina | -15.72 46.32 | SAK p 3
+Toliara | -23.35 43.67 | SAK d 2
+
+@ Eastern Madagascar
+Tamatave | -18.15 49.40 | BTS w 3
+Antsiranana | -12.28 49.29 | BTS w 2
+Vohipeno | -22.35 47.84 | ANT w 3
+Anosy | -25.03 47.00 | ANT h 2

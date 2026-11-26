@@ -429,3 +429,18 @@ Swahili Coast @farmland | ivory 6, gold 4, fish 4, wood 3
 Northern Swahili Coast | ivory 6, fish 4, wood 4, cotton 3
 Kilwa and Zanzibar | ivory 7, gold 5, fish 4, wood 4
 Mozambique Coast | gold 7, ivory 6, fish 4, wood 3
+
+Congo Basin @woods | ivory 6, wood 5, copper 4, iron 3
+Kongo Coast | ivory 5, wood 5, fish 4, copper 3
+Congo Interior | copper 7, ivory 6, iron 4, wood 4
+
+Zambezi and Southern Africa @hills | gold 5, livestock 5, ivory 4, iron 3
+Zimbabwe Plateau | gold 8, ivory 5, iron 4, livestock 4
+Highveld | livestock 6, hides 5, iron 4, millet 4
+Nguni Coast | livestock 6, millet 5, fish 3, wood 3
+Cape | livestock 5, fish 5, hides 4, salt 3
+
+Madagascar @hills | wood 5, grain 5, livestock 4, iron 3
+Central Highlands | grain 6, livestock 5, iron 4
+Western Madagascar | livestock 5, wood 4, fish 4, salt 3
+Eastern Madagascar | wood 6, grain 5, fish 4, pepper 2

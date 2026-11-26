@@ -294,3 +294,11 @@ ganda | Ganda-Nyoro | bantu
 rwandan | Rwanda-Rundi | bantu
 nyamwezi | Nyamwezi | bantu
 makua | Makua | bantu
+kongo | Kongo | bantu
+mbundu | Mbundu | bantu
+luba | Luba-Lunda | bantu
+shona | Shona | bantu
+nguni | Nguni | bantu
+sotho | Sotho-Tswana | bantu
+khoisan | Khoisan | khoisan
+malagasy | Malagasy | austronesian

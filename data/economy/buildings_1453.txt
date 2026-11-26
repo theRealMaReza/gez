@@ -129,3 +129,11 @@ Malindi        | port 2, temple 1
 Sofala         | port 2, fort 1
 Bigo           | fort 1
 Mengo          | barracks 1
+Mbanza Kongo   | fort 2, barracks 1, temple 1
+Soyo           | port 1
+Mwibele        | fort 1
+Mount Fura     | fort 2, barracks 1
+Great Zimbabwe | fort 2, temple 2
+Khami          | fort 2
+Alasora        | fort 1, barracks 1
+Boina          | port 1

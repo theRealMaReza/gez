@@ -106,3 +106,7 @@ KBO | ivory        | Kano          | Cairo         | 15
 KIL | gold         | Kilwa         | Calicut       | 20
 KIL | ivory        | Kilwa         | Aden          | 25
 MBA | ivory        | Kilwa         | Hormuz        | 15
+# Zimbabwe gold and Madagascar trade
+MTP | gold         | Mount Fura    | Kilwa         | 25
+BTW | gold         | Mount Fura    | Kilwa         | 15
+SAK | wood         | Alasora       | Kilwa         | 15

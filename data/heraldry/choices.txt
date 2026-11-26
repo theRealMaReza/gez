@@ -265,3 +265,7 @@ KBO | File:Flag of the Bornu Empire.svg | Kanem-Bornu banner (owner's pick)
 # East Africa and Swahili Coast (Phase 20.7, owner's picks)
 BGD | File:Flag of Buganda.svg | Buganda royal banner (owner's pick)
 KIL | File:Flag of the Sultanate of Zanzibar.svg | Swahili/Zanzibar Sultanate banner, later era (owner's pick)
+
+# Central, Southern Africa, and Madagascar (Phase 20.7, owner's picks)
+KON | File:Flag of the Kingdom of Kongo.svg | Kingdom of Kongo royal banner (owner's pick)
+MER | File:Flag of the Merina Kingdom.svg | Merina Kingdom banner, later era (owner's pick)

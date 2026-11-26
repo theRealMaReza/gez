@@ -142,3 +142,10 @@ Great Lakes and Upper Nile | tools 4, weapons 4, leather 4
 Swahili Coast          | naval_supplies 5, cotton_cloth 4, jewelry 4
 Kilwa                  | naval_supplies 6, jewelry 5, cotton_cloth 4, pottery 3
 Mombasa                | naval_supplies 5, cotton_cloth 4, weapons 3
+Congo Basin            | tools 4, weapons 4, cotton_cloth 3
+Mbanza Kongo           | weapons 5, tools 4, cotton_cloth 4, jewelry 3
+Zambezi and Southern Africa | tools 4, weapons 4, jewelry 4, leather 4
+Mount Fura             | jewelry 6, weapons 4, tools 4
+Great Zimbabwe         | jewelry 5, pottery 4, tools 4
+Madagascar             | tools 4, pottery 3, naval_supplies 3, cotton_cloth 3
+Alasora                | tools 5, weapons 4, cotton_cloth 4

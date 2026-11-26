@@ -74,3 +74,4 @@ site | Pura Besakih | Gelgel | hindu
 site | Sankore Mosque | Timbuktu | sunni
 site | Ile-Ife | Ife | west_african
 site | Great Mosque of Kilwa | Kilwa | sunni
+site | Great Zimbabwe | Great Zimbabwe | bantu

@@ -1,0 +1,64 @@
+# Central Africa, Southern Africa, and Madagascar (1453)
+
+@ Kongo Coast
+kongo bantu 60
+mbundu bantu 40
+> Mbanza Kongo
+kongo bantu 95
+mbundu bantu 5
+> Soyo
+kongo bantu 95
+mbundu bantu 5
+> Kabasa
+mbundu bantu 90
+kongo bantu 10
+> Luanda
+mbundu bantu 90
+kongo bantu 10
+
+@ Congo Interior
+luba bantu 60
+kongo bantu 40
+> Mbe
+kongo bantu 85
+luba bantu 15
+> Mwibele
+luba bantu 95
+kongo bantu 5
+> Musumba
+luba bantu 95
+mbundu bantu 5
+
+@ Zimbabwe Plateau
+shona bantu 85
+makua bantu 15
+> Maravi
+makua bantu 65
+shona bantu 35
+
+@ Highveld
+sotho bantu 85
+khoisan bantu 15
+
+@ Nguni Coast
+nguni bantu 90
+sotho bantu 10
+
+@ Cape
+khoisan bantu 90
+nguni bantu 10
+
+@ Central Highlands
+malagasy austronesian 95
+malagasy bantu 5
+
+@ Western Madagascar
+malagasy austronesian 80
+malagasy sunni.shafii 20
+
+@ Eastern Madagascar
+malagasy austronesian 70
+malagasy sunni.shafii 30
+> Vohipeno
+malagasy sunni.shafii 65
+malagasy austronesian 35
