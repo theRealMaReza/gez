@@ -381,4 +381,34 @@ final class OldWorldMapTests: XCTestCase {
         XCTAssertTrue(world.provinces.neighbors[lampung.index].contains(banten))
         XCTAssertTrue(world.provinces.neighbors[blambangan.index].contains(gelgel))
     }
+
+    /// Phase 20.7 West Africa, Sahel, and Guinea Coast: Mali, Tuareg Timbuktu,
+    /// Songhai, Jolof, Mossi, Hausa Bakwai, Kanem-Bornu, Bulala, Darfur, Benin, Oyo, Nupe, Bono Manso.
+    func testWestAfricaAndSahel() {
+        let world = Scenario1453.makeWorld()
+        guard let mal = world.countries.id(forTag: "MAL"),
+              let trg = world.countries.id(forTag: "TRG"),
+              let son = world.countries.id(forTag: "SON"),
+              let kao = world.countries.id(forTag: "KAO"),
+              let kbo = world.countries.id(forTag: "KBO"),
+              let ben = world.countries.id(forTag: "BEN"),
+              let oyo = world.countries.id(forTag: "OYO"),
+              let bon = world.countries.id(forTag: "BON") else {
+            return XCTFail("missing West Africa countries")
+        }
+        for c in [mal, trg, son, kao, kbo] {
+            XCTAssertEqual(world.countries.religion[c.index], .sunni)
+        }
+        for c in [ben, oyo, bon] {
+            XCTAssertEqual(world.countries.religion[c.index], .westAfrican)
+        }
+        XCTAssertTrue(world.rivers.contains { $0.name == "Niger River" })
+        for name in ["Niani", "Jenne", "Timbuktu", "Gao", "Diourbel", "Wagadugu", "Kano", "Birni Gazargamu", "El Fasher", "Benin City", "Oyo-Ile", "Ife", "Bono Manso"] {
+            guard let pid = world.provinces.id(named: name) else {
+                XCTFail("missing West Africa province \(name)")
+                continue
+            }
+            XCTAssertFalse(world.provinces.neighbors[pid.index].isEmpty, name)
+        }
+    }
 }

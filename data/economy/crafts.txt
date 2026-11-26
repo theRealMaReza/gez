@@ -128,3 +128,13 @@ Trowulan               | cotton_cloth 5, weapons 4, jewelry 4, pottery 4
 Eastern Archipelago    | naval_supplies 4, pottery 3, tools 2
 Brunei                 | naval_supplies 5, weapons 3
 Tondo                  | naval_supplies 4, jewelry 3, pottery 3
+Western Sahel          | cotton_cloth 4, leather 5, jewelry 3
+Timbuktu               | books 5, leather 5, jewelry 4, cotton_cloth 4
+Jenne                  | cotton_cloth 5, books 4, pottery 4
+Gao                    | leather 5, weapons 4, cotton_cloth 4
+Guinea Coast           | cotton_cloth 4, weapons 4, jewelry 4, pottery 3
+Benin City             | jewelry 6, weapons 5, cotton_cloth 4, tools 4
+Ife                    | jewelry 5, pottery 4, cotton_cloth 4
+Central Sahel          | leather 6, cotton_cloth 5, weapons 4
+Kano                   | cotton_cloth 6, leather 6, weapons 4, tools 3
+Birni Gazargamu        | leather 5, weapons 5, cotton_cloth 4

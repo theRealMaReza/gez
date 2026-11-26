@@ -66,6 +66,9 @@ region | Dai Viet and Champa     | 3 | 3 | 4
 region | Malaya and Sumatra      | 3 | 4 | 3
 region | Java and Nusa Tenggara  | 3 | 3 | 3
 region | Eastern Archipelago     | 2 | 3 | 2
+region | Western Sahel           | 3 | 3 | 2
+region | Guinea Coast            | 2 | 3 | 2
+region | Central Sahel           | 3 | 3 | 2
 
 ## Country overrides (capital in a neighbouring region or distinct 1453 focus)
 country | TUR | 4 | 4 | 4

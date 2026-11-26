@@ -61,3 +61,6 @@ Thang Long    | Thang Long
 Malacca       | Malacca
 Trowulan      | Trowulan
 Tondo         | Tondo
+Timbuktu      | Timbuktu
+Kano          | Kano
+Benin City    | Benin City

@@ -400,3 +400,21 @@ Bali and Nusa Tenggara | grain 4, wood 4, fish 3, fine_spices 2
 Borneo | wood 5, gold 3, gems 2, fish 3
 Philippines | grain 5, gold 3, fish 4, wood 3
 Sulawesi and Moluccas | fine_spices 8, fish 4, wood 3, iron 2
+
+Western Sahel @plains | millet 6, livestock 4, hides 3, horses 3
+Western Sahel @steppe | livestock 5, horses 4, hides 4, salt 2
+Senegambia | millet 5, fish 4, hides 4, salt 3
+Upper Niger | gold 6, millet 6, cotton 4, iron 3
+Niger Bend | salt 5, hides 4, horses 4, fish 3
+Mossi Lands | millet 5, livestock 4, horses 4, hides 3
+
+Guinea Coast @woods | wood 5, ivory 5, pepper 4, gold 3
+Upper Guinea Coast | ivory 4, wood 4, fish 3, pepper 3
+Akan and Volta | gold 7, ivory 4, wood 4, pepper 3
+Yorubaland and Nupe | cotton 5, iron 4, ivory 4, wood 3
+Benin and Niger Delta | ivory 6, pepper 5, wood 4, fish 3
+
+Central Sahel @steppe | millet 5, hides 5, horses 4, livestock 4
+Hausaland | cotton 6, hides 5, iron 4, millet 5
+Bornu and Kanem | horses 5, hides 5, salt 4, ivory 3
+Darfur and Kordofan | ivory 4, hides 4, livestock 4, millet 4

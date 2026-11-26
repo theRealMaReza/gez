@@ -275,3 +275,17 @@ visayan | Visayan | austronesian
 moro | Moro | austronesian
 sulawesi | Bugis-Makassar | austronesian
 moluccan | Moluccan | austronesian
+mandinka | Mandinka | mande
+soninke | Soninke | mande
+songhai | Songhai | nilo_saharan
+wolof | Wolof | atlantic
+fulani | Fulani | atlantic
+mossi | Mossi | gur
+hausa | Hausa | chadic
+kanuri | Kanuri | saharan
+fur | Fur | nilo_saharan
+yoruba | Yoruba | yoruba
+edo | Edo | yoruba
+igbo | Igbo | yoruba
+nupe | Nupe | yoruba
+akan | Akan | akan

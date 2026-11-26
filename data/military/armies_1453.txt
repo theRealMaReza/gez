@@ -102,3 +102,10 @@ PSA | Pasai Guard                | Pasai | abu_zaid_psa | infantry:2, archers:1
 MAJ | Majapahit Bhayangkara      | Trowulan | rajasawardhana_maj | infantry:4, cavalry:1, archers:2
 SUN | Pajajaran Guard            | Pakuan | sri_baduga_sun | infantry:3, archers:1
 BNI | Brunei Guard               | Brunei | sulaiman_bni | infantry:2, archers:1
+MAL | Mandinka Royal Host        | Niani  | mansa_uli_mal | infantry:3, cavalry:2, archers:2
+TRG | Tuareg Desert Riders       | Timbuktu | akil_ag_malwal_trg | cavalry:3, archers:1
+SON | Songhai River Guard        | Gao    | sulaiman_dama_son | infantry:3, cavalry:3
+KAO | Kano Cavalry               | Kano   | yakubu_kao | cavalry:3, infantry:2
+KBO | Sayfawa Mail Riders        | Birni Gazargamu | muhammad3_kbo | cavalry:4, infantry:2
+BEN | Benin Royal Warriors       | Benin City | ewuare_ben | infantry:5, archers:2
+OYO | Oyo Eso Cavalry            | Oyo-Ile | alaafin_kori_oyo | cavalry:3, infantry:2

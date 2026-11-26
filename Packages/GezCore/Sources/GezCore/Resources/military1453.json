@@ -3215,6 +3215,262 @@
           "men": 1000
         }
       ]
+    },
+    {
+      "country": "MAL",
+      "name": "Mandinka Royal Host",
+      "province": 1873,
+      "commander": "mansa_uli_mal",
+      "regiments": [
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "cavalry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "cavalry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "archers",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "archers",
+          "origin": "professional",
+          "men": 1000
+        }
+      ]
+    },
+    {
+      "country": "TRG",
+      "name": "Tuareg Desert Riders",
+      "province": 1880,
+      "commander": "akil_ag_malwal_trg",
+      "regiments": [
+        {
+          "type": "cavalry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "cavalry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "cavalry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "archers",
+          "origin": "professional",
+          "men": 1000
+        }
+      ]
+    },
+    {
+      "country": "SON",
+      "name": "Songhai River Guard",
+      "province": 1883,
+      "commander": "sulaiman_dama_son",
+      "regiments": [
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "cavalry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "cavalry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "cavalry",
+          "origin": "professional",
+          "men": 1000
+        }
+      ]
+    },
+    {
+      "country": "KAO",
+      "name": "Kano Cavalry",
+      "province": 1912,
+      "commander": "yakubu_kao",
+      "regiments": [
+        {
+          "type": "cavalry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "cavalry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "cavalry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        }
+      ]
+    },
+    {
+      "country": "KBO",
+      "name": "Sayfawa Mail Riders",
+      "province": 1921,
+      "commander": "muhammad3_kbo",
+      "regiments": [
+        {
+          "type": "cavalry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "cavalry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "cavalry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "cavalry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        }
+      ]
+    },
+    {
+      "country": "BEN",
+      "name": "Benin Royal Warriors",
+      "province": 1906,
+      "commander": "ewuare_ben",
+      "regiments": [
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "archers",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "archers",
+          "origin": "professional",
+          "men": 1000
+        }
+      ]
+    },
+    {
+      "country": "OYO",
+      "name": "Oyo Eso Cavalry",
+      "province": 1901,
+      "commander": "alaafin_kori_oyo",
+      "regiments": [
+        {
+          "type": "cavalry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "cavalry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "cavalry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        }
+      ]
     }
   ]
 }

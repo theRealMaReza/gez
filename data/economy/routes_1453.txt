@@ -96,3 +96,9 @@ MLC | fine_spices  | Malacca       | Calicut       | 20
 MLC | pepper       | Malacca       | Guangzhou     | 25
 MLC | tin          | Malacca       | Ayutthaya     | 15
 TND | gold         | Tondo         | Guangzhou     | 15
+# Trans-Saharan and West African trade
+MAL | gold         | Timbuktu      | Fez           | 25
+BON | gold         | Benin City    | Timbuktu      | 20
+BEN | ivory        | Benin City    | Kano          | 15
+KAO | leather      | Kano          | Tunis         | 20
+KBO | ivory        | Kano          | Cairo         | 15

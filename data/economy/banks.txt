@@ -20,3 +20,4 @@ Shanxi Salt Merchants        | Taiyuan        | 2200 | 0.09 | North China, Jiang
 Huizhou Guilds               | Shexian        | 2500 | 0.08 | Jiangnan, Central China, South China, North China, Korea
 Kyoto Doso                   | Kyoto          | 1000 | 0.10 | Japan, Korea
 Malacca Guilds               | Malacca        | 1400 | 0.10 | Malaya and Sumatra, Java and Nusa Tenggara, Eastern Archipelago, Siam and Lan Xang, Burma
+Wangara Gold Merchants       | Jenne          | 1100 | 0.11 | Western Sahel, Guinea Coast, Central Sahel, Maghreb

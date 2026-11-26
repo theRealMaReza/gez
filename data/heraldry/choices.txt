@@ -256,3 +256,8 @@ TER | File:Flag of the Ternate Sultanate.png | Sultanate of Ternate banner (owne
 TID | File:Flag of the Sultanate of Tidore.png | Sultanate of Tidore banner (owner's pick)
 ACE | File:Flag of the Sultanate of Aceh.svg | Aceh/Pedir banner, later era (owner's pick)
 PGR | File:Flag of Minang.svg | Minangkabau Pagaruyung tricolour (owner's pick)
+
+# West Africa and Sahel (Phase 20.7, owner's picks)
+MAL | File:Flag of the Mali Empire.svg | Mali Empire banner (owner's pick)
+BEN | File:Flag of the Benin Empire.svg | Benin Empire banner (owner's pick)
+KBO | File:Flag of the Bornu Empire.svg | Kanem-Bornu banner (owner's pick)

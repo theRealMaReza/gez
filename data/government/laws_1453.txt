@@ -144,3 +144,9 @@ stability | SUN | 1
 stability | PSA | 1
 stability | BNI | 1
 stability | TER | 1
+stability | MAL | 0
+stability | SON | 1
+stability | KAO | 1
+stability | KBO | 0
+stability | BEN | 2
+stability | OYO | 1
