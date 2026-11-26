@@ -215,6 +215,14 @@
   "note": "imperial eagle of the free city",
   "page": "https://commons.wikimedia.org/wiki/File:Blason_ville_fr_Besan%C3%A7on_(Doubs).svg"
  },
+ "BGD": {
+  "author": "Mysid",
+  "file": "File:Flag of Buganda.svg",
+  "license": "Public domain",
+  "licenseUrl": "",
+  "note": "Buganda royal banner (owner's pick)",
+  "page": "https://commons.wikimedia.org/wiki/File:Flag_of_Buganda.svg"
+ },
  "BGL": {
   "author": "Germenfer",
   "file": "File:Flag of the Rewa State.svg",
@@ -943,6 +951,14 @@
   "note": "",
   "page": "https://commons.wikimedia.org/wiki/File:FitzGerald_arms.svg"
  },
+ "KIL": {
+  "author": "Mysid",
+  "file": "File:Flag of the Sultanate of Zanzibar.svg",
+  "license": "Public domain",
+  "licenseUrl": "",
+  "note": "Swahili/Zanzibar Sultanate banner, later era (owner's pick)",
+  "page": "https://commons.wikimedia.org/wiki/File:Flag_of_the_Sultanate_of_Zanzibar.svg"
+ },
  "KIR": {
   "author": "BIMAL SAMJUNG",
   "file": "File:Kirat Flag Danesh Rai.svg",
@@ -966,6 +982,14 @@
   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
   "note": "",
   "page": "https://commons.wikimedia.org/wiki/File:Coat_of_arms_of_the_Knights_Hospitaller.svg"
+ },
+ "KON": {
+  "author": "Oren neu dag",
+  "file": "File:Flag of the Kingdom of Kongo.svg",
+  "license": "Public domain",
+  "licenseUrl": "",
+  "note": "Kingdom of Kongo royal banner (owner's pick)",
+  "page": "https://commons.wikimedia.org/wiki/File:Flag_of_the_Kingdom_of_Kongo_according_to_Giovanni_Cavazzi_da_Montecuccolo.svg"
  },
  "KOT": {
   "author": "Blackknight12",
@@ -1158,6 +1182,14 @@
   "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.5",
   "note": "",
   "page": "https://commons.wikimedia.org/wiki/File:Chor%C4%85giew_ksi%C4%99cia_mazowieckiego_Siemowita.svg"
+ },
+ "MER": {
+  "author": "Samhanin",
+  "file": "File:Flag of the Merina Kingdom.svg",
+  "license": "CC BY 3.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by/3.0",
+  "note": "Merina Kingdom banner, later era (owner's pick)",
+  "page": "https://commons.wikimedia.org/wiki/File:Flag_of_the_Merina_Kingdom.svg"
  },
  "MEW": {
   "author": "Jolle",
