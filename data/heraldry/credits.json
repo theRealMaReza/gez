@@ -71,6 +71,14 @@
   "note": "",
   "page": "https://commons.wikimedia.org/wiki/File:Flag_of_Jaipur_(c._1699-1818).svg"
  },
+ "ANH": {
+  "author": "User:Sodacan  This W3C-unspecified vector image was created with Inkscape .",
+  "file": "File:Wappen Anhalt.svg",
+  "license": "Public domain",
+  "licenseUrl": "",
+  "note": "Principality of Anhalt coat of arms",
+  "page": "https://commons.wikimedia.org/wiki/File:Wappen_Anhalt.svg"
+ },
  "ANS": {
   "author": "",
   "file": "File:COA family de Burggrafen von Nürnberg (Haus Hohenzollern).svg",
@@ -599,6 +607,14 @@
   "note": "",
   "page": "https://commons.wikimedia.org/wiki/File:Wappen_Frankfurt_am_Main_nach_Klemens_Stadler.svg"
  },
+ "FLD": {
+  "author": "",
+  "file": "File:Wappen Fulda.svg",
+  "license": "Public domain",
+  "licenseUrl": "",
+  "note": "Prince-Abbey of Fulda cross coat of arms",
+  "page": "https://commons.wikimedia.org/wiki/File:Wappen_Fulda.svg"
+ },
  "FLO": {
   "author": "Horemhat",
   "file": "File:Stemma di Firenze dal 1251.svg",
@@ -766,6 +782,14 @@
   "licenseUrl": "",
   "note": "",
   "page": "https://commons.wikimedia.org/wiki/File:Coat_of_arms_of_Hesse.svg"
+ },
+ "HLD": {
+  "author": "Sir Iain",
+  "file": "File:Coat of Arms of the Bishopric of Hildesheim.svg",
+  "license": "Public domain",
+  "licenseUrl": "",
+  "note": "Prince-Bishopric of Hildesheim coat of arms",
+  "page": "https://commons.wikimedia.org/wiki/File:Coat_of_Arms_of_the_Bishopric_of_Hildesheim.svg"
  },
  "HOL": {
   "author": "Ipankonin",
@@ -983,6 +1007,14 @@
   "note": "",
   "page": "https://commons.wikimedia.org/wiki/File:Coat_of_arms_of_the_Knights_Hospitaller.svg"
  },
+ "KNZ": {
+  "author": "Sir Iain",
+  "file": "File:Coat of Arms of the Bishopric of Konstanz.svg",
+  "license": "Public domain",
+  "licenseUrl": "",
+  "note": "Prince-Bishopric of Konstanz coat of arms",
+  "page": "https://commons.wikimedia.org/wiki/File:Coat_of_Arms_of_the_Bishopric_of_Konstanz.svg"
+ },
  "KON": {
   "author": "Oren neu dag",
   "file": "File:Flag of the Kingdom of Kongo.svg",
@@ -1038,6 +1070,14 @@
   "licenseUrl": "",
   "note": "",
   "page": "https://commons.wikimedia.org/wiki/File:Banner_of_Bavaria-Landshut.svg"
+ },
+ "LAU": {
+  "author": "Sachsen-Lauenburg.PNG: Kooij\nCOA_family_de_Sachsen-Lauenburg.svg: Christer Sundin\nWappen_Schild_Blank.svg: UnreifeKirsche\nderivative work: OwenBlacker",
+  "file": "File:Wappen Grafschaft Sachsen-Lauenburg.svg",
+  "license": "Public domain",
+  "licenseUrl": "",
+  "note": "Duchy of Saxe-Lauenburg coat of arms",
+  "page": "https://commons.wikimedia.org/wiki/File:Wappen_Grafschaft_Sachsen-Lauenburg.svg"
  },
  "LDK": {
   "author": "Government of India",
@@ -1327,6 +1367,14 @@
   "note": "",
   "page": "https://commons.wikimedia.org/wiki/File:Coat_of_arms_of_the_Kingdom_of_Naples_under_Aragonese_monarchs_(1442%E2%80%931501).svg"
  },
+ "NAS": {
+  "author": "Sodacan",
+  "file": "File:Arms of Nassau.svg",
+  "license": "CC BY-SA 3.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+  "note": "House of Nassau coat of arms",
+  "page": "https://commons.wikimedia.org/wiki/File:Arms_of_Nassau.svg"
+ },
  "NAV": {
   "author": "Tom Lemmens",
   "file": "File:Coat of Arms of the Kingdom of Navarre.svg",
@@ -1446,6 +1494,22 @@
   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
   "note": "",
   "page": "https://commons.wikimedia.org/wiki/File:Butler_arms.svg"
+ },
+ "OSN": {
+  "author": "Stadt Osnabrück",
+  "file": "File:Osnabrück Wappen.svg",
+  "license": "Public domain",
+  "licenseUrl": "",
+  "note": "Osnabrück wheel coat of arms",
+  "page": "https://commons.wikimedia.org/wiki/File:Osnabr%C3%BCck_Wappen.svg"
+ },
+ "PAD": {
+  "author": "Myriam Thyes",
+  "file": "File:DEU Paderborn COA.svg",
+  "license": "Public domain",
+  "licenseUrl": "",
+  "note": "Prince-Bishopric of Paderborn cross coat of arms",
+  "page": "https://commons.wikimedia.org/wiki/File:DEU_Paderborn_COA.svg"
  },
  "PAL": {
   "author": "Sir Iain, lion and crown by User:Sodacan",
