@@ -1,0 +1,17 @@
+# Italy Part III detail (30 May 1453): Piombino (Appiani), Forli (Ordelaffi),
+# Finale (Del Carretto), and Massa (Malaspina).
+
+@ PIO
+ruler  | emanuele_appiani | Emanuele Appiani     | Appiani      | m | 1380 | | diplomat, patient | Lord of Piombino (r. 1451-1457); birth year?
+heir   | jacopo3_appiani  | Jacopo III Appiani   | Appiani      | m | 1422 | f:emanuele_appiani | ambitious | son of Emanuele, Lord of Piombino (1457-1474); birth year?
+
+@ FRL
+parent | caterina_rangoni | Caterina Rangoni     | Rangoni      | f | 1412 | | diplomat, administrator | mother and regent of Cecco III and Pino III Ordelaffi in 1453; birth year?
+ruler  | cecco3_ordelaffi | Cecco III Ordelaffi  | Ordelaffi    | m | 1435 | m:caterina_rangoni | brave, wrathful | Lord of Forlì under mother's regency in 1453; birth year?
+heir   | pino3_ordelaffi  | Pino III Ordelaffi   | Ordelaffi    | m | 1436 | m:caterina_rangoni | ambitious, cruel | younger brother and co-lord of Forlì; birth year?
+
+@ GEN
+vassal | giovanni1_carretto | Giovanni I Del Carretto | Del Carretto | m | 1415 | holds:Finale | brave, diplomat | Marquis of Finale (restored 1451); birth year?
+
+@ FLO
+vassal | jacopo1_malaspina | Jacopo I Malaspina  | Malaspina    | m | 1422 | holds:Massa | diplomat | Marquis of Massa and Carrara (r. 1445-1481); birth year?

@@ -146,3 +146,8 @@ Osnabruck      | temple 1
 Fulda          | temple 1
 Konstanz       | temple 1
 Dessau         | fort 1
+Piombino       | port 1, fort 1
+Forli          | fort 1
+Crema          | fort 1
+Benevento      | temple 1
+Brindisi       | port 1

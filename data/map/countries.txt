@@ -468,3 +468,6 @@ NAS | Nassau | 95 130 190 | monarchy | catholic | Wiesbaden
 KNZ | Konstanz | 175 135 155 | theocracy | catholic | Konstanz
 LAU | Saxe-Lauenburg | 115 155 170 | monarchy | catholic | Lauenburg
 HLD | Hildesheim | 185 155 95 | theocracy | catholic | Hildesheim
+# Italy Part III detail (Phase 20.7)
+PIO | Piombino | 195 140 120 | monarchy | catholic | Piombino
+FRL | Forli | 175 110 85 | monarchy | catholic | Forli

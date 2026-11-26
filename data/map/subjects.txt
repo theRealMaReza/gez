@@ -43,6 +43,7 @@ ETH DAM tributary
 # Malatesta papal vicars
 PAP RIM vassal
 PAP CES vassal
+PAP FRL vassal
 # Duchy of Schleswig: Danish fief held by Adolf VIII of Holstein
 DAN SLE vassal
 # Rostov princes under Moscow; Upper Oka princes under Lithuania
