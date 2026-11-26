@@ -58,3 +58,6 @@ Ula           | Ula
 Pegu          | Pegu
 Ayutthaya     | Ayutthaya
 Thang Long    | Thang Long
+Malacca       | Malacca
+Trowulan      | Trowulan
+Tondo         | Tondo

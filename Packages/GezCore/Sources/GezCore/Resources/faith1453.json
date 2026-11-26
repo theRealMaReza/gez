@@ -466,6 +466,21 @@
         "theravada",
         "hindu"
       ]
+    },
+    {
+      "name": "Borobudur",
+      "province": "Mataram",
+      "religions": [
+        "mahayana",
+        "hindu"
+      ]
+    },
+    {
+      "name": "Pura Besakih",
+      "province": "Gelgel",
+      "religions": [
+        "hindu"
+      ]
     }
   ]
 }

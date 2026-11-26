@@ -90,3 +90,9 @@ AYU | wood         | Ayutthaya     | Guangzhou     | 25
 AYU | pepper       | Ayutthaya     | Pegu          | 20
 DAI | silk_cloth   | Thang Long    | Guangzhou     | 25
 MNG | paper        | Guangzhou     | Thang Long    | 15
+# Maritime Southeast Asia spice trade
+MAJ | fine_spices  | Trowulan      | Malacca       | 25
+MLC | fine_spices  | Malacca       | Calicut       | 20
+MLC | pepper       | Malacca       | Guangzhou     | 25
+MLC | tin          | Malacca       | Ayutthaya     | 15
+TND | gold         | Tondo         | Guangzhou     | 15

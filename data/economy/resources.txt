@@ -388,3 +388,15 @@ Dai Viet and Champa @farmland | grain 6, raw_silk 3, sugar 2
 Red River Delta | grain 7, raw_silk 4, fish 3, iron 2
 Central Viet | grain 5, wood 4, fish 3, salt 2
 Champa | wood 4, pepper 3, fish 3, gold 2
+
+Malaya and Sumatra @woods | wood 5, pepper 4, tin 3
+Malaya | tin 5, pepper 4, wood 3, fish 3
+Northern Sumatra | pepper 6, gold 2, wood 3, fish 3
+Central Sumatra | gold 4, pepper 4, wood 3
+Southern Sumatra | pepper 5, wood 3, fish 3, tin 2
+West Java | grain 5, pepper 4, wood 3, fish 3
+Central and East Java | grain 7, sugar 4, salt 3, fish 3
+Bali and Nusa Tenggara | grain 4, wood 4, fish 3, fine_spices 2
+Borneo | wood 5, gold 3, gems 2, fish 3
+Philippines | grain 5, gold 3, fish 4, wood 3
+Sulawesi and Moluccas | fine_spices 8, fish 4, wood 3, iron 2

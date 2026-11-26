@@ -1,0 +1,91 @@
+# Maritime Southeast Asia (1453)
+
+@ Malaya
+malay sunni.shafii 85
+malay austronesian 15
+
+@ Northern Sumatra
+acehnese sunni.shafii 85
+malay sunni.shafii 15
+
+@ Central Sumatra
+malay sunni.shafii 60
+minangkabau hindu 30
+minangkabau sunni.shafii 10
+> Pagaruyung
+minangkabau hindu 75
+minangkabau sunni.shafii 25
+
+@ Southern Sumatra
+malay sunni.shafii 70
+javanese hindu 20
+malay austronesian 10
+
+@ West Java
+sundanese hindu 85
+sundanese sunni.shafii 15
+
+@ Central and East Java
+javanese hindu 75
+javanese sunni.shafii 25
+> Demak
+javanese sunni.shafii 55
+javanese hindu 45
+> Tuban
+javanese sunni.shafii 45
+javanese hindu 55
+
+@ Bali and Nusa Tenggara
+balinese hindu 70
+balinese austronesian 30
+> Flores
+balinese austronesian 85
+balinese hindu 15
+> Timor
+balinese austronesian 90
+balinese hindu 10
+
+@ Borneo
+bornean austronesian 60
+malay sunni.shafii 40
+> Brunei
+malay sunni.shafii 70
+bornean austronesian 30
+> Banjarmasin
+malay sunni.shafii 45
+bornean austronesian 35
+javanese hindu 20
+
+@ Philippines
+tagalog austronesian 50
+visayan austronesian 30
+moro sunni.shafii 20
+> Tondo
+tagalog austronesian 80
+tagalog sunni.shafii 20
+> Cebu
+visayan hindu 65
+visayan austronesian 35
+> Cotabato
+moro sunni.shafii 70
+moro austronesian 30
+> Jolo
+moro sunni.shafii 85
+moro austronesian 15
+
+@ Sulawesi and Moluccas
+sulawesi austronesian 65
+moluccan sunni.shafii 20
+moluccan austronesian 15
+> Ternate
+moluccan sunni.shafii 75
+moluccan austronesian 25
+> Tidore
+moluccan sunni.shafii 70
+moluccan austronesian 30
+> Seram
+moluccan austronesian 65
+moluccan sunni.shafii 35
+> Buru
+moluccan austronesian 70
+moluccan sunni.shafii 30

@@ -188,58 +188,6 @@
 ! Africa 4S 36E | -4.0 36.0
 ! Africa 4S 38E | -4.0 38.0
 
-# Placeholder wasteland: Southeast Asia
-@ Unmapped Southeast Asia
-! Southeast 10S 120E | -10.0 120.0
-! Southeast 10S 124E | -10.0 124.0
-! Southeast 8S 112E | -8.0 112.0
-! Southeast 8S 114E | -8.0 114.0
-! Southeast 8S 118E | -8.0 118.0
-! Southeast 6S 106E | -6.0 106.0
-! Southeast 6S 124E | -6.0 124.0
-! Southeast 4S 104E | -4.0 104.0
-! Southeast 4S 116E | -4.0 116.0
-! Southeast 4S 120E | -4.0 120.0
-! Southeast 4S 122E | -4.0 122.0
-! Southeast 2S 102E | -2.0 102.0
-! Southeast 2S 104E | -2.0 104.0
-! Southeast 2S 106E | -2.0 106.0
-! Southeast 2S 110E | -2.0 110.0
-! Southeast 2S 112E | -2.0 112.0
-! Southeast 2S 114E | -2.0 114.0
-! Southeast 2S 116E | -2.0 116.0
-! Southeast 2S 120E | -2.0 120.0
-! Southeast 2S 130E | -2.0 130.0
-! Southeast 0N 100E | 0.0 100.0
-! Southeast 0N 102E | 0.0 102.0
-! Southeast 0N 110E | 0.0 110.0
-! Southeast 0N 112E | 0.0 112.0
-! Southeast 0N 114E | 0.0 114.0
-! Southeast 0N 116E | 0.0 116.0
-! Southeast 0N 120E | 0.0 120.0
-! Southeast 2N 100E | 2.0 100.0
-! Southeast 2N 104E | 2.0 104.0
-! Southeast 2N 112E | 2.0 112.0
-! Southeast 2N 114E | 2.0 114.0
-! Southeast 2N 116E | 2.0 116.0
-! Southeast 4N 102E | 4.0 102.0
-! Southeast 4N 108E | 4.0 108.0
-! Southeast 4N 114E | 4.0 114.0
-! Southeast 4N 116E | 4.0 116.0
-! Southeast 6N 116E | 6.0 116.0
-! Southeast 6N 118E | 6.0 118.0
-! Southeast 8N 124E | 8.0 124.0
-! Southeast 8N 126E | 8.0 126.0
-! Southeast 10N 124E | 10.0 124.0
-! Southeast 10N 126E | 10.0 126.0
-! Southeast 12N 120E | 12.0 120.0
-! Southeast 12N 122E | 12.0 122.0
-! Southeast 12N 124E | 12.0 124.0
-! Southeast 14N 122E | 14.0 122.0
-! Southeast 14N 124E | 14.0 124.0
-! Southeast 16N 120E | 16.0 120.0
-! Southeast 18N 122E | 18.0 122.0
-
 # Placeholder wasteland: East Asia
 @ Unmapped East Asia
 ! Taiwan | 23.7 121.0

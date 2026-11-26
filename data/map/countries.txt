@@ -387,3 +387,21 @@ DAI | Dai Viet | 180 150 55 | monarchy | mahayana | Thang Long
 CHA | Champa | 150 85 110 | monarchy | hindu | Vijaya
 PAT | Pattani | 85 145 115 | monarchy | sunni | Pattani
 KED | Kedah | 105 130 170 | monarchy | sunni | Kedah
+
+# Maritime Southeast Asia (Phase 20.7)
+MLC | Malacca | 75 155 125 | monarchy | sunni | Malacca
+PSA | Samudera Pasai | 115 165 95 | monarchy | sunni | Pasai
+ACE | Pedir | 150 130 75 | monarchy | sunni | Lamuri
+PGR | Pagaruyung | 175 110 85 | monarchy | hindu | Pagaruyung
+PLB | Palembang | 130 140 175 | monarchy | sunni | Palembang
+MAJ | Majapahit | 195 80 75 | monarchy | hindu | Trowulan
+SUN | Sunda | 100 135 170 | monarchy | hindu | Pakuan
+BAL | Bali | 190 145 75 | monarchy | hindu | Gelgel
+BNI | Brunei | 210 175 65 | monarchy | sunni | Brunei
+SUL | Sulu | 95 140 155 | monarchy | sunni | Jolo
+TND | Tondo | 145 165 110 | monarchy | austronesian | Tondo
+CEB | Cebu | 180 120 145 | monarchy | hindu | Cebu
+MGN | Maguindanao | 125 115 165 | monarchy | sunni | Cotabato
+MKS | Gowa | 170 105 95 | monarchy | austronesian | Makassar
+TER | Ternate | 105 165 130 | monarchy | sunni | Ternate
+TID | Tidore | 175 140 90 | monarchy | sunni | Tidore

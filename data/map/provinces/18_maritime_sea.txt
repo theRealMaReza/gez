@@ -1,0 +1,83 @@
+# Malaya and Sumatra
+@ Malaya
+Malacca | 2.19 102.25 | MLC f 7
+Klang | 3.04 101.44 | MLC w 3
+Pahang | 3.81 103.33 | MLC w 3
+Johor | 1.49 103.74 | MLC w 3
+Perak | 4.59 101.09 | MLC w 3
+
+@ Northern Sumatra
+Pasai | 5.18 97.14 | PSA f 5
+Deli | 3.59 98.67 | PSA w 3
+Lamuri | 5.55 95.32 | ACE h 4
+Meulaboh | 4.14 96.13 | ACE w 2
+
+@ Central Sumatra
+Siak | 0.90 102.05 | MLC w 3
+Kampar | 0.30 101.85 | MLC w 2
+Indragiri | -0.45 103.05 | MLC w 2
+Barus | 2.01 98.40 | PGR w 2
+Pagaruyung | -0.75 100.85 | PGR m 4
+Jambi | -1.45 102.60 | PGR w 3
+
+@ Southern Sumatra
+Palembang | -2.99 104.76 | PLB f 5
+Bangka | -2.15 106.10 | PLB w 2
+Bengkulu | -3.80 102.26 | PLB w 2
+Lampung | -5.43 105.26 | PLB w 3
+
+# Java and Nusa Tenggara
+@ West Java
+Pakuan | -6.60 106.80 | SUN h 5
+Banten | -6.04 106.15 | SUN f 4
+Cirebon | -6.71 108.56 | SUN f 4
+Priangan | -7.20 107.60 | SUN m 3
+
+@ Central and East Java
+Trowulan | -7.56 112.38 | MAJ f 7
+Tuban | -6.90 112.06 | MAJ f 5
+Demak | -6.89 110.64 | MAJ f 5
+Mataram | -7.80 110.37 | MAJ f 5
+Blambangan | -8.22 114.37 | MAJ h 3
+
+@ Bali and Nusa Tenggara
+Gelgel | -8.56 115.41 | BAL f 4
+Lombok | -8.65 116.32 | BAL h 3
+Sumbawa | -8.50 117.42 | BAL h 2
+Flores | -8.65 120.40 | BAL h 2
+Timor | -9.50 124.50 | BAL h 2
+
+# Eastern Archipelago
+@ Borneo
+Brunei | 4.90 114.94 | BNI f 5
+Sarawak | 1.55 110.35 | BNI w 3
+Sabah | 5.98 116.07 | BNI w 2
+Sambas | 1.36 109.30 | BNI w 2
+Palawan | 9.83 118.74 | BNI w 2
+Banjarmasin | -3.32 114.59 | MAJ w 3
+Kutai | -0.50 117.15 | MAJ w 2
+Sukadana | -1.25 109.95 | MAJ w 2
+
+@ Philippines
+Tondo | 14.60 120.98 | TND f 5
+Pangasinan | 16.04 120.33 | TND f 3
+Cagayan | 17.61 121.73 | TND w 2
+Bicol | 13.62 123.19 | TND w 2
+Mindoro | 13.00 121.15 | TND w 2
+Cebu | 10.32 123.89 | CEB f 4
+Panay | 10.72 122.56 | CEB f 3
+Samar | 11.78 124.89 | CEB w 2
+Cotabato | 7.22 124.25 | MGN f 4
+Butuan | 8.95 125.54 | MGN w 3
+Jolo | 6.05 121.00 | SUL w 3
+
+@ Sulawesi and Moluccas
+Makassar | -5.14 119.43 | MKS f 4
+Bone | -4.54 120.33 | MKS f 3
+Buton | -5.46 122.63 | MKS w 2
+Luwu | -2.99 120.20 | MKS h 3
+Manado | 1.48 124.84 | MKS w 2
+Ternate | 1.15 127.65 | TER h 4
+Tidore | 0.30 127.95 | TID h 4
+Seram | -3.15 129.40 | TER w 3
+Buru | -3.40 126.65 | TER w 2

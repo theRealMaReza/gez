@@ -333,4 +333,52 @@ final class OldWorldMapTests: XCTestCase {
         XCTAssertNotNil(world.provinces.holder[world.provinces.id(named: "Ligor")!.index])
         XCTAssertNotNil(world.provinces.holder[world.provinces.id(named: "Phitsanulok")!.index])
     }
+
+    /// Phase 20.7 Maritime Southeast Asia: Malacca, Sumatra, Java (Majapahit,
+    /// Sunda, Bali), Borneo (Brunei), Philippines, Sulawesi, and the Spice Islands.
+    func testMaritimeSoutheastAsia() {
+        let world = Scenario1453.makeWorld()
+        guard let mlc = world.countries.id(forTag: "MLC"),
+              let psa = world.countries.id(forTag: "PSA"),
+              let maj = world.countries.id(forTag: "MAJ"),
+              let sun = world.countries.id(forTag: "SUN"),
+              let bal = world.countries.id(forTag: "BAL"),
+              let plb = world.countries.id(forTag: "PLB"),
+              let bni = world.countries.id(forTag: "BNI"),
+              let ter = world.countries.id(forTag: "TER"),
+              let tid = world.countries.id(forTag: "TID"),
+              let mng = world.countries.id(forTag: "MNG") else {
+            return XCTFail("missing Maritime Southeast Asia countries")
+        }
+        for c in [mlc, psa, plb, bni, ter, tid] {
+            XCTAssertEqual(world.countries.religion[c.index], .sunni)
+        }
+        for c in [maj, sun, bal] {
+            XCTAssertEqual(world.countries.religion[c.index], .hindu)
+        }
+        XCTAssertEqual(world.countries.overlord[mlc.index], mng)
+        XCTAssertEqual(world.countries.subjectType[mlc.index], .tributary)
+        XCTAssertEqual(world.countries.overlord[bal.index], maj)
+        XCTAssertEqual(world.countries.subjectType[bal.index], .vassal)
+        XCTAssertEqual(world.countries.overlord[plb.index], maj)
+        XCTAssertEqual(world.countries.subjectType[plb.index], .tributary)
+
+        for name in ["Malacca", "Pasai", "Palembang", "Bangka", "Pakuan", "Trowulan", "Gelgel", "Brunei", "Palawan", "Tondo", "Mindoro", "Cebu", "Makassar", "Buton", "Ternate", "Tidore", "Seram", "Buru"] {
+            guard let pid = world.provinces.id(named: name) else {
+                XCTFail("missing Maritime SEA province \(name)")
+                continue
+            }
+            XCTAssertFalse(world.provinces.neighbors[pid.index].isEmpty, name)
+        }
+        // Key archipelago straits
+        let malacca = world.provinces.id(named: "Malacca")!
+        let siak = world.provinces.id(named: "Siak")!
+        let lampung = world.provinces.id(named: "Lampung")!
+        let banten = world.provinces.id(named: "Banten")!
+        let blambangan = world.provinces.id(named: "Blambangan")!
+        let gelgel = world.provinces.id(named: "Gelgel")!
+        XCTAssertTrue(world.provinces.neighbors[malacca.index].contains(siak))
+        XCTAssertTrue(world.provinces.neighbors[lampung.index].contains(banten))
+        XCTAssertTrue(world.provinces.neighbors[blambangan.index].contains(gelgel))
+    }
 }

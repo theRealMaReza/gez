@@ -765,3 +765,21 @@ Enniskillen.
 - **Shields:** `AYU`, `LNA`, `LXA`, `KHM`, `DAI`, and `KED` use
   Wikimedia Commons historical/regional banners; `CHA` and `PAT` use
   plain map-colour banners where no 1453 Commons arms exist (owner's pick).
+
+### Maritime Southeast Asia (Phase 20.7, May 1453)
+- **Majapahit vassals**: `BAL` (Bali / Gelgel) is a Majapahit vassal and
+  `PLB` (Palembang, under Arya Damar) is a Majapahit tributary, while
+  `SUN` (Sunda / Pakuan Pajajaran) is independent in West Java (owner's pick).
+- **Off-map spice imports**: lowered off-map `fine_spices` imports at
+  `Calicut`, `Kotte`, `Aden`, `Hormuz`, and `Sonargaon` in
+  `data/economy/imports.txt` now that Ternate, Tidore, Ambon, and Malacca
+  are on the map.
+- **Approximate (`?`) dates**: birth years for most 1453 island rulers
+  (`Muzaffar Shah`, `Mansur Shah`, `Tun Perak`, `Abu Zaid`, `Rajasawardhana`,
+  `Girishawardhana`, `Susuk Tunggal`, `Dalem Ketut Ngulesir`, `Sulaiman of
+  Brunei`, `Sharif ul-Hashim`, `Tunatangka Lopi`, `Marhum of Ternate`),
+  and exact 1453 rulers for `ACE`, `PGR`, `TND`, `CEB`, `MGN`, and `TID`.
+- **Shields:** `MAJ`, `MLC`, `BNI`, `SUL`, `TER`, `TID`, `ACE`, and
+  `PGR` use Wikimedia Commons historical/regional banners; `PSA`, `PLB`,
+  `SUN`, `BAL`, `TND`, `CEB`, `MGN`, and `MKS` use plain map-colour
+  banners where no 1453 Commons arms exist (owner's pick).

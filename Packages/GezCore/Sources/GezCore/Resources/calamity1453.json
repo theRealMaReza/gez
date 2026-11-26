@@ -1,5 +1,5 @@
 {
- "provinceCount": 1805,
+ "provinceCount": 1866,
  "faultZones": [
   {
    "name": "North Anatolian Fault",
@@ -692,6 +692,70 @@
     1759,
     1760,
     1761
+   ]
+  },
+  {
+   "name": "Sunda Megathrust",
+   "yearlyChance": 0.03,
+   "strength": 1.0,
+   "provinces": [
+    1815,
+    1816,
+    1818,
+    1819,
+    1820,
+    1821,
+    1822,
+    1823,
+    1824,
+    1825,
+    1826,
+    1827
+   ]
+  },
+  {
+   "name": "Java and Banda Arc",
+   "yearlyChance": 0.025,
+   "strength": 0.9,
+   "provinces": [
+    1828,
+    1829,
+    1830,
+    1831,
+    1832,
+    1833,
+    1834,
+    1835,
+    1836,
+    1843,
+    1857
+   ]
+  },
+  {
+   "name": "Philippine Fault",
+   "yearlyChance": 0.03,
+   "strength": 0.9,
+   "provinces": [
+    1846,
+    1847,
+    1849,
+    1850,
+    1851,
+    1852,
+    1853,
+    1855
+   ]
+  },
+  {
+   "name": "Molucca Sea",
+   "yearlyChance": 0.025,
+   "strength": 0.9,
+   "provinces": [
+    1861,
+    1862,
+    1863,
+    1864,
+    1865
    ]
   }
  ],

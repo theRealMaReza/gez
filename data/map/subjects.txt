@@ -97,3 +97,6 @@ AYU KED tributary
 MNG DAI tributary
 MNG AYU tributary
 MNG CHA tributary
+MNG MLC tributary
+MAJ BAL vassal
+MAJ PLB tributary

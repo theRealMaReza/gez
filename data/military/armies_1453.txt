@@ -97,3 +97,8 @@ LXA | Lan Xang Elephants         | Luang Prabang | chakkaphat_lxa | infantry:3, 
 KHM | Chaktomuk Guard            | Chaktomuk | ponhea_yat_khm | infantry:3, archers:1
 DAI | Imperial Army of Dai Viet  | Thang Long | - | infantry:5, archers:3, cavalry:1
 CHA | Vijaya Guard               | Vijaya | maha_qui_do_cha | infantry:2, archers:1
+MLC | Malacca Royal Guard        | Malacca | tun_perak_mlc | infantry:3, archers:2
+PSA | Pasai Guard                | Pasai | abu_zaid_psa | infantry:2, archers:1
+MAJ | Majapahit Bhayangkara      | Trowulan | rajasawardhana_maj | infantry:4, cavalry:1, archers:2
+SUN | Pajajaran Guard            | Pakuan | sri_baduga_sun | infantry:3, archers:1
+BNI | Brunei Guard               | Brunei | sulaiman_bni | infantry:2, archers:1

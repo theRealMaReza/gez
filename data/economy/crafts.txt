@@ -120,3 +120,11 @@ Chiang Mai             | pottery 4, cotton_cloth 4, weapons 3
 Chaktomuk              | pottery 4, cotton_cloth 3, naval_supplies 3
 Dai Viet and Champa    | silk_cloth 4, pottery 4, paper 3
 Thang Long             | silk_cloth 5, pottery 5, paper 4, weapons 4
+Malaya and Sumatra     | naval_supplies 5, cotton_cloth 3, tools 3
+Malacca                | naval_supplies 6, jewelry 4, silk_cloth 4, weapons 3
+Pasai                  | naval_supplies 4, cotton_cloth 4
+Java and Nusa Tenggara | cotton_cloth 5, naval_supplies 4, weapons 3, pottery 3
+Trowulan               | cotton_cloth 5, weapons 4, jewelry 4, pottery 4
+Eastern Archipelago    | naval_supplies 4, pottery 3, tools 2
+Brunei                 | naval_supplies 5, weapons 3
+Tondo                  | naval_supplies 4, jewelry 3, pottery 3
