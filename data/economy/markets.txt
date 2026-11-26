@@ -68,3 +68,4 @@ Kilwa         | Kilwa
 Mbanza Kongo  | Mbanza Kongo
 Mount Fura    | Mount Fura
 Alasora       | Alasora
+Qashliq       | Qashliq

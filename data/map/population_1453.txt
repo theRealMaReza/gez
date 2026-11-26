@@ -61,3 +61,5 @@ Swahili Coast | 3000000
 Congo Basin | 5500000
 Zambezi and Southern Africa | 3500000
 Madagascar | 1500000
+Western Siberia | 650000
+Eastern Siberia | 550000

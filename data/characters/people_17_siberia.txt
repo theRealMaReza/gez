@@ -1,0 +1,27 @@
+# Families of Western and Eastern Siberia, 1453.
+
+@ SIB
+ruler  | mar_sib     | Mar         | Taibugid  | m | 1418 | | ambitious, brave | Taibugid khan of Sibir at Qashliq (Isker) in the mid-15th century; birth year?
+heir   | obder_sib   | Obder       | Taibugid  | m | 1440 | f:mar_sib | brave | son of Mar, father of Muhammed Taibuga; birth year?
+child  | abalak_sib  | Abalak      | Taibugid  | m | 1442 | f:mar_sib | | younger son of Mar; birth year?
+figure | ibak_sib    | Ibak        | Shaybanid | m | 1435 | | ambitious, strategist, brave | Shaybanid prince, grandson of Hajji Muhammad, later Khan of Sibir who overthrew Mar; birth year?
+
+@ PEL
+ruler  | asyka_pel   | Asyka       | Pelym     | m | 1415 | | brave, wrathful | Mansi prince of Pelym, recorded leading raids on Perm in 1455; birth year?
+heir   | yumshan_pel | Yumshan     | Pelym     | m | 1442 | f:asyka_pel | brave | son of Asyka, succeeded as prince of Pelym (recorded 1483); birth year?
+
+@ KOD
+ruler  | moldan_kod  | Moldan      | Alachev   | m | 1418 | | diplomat, brave | Khanty prince of Kod on the Ob (recorded in 1483 chronicles; 1453 chief uncertain); birth year?
+heir   | alach_kod   | Alach       | Alachev   | m | 1444 | f:moldan_kod | | son of Moldan, ancestor of the Alachev princes of Kod; birth year?
+
+@ BYA
+ruler  | barga_bya   | Barga Baatar | Khori    | m | 1415 | | brave, just | Buryat clan chief around Lake Baikal (no dated 1453 chronicle; traditional clan-ancestor name); birth year?
+heir   | khoridoi_bya| Khoridoi     | Khori    | m | 1438 | f:barga_bya | | son of Barga Baatar; invented 1453 person?
+
+@ EVK
+ruler  | toron_evk   | Toron       | Tungus    | m | 1416 | | patient, brave | Evenk taiga chief along the Yenisei and Tunguska (no 1453 personal name recorded); invented 1453 person?
+heir   | amakan_evk  | Amakan      | Tungus    | m | 1440 | f:toron_evk | | son of Toron; invented 1453 person?
+
+@ YAK
+ruler  | omogoi_yak  | Omogoi Baai | Kangalas  | m | 1412 | | generous, diplomat | Kangalas Sakha toion on the Middle Lena (Tuymaada); traditional Sakha ancestor (no dated 1453 chronicle); birth year?
+heir   | elley_yak   | Elley Bootur| Kangalas  | m | 1436 | f:omogoi_yak | brave, ambitious | Sakha toion of Tuymaada; traditional genealogy, birth year?

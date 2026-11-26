@@ -1,0 +1,48 @@
+# Western Siberia
+@ Tobol and Irtysh
+Qashliq | 58.14 68.42 | SIB w 3
+Chimgi-Tura | 57.15 65.53 | SIB w 3
+Ishim | 56.10 69.50 | SIB s 2
+Tara | 56.89 74.37 | SIB w 2
+Baraba | 55.35 78.36 | SIB s 2
+Kulunda | 53.50 79.50 | SIB s 1
+
+@ Pelym and Kondia
+Pelym | 59.80 62.00 | PEL w 2
+Kondia | 60.50 65.80 | PEL w 2
+Sosva | 62.80 62.00 | PEL w 1
+Tura | 58.30 61.50 | PEL w 1
+
+@ Ob and Yugra
+Kod | 62.45 66.20 | KOD w 2
+Berezovo | 63.93 65.04 | KOD w 1
+Surgut | 61.25 73.40 | KOD w 2
+Narym | 58.93 81.58 | KOD w 1
+Tom | 56.50 84.95 | KOD w 1
+
+# Eastern Siberia
+@ Yenisei and Altai
+Yeniseysk | 58.45 92.17 | EVK w 2
+Krasnoyarsk | 56.01 92.85 | EVK w 2
+Minusinsk | 53.71 91.70 | OIR s 2
+Turukhansk | 62.20 89.50 | EVK w 1
+Lower Tunguska | 61.50 98.00 | EVK w 1
+Angara | 58.40 99.50 | EVK w 1
+
+@ Baikal and Transbaikal
+Olkhon | 52.80 105.50 | BYA w 2
+Irkut | 52.28 104.30 | BYA w 2
+Bratsk | 56.15 101.60 | BYA w 1
+Khori | 52.05 110.50 | BYA s 2
+Nerchinsk | 51.98 116.58 | BYA w 2
+Vitim | 55.50 113.50 | EVK w 1
+
+@ Lena and Sakha
+Tuymaada | 62.03 129.73 | YAK w 3
+Vilyuy | 63.75 121.62 | YAK w 1
+Olekma | 60.37 120.42 | YAK w 1
+Aldan | 58.60 125.40 | EVK w 1
+Kirensk | 57.78 108.11 | EVK w 1
+Ayan | 56.45 138.15 | EVK w 1
+Okhotsk | 59.36 143.20 | EVK w 1
+Uda | 54.73 135.30 | EVK w 1

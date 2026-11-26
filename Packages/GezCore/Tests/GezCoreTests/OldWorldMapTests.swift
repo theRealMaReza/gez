@@ -472,4 +472,34 @@ final class OldWorldMapTests: XCTestCase {
             XCTAssertFalse(world.provinces.neighbors[pid.index].isEmpty, name)
         }
     }
+
+    /// Phase 20.7 Siberia: Khanate of Sibir (Taibugid Mar), Pelym (Mansi),
+    /// Kod (Khanty), Buryats around Lake Baikal, Evenks, and Sakha/Yakuts.
+    func testSiberia() {
+        let world = Scenario1453.makeWorld()
+        guard let sib = world.countries.id(forTag: "SIB"),
+              let pel = world.countries.id(forTag: "PEL"),
+              let kod = world.countries.id(forTag: "KOD"),
+              let bya = world.countries.id(forTag: "BYA"),
+              let evk = world.countries.id(forTag: "EVK"),
+              let yak = world.countries.id(forTag: "YAK") else {
+            return XCTFail("missing Siberia countries")
+        }
+        XCTAssertEqual(world.countries.religion[sib.index], .sunni)
+        XCTAssertEqual(world.countries.government[sib.index], .steppeHorde)
+        XCTAssertEqual(world.countries.religion[bya.index], .tengri)
+        for c in [pel, kod, evk, yak] {
+            XCTAssertEqual(world.countries.religion[c.index], .siberian)
+        }
+        for r in ["Ob River", "Irtysh River", "Yenisei River", "Lena River"] {
+            XCTAssertTrue(world.rivers.contains { $0.name == r }, r)
+        }
+        for name in ["Qashliq", "Chimgi-Tura", "Pelym", "Kod", "Yeniseysk", "Olkhon", "Tuymaada", "Ayan", "Okhotsk", "Uda"] {
+            guard let pid = world.provinces.id(named: name) else {
+                XCTFail("missing Siberia province \(name)")
+                continue
+            }
+            XCTAssertFalse(world.provinces.neighbors[pid.index].isEmpty, name)
+        }
+    }
 }

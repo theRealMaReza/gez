@@ -60,20 +60,30 @@
 ! Taklamakan West | 39.2 80.5
 ! Taklamakan | 39.0 84.5
 ! Lop Nur | 40.3 89.8
-! Sayan | 53.0 90.0
-! West Siberia | 55.5 80.0
-! Baraba | 55.5 76.0
-! Tobolsk | 59.0 70.0
-! Siberia | 61.0 76.0
-! Yugra | 62.5 66.0
-! Ob | 66.0 66.0
-! Yamal | 69.0 70.0
-! Taz | 66.5 80.0
-! Yenisei | 62.0 90.0
+! Arunachal | 28.0 94.0
+@ Siberian Tundra and Taiga
 ! Polar Urals | 66.5 61.0
 ! Northern Urals | 62.5 59.5
 ! Bolshezemelskaya | 67.5 56.0
-! Arunachal | 28.0 94.0
+! Ob | 66.0 66.0
+! Yamal | 69.0 70.0
+! Taz | 66.5 80.0
+! Gydan | 69.5 78.0
+! Taimyr West | 69.5 88.0
+! Taimyr East | 70.5 102.0
+! Putorana | 68.5 94.0
+! Evenkia North | 65.5 98.0
+! Anabar | 69.5 113.0
+! Olenyok | 68.0 118.0
+! Lena Delta | 70.5 126.0
+! Verkhoyansk | 66.5 130.0
+! Yana | 68.5 135.0
+! Indigirka | 68.5 144.0
+! Kolyma West | 65.5 144.0
+! Chersky | 64.0 139.0
+! Stanovoy | 56.2 126.0
+! Dzhugdzhur | 59.5 133.5
+! Magadan | 61.5 145.5
 @ Kalahari and Namib
 ! Namib | -22.5 14.5
 ! Damaraland | -19.5 17.0

@@ -137,3 +137,6 @@ Great Zimbabwe | fort 2, temple 2
 Khami          | fort 2
 Alasora        | fort 1, barracks 1
 Boina          | port 1
+Qashliq        | fort 1, barracks 1
+Chimgi-Tura    | fort 1
+Pelym          | fort 1

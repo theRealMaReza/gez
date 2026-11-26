@@ -157,3 +157,9 @@ stability | KON | 1
 stability | MTP | 2
 stability | BTW | 1
 stability | MER | 1
+stability | SIB | 0
+stability | PEL | 1
+stability | KOD | 1
+stability | BYA | 1
+stability | EVK | 1
+stability | YAK | 1

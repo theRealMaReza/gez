@@ -1,0 +1,77 @@
+# Western Siberia
+@ Tobol and Irtysh
+siberian_tatar sunni.hanafi 60
+siberian_tatar siberian 25
+mansi siberian 10
+khanty siberian 5
+> Chimgi-Tura
+siberian_tatar sunni.hanafi 65
+siberian_tatar siberian 20
+mansi siberian 15
+> Baraba
+siberian_tatar siberian 55
+siberian_tatar sunni.hanafi 35
+uzbek tengri 10
+> Kulunda
+uzbek tengri 55
+siberian_tatar sunni.hanafi 30
+oirat tengri 15
+
+@ Pelym and Kondia
+mansi siberian 85
+khanty siberian 10
+komi orthodox 5
+
+@ Ob and Yugra
+khanty siberian 80
+mansi siberian 10
+siberian_tatar siberian 10
+> Tom
+siberian_tatar siberian 55
+khanty siberian 35
+oirat tengri 10
+
+# Eastern Siberia
+@ Yenisei and Altai
+evenk siberian 75
+kyrgyz tengri 15
+buryat tengri 10
+> Minusinsk
+kyrgyz tengri 75
+oirat tengri 15
+evenk siberian 10
+> Krasnoyarsk
+evenk siberian 55
+kyrgyz tengri 35
+buryat tengri 10
+
+@ Baikal and Transbaikal
+buryat tengri 75
+evenk siberian 20
+mongol tengri 5
+> Nerchinsk
+evenk siberian 55
+buryat tengri 35
+mongol tengri 10
+> Vitim
+evenk siberian 85
+buryat tengri 15
+
+@ Lena and Sakha
+yakut siberian 70
+evenk siberian 30
+> Aldan
+evenk siberian 80
+yakut siberian 20
+> Kirensk
+evenk siberian 80
+buryat tengri 20
+> Okhotsk
+evenk siberian 90
+yakut siberian 10
+> Ayan
+evenk siberian 90
+yakut siberian 10
+> Uda
+evenk siberian 85
+jurchen siberian 15

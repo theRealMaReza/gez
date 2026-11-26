@@ -444,3 +444,13 @@ Madagascar @hills | wood 5, grain 5, livestock 4, iron 3
 Central Highlands | grain 6, livestock 5, iron 4
 Western Madagascar | livestock 5, wood 4, fish 4, salt 3
 Eastern Madagascar | wood 6, grain 5, fish 4, pepper 2
+
+Western Siberia @forest | furs 8, wood 6, fish 5, hides 4
+Tobol and Irtysh | furs 8, livestock 5, fish 5, iron 3
+Pelym and Kondia | furs 9, wood 6, fish 5
+Ob and Yugra | furs 9, fish 6, wood 5
+
+Eastern Siberia @forest | furs 8, wood 6, fish 4, iron 3
+Yenisei and Altai | furs 8, iron 4, wood 5, livestock 4
+Baikal and Transbaikal | furs 8, livestock 5, fish 5, silver 2
+Lena and Sakha | furs 9, livestock 5, wood 5, fish 4

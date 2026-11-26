@@ -826,3 +826,26 @@ Enniskillen.
   and `BTS`.
 - **Shields:** `KON` and `MER` use verified Wikimedia Commons banners;
   remaining tags use plain map-colour banners (owner's pick).
+
+### Siberia (Phase 20.7, May 1453)
+- **Khanate of Sibir (`SIB`)**: Starts independent at `Qashliq` (Isker)
+  under Taibugid Khan `Mar`, holding `Chimgi-Tura` (Tyumen), `Ishim`,
+  `Qashliq`, `Tara`, `Baraba`, and `Kulunda` (owner's pick; `Chimgi-Tura`
+  and `Ishim` moved from `UZB` to `SIB`, with Shaybanid prince `Ibak`
+  present as a court figure).
+- **Arctic tundra and deep taiga**: High-latitude Arctic tundra and
+  mountain ranges (Yamal, Taz, Taimyr, Putorana, Verkhoyansk, Indigirka,
+  Kolyma, Stanovoy, Dzhugdzhur) are kept as permanent wasteland in
+  `data/map/provinces/09_wasteland.txt`, while the Ob, Irtysh, Yenisei,
+  Baikal, and Middle Lena basins are populated (`SIB`, `PEL`, `KOD`,
+  `BYA`, `EVK`, `YAK`, plus `Minusinsk` under `OIR`).
+- **Approximate (`?`) dates and invented 1453 figures**: Birth years are
+  approximate for `Mar`, `Obder`, `Abalak`, `Ibak`, `Asyka` (recorded
+  leading Pelym raids on Perm in 1455), `Yumshan`, and `Moldan` (recorded
+  in 1483 chronicles). No dated 1453 personal names are recorded for the
+  Buryats, Evenks, or Sakha/Yakuts; `BYA` (`Barga Baatar`/`Khoridoi`) and
+  `YAK` (`Omogoi Baai`/`Elley Bootur`) use traditional clan-ancestor
+  names, and `EVK` (`Toron`/`Amakan`) are invented 1453 chiefs.
+- **Shields:** `SIB` uses `File:Flag of Siberian Khanate.svg` from
+  Wikimedia Commons; `PEL`, `KOD`, `BYA`, `EVK`, and `YAK` use plain
+  map-colour banners (owner's pick).

@@ -149,3 +149,6 @@ Mount Fura             | jewelry 6, weapons 4, tools 4
 Great Zimbabwe         | jewelry 5, pottery 4, tools 4
 Madagascar             | tools 4, pottery 3, naval_supplies 3, cotton_cloth 3
 Alasora                | tools 5, weapons 4, cotton_cloth 4
+Western Siberia        | leather 5, weapons 4, tools 3
+Qashliq                | leather 6, weapons 5, tools 4
+Eastern Siberia        | leather 4, tools 4, weapons 3
