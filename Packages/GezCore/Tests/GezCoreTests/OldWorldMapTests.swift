@@ -566,4 +566,29 @@ final class OldWorldMapTests: XCTestCase {
         XCTAssertNotNil(world.provinces.holder[world.provinces.id(named: "Finale")!.index])
         XCTAssertNotNil(world.provinces.holder[world.provinces.id(named: "Massa")!.index])
     }
+
+    /// Phase 20.7 Ireland Part III detail: Monaghan (MacMahon / Oriel) and
+    /// subdivided provinces across Leinster, Connacht, and Ulster.
+    func testIrelandDetailPartIII() {
+        let world = Scenario1453.makeWorld()
+        guard let mnh = world.countries.id(forTag: "MNH"),
+              let eng = world.countries.id(forTag: "ENG"),
+              let kid = world.countries.id(forTag: "KID"),
+              let ocn = world.countries.id(forTag: "OCN"),
+              let tyr = world.countries.id(forTag: "TYR") else {
+            return XCTFail("missing Ireland Part III tags")
+        }
+        XCTAssertEqual(world.countries.religion[mnh.index], .catholic)
+        XCTAssertEqual(world.provinces.owner[world.provinces.id(named: "Monaghan")!.index], mnh)
+        XCTAssertEqual(world.provinces.owner[world.provinces.id(named: "Dundalk")!.index], eng)
+        XCTAssertEqual(world.provinces.owner[world.provinces.id(named: "Belfast")!.index], eng)
+        XCTAssertEqual(world.provinces.owner[world.provinces.id(named: "Maynooth")!.index], kid)
+        XCTAssertEqual(world.provinces.owner[world.provinces.id(named: "Athlone")!.index], ocn)
+        XCTAssertEqual(world.provinces.owner[world.provinces.id(named: "Coleraine")!.index], tyr)
+
+        for name in ["Monaghan", "Athlone", "Maynooth", "Dundalk", "Belfast", "Coleraine"] {
+            let pid = world.provinces.id(named: name)!
+            XCTAssertFalse(world.provinces.neighbors[pid.index].isEmpty, name)
+        }
+    }
 }

@@ -1,0 +1,6 @@
+# Ireland Part III detail (30 May 1453): Monaghan / Oriel (MacMahon).
+
+@ MNH
+ruler  | feidhlimidh_mnh | Feidhlimidh MacMahon | MacMahon | m | 1412 | | brave, ambitious | Lord of Oriel (Airgíalla/Monaghan, r. 1453-1466); birth year?
+heir   | eochaidh_mnh    | Eochaidh MacMahon    | MacMahon | m | 1435 | f:feidhlimidh_mnh | brave | son of Feidhlimidh MacMahon; birth year?
+kin    | rudhraighe_mnh  | Rudhraighe MacMahon  | MacMahon | m | 1415 | | wrathful | kinsman and rival claimant in the MacMahon lordship of Oriel; birth year?

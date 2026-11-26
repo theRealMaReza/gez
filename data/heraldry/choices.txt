@@ -284,3 +284,5 @@ HLD | File:Coat of Arms of the Bishopric of Hildesheim.svg | Prince-Bishopric of
 # Italy Part III detail (Phase 20.7)
 PIO | File:Arms of the house of Appiano.svg | House of Appiani (Piombino) coat of arms
 FRL | File:Arms of the house of Ordelaffi.svg | House of Ordelaffi (Forlì) coat of arms
+# Ireland Part III detail (Phase 20.7)
+MNH | File:McMahon Coat of Arms.png | MacMahon (Oriel/Monaghan) coat of arms

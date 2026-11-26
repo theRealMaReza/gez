@@ -253,6 +253,8 @@ Dingwall | 57.60 -4.43 | LOI m 2
 @ Leinster
 Dublin | 53.35 -6.26 | ENG f 4
 Drogheda | 53.72 -6.35 | ENG f 3
+Dundalk | 54.00 -6.40 | ENG f 2
+Maynooth | 53.38 -6.59 | KID f 3
 Kildare | 53.16 -6.91 | KID f 3
 Carlow | 52.84 -6.93 | LEI f 2
 Wexford | 52.34 -6.46 | ENG f 2
@@ -269,12 +271,16 @@ Ennis | 52.84 -8.98 | TMN h 2
 Galway | 53.27 -9.05 | CLA h 2
 Castlebar | 53.85 -9.30 | MWI h 1
 Roscommon | 53.63 -8.19 | OCN x 2
+Athlone | 53.42 -7.94 | OCN x 2
 @ Ulster
 Sligo | 54.27 -8.47 | TYC h 2
 Donegal | 54.65 -8.11 | TYC m 2
 Cavan | 53.99 -7.36 | EBR x 1
 Enniskillen | 54.34 -7.64 | FMN x 1
+Monaghan | 54.25 -6.97 | MNH h 2
 Dungannon | 54.50 -6.77 | TYR h 2
 Armagh | 54.35 -6.65 | TYR h 2
+Coleraine | 55.13 -6.67 | TYR h 2
 Carrickfergus | 54.72 -5.81 | ENG h 2
+Belfast | 54.60 -5.93 | ENG h 2
 Downpatrick | 54.33 -5.72 | ENG h 1

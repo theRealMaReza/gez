@@ -151,3 +151,6 @@ Forli          | fort 1
 Crema          | fort 1
 Benevento      | temple 1
 Brindisi       | port 1
+Maynooth       | fort 1
+Athlone        | fort 1
+Dundalk        | port 1

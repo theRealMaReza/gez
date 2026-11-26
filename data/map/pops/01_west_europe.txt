@@ -192,6 +192,9 @@ irish catholic 40
 > Drogheda
 english catholic 50
 irish catholic 50
+> Dundalk
+irish catholic 55
+english catholic 45
 @ Munster
 irish catholic 90
 english catholic 10
@@ -206,6 +209,9 @@ english catholic 5
 > Carrickfergus
 english catholic 50
 irish catholic 50
+> Belfast
+irish catholic 70
+english catholic 30
 
 # Low Countries
 @ Flanders and Artois
