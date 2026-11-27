@@ -17,6 +17,8 @@ public enum ChronicleEventKind: UInt8, Codable, Sendable, CaseIterable {
     case rulerDied = 12
     case marriage = 13
     case heirBorn = 14
+    /// A country took on a formable's identity (Phase 20.8).
+    case nationFormed = 15
 }
 
 /// Struct-of-arrays table of structured historical events for the Chronicle Book.

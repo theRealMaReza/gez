@@ -27,6 +27,7 @@ REQUIRED_KINDS = [
     "ruler_died",
     "marriage",
     "heir_born",
+    "nation_formed",
 ]
 
 

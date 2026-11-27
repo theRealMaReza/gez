@@ -271,6 +271,8 @@ public struct SaveSnapshot: Sendable, Codable {
     public var events: EventsState?
     public var ai: AIState?
     public var history: HistoryState?
+    /// Ruling systems and formed nations (Phase 20.8); nil in older saves.
+    public var rulings: RulingState?
 
     public init(capturing simulation: Simulation) {
         let w = simulation.world
@@ -429,6 +431,7 @@ public struct SaveSnapshot: Sendable, Codable {
         self.events = w.events
         self.ai = w.ai
         self.history = w.history
+        self.rulings = w.rulings
     }
 
     /// Rebuilds an identical `Simulation` using a freshly created static base `World`.
@@ -634,6 +637,12 @@ public struct SaveSnapshot: Sendable, Codable {
             w.history = HistoryState()
             HistorySystem.ensureInitialized(&w, date: date)
         }
+
+        // Old saves keep the fresh 1453 ruling state from the base world.
+        if let rulings {
+            RulingEngine.adopt(rulings, into: &w, date: date)
+        }
+        FormableSystem.reapplyIdentity(&w)
 
         return Simulation(
             restoringWorld: w,

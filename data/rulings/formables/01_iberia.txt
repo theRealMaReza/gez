@@ -1,0 +1,29 @@
+# Formable nations: Iberia (Phase 20.8).
+# Compiled by tools/rulings/rulinggen.py -> rulings1453.json.
+# Format and rules: docs/RULING_SYSTEMS.md. The trigger and effect lines use
+# the same words as data/events/ (plus formed, is_formed, ruling_member...).
+#
+# WORKED EXAMPLE from Claude's engine PR. "ai = false" keeps computer
+# Castile and Aragon from forming it until Gemini balances formables;
+# a human player is offered it once.
+
+formable SPA
+name = Spain
+text = The crowns of Castile and Aragon are joined in one hand. From Barcelona to Seville the heralds proclaim a single kingdom: shall the realm take the name and arms of Spain?
+color = 226 186 34
+shield = SPA
+eligible = CAS, ARA
+government = monarchy
+mission_tree = spain
+ai = false
+unique = true
+trigger:
+  owns = Toledo
+  owns = Seville
+  owns = Zaragoza
+  owns = Valencia
+  owns = Barcelona
+  not_formed = SPA
+effect:
+  prestige = 20
+  stability = 1

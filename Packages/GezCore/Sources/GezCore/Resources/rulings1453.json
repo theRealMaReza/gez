@@ -1,0 +1,122 @@
+{
+  "provinceCount": 2097,
+  "systems": [
+    {
+      "key": "hre",
+      "name": "Holy Roman Empire",
+      "leader": "HAB",
+      "roles": [
+        {
+          "role": "elector",
+          "tags": [
+            "MAI",
+            "TRI",
+            "CLN",
+            "BOH",
+            "PAL",
+            "SAX",
+            "BRA"
+          ]
+        },
+        {
+          "role": "free_city",
+          "tags": [
+            "NUR",
+            "ULM",
+            "AUG",
+            "LUB",
+            "STB",
+            "MTZ",
+            "FFM",
+            "BES",
+            "BAS"
+          ]
+        }
+      ],
+      "values": [
+        {
+          "key": "authority",
+          "value": 0,
+          "min": 0,
+          "max": 100
+        }
+      ],
+      "params": [],
+      "provinces": [],
+      "roleNames": [
+        "elector",
+        "free_city",
+        "prince_bishop"
+      ],
+      "valueNames": [
+        "authority"
+      ],
+      "countryValueNames": [],
+      "roleEffects": [],
+      "countryLimits": []
+    }
+  ],
+  "formables": [
+    {
+      "id": "SPA",
+      "name": "Spain",
+      "text": "The crowns of Castile and Aragon are joined in one hand. From Barcelona to Seville the heralds proclaim a single kingdom: shall the realm take the name and arms of Spain?",
+      "color": [
+        226,
+        186,
+        34
+      ],
+      "shield": "SPA",
+      "eligible": [
+        "CAS",
+        "ARA"
+      ],
+      "trigger": [
+        {
+          "kind": "owns",
+          "str": "Toledo",
+          "int": 31
+        },
+        {
+          "kind": "owns",
+          "str": "Seville",
+          "int": 40
+        },
+        {
+          "kind": "owns",
+          "str": "Zaragoza",
+          "int": 57
+        },
+        {
+          "kind": "owns",
+          "str": "Valencia",
+          "int": 67
+        },
+        {
+          "kind": "owns",
+          "str": "Barcelona",
+          "int": 61
+        },
+        {
+          "kind": "not_formed",
+          "str": "SPA"
+        }
+      ],
+      "government": "monarchy",
+      "reforms": [],
+      "effects": [
+        {
+          "kind": "prestige",
+          "num": 20.0
+        },
+        {
+          "kind": "stability",
+          "int": 1
+        }
+      ],
+      "missionTree": "spain",
+      "ai": false,
+      "unique": true
+    }
+  ]
+}

@@ -103,6 +103,7 @@ public final class Simulation {
             CultureSystem.runMonthly(&world, date: date, random: &random)
             CharacterSystem.runMonthly(&world, date: date, random: &random)
             VassalSystem.runMonthly(&world, date: date, random: &random)
+            RulingEngine.runMonthly(&world, date: date, random: &random)
             GovernmentSystem.runMonthly(&world, date: date, random: &random)
             TechSystem.runMonthly(&world, date: date, random: &random)
             UnrestSystem.runMonthly(&world, date: date, random: &random)
@@ -114,6 +115,7 @@ public final class Simulation {
         if date.isFirstOfYear {
             CharacterSystem.runYearly(&world, date: date, random: &random)
             VassalSystem.runYearly(&world, date: date, random: &random)
+            RulingEngine.runYearly(&world, date: date, random: &random)
             HistorySystem.recordYearlySnapshot(&world, date: date)
         }
     }

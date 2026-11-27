@@ -96,3 +96,9 @@
 - {primary} rejoiced as {character} was born to {secondary_character}, securing the line of succession.
 - A cradle was blessed in {primary} for {character}, newborn child of {secondary_character}.
 - Heralds proclaimed the birth of {character} to {secondary_character} across the lands of {primary}.
+
+[nation_formed]
+- {detail} was proclaimed anew as {primary}, with new arms and a new name.
+- The crowns were joined and {detail} took the name of {primary}.
+- Heralds cried the new title through the land: {detail} was now {primary}.
+- From that day {detail} styled itself {primary}, and its banners changed with it.

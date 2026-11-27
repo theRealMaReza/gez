@@ -30,6 +30,12 @@
       "{primary} witnessed the solemn vows of {character} and {secondary_character} at the altar.",
       "Dynastic ties were forged as {character} wed {secondary_character} for {primary}."
     ],
+    "nation_formed": [
+      "{detail} was proclaimed anew as {primary}, with new arms and a new name.",
+      "The crowns were joined and {detail} took the name of {primary}.",
+      "Heralds cried the new title through the land: {detail} was now {primary}.",
+      "From that day {detail} styled itself {primary}, and its banners changed with it."
+    ],
     "naval_battle": [
       "Upon the high seas, the fleet of {primary} scattered the ships of {secondary}, with {value_a} vessels lost in {value_b} days.",
       "Cannons thundered across the waves as {primary} bested {secondary} at sea, claiming {value_a} ships.",

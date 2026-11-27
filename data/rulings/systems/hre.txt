@@ -1,0 +1,32 @@
+# Holy Roman Empire on 30 May 1453 (Phase 20.8).
+# Compiled by tools/rulings/rulinggen.py -> rulings1453.json.
+# Format and rules: docs/RULING_SYSTEMS.md.
+#
+# STARTER DATA from Claude's engine PR: the leader, the seven electors and
+# the free imperial cities only. Gemini adds the other members, the
+# numbers, role effects and the Swift rules (HRESystem) on top. With no
+# effects and no Swift type this file changes nothing in play yet.
+
+system hre
+name = Holy Roman Empire
+# Frederick III, crowned emperor in Rome in March 1452.
+leader = HAB
+roles = elector, free_city, prince_bishop
+
+# The Golden Bull of 1356: three spiritual and four secular electors.
+# Bohemia's vote is Ladislaus the Posthumous's (crowned king of Bohemia 1453).
+role elector = MAI, TRI, CLN, BOH, PAL, SAX, BRA
+
+# Free and imperial cities with their own country in 1453. Hamburg is left
+# out: its immediacy was disputed until 1510 (see HISTORY_NOTES).
+role free_city = NUR, ULM, AUG, LUB, STB, MTZ, FFM, BES, BAS
+
+# Imperial Authority, 0-100 (Gemini sets the start and how it moves).
+value authority = 0 | 0..100
+
+# Examples of what Gemini can add (left out so this file changes nothing):
+#   members = SWI, ...                       plain members
+#   country_value favour = 0..100            a number per member
+#   param elector_count = 7                  a constant the Swift code reads
+#   effect free_city: trade=0.10             every free city gets +10% trade
+#   effect leader scaled authority/100: crown_power=0.10

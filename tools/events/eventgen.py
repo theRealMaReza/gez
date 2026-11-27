@@ -119,6 +119,21 @@ class ReferenceData:
         self.units: set[str] = {u["key"] for u in mil["units"]}
         self.institutions: set[str] = {i["key"] for i in tech["institutions"]}
 
+        # Phase 20.8 ruling systems and formables (tools/rulings/rulinggen.py
+        # runs before this generator; it also fills these itself).
+        self.ruling_systems: dict[str, dict[str, set[str]]] = {}
+        self.formables: set[str] = set()
+        rulings_path = RES_DIR / "rulings1453.json"
+        if rulings_path.exists():
+            ru = json.loads(rulings_path.read_text(encoding="utf-8"))
+            for sy in ru.get("systems", []):
+                self.ruling_systems[sy["key"]] = {
+                    "roles": set(sy.get("roleNames", [])) | {"member", "leader"},
+                    "values": set(sy.get("valueNames", [])),
+                    "country_values": set(sy.get("countryValueNames", [])),
+                }
+            self.formables = {f["id"] for f in ru.get("formables", [])}
+
     def resolve_province(self, name: str, ctx: str) -> int:
         matches = self.prov_index_by_name.get(name, [])
         if len(matches) != 1:
@@ -287,6 +302,10 @@ def validate_condition(key: str, val: str, ref: ReferenceData, ctx: str) -> dict
         if v not in VALID_SAFAVIYYA_PHASES:
             raise SystemExit(f"{ctx}: unknown safaviyya_phase '{v}'")
         return {"kind": key, "str": v}
+
+    ruling = validate_ruling_condition(key, v, ref, ctx)
+    if ruling is not None:
+        return ruling
 
     raise SystemExit(f"{ctx}: unknown condition '{key}'")
 
@@ -517,7 +536,84 @@ def validate_effect(key: str, val: str, ref: ReferenceData, ctx: str) -> dict:
             raise SystemExit(f"{ctx}: unknown country tag '{tag}'")
         return {"kind": key, "str": tag, "int": pidx}
 
+    ruling = validate_ruling_effect(key, v, ref, ctx)
+    if ruling is not None:
+        return ruling
+
     raise SystemExit(f"{ctx}: unknown effect '{key}'")
+
+
+# --- Phase 20.8: ruling systems and formables -------------------------------
+
+def _ruling_system(name: str, ref: ReferenceData, ctx: str) -> dict[str, set[str]]:
+    if name not in ref.ruling_systems:
+        raise SystemExit(f"{ctx}: unknown ruling system '{name}' (data/rulings/systems/)")
+    return ref.ruling_systems[name]
+
+
+def _ruling_parts(v: str, n: int, form: str, ctx: str) -> list[str]:
+    parts = [x.strip() for x in v.split(":")]
+    if len(parts) != n or not all(parts):
+        raise SystemExit(f"{ctx}: expected '{form}'")
+    return parts
+
+
+def validate_ruling_condition(key: str, v: str, ref: ReferenceData, ctx: str) -> dict | None:
+    """Ruling-system and formable conditions; None if `key` is not one."""
+    if key in ("ruling_active", "ruling_member", "not_ruling_member", "ruling_leader", "not_ruling_leader"):
+        _ruling_system(v, ref, ctx)
+        return {"kind": key, "str": v}
+    if key in ("ruling_role", "not_ruling_role"):
+        sy, role = _ruling_parts(v, 2, "system:role", ctx)
+        if role not in _ruling_system(sy, ref, ctx)["roles"]:
+            raise SystemExit(f"{ctx}: ruling system '{sy}' has no role '{role}' (declare it with 'roles =')")
+        return {"kind": key, "str": f"{sy}:{role}"}
+    if key in ("ruling_value_min", "ruling_value_max", "ruling_country_value_min", "ruling_country_value_max"):
+        sy, name, num = _ruling_parts(v, 3, "system:value:number", ctx)
+        bucket = "country_values" if "country" in key else "values"
+        if name not in _ruling_system(sy, ref, ctx)[bucket]:
+            raise SystemExit(f"{ctx}: ruling system '{sy}' has no {bucket[:-1].replace('_', ' ')} '{name}'")
+        return {"kind": key, "str": f"{sy}:{name}", "num": parse_float(num, ctx)}
+    if key in ("ruling_flag", "not_ruling_flag"):
+        sy, flag = _ruling_parts(v, 2, "system:flag", ctx)
+        _ruling_system(sy, ref, ctx)
+        if not ID_RE.match(flag):
+            raise SystemExit(f"{ctx}: invalid flag name '{flag}' (lowercase snake_case)")
+        return {"kind": key, "str": f"{sy}:{flag}"}
+    if key in ("formed", "not_formed", "is_formed", "can_form"):
+        if v not in ref.formables:
+            raise SystemExit(f"{ctx}: unknown formable '{v}' (data/rulings/formables/)")
+        return {"kind": key, "str": v}
+    return None
+
+
+def validate_ruling_effect(key: str, v: str, ref: ReferenceData, ctx: str) -> dict | None:
+    """Ruling-system and formable effects; None if `key` is not one."""
+    if key == "form_nation":
+        if v not in ref.formables:
+            raise SystemExit(f"{ctx}: unknown formable '{v}' (data/rulings/formables/)")
+        return {"kind": key, "str": v}
+    if key in ("ruling_join", "ruling_leave", "ruling_set_leader", "ruling_dissolve"):
+        _ruling_system(v, ref, ctx)
+        return {"kind": key, "str": v}
+    if key in ("ruling_add_role", "ruling_remove_role"):
+        sy, role = _ruling_parts(v, 2, "system:role", ctx)
+        if role not in _ruling_system(sy, ref, ctx)["roles"]:
+            raise SystemExit(f"{ctx}: ruling system '{sy}' has no role '{role}' (declare it with 'roles =')")
+        return {"kind": key, "str": sy, "str2": role}
+    if key in ("ruling_value", "ruling_set_value", "ruling_country_value"):
+        sy, name, num = _ruling_parts(v, 3, "system:value:number", ctx)
+        bucket = "country_values" if key == "ruling_country_value" else "values"
+        if name not in _ruling_system(sy, ref, ctx)[bucket]:
+            raise SystemExit(f"{ctx}: ruling system '{sy}' has no {bucket[:-1].replace('_', ' ')} '{name}'")
+        return {"kind": key, "str": sy, "str2": name, "num": parse_float(num, ctx)}
+    if key in ("ruling_set_flag", "ruling_clear_flag"):
+        sy, flag = _ruling_parts(v, 2, "system:flag", ctx)
+        _ruling_system(sy, ref, ctx)
+        if not ID_RE.match(flag):
+            raise SystemExit(f"{ctx}: invalid flag name '{flag}' (lowercase snake_case)")
+        return {"kind": key, "str": sy, "str2": flag}
+    return None
 
 
 def parse_ai_mod(val: str, ref: ReferenceData, ctx: str) -> dict:

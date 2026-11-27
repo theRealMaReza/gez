@@ -204,6 +204,7 @@ public enum CharacterSystem {
         }
         world.countries.heir[c.index] = heir(world, c, date: date)
         HistorySystem.recordSuccession(&world, country: c, oldRuler: old, newRuler: ruler, date: date)
+        RulingEngine.rulerChanged(&world, c, old: old, new: ruler, date: date, random: random)
         if !suppressEvent, let old, world.provinces.owner.contains(c) {
             EventSystem.trigger(
                 &world,

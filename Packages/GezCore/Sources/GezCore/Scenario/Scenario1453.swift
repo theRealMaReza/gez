@@ -54,6 +54,7 @@ public enum Scenario1453 {
         try TechLoader.loadBundled(into: &world)
         try EventLoader.loadBundled(into: &world)
         try AIGoalsLoader.loadBundled(into: &world)
+        try RulingLoader.loadBundled(into: &world, date: startDate)
         MarketSystem.warmUp(&world, months: warmUpMonths)
         GovernmentSystem.settle(&world)
         ArmySystem.settle(&world, seedPool: true)

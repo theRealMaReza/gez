@@ -5029,6 +5029,9 @@ public final class GezGodotBridge: RefCounted {
     public func getCountryTag() -> String { controller.countryTag }
 
     @Callable
+    public func getCountryShieldKey(tag: String) -> String { controller.countryShieldKey(tag: tag) }
+
+    @Callable
     public func getPlayerTopBarDetails() -> VariantDictionary {
         Self.toVariantDictionary(controller.playerTopBarDetails())
     }

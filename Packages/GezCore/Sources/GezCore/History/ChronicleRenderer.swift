@@ -69,6 +69,7 @@ public struct ChronicleTemplateSet: Sendable, Equatable {
         case .rulerDied: return "ruler_died"
         case .marriage: return "marriage"
         case .heirBorn: return "heir_born"
+        case .nationFormed: return "nation_formed"
         }
     }
 
@@ -166,6 +167,12 @@ public struct ChronicleTemplateSet: Sendable, Equatable {
                 return rk.displayName.lowercased()
             }
             return "rebels"
+        case .nationFormed:
+            // valueB indexes `world.rulings.formed`: the realm's name before.
+            if valueB >= 0 && valueB < world.rulings.formed.count {
+                return world.rulings.formed[valueB].previousName
+            }
+            return "the old realm"
         default:
             return ""
         }

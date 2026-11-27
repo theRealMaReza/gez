@@ -174,6 +174,7 @@ public enum GovernmentSystem {
                 fx.values[k] += mod.values[k]
             }
         }
+        RulingEngine.addEffects(world, c, into: &fx)
         world.government.effects[i] = fx
     }
 
@@ -367,24 +368,53 @@ public enum GovernmentSystem {
             valueB: option
         )
         if let g = reform.becomes, g != world.countries.government[c.index] {
-            world.countries.government[c.index] = g
-            world.government.reforms[c.index] = [0]
-            // Laws the new government does not allow fall back to their first allowed option.
-            let rules = world.government.rules
-            for (a, area) in rules.lawAreas.enumerated() where !area.options[world.government.laws[c.index][a]].allowed(for: g) {
-                if a == rules.successionArea {
-                    let law = CharacterSystem.defaultLaw(g)
-                    world.countries.succession[c.index] = law
-                    world.government.laws[c.index][a] = area.options.firstIndex { $0.key == law.rawValue } ?? 0
-                } else {
-                    world.government.laws[c.index][a] = area.options.firstIndex { $0.allowed(for: g) } ?? 0
-                }
-            }
-            world.government.pending[c.index].removeAll { !rules.lawAreas[$0.area].options[$0.option].allowed(for: g) }
-            world.people.record(date, c, "\(world.countries.name[c.index]) becomes a \(g.displayName.lowercased()).")
+            switchGovernment(&world, c, to: g, date: date)
         }
         refreshEffects(&world, c)
         return true
+    }
+
+    /// Changes the government type: the reform tree starts again at its first
+    /// option, and laws the new government does not allow fall back to their
+    /// first allowed option. Used by reforms and formables.
+    public static func switchGovernment(_ world: inout World, _ c: CountryID, to g: GovernmentType, date: GameDate) {
+        guard g != world.countries.government[c.index], c.index < world.government.count else { return }
+        world.countries.government[c.index] = g
+        world.government.reforms[c.index] = [0]
+        let rules = world.government.rules
+        for (a, area) in rules.lawAreas.enumerated() where !area.options[world.government.laws[c.index][a]].allowed(for: g) {
+            if a == rules.successionArea {
+                let law = CharacterSystem.defaultLaw(g)
+                world.countries.succession[c.index] = law
+                world.government.laws[c.index][a] = area.options.firstIndex { $0.key == law.rawValue } ?? 0
+            } else {
+                world.government.laws[c.index][a] = area.options.firstIndex { $0.allowed(for: g) } ?? 0
+            }
+        }
+        world.government.pending[c.index].removeAll { !rules.lawAreas[$0.area].options[$0.option].allowed(for: g) }
+        world.people.record(date, c, "\(world.countries.name[c.index]) becomes a \(g.displayName.lowercased()).")
+    }
+
+    /// Sets the reform with option key `key` in the country's current tree,
+    /// taking the first option of any earlier tier not yet taken. False if
+    /// the tree has no such option.
+    @discardableResult
+    public static func setReform(_ world: inout World, _ c: CountryID, key: String) -> Bool {
+        guard c.index < world.government.count,
+              let tree = world.government.rules.reforms[world.countries.government[c.index]] else { return false }
+        for (t, tier) in tree.enumerated() {
+            guard let o = tier.options.firstIndex(where: { $0.key == key }) else { continue }
+            while world.government.reforms[c.index].count < t {
+                world.government.reforms[c.index].append(0)
+            }
+            if world.government.reforms[c.index].count == t {
+                world.government.reforms[c.index].append(o)
+            } else {
+                world.government.reforms[c.index][t] = o
+            }
+            return true
+        }
+        return false
     }
 
     // MARK: Monthly
