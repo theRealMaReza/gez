@@ -53,6 +53,20 @@ public enum HRESystem: RulingSystem {
             members: members
         )
         RulingEngine.addValue(&world, key, "authority", delta)
+
+        // Sync stage with any reform flags set by historical events.
+        syncReformStage(&world)
+
+        // AI Emperor automatically convenes the Reichstag when authority is sufficient.
+        if let emp = RulingEngine.leader(world, key),
+           !world.humanCountries.contains(emp),
+           let next = nextReform(in: world) {
+            let isHistorical = !AIGoalSystem.isFreeMode(for: emp, in: world)
+            let earliestYear = (isHistorical && next.stage == 1) ? 1490 : 1453
+            if date.year >= earliestYear && RulingEngine.value(world, key, "authority") >= next.cost + 5 {
+                _ = enactNextReform(&world, by: emp, date: date)
+            }
+        }
     }
 
     public static func runYearly(_ world: inout World, date: GameDate, random: inout GameRandom) {
@@ -143,6 +157,149 @@ public enum HRESystem: RulingSystem {
     /// True once Ewiger Landfriede has been proclaimed, forbidding wars between HRE members.
     public static func internalWarsForbidden(in world: World) -> Bool {
         RulingEngine.isActive(world, key) && RulingEngine.hasFlag(world, key, "ewiger_landfriede")
+    }
+
+    // MARK: - Reichstag Reforms
+
+    public struct ReformDef: Sendable, Equatable {
+        public let stage: Int
+        public let flag: String
+        public let name: String
+        public let summary: String
+        public let cost: Double
+    }
+
+    /// The six historical Reichstag reforms in enactment order.
+    public static let reforms: [ReformDef] = [
+        ReformDef(
+            stage: 1,
+            flag: "reichsreform",
+            name: "Reichsreform",
+            summary: "Members: -5% build cost, +5% reform progress; Emperor: +5% tax",
+            cost: 50
+        ),
+        ReformDef(
+            stage: 2,
+            flag: "reichskammergericht",
+            name: "Reichskammergericht",
+            summary: "Members: -8% stability cost; Emperor: +5% crown power",
+            cost: 50
+        ),
+        ReformDef(
+            stage: 3,
+            flag: "gemeiner_pfennig",
+            name: "Gemeiner Pfennig",
+            summary: "Members: +5% tax; Emperor: +10% tax, +10% manpower",
+            cost: 50
+        ),
+        ReformDef(
+            stage: 4,
+            flag: "ewiger_landfriede",
+            name: "Ewiger Landfriede",
+            summary: "Forbids internal HRE wars; Members: +5% trade, +5% learning",
+            cost: 50
+        ),
+        ReformDef(
+            stage: 5,
+            flag: "privilegium_de_non_appellando",
+            name: "Privilegium de Non Appellando",
+            summary: "Members: +10% fort defence, +5% army quality; Emperor: +10 vassal opinion",
+            cost: 50
+        ),
+        ReformDef(
+            stage: 6,
+            flag: "hereditary_empire",
+            name: "Erbreich (Hereditary Crown)",
+            summary: "Abolishes elections; Emperor: +10% crown power, +15% levy size, +10% tax",
+            cost: 60
+        ),
+    ]
+
+    /// The next unpassed Reichstag reform, or nil if all 6 have been enacted.
+    public static func nextReform(in world: World) -> ReformDef? {
+        guard let state = RulingEngine.state(world, key), state.active else { return nil }
+        return reforms.first { !state.flags.contains($0.flag) }
+    }
+
+    /// Whether `country` (must be the Emperor) can enact the next Reichstag reform right now.
+    public static func canEnactNextReform(in world: World, by country: CountryID) -> Bool {
+        guard let state = RulingEngine.state(world, key),
+              state.active,
+              state.leader == country,
+              !state.flags.contains("league_war_active"),
+              let next = nextReform(in: world) else {
+            return false
+        }
+        return RulingEngine.value(world, key, "authority") >= next.cost
+    }
+
+    /// Enacts the next Reichstag reform, spending Imperial Authority and refreshing member effects.
+    @discardableResult
+    public static func enactNextReform(_ world: inout World, by country: CountryID, date: GameDate) -> Bool {
+        guard canEnactNextReform(in: world, by: country),
+              let next = nextReform(in: world) else {
+            return false
+        }
+        RulingEngine.addValue(&world, key, "authority", -next.cost)
+        RulingEngine.setFlag(&world, key, next.flag, true)
+        RulingEngine.modify(&world, key) { s in
+            s.stage = max(s.stage, next.stage)
+        }
+        for m in RulingEngine.members(world, key) {
+            RulingEngine.refresh(&world, m)
+        }
+        return true
+    }
+
+    public static func addEffects(_ world: World, country: CountryID, into fx: inout Effects) {
+        guard let state = RulingEngine.state(world, key), state.active else { return }
+        let isLeader = state.leader == country
+        let flags = state.flags
+
+        if flags.contains("reichsreform") {
+            fx[.buildCost] -= 0.05
+            fx[.reformProgress] += 0.05
+            if isLeader { fx[.tax] += 0.05 }
+        }
+        if flags.contains("reichskammergericht") {
+            fx[.stabilityCost] -= 0.08
+            if isLeader { fx[.crownPower] += 0.05 }
+        }
+        if flags.contains("gemeiner_pfennig") {
+            fx[.tax] += 0.05
+            if isLeader {
+                fx[.tax] += 0.10
+                fx[.manpower] += 0.10
+            }
+        }
+        if flags.contains("ewiger_landfriede") {
+            fx[.trade] += 0.05
+            fx[.learning] += 0.05
+        }
+        if flags.contains("privilegium_de_non_appellando") {
+            fx[.fortDefence] += 0.10
+            fx[.armyQuality] += 0.05
+            if isLeader { fx[.vassalOpinion] += 10 }
+        }
+        if flags.contains("hereditary_empire") && isLeader {
+            fx[.crownPower] += 0.10
+            fx[.levySize] += 0.15
+            fx[.tax] += 0.10
+        }
+    }
+
+    private static func syncReformStage(_ world: inout World) {
+        guard let state = RulingEngine.state(world, key) else { return }
+        var highest = state.stage
+        for r in reforms where state.flags.contains(r.flag) {
+            if r.stage > highest { highest = r.stage }
+        }
+        if highest != state.stage {
+            RulingEngine.modify(&world, key) { $0.stage = highest }
+            for m in RulingEngine.members(world, key) {
+                RulingEngine.refresh(&world, m)
+            }
+        }
     }
 
     // MARK: - Authority breakdown (public for UI and tests)

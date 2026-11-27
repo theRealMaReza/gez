@@ -6435,6 +6435,330 @@
           ]
         }
       ]
+    },
+    {
+      "id": "hre_diet_of_worms_1495",
+      "title": "The Diet of Worms and the Reichsreform",
+      "text": "Convened at Worms, the Imperial estates debate a sweeping constitutional settlement: an Imperial Chamber Court, a Common Penny tax, and a Perpetual Public Peace to curb private feuds across the Reich.",
+      "category": "historical",
+      "countries": [],
+      "dateFrom": {
+        "year": 1495,
+        "month": 3,
+        "day": 26
+      },
+      "dateTo": {
+        "year": 1520,
+        "month": 12,
+        "day": 31
+      },
+      "exactDate": null,
+      "mtth": 18.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": true,
+      "trigger": [
+        {
+          "kind": "ruling_active",
+          "str": "hre"
+        },
+        {
+          "kind": "ruling_leader",
+          "str": "hre"
+        },
+        {
+          "kind": "not_ruling_flag",
+          "str": "hre:reichsreform"
+        }
+      ],
+      "options": [
+        {
+          "label": "Proclaim the Reichsreform at the Diet",
+          "aiWeight": 80.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "ruling_set_flag",
+              "str": "hre",
+              "str2": "reichsreform"
+            },
+            {
+              "kind": "ruling_value",
+              "str": "hre",
+              "str2": "authority",
+              "num": 10.0
+            },
+            {
+              "kind": "prestige",
+              "num": 8.0
+            }
+          ]
+        },
+        {
+          "label": "Yield to the princes and shelve the reforms",
+          "aiWeight": 20.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "ruling_value",
+              "str": "hre",
+              "str2": "authority",
+              "num": -5.0
+            },
+            {
+              "kind": "ducats",
+              "num": 100.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hre_ewiger_landfriede_diet",
+      "title": "The Ewiger Landfriede",
+      "text": "With the Imperial courts established and the Common Penny raised, the estates gather to outlaw private warfare forever within the borders of the Holy Roman Empire.",
+      "category": "historical",
+      "countries": [],
+      "dateFrom": {
+        "year": 1495,
+        "month": 8,
+        "day": 7
+      },
+      "dateTo": {
+        "year": 1650,
+        "month": 12,
+        "day": 31
+      },
+      "exactDate": null,
+      "mtth": 24.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": true,
+      "trigger": [
+        {
+          "kind": "ruling_active",
+          "str": "hre"
+        },
+        {
+          "kind": "ruling_leader",
+          "str": "hre"
+        },
+        {
+          "kind": "ruling_flag",
+          "str": "hre:gemeiner_pfennig"
+        },
+        {
+          "kind": "not_ruling_flag",
+          "str": "hre:ewiger_landfriede"
+        },
+        {
+          "kind": "ruling_value_min",
+          "str": "hre:authority",
+          "num": 50.0
+        }
+      ],
+      "options": [
+        {
+          "label": "Proclaim the Perpetual Public Peace",
+          "aiWeight": 85.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "ruling_set_flag",
+              "str": "hre",
+              "str2": "ewiger_landfriede"
+            },
+            {
+              "kind": "ruling_value",
+              "str": "hre",
+              "str2": "authority",
+              "num": -50.0
+            },
+            {
+              "kind": "stability",
+              "int": 1
+            },
+            {
+              "kind": "prestige",
+              "num": 12.0
+            }
+          ]
+        },
+        {
+          "label": "Delay the proclamation to preserve our authority",
+          "aiWeight": 15.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "ruling_value",
+              "str": "hre",
+              "str2": "authority",
+              "num": 5.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hre_swabian_war_1499",
+      "title": "The Swabian War and Imperial Taxation",
+      "text": "The Swiss Confederation refuses to submit to the newly established Imperial Chamber Court or pay the Common Penny, insisting upon its ancient liberties outside the Swabian League.",
+      "category": "historical",
+      "countries": [
+        "SWI"
+      ],
+      "dateFrom": {
+        "year": 1499,
+        "month": 1,
+        "day": 1
+      },
+      "dateTo": {
+        "year": 1530,
+        "month": 12,
+        "day": 31
+      },
+      "exactDate": null,
+      "mtth": 18.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": true,
+      "trigger": [
+        {
+          "kind": "ruling_active",
+          "str": "hre"
+        },
+        {
+          "kind": "ruling_member",
+          "str": "hre"
+        },
+        {
+          "kind": "ruling_flag",
+          "str": "hre:reichsreform"
+        }
+      ],
+      "options": [
+        {
+          "label": "Defend Swiss liberties and break from Imperial jurisdiction",
+          "aiWeight": 80.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "ruling_leave",
+              "str": "hre"
+            },
+            {
+              "kind": "ruling_value",
+              "str": "hre",
+              "str2": "authority",
+              "num": -8.0
+            },
+            {
+              "kind": "prestige",
+              "num": 10.0
+            }
+          ]
+        },
+        {
+          "label": "Accept the Reichstag's jurisdiction and remain in the Empire",
+          "aiWeight": 20.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "ruling_country_value",
+              "str": "hre",
+              "str2": "favour",
+              "num": 15.0
+            },
+            {
+              "kind": "ruling_value",
+              "str": "hre",
+              "str2": "authority",
+              "num": 5.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hre_free_city_roemermonate",
+      "title": "Römermonate from the Free Imperial Cities",
+      "text": "Envoys from the Free Imperial Cities offer a generous grant of Römermonate taxes in return for renewed confirmation of their ancient trading charters and Imperial immediacy.",
+      "category": "diplomatic",
+      "countries": [],
+      "dateFrom": {
+        "year": 1460,
+        "month": 1,
+        "day": 1
+      },
+      "dateTo": {
+        "year": 1650,
+        "month": 12,
+        "day": 31
+      },
+      "exactDate": null,
+      "mtth": 120.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": false,
+      "trigger": [
+        {
+          "kind": "ruling_active",
+          "str": "hre"
+        },
+        {
+          "kind": "ruling_leader",
+          "str": "hre"
+        },
+        {
+          "kind": "ruling_value_min",
+          "str": "hre:authority",
+          "num": 30.0
+        }
+      ],
+      "options": [
+        {
+          "label": "Collect the Römermonate for the Imperial treasury",
+          "aiWeight": 65.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "ducats",
+              "num": 120.0
+            },
+            {
+              "kind": "ruling_value",
+              "str": "hre",
+              "str2": "authority",
+              "num": 3.0
+            }
+          ]
+        },
+        {
+          "label": "Confirm their charters and strengthen Imperial authority",
+          "aiWeight": 35.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "ruling_value",
+              "str": "hre",
+              "str2": "authority",
+              "num": 8.0
+            },
+            {
+              "kind": "prestige",
+              "num": 5.0
+            }
+          ]
+        }
+      ]
     }
   ]
 }

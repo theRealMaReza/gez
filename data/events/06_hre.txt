@@ -1,0 +1,111 @@
+# Holy Roman Empire — Reichstag Reforms and Imperial Diet Events (Phase 20.8).
+# Compiled by tools/events/eventgen.py -> events1453.json.
+
+event hre_diet_of_worms_1495
+title = The Diet of Worms and the Reichsreform
+text = Convened at Worms, the Imperial estates debate a sweeping constitutional settlement: an Imperial Chamber Court, a Common Penny tax, and a Perpetual Public Peace to curb private feuds across the Reich.
+category = historical
+date_from = 1495-03-26
+date_to = 1520-12-31
+mtth = 18
+fire_once = true
+major = true
+trigger:
+  ruling_active = hre
+  ruling_leader = hre
+  not_ruling_flag = hre:reichsreform
+option:
+  label = Proclaim the Reichsreform at the Diet
+  ai_weight = 80
+  effect:
+    ruling_set_flag = hre:reichsreform
+    ruling_value = hre:authority:10
+    prestige = 8
+option:
+  label = Yield to the princes and shelve the reforms
+  ai_weight = 20
+  effect:
+    ruling_value = hre:authority:-5
+    ducats = 100
+
+event hre_ewiger_landfriede_diet
+title = The Ewiger Landfriede
+text = With the Imperial courts established and the Common Penny raised, the estates gather to outlaw private warfare forever within the borders of the Holy Roman Empire.
+category = historical
+date_from = 1495-08-07
+date_to = 1650-12-31
+mtth = 24
+fire_once = true
+major = true
+trigger:
+  ruling_active = hre
+  ruling_leader = hre
+  ruling_flag = hre:gemeiner_pfennig
+  not_ruling_flag = hre:ewiger_landfriede
+  ruling_value_min = hre:authority:50
+option:
+  label = Proclaim the Perpetual Public Peace
+  ai_weight = 85
+  effect:
+    ruling_set_flag = hre:ewiger_landfriede
+    ruling_value = hre:authority:-50
+    stability = 1
+    prestige = 12
+option:
+  label = Delay the proclamation to preserve our authority
+  ai_weight = 15
+  effect:
+    ruling_value = hre:authority:5
+
+event hre_swabian_war_1499
+title = The Swabian War and Imperial Taxation
+text = The Swiss Confederation refuses to submit to the newly established Imperial Chamber Court or pay the Common Penny, insisting upon its ancient liberties outside the Swabian League.
+category = historical
+countries = SWI
+date_from = 1499-01-01
+date_to = 1530-12-31
+mtth = 18
+fire_once = true
+major = true
+trigger:
+  ruling_active = hre
+  ruling_member = hre
+  ruling_flag = hre:reichsreform
+option:
+  label = Defend Swiss liberties and break from Imperial jurisdiction
+  ai_weight = 80
+  effect:
+    ruling_leave = hre
+    ruling_value = hre:authority:-8
+    prestige = 10
+option:
+  label = Accept the Reichstag's jurisdiction and remain in the Empire
+  ai_weight = 20
+  effect:
+    ruling_country_value = hre:favour:15
+    ruling_value = hre:authority:5
+
+event hre_free_city_roemermonate
+title = Römermonate from the Free Imperial Cities
+text = Envoys from the Free Imperial Cities offer a generous grant of Römermonate taxes in return for renewed confirmation of their ancient trading charters and Imperial immediacy.
+category = diplomatic
+date_from = 1460-01-01
+date_to = 1650-12-31
+mtth = 120
+fire_once = true
+trigger:
+  ruling_active = hre
+  ruling_leader = hre
+  ruling_value_min = hre:authority:30
+option:
+  label = Collect the Römermonate for the Imperial treasury
+  ai_weight = 65
+  effect:
+    ducats = 120
+    ruling_value = hre:authority:3
+option:
+  label = Confirm their charters and strengthen Imperial authority
+  ai_weight = 35
+  effect:
+    ruling_value = hre:authority:8
+    prestige = 5

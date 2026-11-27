@@ -719,6 +719,19 @@ royal elections, kurultai, mandala rings.
       `-0.30`). Annexing a member costs `-5` authority (`-8` for a Free
       Imperial City). Yearly favour drifts `+2` for friendly members and
       `-10` for members at war with the Emperor.
+  - **Reichstag reforms & events (`data/events/06_hre.txt`):** Six staged
+    reforms (`stage` 1–6 + flags): (1) *Reichsreform* (50 IA: members
+    -5% build cost, +5% reform progress; Emperor +5% tax), (2)
+    *Reichskammergericht* (50 IA: members -8% stability cost; Emperor
+    +5% crown power), (3) *Gemeiner Pfennig* (50 IA: members +5% tax;
+    Emperor +10% tax, +10% manpower), (4) *Ewiger Landfriede* (50 IA:
+    forbids internal HRE wars; members +5% trade, +5% learning), (5)
+    *Privilegium de Non Appellando* (50 IA: members +10% fort defence,
+    +5% army quality; Emperor +10 vassal opinion), (6) *Erbreich*
+    (60 IA: hereditary Imperial crown skipping elections; Emperor +10%
+    crown power, +15% levy size, +10% tax). Accompanied by historical
+    events for the Diet of Worms (1495), Ewiger Landfriede, the Swabian
+    War (1499), and Free City *Römermonate*.
 
 ## AI Behaviour Setting (Phase 15)
 
