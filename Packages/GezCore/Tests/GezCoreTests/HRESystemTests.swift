@@ -189,4 +189,90 @@ struct HRESystemTests {
         restored.advance(days: 60)
         #expect(simA.world.rulings == restored.world.rulings)
     }
+
+    @Test("Historical Imperial shield: Emperor defends members from outsiders and Free Cities from everyone")
+    func imperialShieldProtection() throws {
+        var world = Scenario1453.makeWorld()
+        let date = Scenario1453.startDate
+        let hab = try #require(world.countries.id(forTag: "HAB"))
+        let fra = try #require(world.countries.id(forTag: "FRA"))
+        let bav = try #require(world.countries.id(forTag: "BAV"))
+        let ans = try #require(world.countries.id(forTag: "ANS"))
+        let nur = try #require(world.countries.id(forTag: "NUR"))
+        let lor = try #require(world.countries.id(forTag: "LOR"))
+
+        // 1. Outsider (France) attacking HRE prince (Lorraine) -> Emperor HAB joins defenders.
+        #expect(HRESystem.imperialDefender(in: world, attacker: fra, defender: lor) == hab)
+        let lorCap = try #require(world.countries.capital[lor.index])
+        let resOut = world.declareWar(
+            attacker: fra,
+            defender: lor,
+            casusBelli: .claim,
+            warGoal: .conquerProvince(lorCap),
+            date: date
+        )
+        let outWar = try resOut.get()
+        #expect(outWar.defenders.contains(hab))
+
+        // 2. HRE prince (Bavaria) attacking Free Imperial City (Nuremberg) -> Emperor HAB joins defenders.
+        var w2 = Scenario1453.makeWorld()
+        #expect(HRESystem.imperialDefender(in: w2, attacker: bav, defender: nur) == hab)
+        let nurCap = try #require(w2.countries.capital[nur.index])
+        let resFC = w2.declareWar(
+            attacker: bav,
+            defender: nur,
+            casusBelli: .claim,
+            warGoal: .conquerProvince(nurCap),
+            date: date
+        )
+        let fcWar = try resFC.get()
+        #expect(fcWar.defenders.contains(hab))
+
+        // 3. HRE prince (Bavaria) attacking another HRE prince (Ansbach) -> Emperor does NOT auto-join.
+        var w3 = Scenario1453.makeWorld()
+        #expect(HRESystem.imperialDefender(in: w3, attacker: bav, defender: ans) == nil)
+        let ansCap = try #require(w3.countries.capital[ans.index])
+        let resInt = w3.declareWar(
+            attacker: bav,
+            defender: ans,
+            casusBelli: .claim,
+            warGoal: .conquerProvince(ansCap),
+            date: date
+        )
+        let intWar = try resInt.get()
+        #expect(!intWar.defenders.contains(hab))
+
+        // 4. Ewiger Landfriede forbids internal HRE wars.
+        var w4 = Scenario1453.makeWorld()
+        RulingEngine.setFlag(&w4, "hre", "ewiger_landfriede")
+        let check = w4.diplomacy.canDeclareWar(attacker: bav, defender: ans, world: w4)
+        if case .invalid = check {
+            // Expected
+        } else {
+            Issue.record("Expected Ewiger Landfriede to block internal HRE war declaration")
+        }
+
+        // 5. Annexing an HRE estate deals +50% AE and drops opinion with fellow HRE members.
+        var w5 = Scenario1453.makeWorld()
+        let sax = try #require(w5.countries.id(forTag: "SAX"))
+        let opBefore = w5.diplomacy.opinion(of: bav, by: sax)
+        RulingEngine.setCountryValue(&w5, "hre", "favour", bav, 40)
+        let w5War = try w5.declareWar(
+            attacker: bav,
+            defender: nur,
+            casusBelli: .claim,
+            warGoal: .conquerProvince(nurCap),
+            date: date
+        ).get()
+        w5.provinces.occupiedBy[nurCap.index] = bav
+        let offer = PeaceOffer(
+            warID: w5War.id,
+            winner: bav,
+            loser: nur,
+            demands: [.cedeProvince(province: nurCap, to: bav)]
+        )
+        _ = w5.executePeaceTreaty(offer, date: date, forceAccept: true)
+        #expect(w5.diplomacy.opinion(of: bav, by: sax) <= opBefore - 40)
+        #expect(RulingEngine.countryValue(w5, "hre", "favour", bav) == 20)
+    }
 }

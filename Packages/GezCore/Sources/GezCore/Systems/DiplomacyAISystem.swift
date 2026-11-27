@@ -780,6 +780,15 @@ public enum DiplomacyAISystem {
             if let ov = world.countries.overlord[target.index] {
                 enemyStrength += soldiersByCountry[ov.index]
             }
+            // HRE Imperial shield: account for the Emperor (and Emperor's subjects/allies) when defending.
+            if let emperor = HRESystem.imperialDefender(in: world, attacker: attacker, defender: target),
+               emperor.index < soldiersByCountry.count,
+               counted.insert(emperor).inserted {
+                enemyStrength += soldiersByCountry[emperor.index]
+                for s in world.countries.subjects(of: emperor) where s.index < soldiersByCountry.count && counted.insert(s).inserted {
+                    enemyStrength += soldiersByCountry[s.index]
+                }
+            }
 
             var ratioReq = (chosenCB.type == .subjugation || chosenCB.type == .tribute) ? 2.5 : 1.35
             if isGoalTarget && chosenCB.type == .subjugation {
@@ -789,6 +798,18 @@ public enum DiplomacyAISystem {
                 ratioReq = max(1.15, ratioReq + traits.ratioDelta)
             } else if !isGoalTarget && (hasDefendGoal || hasBuildGoal) {
                 ratioReq += 0.25
+            }
+            // Internal HRE friction: princes hesitate to swallow small fellow estates without a historical goal.
+            if !isGoalTarget,
+               defenderProvs.count <= 2,
+               RulingEngine.isActive(world, HRESystem.key),
+               RulingEngine.isMember(world, HRESystem.key, attacker),
+               RulingEngine.isMember(world, HRESystem.key, target) {
+                ratioReq += 0.45
+                if let emp = RulingEngine.leader(world, HRESystem.key),
+                   world.diplomacy.aggressiveExpansion(of: attacker, by: emp) >= 20 {
+                    continue
+                }
             }
             guard Double(ourStrength) >= max(1000.0, Double(enemyStrength) * ratioReq) else { continue }
 

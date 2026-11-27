@@ -312,6 +312,11 @@ extension Diplomacy {
         if world.countries.overlord[defender.index] == attacker {
             return .invalid(reason: "Cannot declare war directly on your own subject.")
         }
+        if HRESystem.internalWarsForbidden(in: world),
+           RulingEngine.isMember(world, HRESystem.key, attacker),
+           RulingEngine.isMember(world, HRESystem.key, defender) {
+            return .invalid(reason: "Ewiger Landfriede forbids wars between Imperial estates.")
+        }
 
         // Truce check
         if let truce = treaty(.truce, between: attacker, and: defender) {
@@ -504,6 +509,15 @@ extension World {
                 for s in countries.subjects(of: m) where !defenders.contains(s) {
                     defenders.append(s)
                 }
+            }
+        }
+
+        // HRE Imperial shield: Emperor defends members against outsiders and Free Cities against everyone.
+        if let emperor = HRESystem.imperialDefender(in: self, attacker: attacker, defender: defender),
+           !defenders.contains(emperor) && !attackers.contains(emperor) {
+            defenders.append(emperor)
+            for s in countries.subjects(of: emperor) where !defenders.contains(s) && !attackers.contains(s) {
+                defenders.append(s)
             }
         }
 
