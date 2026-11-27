@@ -702,6 +702,23 @@ royal elections, kurultai, mandala rings.
     Imperial shield):** Emperor defends all members from outsiders and
     defends Free Imperial Cities from everyone; annexing HRE states gives
     +50% extra Aggressive Expansion and member opinion penalties.
+  - **Elections & Imperial Authority (`HRESystem.swift`):**
+    - On the Emperor's death (`rulerChanged`), the 7 electors vote via
+      `RulingEngine.elect` (jitter 5.0) among eligible landed Christian
+      monarchies in the Empire, scored by opinion (`×0.6`), same faith
+      (`+30` / `-40` other Christian / `-100` non-Christian), alliance
+      (`+25`), incumbency (`+35`), shared dynasty (`+15` with voter, `+20`
+      with late Emperor), ruler diplomacy (`×3`), realm size (up to `+30`),
+      Imperial favour (`×0.25`), and self-vote (`+15`). Re-election gives
+      `+5` authority; a new Emperor gives `+2`. Vacated electorates are
+      replenished up to 7 by highest favour + opinion with the Emperor.
+    - Monthly authority delta: `+0.25` for internal peace (or `-0.08` per
+      internal HRE war, cap `-0.40`), `+0.004` per member above 20,
+      `+0.015` per Free Imperial City, `-0.03` per Imperial province held
+      by a non-member (cap `-0.60`), and `-0.01` per heretic member (cap
+      `-0.30`). Annexing a member costs `-5` authority (`-8` for a Free
+      Imperial City). Yearly favour drifts `+2` for friendly members and
+      `-10` for members at war with the Emperor.
 
 ## AI Behaviour Setting (Phase 15)
 

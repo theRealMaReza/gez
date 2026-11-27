@@ -73,7 +73,9 @@ public enum RulingSystems {
     /// Every ruling system written in Swift, e.g. `HRESystem.self`.
     /// **Add a new system here.** Hooks run in the data's system order
     /// (file name order in `data/rulings/systems/`), not this list's.
-    public static let builtIn: [any RulingSystem.Type] = []
+    public static let builtIn: [any RulingSystem.Type] = [
+        HRESystem.self,
+    ]
 
     private static let lock = NSLock()
     private static var table: [String: any RulingSystem.Type] = {
