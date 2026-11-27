@@ -110,7 +110,7 @@ struct RulingEngineTests {
         #expect(RulingEngine.hasRole(world, "hre", nur, "free_city"))
         #expect(!RulingEngine.isMember(world, "hre", cas))
         #expect(RulingEngine.holders(world, "hre", "elector").count == 7)
-        #expect(RulingEngine.value(world, "hre", "authority") == 0)
+        #expect(RulingEngine.value(world, "hre", "authority") == 20)
         let members = RulingEngine.members(world, "hre")
         #expect(members == members.sorted { $0.index < $1.index })
     }

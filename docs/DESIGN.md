@@ -684,6 +684,24 @@ royal elections, kurultai, mandala rings.
     every requirement is met). Far-off crowns show only the count.
   - Until then, formable offers use the event pop-up. The bridge gives
     `getCountryShieldKey`.
+- **Holy Roman Empire (`hre`):**
+  - **1453 membership:** 63 Imperial estates across 157 Imperial provinces
+    — Emperor `HAB` (Frederick III), 7 electors (`MAI`, `TRI`, `CLN`,
+    `BOH`, `PAL`, `SAX`, `BRA`), 9 Free Imperial Cities (`NUR`, `ULM`,
+    `AUG`, `LUB`, `STB`, `MTZ`, `FFM`, `BES`, `BAS`), 18 ecclesiastical
+    princes (`prince_bishop`, including the 3 spiritual electors), and 31
+    secular princes and imperial republics (`SWI`, `SAV`, `HAM`, etc.).
+  - **Values & role effects:** Imperial Authority starts at 20 (0–100);
+    per-member Imperial `favour` (0–100). Free Imperial Cities get +10%
+    trade, +5% tax, +15% fort defence; Electors get -5% stability cost
+    and +5% reform progress; Prince-Bishops get +5 clergy mood and +5%
+    clergy tax; the Emperor gets +10% manpower, +5% tax, plus up to +10%
+    crown power, +15 vassal opinion, and +10% tax scaled by
+    `authority / 100`.
+  - **Small-state protection (owner's pick, 27 Nov 2026 — Historical
+    Imperial shield):** Emperor defends all members from outsiders and
+    defends Free Imperial Cities from everyone; annexing HRE states gives
+    +50% extra Aggressive Expansion and member opinion penalties.
 
 ## AI Behaviour Setting (Phase 15)
 
