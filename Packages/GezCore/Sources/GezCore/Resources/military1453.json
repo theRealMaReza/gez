@@ -1743,7 +1743,7 @@
     {
       "country": "MGH",
       "name": "Moghul Horde",
-      "province": 1655,
+      "province": 1661,
       "commander": "esen_buqa",
       "regiments": [
         {
@@ -1776,7 +1776,7 @@
     {
       "country": "DUG",
       "name": "Kashgar Retinue",
-      "province": 1646,
+      "province": 1652,
       "commander": "sayyid_ali_d",
       "regiments": [
         {
@@ -1926,7 +1926,7 @@
     {
       "country": "VIJ",
       "name": "Raya's Standing Host",
-      "province": 1363,
+      "province": 1367,
       "commander": "saluva_n",
       "regiments": [
         {
@@ -2065,7 +2065,7 @@
     {
       "country": "BAH",
       "name": "Deccani Royal Host",
-      "province": 1330,
+      "province": 1332,
       "commander": "humayun_b",
       "regiments": [
         {
@@ -2179,7 +2179,7 @@
     {
       "country": "MNG",
       "name": "Capital Training Divisions",
-      "province": 1413,
+      "province": 1419,
       "commander": "yu_qian",
       "regiments": [
         {
@@ -2262,7 +2262,7 @@
     {
       "country": "MNG",
       "name": "Xuanfu Frontier Garrison",
-      "province": 1421,
+      "province": 1427,
       "commander": "shi_heng",
       "regiments": [
         {
@@ -2305,7 +2305,7 @@
     {
       "country": "MNG",
       "name": "Nanjing Imperial Guard",
-      "province": 1462,
+      "province": 1468,
       "commander": null,
       "regiments": [
         {
@@ -2348,7 +2348,7 @@
     {
       "country": "JOS",
       "name": "Five Military Commands",
-      "province": 1553,
+      "province": 1559,
       "commander": "kim_jongseo",
       "regiments": [
         {
@@ -2396,7 +2396,7 @@
     {
       "country": "ASH",
       "name": "Bakufu Hokoshu",
-      "province": 1603,
+      "province": 1609,
       "commander": null,
       "regiments": [
         {
@@ -2434,7 +2434,7 @@
     {
       "country": "HSK",
       "name": "Hosokawa Retinue",
-      "province": 1604,
+      "province": 1610,
       "commander": "hosokawa_k",
       "regiments": [
         {
@@ -2457,7 +2457,7 @@
     {
       "country": "YMN",
       "name": "Yamana Retinue",
-      "province": 1600,
+      "province": 1606,
       "commander": "yamana_sozen",
       "regiments": [
         {
@@ -2480,7 +2480,7 @@
     {
       "country": "OUC",
       "name": "Ouchi Retinue",
-      "province": 1591,
+      "province": 1597,
       "commander": "ouchi_n",
       "regiments": [
         {
@@ -2503,7 +2503,7 @@
     {
       "country": "KMK",
       "name": "Kamakura Retinue",
-      "province": 1623,
+      "province": 1629,
       "commander": "ashikaga_su",
       "regiments": [
         {
@@ -2526,7 +2526,7 @@
     {
       "country": "PHA",
       "name": "Yarlung Guard",
-      "province": 1683,
+      "province": 1689,
       "commander": null,
       "regiments": [
         {
@@ -2549,7 +2549,7 @@
     {
       "country": "RIN",
       "name": "Tsang Retinue",
-      "province": 1676,
+      "province": 1682,
       "commander": "norzang_rin",
       "regiments": [
         {
@@ -2577,7 +2577,7 @@
     {
       "country": "OIR",
       "name": "Oirat Tumen",
-      "province": 1721,
+      "province": 1727,
       "commander": "esen_taishi",
       "regiments": [
         {
@@ -2625,7 +2625,7 @@
     {
       "country": "NYU",
       "name": "Eastern Mongol Tumen",
-      "province": 1735,
+      "province": 1741,
       "commander": "agbarjin_nyu",
       "regiments": [
         {
@@ -2658,7 +2658,7 @@
     {
       "country": "URI",
       "name": "Three Guards Cavalry",
-      "province": 1738,
+      "province": 1744,
       "commander": "toqtoa_uri",
       "regiments": [
         {
@@ -2681,7 +2681,7 @@
     {
       "country": "JZH",
       "name": "Jianzhou Riders",
-      "province": 1742,
+      "province": 1748,
       "commander": "li_manzhu",
       "regiments": [
         {
@@ -2709,7 +2709,7 @@
     {
       "country": "HXI",
       "name": "Haixi Riders",
-      "province": 1748,
+      "province": 1754,
       "commander": "tala_hxi",
       "regiments": [
         {
@@ -2732,7 +2732,7 @@
     {
       "country": "AVA",
       "name": "Royal Army of Ava",
-      "province": 1767,
+      "province": 1773,
       "commander": "narapati_ava",
       "regiments": [
         {
@@ -2780,7 +2780,7 @@
     {
       "country": "PEG",
       "name": "Hanthawaddy Guard",
-      "province": 1777,
+      "province": 1783,
       "commander": "dhammazedi_peg",
       "regiments": [
         {
@@ -2818,7 +2818,7 @@
     {
       "country": "ARK",
       "name": "Arakanese Levies",
-      "province": 1783,
+      "province": 1789,
       "commander": "min_khayi_ark",
       "regiments": [
         {
@@ -2841,7 +2841,7 @@
     {
       "country": "AYU",
       "name": "Royal Army of Ayutthaya",
-      "province": 1798,
+      "province": 1804,
       "commander": "trailok_ayu",
       "regiments": [
         {
@@ -2894,7 +2894,7 @@
     {
       "country": "LNA",
       "name": "Chiang Mai Host",
-      "province": 1810,
+      "province": 1816,
       "commander": "tilokarat_lna",
       "regiments": [
         {
@@ -2932,7 +2932,7 @@
     {
       "country": "LXA",
       "name": "Lan Xang Elephants",
-      "province": 1815,
+      "province": 1821,
       "commander": "chakkaphat_lxa",
       "regiments": [
         {
@@ -2965,7 +2965,7 @@
     {
       "country": "KHM",
       "name": "Chaktomuk Guard",
-      "province": 1821,
+      "province": 1827,
       "commander": "ponhea_yat_khm",
       "regiments": [
         {
@@ -2993,7 +2993,7 @@
     {
       "country": "DAI",
       "name": "Imperial Army of Dai Viet",
-      "province": 1827,
+      "province": 1833,
       "commander": null,
       "regiments": [
         {
@@ -3046,7 +3046,7 @@
     {
       "country": "CHA",
       "name": "Vijaya Guard",
-      "province": 1835,
+      "province": 1841,
       "commander": "maha_qui_do_cha",
       "regiments": [
         {
@@ -3069,7 +3069,7 @@
     {
       "country": "MLC",
       "name": "Malacca Royal Guard",
-      "province": 1840,
+      "province": 1846,
       "commander": "tun_perak_mlc",
       "regiments": [
         {
@@ -3102,7 +3102,7 @@
     {
       "country": "PSA",
       "name": "Pasai Guard",
-      "province": 1845,
+      "province": 1851,
       "commander": "abu_zaid_psa",
       "regiments": [
         {
@@ -3125,7 +3125,7 @@
     {
       "country": "MAJ",
       "name": "Majapahit Bhayangkara",
-      "province": 1863,
+      "province": 1869,
       "commander": "rajasawardhana_maj",
       "regiments": [
         {
@@ -3168,7 +3168,7 @@
     {
       "country": "SUN",
       "name": "Pajajaran Guard",
-      "province": 1859,
+      "province": 1865,
       "commander": "sri_baduga_sun",
       "regiments": [
         {
@@ -3196,7 +3196,7 @@
     {
       "country": "BNI",
       "name": "Brunei Guard",
-      "province": 1873,
+      "province": 1879,
       "commander": "sulaiman_bni",
       "regiments": [
         {
@@ -3219,7 +3219,7 @@
     {
       "country": "MAL",
       "name": "Mandinka Royal Host",
-      "province": 1908,
+      "province": 1914,
       "commander": "mansa_uli_mal",
       "regiments": [
         {
@@ -3262,7 +3262,7 @@
     {
       "country": "TRG",
       "name": "Tuareg Desert Riders",
-      "province": 1915,
+      "province": 1921,
       "commander": "akil_ag_malwal_trg",
       "regiments": [
         {
@@ -3290,7 +3290,7 @@
     {
       "country": "SON",
       "name": "Songhai River Guard",
-      "province": 1918,
+      "province": 1924,
       "commander": "sulaiman_dama_son",
       "regiments": [
         {
@@ -3328,7 +3328,7 @@
     {
       "country": "KAO",
       "name": "Kano Cavalry",
-      "province": 1947,
+      "province": 1953,
       "commander": "yakubu_kao",
       "regiments": [
         {
@@ -3361,7 +3361,7 @@
     {
       "country": "KBO",
       "name": "Sayfawa Mail Riders",
-      "province": 1956,
+      "province": 1962,
       "commander": "muhammad3_kbo",
       "regiments": [
         {
@@ -3399,7 +3399,7 @@
     {
       "country": "BEN",
       "name": "Benin Royal Warriors",
-      "province": 1941,
+      "province": 1947,
       "commander": "ewuare_ben",
       "regiments": [
         {
@@ -3442,7 +3442,7 @@
     {
       "country": "OYO",
       "name": "Oyo Eso Cavalry",
-      "province": 1936,
+      "province": 1942,
       "commander": "alaafin_kori_oyo",
       "regiments": [
         {
@@ -3475,7 +3475,7 @@
     {
       "country": "KIL",
       "name": "Kilwa Coastal Guard",
-      "province": 1994,
+      "province": 2000,
       "commander": "sulaiman_kil",
       "regiments": [
         {
@@ -3508,7 +3508,7 @@
     {
       "country": "BNY",
       "name": "Kitara Spears",
-      "province": 1972,
+      "province": 1978,
       "commander": "wamara_bny",
       "regiments": [
         {
@@ -3536,7 +3536,7 @@
     {
       "country": "BGD",
       "name": "Buganda Warriors",
-      "province": 1976,
+      "province": 1982,
       "commander": "kiggala_bgd",
       "regiments": [
         {
@@ -3564,7 +3564,7 @@
     {
       "country": "RWA",
       "name": "Nyiginya Royal Guard",
-      "province": 1979,
+      "province": 1985,
       "commander": "mibambwe1_rwa",
       "regiments": [
         {
@@ -3592,7 +3592,7 @@
     {
       "country": "KON",
       "name": "Kongo Royal Guard",
-      "province": 2005,
+      "province": 2011,
       "commander": "nkuwu_a_ntinu_kon",
       "regiments": [
         {
@@ -3630,7 +3630,7 @@
     {
       "country": "LBA",
       "name": "Luba Warriors",
-      "province": 2022,
+      "province": 2028,
       "commander": "kalala_ilunga_lba",
       "regiments": [
         {
@@ -3658,7 +3658,7 @@
     {
       "country": "MTP",
       "name": "Mutapa Royal Host",
-      "province": 2028,
+      "province": 2034,
       "commander": "matope_mtp",
       "regiments": [
         {
@@ -3701,7 +3701,7 @@
     {
       "country": "MER",
       "name": "Imerina Guard",
-      "province": 2047,
+      "province": 2053,
       "commander": "andrianamponga_mer",
       "regiments": [
         {
@@ -3729,7 +3729,7 @@
     {
       "country": "SIB",
       "name": "Sibir Steppe Riders",
-      "province": 2056,
+      "province": 2062,
       "commander": "mar_sib",
       "regiments": [
         {
@@ -3757,7 +3757,7 @@
     {
       "country": "PEL",
       "name": "Pelym Forest Guard",
-      "province": 2062,
+      "province": 2068,
       "commander": "asyka_pel",
       "regiments": [
         {
@@ -3780,7 +3780,7 @@
     {
       "country": "BYA",
       "name": "Buryat Baikal Riders",
-      "province": 2077,
+      "province": 2083,
       "commander": "barga_bya",
       "regiments": [
         {
@@ -3790,6 +3790,39 @@
         },
         {
           "type": "cavalry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "archers",
+          "origin": "professional",
+          "men": 1000
+        }
+      ]
+    },
+    {
+      "country": "VLM",
+      "name": "Velama Hill Guard",
+      "province": 1342,
+      "commander": "lingama_vlm",
+      "regiments": [
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "infantry",
+          "origin": "professional",
+          "men": 1000
+        },
+        {
+          "type": "archers",
           "origin": "professional",
           "men": 1000
         },

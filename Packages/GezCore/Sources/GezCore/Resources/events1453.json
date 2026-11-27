@@ -1,5 +1,5 @@
 {
-  "provinceCount": 2091,
+  "provinceCount": 2097,
   "events": [
     {
       "id": "hist_end_hundred_years_war_fra",
@@ -5847,7 +5847,7 @@
         {
           "kind": "owns",
           "str": "Vijayanagara",
-          "int": 1363
+          "int": 1367
         }
       ],
       "options": [
@@ -5867,7 +5867,7 @@
             {
               "kind": "province_dev",
               "target": "province",
-              "int": 1363,
+              "int": 1367,
               "int2": 1
             },
             {
@@ -5890,7 +5890,7 @@
             {
               "kind": "spawn_units",
               "target": "province",
-              "int": 1363,
+              "int": 1367,
               "str": "cavalry",
               "int2": 2
             },

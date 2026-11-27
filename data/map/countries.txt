@@ -473,3 +473,6 @@ PIO | Piombino | 195 140 120 | monarchy | catholic | Piombino
 FRL | Forli | 175 110 85 | monarchy | catholic | Forli
 # Ireland Part III detail (Phase 20.7)
 MNH | Monaghan | 115 160 110 | monarchy | catholic | Monaghan
+# India Part III detail (Phase 20.7)
+VLM | Velamas | 170 115 80 | monarchy | hindu | Rachakonda
+GRJ | Garhjat | 135 155 95 | tribal | hindu | Mayurbhanj
