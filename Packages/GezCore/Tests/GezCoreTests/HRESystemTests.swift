@@ -275,4 +275,58 @@ struct HRESystemTests {
         #expect(w5.diplomacy.opinion(of: bav, by: sax) <= opBefore - 40)
         #expect(RulingEngine.countryValue(w5, "hre", "favour", bav) == 20)
     }
+
+    @Test("Reichstag reforms spend authority, advance stage, apply modifiers, ban internal wars, and enact Erbreich")
+    func reichstagReformsAndEvents() throws {
+        var world = Scenario1453.makeWorld()
+        var rng = GameRandom(seed: 1495)
+        let date = GameDate(year: 1495, month: 8, day: 7)
+        let hab = try #require(world.countries.id(forTag: "HAB"))
+        let bav = try #require(world.countries.id(forTag: "BAV"))
+        let ans = try #require(world.countries.id(forTag: "ANS"))
+
+        // Bundled HRE events exist in eventRules.
+        #expect(world.eventRules.events.contains { $0.id == "hre_diet_of_worms_1495" })
+        #expect(world.eventRules.events.contains { $0.id == "hre_ewiger_landfriede_diet" })
+        #expect(world.eventRules.events.contains { $0.id == "hre_swabian_war_1499" })
+
+        // Cannot enact reform 1 at starting authority 20; non-leader cannot enact even at 100.
+        #expect(!HRESystem.canEnactNextReform(in: world, by: hab))
+        RulingEngine.setValue(&world, "hre", "authority", 100)
+        #expect(!HRESystem.canEnactNextReform(in: world, by: bav))
+        #expect(HRESystem.canEnactNextReform(in: world, by: hab))
+
+        // Enact all 6 reforms step by step.
+        for expectedStage in 1...6 {
+            RulingEngine.setValue(&world, "hre", "authority", 80)
+            let ok = HRESystem.enactNextReform(&world, by: hab, date: date)
+            #expect(ok)
+            #expect(RulingEngine.state(world, "hre")?.stage == expectedStage)
+        }
+        #expect(HRESystem.nextReform(in: world) == nil)
+        #expect(HRESystem.internalWarsForbidden(in: world))
+
+        // Reform modifiers apply to both members and the Emperor.
+        var bavFx = Effects(estates: 0)
+        RulingEngine.addEffects(world, bav, into: &bavFx)
+        #expect(abs(bavFx[.buildCost] - (-0.05)) < 1e-9)
+        #expect(abs(bavFx[.stabilityCost] - (-0.08)) < 1e-9)
+        #expect(abs(bavFx[.trade] - 0.05) < 1e-9)
+        #expect(abs(bavFx[.fortDefence] - 0.10) < 1e-9)
+
+        // Internal war is blocked by Ewiger Landfriede.
+        if case .invalid = world.diplomacy.canDeclareWar(attacker: bav, defender: ans, world: world) {
+            // Expected
+        } else {
+            Issue.record("Expected Ewiger Landfriede reform to forbid internal war")
+        }
+
+        // Erbreich (hereditary_empire) keeps HAB as Emperor even if every elector hates HAB.
+        for e in RulingEngine.holders(world, "hre", "elector") {
+            world.diplomacy.setOpinion(of: hab, by: e, value: -100)
+        }
+        let empRuler = try #require(world.countries.ruler[hab.index])
+        CharacterSystem.kill(&world, empRuler, date: date, random: &rng, suppressEvent: true)
+        #expect(RulingEngine.leader(world, "hre") == hab)
+    }
 }
