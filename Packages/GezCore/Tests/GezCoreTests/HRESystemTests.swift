@@ -46,14 +46,14 @@ struct HRESystemTests {
         #expect(RulingEngine.countryValue(w, "hre", "favour", swi) == 0)
 
         // Role effects apply to Free Imperial Cities and Emperor (scaled by authority).
-        var baseFreeCity = Effects()
-        var withHREFreeCity = Effects()
+        let baseFreeCity = Effects(estates: 0)
+        var withHREFreeCity = Effects(estates: 0)
         RulingEngine.addEffects(world, nur, into: &withHREFreeCity)
         #expect(abs(withHREFreeCity[.trade] - baseFreeCity[.trade] - 0.10) < 1e-9)
         #expect(abs(withHREFreeCity[.tax] - baseFreeCity[.tax] - 0.05) < 1e-9)
         #expect(abs(withHREFreeCity[.fortDefence] - baseFreeCity[.fortDefence] - 0.15) < 1e-9)
 
-        var empFx = Effects()
+        var empFx = Effects(estates: 0)
         RulingEngine.addEffects(world, hab, into: &empFx)
         // Base leader (tax +0.05, manpower +0.10) + authority 20/100 scaled (crownPower +0.02, vassalOpinion +3, tax +0.02)
         #expect(abs(empFx[.manpower] - 0.10) < 1e-9)
