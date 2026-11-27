@@ -8,7 +8,7 @@ name = Holy Roman Empire
 # Frederick III of Inner Austria (HAB), crowned Emperor in Rome in March 1452.
 leader = HAB
 
-roles = elector, free_city, prince_bishop
+roles = elector, free_city, prince_bishop, catholic_league, protestant_league
 
 # The Golden Bull of 1356: three spiritual and four secular electors.
 # Bohemia's vote is Ladislaus the Posthumous's (crowned king of Bohemia 1453).
@@ -62,3 +62,5 @@ effect elector: stability_cost=-0.05, reform_progress=0.05
 effect prince_bishop: mood_clergy=5, tax_clergy=0.05
 effect leader: manpower=0.10, tax=0.05
 effect leader scaled authority/100: crown_power=0.10, vassal_opinion=15, tax=0.10
+effect catholic_league: army_quality=0.05, mood_clergy=5
+effect protestant_league: army_quality=0.05, learning=0.05

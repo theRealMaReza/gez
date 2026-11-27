@@ -6759,6 +6759,189 @@
           ]
         }
       ]
+    },
+    {
+      "id": "hre_schmalkaldic_league",
+      "title": "The Schmalkaldic League",
+      "text": "Following the spread of the Reformation across Germany, Protestant princes and imperial cities band together in a defensive league at Schmalkalden, forcing the Emperor and Catholic estates to rally their own counter-league.",
+      "category": "religious",
+      "countries": [],
+      "dateFrom": {
+        "year": 1531,
+        "month": 2,
+        "day": 27
+      },
+      "dateTo": {
+        "year": 1570,
+        "month": 12,
+        "day": 31
+      },
+      "exactDate": null,
+      "mtth": 24.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": true,
+      "trigger": [
+        {
+          "kind": "reformation_started",
+          "bool": true
+        },
+        {
+          "kind": "ruling_active",
+          "str": "hre"
+        },
+        {
+          "kind": "ruling_leader",
+          "str": "hre"
+        },
+        {
+          "kind": "not_ruling_flag",
+          "str": "hre:leagues_active"
+        },
+        {
+          "kind": "not_ruling_flag",
+          "str": "hre:religious_peace"
+        },
+        {
+          "kind": "not_ruling_flag",
+          "str": "hre:catholic_official"
+        },
+        {
+          "kind": "not_ruling_flag",
+          "str": "hre:protestant_official"
+        }
+      ],
+      "options": [
+        {
+          "label": "Rally the Catholic League in defence of the old faith",
+          "aiWeight": 75.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "ruling_set_flag",
+              "str": "hre",
+              "str2": "leagues_active"
+            },
+            {
+              "kind": "ruling_add_role",
+              "str": "hre",
+              "str2": "catholic_league"
+            },
+            {
+              "kind": "prestige",
+              "num": 5.0
+            }
+          ]
+        },
+        {
+          "label": "Seek an immediate religious truce across the Empire",
+          "aiWeight": 25.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "ruling_set_flag",
+              "str": "hre",
+              "str2": "religious_peace"
+            },
+            {
+              "kind": "ruling_value",
+              "str": "hre",
+              "str2": "authority",
+              "num": -10.0
+            },
+            {
+              "kind": "stability",
+              "int": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hre_peace_of_augsburg",
+      "title": "The Peace of Augsburg",
+      "text": "Exhausted by confessional strife, the estates gather at Augsburg to proclaim Cuius Regio, Eius Religio — allowing each prince to determine the faith of his own lands and ending the rival religious leagues.",
+      "category": "religious",
+      "countries": [],
+      "dateFrom": {
+        "year": 1555,
+        "month": 9,
+        "day": 25
+      },
+      "dateTo": {
+        "year": 1660,
+        "month": 12,
+        "day": 31
+      },
+      "exactDate": null,
+      "mtth": 36.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": true,
+      "trigger": [
+        {
+          "kind": "ruling_active",
+          "str": "hre"
+        },
+        {
+          "kind": "ruling_leader",
+          "str": "hre"
+        },
+        {
+          "kind": "ruling_flag",
+          "str": "hre:leagues_active"
+        }
+      ],
+      "options": [
+        {
+          "label": "Proclaim the Peace of Augsburg",
+          "aiWeight": 80.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "ruling_set_flag",
+              "str": "hre",
+              "str2": "religious_peace"
+            },
+            {
+              "kind": "ruling_clear_flag",
+              "str": "hre",
+              "str2": "leagues_active"
+            },
+            {
+              "kind": "ruling_value",
+              "str": "hre",
+              "str2": "authority",
+              "num": 10.0
+            },
+            {
+              "kind": "stability",
+              "int": 1
+            }
+          ]
+        },
+        {
+          "label": "Refuse compromise and keep the leagues armed",
+          "aiWeight": 20.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "ruling_value",
+              "str": "hre",
+              "str2": "authority",
+              "num": -5.0
+            },
+            {
+              "kind": "prestige",
+              "num": 8.0
+            }
+          ]
+        }
+      ]
     }
   ]
 }

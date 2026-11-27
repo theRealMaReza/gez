@@ -329,4 +329,56 @@ struct HRESystemTests {
         CharacterSystem.kill(&world, empRuler, date: date, random: &rng, suppressEvent: true)
         #expect(RulingEngine.leader(world, "hre") == hab)
     }
+
+    @Test("Reformation religious leagues activate, assign league roles, and settle via official faith or Peace of Augsburg")
+    func religiousLeaguesAndPeaceOfAugsburg() throws {
+        var world = Scenario1453.makeWorld()
+        var rng = GameRandom(seed: 1531)
+        let date = GameDate(year: 1531, month: 3, day: 1)
+        let hab = try #require(world.countries.id(forTag: "HAB"))
+        let sax = try #require(world.countries.id(forTag: "SAX"))
+        let bra = try #require(world.countries.id(forTag: "BRA"))
+
+        // League events load in eventRules.
+        #expect(world.eventRules.events.contains { $0.id == "hre_schmalkaldic_league" })
+        #expect(world.eventRules.events.contains { $0.id == "hre_peace_of_augsburg" })
+
+        // Trigger Reformation and convert Saxony & Brandenburg to Protestant.
+        world.faith.reformationStarted = true
+        world.countries.religion[sax.index] = .protestant
+        world.countries.religion[bra.index] = .protestant
+
+        // Monthly tick in 1531 activates leagues and aligns AI estates by faith.
+        RulingEngine.runMonthly(&world, date: date, random: &rng)
+        #expect(RulingEngine.hasFlag(world, "hre", "leagues_active"))
+        #expect(RulingEngine.hasRole(world, "hre", hab, HRESystem.catholicLeagueRole))
+        #expect(RulingEngine.hasRole(world, "hre", sax, HRESystem.protestantLeagueRole))
+        #expect(RulingEngine.hasRole(world, "hre", bra, HRESystem.protestantLeagueRole))
+
+        // League role effect grants +5% army quality.
+        var saxFx = Effects(estates: 0)
+        RulingEngine.addEffects(world, sax, into: &saxFx)
+        #expect(abs(saxFx[.armyQuality] - 0.05) < 1e-9)
+
+        // Settling Protestant official faith disbands leagues and elects a Protestant Emperor.
+        HRESystem.settleReligiousPeace(&world, outcome: "protestant_official", date: date, random: &rng)
+        #expect(!RulingEngine.hasFlag(world, "hre", "leagues_active"))
+        #expect(RulingEngine.hasFlag(world, "hre", "protestant_official"))
+        #expect(RulingEngine.holders(world, "hre", HRESystem.catholicLeagueRole).isEmpty)
+        #expect(RulingEngine.holders(world, "hre", HRESystem.protestantLeagueRole).isEmpty)
+        let newEmp = try #require(RulingEngine.leader(world, "hre"))
+        let newFaith = world.countries.religion[newEmp.index]
+        #expect(newFaith == .protestant || newFaith == .reformed)
+
+        // Peace of Augsburg halves the religious disunity authority penalty.
+        var wPeace = Scenario1453.makeWorld()
+        wPeace.faith.reformationStarted = true
+        for m in RulingEngine.members(wPeace, "hre").prefix(20) where m != hab {
+            wPeace.countries.religion[m.index] = .protestant
+        }
+        let deltaBefore = HRESystem.monthlyAuthorityDelta(in: wPeace)
+        HRESystem.settleReligiousPeace(&wPeace, outcome: "religious_peace", date: date, random: &rng)
+        let deltaAfter = HRESystem.monthlyAuthorityDelta(in: wPeace)
+        #expect(deltaAfter > deltaBefore)
+    }
 }

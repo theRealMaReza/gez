@@ -280,7 +280,9 @@
       "roleNames": [
         "elector",
         "free_city",
-        "prince_bishop"
+        "prince_bishop",
+        "catholic_league",
+        "protestant_league"
       ],
       "valueNames": [
         "authority"
@@ -334,6 +336,20 @@
           },
           "scaleBy": "authority",
           "divisor": 100
+        },
+        {
+          "role": "catholic_league",
+          "mods": {
+            "army_quality": 0.05,
+            "mood_clergy": 5
+          }
+        },
+        {
+          "role": "protestant_league",
+          "mods": {
+            "army_quality": 0.05,
+            "learning": 0.05
+          }
         }
       ]
     }

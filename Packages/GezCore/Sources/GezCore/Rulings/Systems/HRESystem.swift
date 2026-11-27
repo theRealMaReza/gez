@@ -57,6 +57,9 @@ public enum HRESystem: RulingSystem {
         // Sync stage with any reform flags set by historical events.
         syncReformStage(&world)
 
+        // Update Reformation religious leagues (1517+ Reformation).
+        updateReligiousLeagues(&world, date: date)
+
         // AI Emperor automatically convenes the Reichstag when authority is sufficient.
         if let emp = RulingEngine.leader(world, key),
            !world.humanCountries.contains(emp),
@@ -302,6 +305,126 @@ public enum HRESystem: RulingSystem {
         }
     }
 
+    // MARK: - Religious Leagues (1517+ Reformation)
+
+    public static let catholicLeagueRole = "catholic_league"
+    public static let protestantLeagueRole = "protestant_league"
+
+    /// Joins `country` to either `catholic_league` or `protestant_league` while leagues are active.
+    @discardableResult
+    public static func joinLeague(
+        _ world: inout World,
+        country: CountryID,
+        league: String,
+        date: GameDate
+    ) -> Bool {
+        guard league == catholicLeagueRole || league == protestantLeagueRole,
+              RulingEngine.isActive(world, key),
+              RulingEngine.hasFlag(world, key, "leagues_active"),
+              RulingEngine.isMember(world, key, country) else {
+            return false
+        }
+        let other = (league == catholicLeagueRole) ? protestantLeagueRole : catholicLeagueRole
+        if RulingEngine.hasRole(world, key, country, other) {
+            RulingEngine.removeRole(&world, key, country, other)
+        }
+        RulingEngine.addRole(&world, key, country, league, date: date)
+        return true
+    }
+
+    /// Removes `country` from both religious leagues.
+    public static func leaveLeague(_ world: inout World, country: CountryID) {
+        if RulingEngine.hasRole(world, key, country, catholicLeagueRole) {
+            RulingEngine.removeRole(&world, key, country, catholicLeagueRole)
+        }
+        if RulingEngine.hasRole(world, key, country, protestantLeagueRole) {
+            RulingEngine.removeRole(&world, key, country, protestantLeagueRole)
+        }
+    }
+
+    /// Settles the Imperial religious question (`catholic_official`, `protestant_official`,
+    /// or `religious_peace`), disbands the leagues, and triggers an election if the current
+    /// Emperor's faith is no longer eligible.
+    public static func settleReligiousPeace(
+        _ world: inout World,
+        outcome: String,
+        date: GameDate,
+        random: inout GameRandom
+    ) {
+        guard outcome == "catholic_official" || outcome == "protestant_official" || outcome == "religious_peace",
+              RulingEngine.isActive(world, key) else { return }
+
+        RulingEngine.setFlag(&world, key, "leagues_active", false)
+        RulingEngine.setFlag(&world, key, "league_war_active", false)
+        RulingEngine.setFlag(&world, key, "catholic_official", outcome == "catholic_official")
+        RulingEngine.setFlag(&world, key, "protestant_official", outcome == "protestant_official")
+        RulingEngine.setFlag(&world, key, "religious_peace", outcome == "religious_peace")
+
+        for m in RulingEngine.members(world, key) {
+            leaveLeague(&world, country: m)
+        }
+
+        if let emp = RulingEngine.leader(world, key), emp.index < world.countries.religion.count {
+            let faith = world.countries.religion[emp.index]
+            let ineligible = (outcome == "catholic_official" && faith != .catholic)
+                || (outcome == "protestant_official" && faith != .protestant && faith != .reformed)
+            if ineligible {
+                holdElection(&world, oldEmperor: emp, oldRuler: nil, date: date, random: &random)
+            }
+        }
+    }
+
+    private static func updateReligiousLeagues(_ world: inout World, date: GameDate) {
+        guard let state = RulingEngine.state(world, key), state.active else { return }
+        let settled = state.flags.contains("catholic_official")
+            || state.flags.contains("protestant_official")
+            || state.flags.contains("religious_peace")
+
+        if settled {
+            // Ensure no stale league roles linger after an event-driven settlement (e.g. Peace of Augsburg).
+            for m in RulingEngine.holders(world, key, catholicLeagueRole) {
+                RulingEngine.removeRole(&world, key, m, catholicLeagueRole)
+            }
+            for m in RulingEngine.holders(world, key, protestantLeagueRole) {
+                RulingEngine.removeRole(&world, key, m, protestantLeagueRole)
+            }
+            return
+        }
+
+        // Activate leagues once the 1517+ Reformation takes hold among Imperial estates (1530+).
+        if !state.flags.contains("leagues_active") {
+            guard world.faith.reformationStarted && date.year >= 1530 else { return }
+            let electors = RulingEngine.holders(world, key, "elector")
+            let hasProtestantElector = electors.contains { e in
+                let f = world.countries.religion[e.index]
+                return f == .protestant || f == .reformed
+            }
+            let protestantMembers = state.members.filter { m in
+                let f = world.countries.religion[m.index]
+                return f == .protestant || f == .reformed
+            }.count
+            if hasProtestantElector || protestantMembers >= 4 {
+                RulingEngine.setFlag(&world, key, "leagues_active", true)
+            } else {
+                return
+            }
+        }
+
+        // AI members align with the league matching their state faith.
+        for m in RulingEngine.members(world, key) where !world.humanCountries.contains(m) {
+            let faith = world.countries.religion[m.index]
+            if faith == .catholic {
+                if !RulingEngine.hasRole(world, key, m, catholicLeagueRole) {
+                    _ = joinLeague(&world, country: m, league: catholicLeagueRole, date: date)
+                }
+            } else if faith == .protestant || faith == .reformed || faith == .hussite {
+                if !RulingEngine.hasRole(world, key, m, protestantLeagueRole) {
+                    _ = joinLeague(&world, country: m, league: protestantLeagueRole, date: date)
+                }
+            }
+        }
+    }
+
     // MARK: - Authority breakdown (public for UI and tests)
 
     /// Computes the monthly Imperial Authority change for the current world state.
@@ -356,6 +479,7 @@ public enum HRESystem: RulingSystem {
         let foreignPenalty = -min(0.60, Double(foreignProvinces) * 0.03)
 
         // 4. Religious disunity (heretic princes vs Emperor's faith, active after Reformation).
+        // Peace of Augsburg halves religious disunity drain.
         var hereticPenalty = 0.0
         if let emp = RulingEngine.leader(world, key), emp.index >= 0 && emp.index < n {
             let empFaith = world.countries.religion[emp.index]
@@ -365,7 +489,8 @@ public enum HRESystem: RulingSystem {
                     heretics += 1
                 }
             }
-            hereticPenalty = -min(0.30, Double(heretics) * 0.01)
+            let perHeretic = RulingEngine.hasFlag(world, key, "religious_peace") ? 0.005 : 0.01
+            hereticPenalty = -min(0.30, Double(heretics) * perHeretic)
         }
 
         return peaceDelta + memberBonus + freeCityBonus + foreignPenalty + hereticPenalty
@@ -382,14 +507,8 @@ public enum HRESystem: RulingSystem {
             if let o, o.index >= 0 && o.index < n { provCount[o.index] += 1 }
         }
 
-        let officialFaith: Religion?
-        if state.flags.contains("catholic_official") {
-            officialFaith = .catholic
-        } else if state.flags.contains("protestant_official") {
-            officialFaith = .protestant
-        } else {
-            officialFaith = nil
-        }
+        let catholicOnly = state.flags.contains("catholic_official")
+        let protestantOnly = state.flags.contains("protestant_official")
 
         // Prefer independent landed Christian monarchies inside the Empire.
         let monarchies = state.members.filter { c in
@@ -398,7 +517,8 @@ public enum HRESystem: RulingSystem {
             guard world.countries.overlord[c.index] == nil || c == state.leader else { return false }
             let faith = world.countries.religion[c.index]
             guard faith.family == .christian else { return false }
-            if let officialFaith, faith != officialFaith { return false }
+            if catholicOnly && faith != .catholic { return false }
+            if protestantOnly && faith != .protestant && faith != .reformed { return false }
             return true
         }
         if !monarchies.isEmpty { return monarchies }
