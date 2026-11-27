@@ -1,32 +1,64 @@
 # Holy Roman Empire on 30 May 1453 (Phase 20.8).
 # Compiled by tools/rulings/rulinggen.py -> rulings1453.json.
 # Format and rules: docs/RULING_SYSTEMS.md.
-#
-# STARTER DATA from Claude's engine PR: the leader, the seven electors and
-# the free imperial cities only. Gemini adds the other members, the
-# numbers, role effects and the Swift rules (HRESystem) on top. With no
-# effects and no Swift type this file changes nothing in play yet.
 
 system hre
 name = Holy Roman Empire
-# Frederick III, crowned emperor in Rome in March 1452.
+
+# Frederick III of Inner Austria (HAB), crowned Emperor in Rome in March 1452.
 leader = HAB
+
 roles = elector, free_city, prince_bishop
 
 # The Golden Bull of 1356: three spiritual and four secular electors.
 # Bohemia's vote is Ladislaus the Posthumous's (crowned king of Bohemia 1453).
 role elector = MAI, TRI, CLN, BOH, PAL, SAX, BRA
 
-# Free and imperial cities with their own country in 1453. Hamburg is left
-# out: its immediacy was disputed until 1510 (see HISTORY_NOTES).
+# Free and imperial cities with their own country in 1453.
+# Hamburg is a plain member in 1453 (immediacy disputed until 1510; see HISTORY_NOTES).
 role free_city = NUR, ULM, AUG, LUB, STB, MTZ, FFM, BES, BAS
 
-# Imperial Authority, 0-100 (Gemini sets the start and how it moves).
-value authority = 0 | 0..100
+# Ecclesiastical princes (prince-bishops, prince-archbishops, prince-abbots).
+# Includes the three spiritual electors plus 15 other ecclesiastical estates.
+role prince_bishop = MAI, TRI, CLN, BAM, BRE, FLD, HLD, KNZ, LIE, MAG, MUN, OSN, PAD, SAL, SGA, UTR, VAL, WBZ
 
-# Examples of what Gemini can add (left out so this file changes nothing):
-#   members = SWI, ...                       plain members
-#   country_value favour = 0..100            a number per member
-#   param elector_count = 7                  a constant the Swift code reads
-#   effect free_city: trade=0.10             every free city gets +10% trade
-#   effect leader scaled authority/100: crown_power=0.10
+# Secular princes, imperial counties, and non-free-city imperial republics
+# (Swiss Confederation, Grisons, Frisia, Dithmarschen, Hamburg, Savoy).
+members = ANH, ANS, AUS, BAD, BAV, BRU, CIL, DIT, FRI, FUR, GEL, GOR, GRI, HAM, HES, HOL, JUL, KLE, LAN, LAU, LOR, MKL, NAS, OLD, POM, PSL, PST, SAV, SWI, TIR, WUR
+
+# Imperial Authority (0..100), starting at 20 under Frederick III.
+value authority = 20 | 0..100
+
+# Imperial favour per member (0..100), earned by supporting the Emperor and Diet.
+country_value favour = 0..100
+
+# Fixed constants for HRESystem.
+param elector_count = 7
+param reform_cost = 50
+param member_annex_penalty = 5
+param free_city_annex_penalty = 8
+
+# Imperial provinces (157 provinces held by the 63 Imperial estates in May 1453).
+provinces = Besancon, Nancy, Metz, Epinal, Strasbourg, Ensisheim, Utrecht, Deventer, Nijmegen, Zutphen
+provinces = Roermond, Leeuwarden, Groningen, Emden, Liege, Cologne, Arnsberg, Julich, Dusseldorf, Solingen
+provinces = Kleve, Hamm, Unna, Munster, Osnabruck, Minden, Paderborn, Oldenburg, Bremen, Stade
+provinces = Verden, Mainz, Aschaffenburg, Frankfurt, Wiesbaden, Siegen, Trier, Koblenz, Heidelberg, Kaiserslautern
+provinces = Kassel, Marburg, Fulda, Erfurt, Weimar, Eisenach, Gotha, Wittenberg, Leipzig, Dresden
+provinces = Zwickau, Magdeburg, Halle, Dessau, Brunswick, Luneburg, Gottingen, Hanover, Hildesheim, Hamburg
+provinces = Lubeck, Lauenburg, Kiel, Dithmarschen, Schwerin, Rostock, Stralsund, Stettin, Wolgast, Kolberg
+provinces = Stolp, Berlin, Brandenburg, Stendal, Frankfurt an der Oder, Prenzlau, Cottbus, Nuremberg, Ansbach, Bayreuth
+provinces = Wurzburg, Bamberg, Amberg, Neumarkt, Stuttgart, Urach, Montbeliard, Baden, Pforzheim, Ulm
+provinces = Augsburg, Konstanz, Freiburg, Munich, Straubing, Regensburg, Landshut, Ingolstadt, Burghausen, Salzburg
+provinces = Prague, Plzen, Budejovice, Hradec Kralove, Litomerice, Brno, Olomouc, Opava, Wroclaw, Legnica
+provinces = Glogow, Swidnica, Opole, Olesnica, Zagan, Cieszyn, Oswiecim, Bautzen, Lubben, Vienna
+provinces = Linz, Krems, Wiener Neustadt, Graz, Klagenfurt, Villach, Ljubljana, Trieste, Celje, Gorizia
+provinces = Lienz, Innsbruck, Bozen, Trento, Feldkirch, Bregenz, Zurich, Bern, Lucerne, Altdorf
+provinces = Basel, Porrentruy, Neuchatel, Sankt Gallen, Frauenfeld, Sion, Chur, Chambery, Bourg-en-Bresse, Geneva
+provinces = Lausanne, Fribourg, Aosta, Nice, Turin, Cuneo, Vercelli
+
+# Role effects.
+effect free_city: trade=0.10, tax=0.05, fort_defence=0.15
+effect elector: stability_cost=-0.05, reform_progress=0.05
+effect prince_bishop: mood_clergy=5, tax_clergy=0.05
+effect leader: manpower=0.10, tax=0.05
+effect leader scaled authority/100: crown_power=0.10, vassal_opinion=15, tax=0.10

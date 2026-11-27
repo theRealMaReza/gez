@@ -910,13 +910,26 @@ Enniskillen.
   `Harihara Bhanja`, `Pratapa Bhanja`, `Pratap Karna`, `Somaraya Odeyar`,
   `Bhairava Alupa`, and `Chaudappa Nayaka`.
 
-### Ruling systems: starter HRE (Phase 20.8, 30 May 1453)
+### Ruling systems: Holy Roman Empire (Phase 20.8, 30 May 1453)
 - **Electors:** Mainz, Trier, Cologne, Bohemia, the Palatinate, Saxony
   and Brandenburg (Golden Bull, 1356). Bohemia's vote is counted for
   Ladislaus the Posthumous (crowned king of Bohemia 28 Oct 1453; in May
   still under George of Poděbrady's regency) — kept as the Bohemian tag.
 - **Free cities with their own tag:** Nuremberg, Ulm, Augsburg, Lübeck,
-  Strasbourg, Metz, Frankfurt, Besançon, Basel. **Hamburg left out?**
-  Its imperial immediacy was disputed with the counts of Holstein until
-  1510 (confirmed 1618); Gemini may add it as a free city or plain member.
+  Strasbourg, Metz, Frankfurt, Besançon, Basel. **Hamburg** is included as
+  a plain HRE member rather than a Free Imperial City: its imperial
+  immediacy was disputed with the counts of Holstein until 1510 (confirmed
+  1618).
+- **Borderline states:** **Savoy** is included (actively sat in the Diet
+  and held the title of Imperial Vicar in Italy); other northern Italian
+  states (Milan, Mantua, Montferrat, Saluzzo, Ferrara, Genoa, Lucca,
+  Florence) are left outside the HRE membership list because by 1453
+  *Regnum Italicum* was largely detached from the German Reichstag and
+  Frederick III had not invested Francesco Sforza in Milan. **Burgundy**
+  is left outside membership (Philip the Good held both French and
+  Imperial fiefs and acted as an external rival to the Emperor). **Swiss
+  Confederation**, **Grisons**, **Frisia**, **Dithmarschen**, **Holstein**,
+  **Lorraine**, **Austria** (PU under Hungary), and **Bohemia** are
+  members in 1453; **Schleswig** (Danish fief) and the **Teutonic Order**
+  are outside.
 

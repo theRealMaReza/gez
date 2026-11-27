@@ -110,7 +110,7 @@ struct RulingEngineTests {
         #expect(RulingEngine.hasRole(world, "hre", nur, "free_city"))
         #expect(!RulingEngine.isMember(world, "hre", cas))
         #expect(RulingEngine.holders(world, "hre", "elector").count == 7)
-        #expect(RulingEngine.value(world, "hre", "authority") == 0)
+        #expect(RulingEngine.value(world, "hre", "authority") == 20)
         let members = RulingEngine.members(world, "hre")
         #expect(members == members.sorted { $0.index < $1.index })
     }
@@ -300,7 +300,7 @@ struct RulingEngineTests {
         #expect(holds(EventCondition(kind: "not_ruling_leader", str: "hre"), mai))
         #expect(holds(EventCondition(kind: "ruling_role", str: "hre:elector"), mai))
         #expect(holds(EventCondition(kind: "not_ruling_role", str: "hre:elector"), hab))
-        #expect(!holds(EventCondition(kind: "ruling_value_min", str: "hre:authority", num: 20), hab))
+        #expect(!holds(EventCondition(kind: "ruling_value_min", str: "hre:authority", num: 30), hab))
 
         EventSystem.apply([
             EventEffect(kind: "ruling_join", str: "hre"),
@@ -311,8 +311,8 @@ struct RulingEngineTests {
 
         #expect(holds(EventCondition(kind: "ruling_member", str: "hre"), cas))
         #expect(holds(EventCondition(kind: "ruling_role", str: "hre:prince_bishop"), cas))
-        #expect(holds(EventCondition(kind: "ruling_value_min", str: "hre:authority", num: 20), cas))
-        #expect(holds(EventCondition(kind: "ruling_value_max", str: "hre:authority", num: 25), cas))
+        #expect(holds(EventCondition(kind: "ruling_value_min", str: "hre:authority", num: 40), cas))
+        #expect(holds(EventCondition(kind: "ruling_value_max", str: "hre:authority", num: 45), cas))
         #expect(holds(EventCondition(kind: "ruling_flag", str: "hre:reichsreform"), cas))
 
         EventSystem.apply([
