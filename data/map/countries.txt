@@ -471,3 +471,5 @@ HLD | Hildesheim | 185 155 95 | theocracy | catholic | Hildesheim
 # Italy Part III detail (Phase 20.7)
 PIO | Piombino | 195 140 120 | monarchy | catholic | Piombino
 FRL | Forli | 175 110 85 | monarchy | catholic | Forli
+# Ireland Part III detail (Phase 20.7)
+MNH | Monaghan | 115 160 110 | monarchy | catholic | Monaghan

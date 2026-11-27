@@ -885,3 +885,13 @@ Enniskillen.
   `Emanuele Appiani`, `Jacopo III Appiani`, `Caterina Rangoni`,
   `Cecco III Ordelaffi`, `Pino III Ordelaffi`, `Giovanni I Del Carretto`,
   and `Jacopo I Malaspina`.
+### Ireland Detail (Phase 20.7 Part III, May 1453)
+- **Monaghan / Oriel (`MNH`)**: Added independent Gaelic lordship `MNH`
+  under `Feidhlimidh MacMahon` (r. 1453–1466) with heir `Eochaidh` and
+  rival kinsman `Rudhraighe` (owner's pick); `MNH` uses
+  `File:McMahon Coat of Arms.png` from Wikimedia Commons.
+- **New Irish provinces (6)**: `Monaghan` (`MNH`), `Athlone` (`OCN`),
+  `Maynooth` (`KID`), `Dundalk` (`ENG`), `Belfast` (`ENG`), and
+  `Coleraine` (`TYR`); `Limerick` stays under `DES` (owner's pick).
+- **Approximate (`?`) birth years**: Birth years are approximate for
+  `Feidhlimidh MacMahon`, `Eochaidh MacMahon`, and `Rudhraighe MacMahon`.
