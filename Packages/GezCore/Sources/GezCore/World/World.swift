@@ -204,7 +204,10 @@ public struct SeaZoneTable: Sendable {
 
 public struct CountryTable: Sendable {
     public private(set) var tag: [String] = []
-    public private(set) var name: [String] = []
+    /// Shown name; a formable changes it (`FormableSystem`). The tag never changes.
+    public internal(set) var name: [String] = []
+    /// Picture key for the shield (`arms_<shield>.png`): the tag, or a formable's shield.
+    public internal(set) var shield: [String] = []
     public var color: [RGB] = []
     public var government: [GovernmentType] = []
     public var religion: [Religion] = []
@@ -290,6 +293,7 @@ public struct CountryTable: Sendable {
         let id = CountryID(count)
         self.tag.append(tag)
         self.name.append(name)
+        self.shield.append(tag)
         self.color.append(color)
         self.government.append(government)
         self.religion.append(religion)
@@ -386,6 +390,10 @@ public struct World: Sendable {
     public var aiRules = AIGoalRules()
     /// Chronicle events, regnal chapters, yearly stats, and map timelapse (Phase 18).
     public var history = HistoryState()
+    /// Ruling systems and formed nations (Phase 20.8).
+    public var rulings = RulingState()
+    /// Ruling system and formable definitions from `rulings1453.json` (fixed data, not saved).
+    public var rulingRules = RulingRules()
 
     public init(map: MapInfo = MapInfo(width: 1, height: 1, pixelsPerDegree: 1, longitudeMin: 0, latitudeMax: 0)) {
         self.map = map

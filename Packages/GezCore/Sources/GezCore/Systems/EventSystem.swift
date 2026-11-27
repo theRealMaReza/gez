@@ -349,7 +349,7 @@ public enum EventSystem {
         world.events.pending = remaining
     }
 
-    private static func enqueueHumanPending(_ world: inout World, pending: PendingEvent, date: GameDate) {
+    static func enqueueHumanPending(_ world: inout World, pending: PendingEvent, date: GameDate) {
         let countryQueue = world.events.pending.filter { $0.country == pending.country }
         if countryQueue.count >= maxPendingPerCountry, let oldest = countryQueue.first {
             // Auto-resolve oldest unanswered event so queue cannot grow unbounded when auto-pause is off.
@@ -607,6 +607,7 @@ public enum EventSystem {
         case "set_flag", "clear_flag", "set_global_flag", "clear_global_flag":
             return nil
         default:
+            if let text = RulingEngine.describe(eff, in: world) { return text }
             return nil
         }
     }
@@ -787,7 +788,8 @@ public enum EventSystem {
         case "year_max":
             return date.year <= (cond.int ?? 9999)
         default:
-            return false
+            // Phase 20.8 ruling-system and formable conditions.
+            return RulingEngine.matches(cond, in: world, for: country, date: date) ?? false
         }
     }
 
@@ -1093,7 +1095,8 @@ public enum EventSystem {
             }
 
         default:
-            break
+            // Phase 20.8 ruling-system and formable effects.
+            _ = RulingEngine.execute(eff, on: &world, country: country, date: date)
         }
     }
 

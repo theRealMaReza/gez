@@ -1263,7 +1263,12 @@ func _find_asset_file(rel_path: String, dev_res_path: String) -> String:
 	return ""
 
 # Loads arms_<TAG>.png from App/Resources/Heraldry/ (or bundled Resources/Heraldry/) or creates a fallback banner in the country's colour.
-func _get_country_arms_texture(tag: String, r: int = 180, g: int = 140, b: int = 80) -> Texture2D:
+func _get_country_arms_texture(country_tag: String, r: int = 180, g: int = 140, b: int = 80) -> Texture2D:
+	# Phase 20.8: a country that formed a nation (Castile -> Spain) shows the
+	# formable's arms; the bridge gives the shield key (the tag otherwise).
+	var tag := country_tag
+	if not country_tag.is_empty():
+		tag = str(_call_bridge("getCountryShieldKey", [country_tag], country_tag))
 	var cache_key := tag if not tag.is_empty() else ("rgb_%d_%d_%d" % [r, g, b])
 	if arms_cache.has(cache_key):
 		return arms_cache[cache_key]
@@ -1313,7 +1318,10 @@ func _get_country_arms_texture(tag: String, r: int = 180, g: int = 140, b: int =
 	return fallback_tex
 
 func _get_country_arms_icon(tag: String, r: int = 180, g: int = 140, b: int = 80) -> Texture2D:
-	var cache_key := tag if not tag.is_empty() else ("rgb_%d_%d_%d" % [r, g, b])
+	var shield_key := tag
+	if not tag.is_empty():
+		shield_key = str(_call_bridge("getCountryShieldKey", [tag], tag))
+	var cache_key := shield_key if not shield_key.is_empty() else ("rgb_%d_%d_%d" % [r, g, b])
 	if arms_icon_cache.has(cache_key):
 		return arms_icon_cache[cache_key]
 	var full_tex := _get_country_arms_texture(tag, r, g, b)

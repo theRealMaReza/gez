@@ -22,7 +22,7 @@ const KIND_GROUPS := [
 	{"label": "All Events", "kinds": []},
 	{"label": "Wars & Peace", "kinds": ["war_declared", "war_ended", "peace_treaty"]},
 	{"label": "Battles & Sieges", "kinds": ["major_battle", "naval_battle", "siege_captured"]},
-	{"label": "Laws & Reforms", "kinds": ["law_changed", "reform_adopted"]},
+	{"label": "Laws & Reforms", "kinds": ["law_changed", "reform_adopted", "nation_formed"]},
 	{"label": "Plagues, Famines & Rebels", "kinds": ["plague_outbreak", "famine", "rebellion"]},
 	{"label": "Dynasty & Rulers", "kinds": ["ruler_crowned", "ruler_died", "marriage", "heir_born"]},
 ]
