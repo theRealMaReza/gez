@@ -260,3 +260,20 @@ truce (Galata surrendered on 1 June 1453, two days after the start).
   they overwrite each other on `ci-snapshots-preview`.
 - Lakes: `bake_heightmap.py` put them at sea level (pits on plateaus);
   in the shader they still fall into the parchment branch (HANDOFF).
+
+## Session 18 (26 Nov 2026): Phase 20.8 part 1, ruling-systems engine (Claude)
+- Owner's order: HRE, then Shogunate. Screens picked from mock-ups: HRE
+  "Imperial Diet" window, formables "Crowns to claim" list (DESIGN).
+- Engine merged as #70, green on the first CI run although nothing could
+  be compiled here: keep new Swift close to patterns already in the code
+  (events' own dice stream, `EventEvalContext`, Swift Testing with
+  `Scenario1453.makeWorld()`), and keep `&inout` arguments out of
+  `#expect`/`#require` (assign first).
+- Generic saved state (roles, values, per-country values, flags, stage per
+  system, matched by key) means Gemini's systems never touch the save
+  format; a global `RulingSystems.register` is safe in parallel tests
+  because hooks run only for systems present in that world's data.
+- The CI wait script can outlive a foreground call (10 min cap) and a
+  background one can be killed with the environment: if so, read the
+  jobs once with `gh api .../actions/runs/<id>/jobs`.
+

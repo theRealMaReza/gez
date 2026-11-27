@@ -614,7 +614,7 @@ Condition-triggered narrative events with 2–4 player/AI choices (mission trees
 - **Data pipeline (`data/events/*.txt` → `tools/events/eventgen.py` → `events1453.json`)**:
   reproducible JSON generator validating every country tag, province name, character ID, trait key, estate, good/tech/institution key, condition, and effect (`Scenario1453.loadEvents()` indexes country-whitelisted vs global candidates on load).
 - **Fixed reusable condition & effect vocabulary (`Packages/GezCore/Sources/GezCore/Events/Events.swift`, `EventSystem.swift`)**:
-  - Conditions: `tag`, `not_tag`, `exists`, `not_exists`, `owns`, `not_owns`, `controls`, `province_owner`, `province_religion`, `at_war_with`, `at_war`, `religion`, `not_religion`, `religion_family`, `culture`, `culture_family`, `government`, `is_subject`, `is_vassal_of`, `adm_tech`, `dip_tech`, `mil_tech`, `institution_spawned`, `institution_embraced`, `institution_present`, `stability_min`/`max`, `treasury_min`/`max`, `is_coastal`, `has_flag`, `not_flag`, `global_flag`, `not_global_flag`, `ruler_alive`, `not_ruler_alive`, `character_alive`, `ruler_trait`, `ruler_skill_min`, `reformation_started`, `safaviyya_phase`, `year_min`/`max`.
+  - Conditions: `tag`, `not_tag`, `exists`, `not_exists`, `owns`, `not_owns`, `controls`, `province_owner`, `province_religion`, `at_war_with`, `at_war`, `religion`, `not_religion`, `religion_family`, `culture`, `culture_family`, `government`, `is_subject`, `is_vassal_of`, `adm_tech`, `dip_tech`, `mil_tech`, `institution_spawned`, `institution_embraced`, `institution_present`, `stability_min`/`max`, `treasury_min`/`max`, `is_coastal`, `has_flag`, `not_flag`, `global_flag`, `not_global_flag`, `ruler_alive`, `not_ruler_alive`, `character_alive`, `ruler_trait`, `ruler_skill_min`, `reformation_started`, `safaviyya_phase`, `year_min`/`max`; Phase 20.8 adds the `ruling_*` and formable words (`docs/RULING_SYSTEMS.md` §5).
   - Effects: `ducats`, `stability`, `prestige`, `estate_loyalty`, `unrest`, `pops_convert`, `add_claim`, `add_cb`, `spawn_units`, `set_flag`, `clear_flag`, `set_global_flag`, `clear_global_flag`, `add_modifier` (duration in months, applied in `GovernmentSystem`), `change_opinion`, `change_opinion_both`, `change_religion`, `accept_culture`, `manpower`, `sailors`, `tech_progress`, `kill_character`, `add_vassal_favour`, `province_dev`, `province_fort`, `institution_spread`, `spawn_reformation`, `advance_safaviyya`.
 - **Monthly evaluation & own dice**:
   - Pre-filtered by country whitelist and `[date_from, date_to]` / `exact_date` with an `EventEvalContext` cache built once per month (`EventSystem.runMonthly`).
@@ -628,6 +628,62 @@ Condition-triggered narrative events with 2–4 player/AI choices (mission trees
   - **4 chronicle event pop-ups** (`05_chronicle_events.txt`, triggered directly by systems): `chronicle_rebel_rising` (`RebelSystem`), `chronicle_vassal_plot_success` / `chronicle_vassal_plot_uncovered` (`VassalSystem`, suppressing duplicate death pop-up when poisoned), and `chronicle_ruler_death` (`CharacterSystem`).
 - **Godot screens (`godot/scripts/EventPopup.gd`, `Main.gd`, `GezGodotEventBridge.swift`, `capture_snapshots.gd`)**:
   centered Event pop-up modal (category, date, title, wrapped narrative, optional `Locate` button, 2–4 option buttons with effect tooltips, `"Pause game on events"` toggle mirrored in Game Menu), collapsible `"Recent Events"` strip in the alerts area, and `godot_event_popup.png` snapshot.
+
+## Ruling systems and formables (Phase 20.8)
+
+Engine by Claude (PR #70); systems, formables and flavour by Gemini.
+Full guide: `docs/RULING_SYSTEMS.md`. Order (owner, 26 Nov 2026): **HRE,
+then Shogunate**, then Mandate of Heaven and tributary order, Sejm and
+royal elections, kurultai, mandala rings.
+
+- **Ruling systems** (`Rulings/`): each is a data file
+  (`data/rulings/systems/<key>.txt` → `tools/rulings/rulinggen.py` →
+  `rulings1453.json`) with a leader, members, named roles, system numbers
+  with limits, per-country numbers, constants and role effects
+  (modifiers for every holder of a role, optionally scaled by a system
+  number), plus an optional Swift type implementing the `RulingSystem`
+  hooks (`start`, `runMonthly`, `runYearly`, `rulerChanged`,
+  `countryVanished`, `countryFormed`, `addEffects`).
+- **Tick:** `RulingEngine.runMonthly` runs right before the government
+  tick (members that lost all land leave, systems in data order, then
+  formables); `runYearly` after the vassals; `rulerChanged` on every
+  succession; role effects join the government effects on every refresh.
+- **Own dice:** a saved ruling stream (`world.rulings.rngState`) split off
+  `Simulation.random` without drawing from it.
+- **Elections:** `RulingEngine.elect`: each voter backs its top-scored
+  candidate (optional random bonus); most votes wins, ties to the higher
+  total score, then candidate order.
+- **Formables** (`FormableSystem`): a country is transformed in place —
+  shown name, map colour, shield key (`countries.shield`), optionally
+  government type (reform tree restarts) and reform options, extra event
+  effects, and a Phase 21 mission tree key. Tag and country slot never
+  change, so saves stay valid and events for the old tag still apply.
+  Computer countries form an `ai = true` formable as soon as they can
+  (one a month); players get the event pop-up once per formable
+  ("Proclaim X" / "Not now"). A Chronicle entry ("nation formed") keeps
+  the old name. Example: Spain (Castile or Aragon holding Toledo, Seville,
+  Zaragoza, Valencia, Barcelona; `ai = false` until balanced).
+- **Event words:** `ruling_*` conditions and effects, `formed`,
+  `not_formed`, `is_formed`, `can_form`, `form_nation` (list in the guide).
+- **Saves:** the whole `RulingState` (`SaveSnapshot.rulings`, optional):
+  systems matched by key, so old saves load with the 1453 state.
+- **Screens (owner's picks, 26 Nov 2026; Gemini builds, Claude checks the
+  screenshots):**
+  - **HRE: "Imperial Diet" window (mock-up A)**, its own window from a
+    left-column medallion: the emperor's shield, name, realm and years;
+    an Imperial Authority bar (0–100); the seven electors' shields in a
+    row, each with the tag it leans to for the next election; the
+    Reichstag reforms as a ladder of plates (passed = green, next = with
+    its cost, later ones faded); a footer line with member and free-city
+    counts and the player's favour.
+  - **Formables: "Crowns to claim" list (mock-up A)**, a new left-column
+    medallion that glows when a crown can be proclaimed; one card per
+    open formable (shield, name, "4 of 5 provinces held"), a two-column
+    checklist of requirements (tick / cross, from
+    `FormableSystem.requirements`), and a Proclaim button (faded until
+    every requirement is met). Far-off crowns show only the count.
+  - Until then, formable offers use the event pop-up. The bridge gives
+    `getCountryShieldKey`.
 
 ## AI Behaviour Setting (Phase 15)
 

@@ -15,6 +15,9 @@ for small chores (a red CI fix, a rebase, a typo).
 2. `docs/HANDOFF.md`: current state, data pipelines, how CI works.
 3. `docs/ROADMAP.md`: the agreed plan. Work through phases in order.
 4. `docs/DESIGN.md`: how every system works, with all its numbers.
+5. `docs/RULING_SYSTEMS.md`: **before any Phase 20.8 work** (ruling
+   systems, formables, regional flavour): where things go, what you may
+   change, saves, tests.
 
 ## How to work
 

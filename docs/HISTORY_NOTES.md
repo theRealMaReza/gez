@@ -909,3 +909,14 @@ Enniskillen.
   identities are approximate for `Lingama Nayaka`, `Mada Nayaka`,
   `Harihara Bhanja`, `Pratapa Bhanja`, `Pratap Karna`, `Somaraya Odeyar`,
   `Bhairava Alupa`, and `Chaudappa Nayaka`.
+
+### Ruling systems: starter HRE (Phase 20.8, 30 May 1453)
+- **Electors:** Mainz, Trier, Cologne, Bohemia, the Palatinate, Saxony
+  and Brandenburg (Golden Bull, 1356). Bohemia's vote is counted for
+  Ladislaus the Posthumous (crowned king of Bohemia 28 Oct 1453; in May
+  still under George of Poděbrady's regency) — kept as the Bohemian tag.
+- **Free cities with their own tag:** Nuremberg, Ulm, Augsburg, Lübeck,
+  Strasbourg, Metz, Frankfurt, Besançon, Basel. **Hamburg left out?**
+  Its imperial immediacy was disputed with the counts of Holstein until
+  1510 (confirmed 1618); Gemini may add it as a free city or plain member.
+

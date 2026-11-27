@@ -461,6 +461,17 @@ top of them. From Parts V–VIII of `docs/MAP_EXPANSION_RESEARCH.md`:
   reforms; the country list stays fixed so saves stay safe).
 Decide at the start which systems come first and split into pull
 requests.
+- **Order (owner, 26 Nov 2026):** HRE, then Shogunate, then Mandate of
+  Heaven and tributary order, Sejm, kurultai, mandala rings.
+- **Part 1 ✅ engine (Claude, PR #70):** `RulingEngine` and the
+  `RulingSystem` hooks, formables in place, `data/rulings/` with
+  `tools/rulings/rulinggen.py`, event words, saves, tests; guide for
+  Gemini in `docs/RULING_SYSTEMS.md`. Starter HRE data (emperor, electors,
+  free cities) and a Spain example.
+- **Next (Gemini):** HRE data and `HRESystem` (elections, authority,
+  Reichstag reforms, leagues), then the Shogunate, the other systems,
+  formables catalog and data-driven flavour. HRE screen and decisions
+  list: Claude's mock-ups, owner picks, then Gemini builds.
 
 ### Phase 21: Mission trees
 After the Old World map (20.7) and ruling systems and formables (20.8);

@@ -94,8 +94,10 @@ phases): chronicle (Phase 18, Gemini, in progress), multiplayer (Phase 19), miss
    zoomed in over a busy area and in a big battle.
 2. **Order from here** (who writes what: "Who does what" below): the
    rest of the 20.7 regions (Gemini; East Asia core is #44) with Claude's
-   borders and landmarks alongside; 20.8 engine (Claude), then flavour,
-   formables, HRE and other systems (Gemini); 20.5 balance fixes and
+   borders and landmarks alongside; 20.8 engine (Claude, **done: PR #70**),
+   then flavour, formables, HRE, then the Shogunate and the other systems
+   (Gemini; guide `docs/RULING_SYSTEMS.md`; the HRE and formables screens
+   wait for the owner's pick of Claude's mock-ups); 20.5 balance fixes and
    "Kayser" (Gemini, with Claude's screen check); 21, then 19 (Gemini).
 3. Follow-ups: the campaign still uses platform maths (`MarketModel.km`
    distances, `hypot` in the AI), which can differ between Mac, Windows and
@@ -468,6 +470,7 @@ of them are reproducible (same input, byte-identical output).
 | `data/diplomacy/` | `python3 tools/diplomacy/dipgen.py` | `diplomacy1453.json` |
 | `data/calamity/fault_zones.txt` | `python3 tools/calamity/calamitygen.py` (fault zones store province indices: rerun after any map change) | `calamity1453.json` |
 | `data/technology/` | `python3 tools/technology/techgen.py` (stores Mainz index and regions: rerun after any map change) | `technology1453.json` |
+| `data/rulings/` (Phase 20.8 ruling systems and formables; guide: `docs/RULING_SYSTEMS.md`) | `python3 tools/rulings/rulinggen.py` (before eventgen: events may name systems and formables) | `rulings1453.json` |
 | `data/events/` | `python3 tools/events/eventgen.py` (validates tags, provinces, characters, conditions & effects) | `events1453.json` |
 | `data/ai/goals_1453.txt` | `python3 tools/ai/aigen.py` (validates tags, provinces, goal types, dates & priorities) | `ai_goals1453.json` |
 | `data/heraldry/choices.txt` | push it; the Heraldry workflow downloads and converts | `App/Resources/Heraldry/arms_<TAG>.png`, `data/heraldry/credits.json` |
@@ -476,7 +479,8 @@ of them are reproducible (same input, byte-identical output).
 | app icon (portolan chart, drawn from the province map) | `python3 tools/icon/make_icon.py` | `App/Resources/Assets.xcassets/AppIcon.appiconset/`, `docs/icon_preview.png` |
 
 Run order after a map change: mapgen → bake_terrain → econgen → chargen →
-govgen → calamitygen (later ones read `scenario1453.json`). A new JSON resource must also
+govgen → calamitygen (later ones read `scenario1453.json`); then
+rulinggen → eventgen whenever provinces, tags or ruling data change. A new JSON resource must also
 be listed in `Packages/GezCore/Package.swift`.
 
 People file format (`data/characters/people_*.txt`): `role | id | Name |
