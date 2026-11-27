@@ -120,3 +120,4 @@ MER | Imerina Guard              | Alasora | andrianamponga_mer | infantry:3, ar
 SIB | Sibir Steppe Riders        | Qashliq | mar_sib | cavalry:3, infantry:1
 PEL | Pelym Forest Guard         | Pelym   | asyka_pel | infantry:2, archers:1
 BYA | Buryat Baikal Riders       | Olkhon  | barga_bya | cavalry:2, archers:1
+VLM | Velama Hill Guard          | Rachakonda | lingama_vlm | infantry:3, archers:2

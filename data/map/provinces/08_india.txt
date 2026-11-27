@@ -253,7 +253,9 @@ Cuttack | 20.46 85.88 | ORI f 5
 Puri | 19.81 85.83 | ORI f 3
 Jajpur | 20.85 86.33 | ORI f 2
 Balasore | 21.49 86.93 | ORI f 2
-Mayurbhanj | 21.94 86.73 | ORI w 1
+Mayurbhanj | 21.94 86.73 | GRJ w 1
+Keonjhar | 21.63 85.58 | GRJ w 1
+Khukhra | 23.34 85.31 | ORI w 2
 Sambalpur | 21.47 83.97 | ORI w 1
 Koraput | 18.81 82.71 | ORI h 1
 Ganjam | 19.31 84.79 | ORI h 2
@@ -274,6 +276,8 @@ Mudgal | 16.01 76.43 | BAH h 2
 Golconda | 17.38 78.40 | BAH h 3
 Warangal | 17.97 79.60 | BAH h 3
 Bhongir | 17.51 78.89 | BAH h 1
+Rachakonda | 17.18 78.83 | VLM h 2
+Devarakonda | 16.70 78.92 | VLM h 2
 Nalgonda | 17.05 79.27 | BAH h 1
 Khammam | 17.25 80.15 | BAH h 1
 Kondapalli | 16.62 80.54 | BAH h 2
@@ -316,10 +320,12 @@ Udayagiri | 14.87 79.31 | VIJ h 2
 Nellore | 14.44 79.99 | VIJ f 2
 @ Mysore
 Mysore | 12.30 76.64 | VIJ h 3
+Ummattur | 12.08 77.04 | VIJ h 2
 Bangalore | 12.97 77.59 | VIJ h 1
 Kolar | 13.14 78.13 | VIJ h 1
 Belur | 13.16 75.87 | VIJ h 1
 Shimoga | 14.00 75.57 | VIJ h 1
+Keladi | 14.22 75.02 | VIJ w 2
 @ Konkan and Kanara
 Goa | 15.49 73.83 | VIJ h 4
 Honnavar | 14.28 74.45 | VIJ h 2

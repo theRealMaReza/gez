@@ -559,6 +559,23 @@ final class OldWorldMapTests: XCTestCase {
         for name in ["Piombino", "Forli", "Crema", "Benevento", "Finale", "Massa", "Capua", "Chieti", "Brindisi", "Catanzaro"] {
             guard let pid = world.provinces.id(named: name) else {
                 XCTFail("missing Italy province \(name)")
+    /// Phase 20.7 India detail (§2.9): Velamas buffer at Rachakonda/Devarakonda,
+    /// Garhjat tributary of Orissa, Khukhra, and Vijayanagara western feudatories.
+    func testIndiaDetailPartIII() {
+        let world = Scenario1453.makeWorld()
+        guard let vlm = world.countries.id(forTag: "VLM"),
+              let grj = world.countries.id(forTag: "GRJ"),
+              let ori = world.countries.id(forTag: "ORI") else {
+            return XCTFail("missing India detail tags")
+        }
+        XCTAssertEqual(world.countries.religion[vlm.index], .hindu)
+        XCTAssertEqual(world.countries.religion[grj.index], .hindu)
+        XCTAssertEqual(world.countries.overlord[grj.index], ori)
+        XCTAssertEqual(world.countries.subjectType[grj.index], .tributary)
+
+        for name in ["Rachakonda", "Devarakonda", "Keonjhar", "Khukhra", "Ummattur", "Keladi"] {
+            guard let pid = world.provinces.id(named: name) else {
+                XCTFail("missing India province \(name)")
                 continue
             }
             XCTAssertFalse(world.provinces.neighbors[pid.index].isEmpty, name)
@@ -589,6 +606,32 @@ final class OldWorldMapTests: XCTestCase {
         for name in ["Monaghan", "Athlone", "Maynooth", "Dundalk", "Belfast", "Coleraine"] {
             let pid = world.provinces.id(named: name)!
             XCTAssertFalse(world.provinces.neighbors[pid.index].isEmpty, name)
+        }
+    }
+
+    /// Phase 20.7 India detail (§2.9): Velamas buffer at Rachakonda/Devarakonda,
+    /// Garhjat tributary of Orissa, Khukhra, and Vijayanagara western feudatories.
+    func testIndiaDetailPartIII() {
+        let world = Scenario1453.makeWorld()
+        guard let vlm = world.countries.id(forTag: "VLM"),
+              let grj = world.countries.id(forTag: "GRJ"),
+              let ori = world.countries.id(forTag: "ORI") else {
+            return XCTFail("missing India detail tags")
+        }
+        XCTAssertEqual(world.countries.religion[vlm.index], .hindu)
+        XCTAssertEqual(world.countries.religion[grj.index], .hindu)
+        XCTAssertEqual(world.countries.overlord[grj.index], ori)
+        XCTAssertEqual(world.countries.subjectType[grj.index], .tributary)
+
+        for name in ["Rachakonda", "Devarakonda", "Keonjhar", "Khukhra", "Ummattur", "Keladi"] {
+            guard let pid = world.provinces.id(named: name) else {
+                XCTFail("missing India province \(name)")
+                continue
+            }
+            XCTAssertFalse(world.provinces.neighbors[pid.index].isEmpty, name)
+        }
+        for held in ["Khukhra", "Ummattur", "Barkur", "Keladi"] {
+            XCTAssertNotNil(world.provinces.holder[world.provinces.id(named: held)!.index], held)
         }
     }
 }

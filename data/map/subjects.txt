@@ -53,6 +53,8 @@ LIT OKA vassal
 CLN PAD personal_union
 # Alaiye under Karaman
 KAR ALA vassal
+# Garhjat hill rajas tributary to Gajapati Orissa
+ORI GRJ tributary
 
 # Ming tributaries and southwest tusi (Phase 20.7)
 MNG JOS tributary

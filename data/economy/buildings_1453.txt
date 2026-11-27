@@ -154,3 +154,6 @@ Brindisi       | port 1
 Maynooth       | fort 1
 Athlone        | fort 1
 Dundalk        | port 1
+Rachakonda     | fort 2
+Devarakonda    | fort 2
+Ummattur       | fort 1

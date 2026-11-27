@@ -174,3 +174,5 @@ stability | HLD | 1
 stability | PIO | 1
 stability | FRL | 0
 stability | MNH | 0
+stability | VLM | 1
+stability | GRJ | 1

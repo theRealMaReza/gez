@@ -895,3 +895,17 @@ Enniskillen.
   `Coleraine` (`TYR`); `Limerick` stays under `DES` (owner's pick).
 - **Approximate (`?`) birth years**: Birth years are approximate for
   `Feidhlimidh MacMahon`, `Eochaidh MacMahon`, and `Rudhraighe MacMahon`.
+### India Detail (Phase 20.7 Part III / §2.9, May 1453)
+- **Velamas (`VLM`) and Garhjat (`GRJ`)**: Added independent buffer tag
+  `VLM` (Padmanayaka Velamas at `Rachakonda` and `Devarakonda` under
+  `Lingama Nayaka`) and `ORI` tributary tag `GRJ` (Bhanja rajas at
+  `Mayurbhanj` and `Keonjhar`); both use plain map-colour banners since
+  no 1453 Wikimedia Commons arms exist (owner's pick).
+- **Internal great vassals**: Added `Khukhra` (Chota Nagpur under
+  Nagvanshi Maharaja `Pratap Karna`, internal `ORI` vassal), plus
+  `Ummattur` (`Somaraya Odeyar`), `Barkur` (`Bhairava Alupa`), and
+  `Keladi` (`Chaudappa Nayaka`) as internal `VIJ` great vassals.
+- **Approximate (`?`) birth years**: Birth years and exact 1453 chief
+  identities are approximate for `Lingama Nayaka`, `Mada Nayaka`,
+  `Harihara Bhanja`, `Pratapa Bhanja`, `Pratap Karna`, `Somaraya Odeyar`,
+  `Bhairava Alupa`, and `Chaudappa Nayaka`.

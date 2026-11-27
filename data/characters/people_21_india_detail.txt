@@ -1,0 +1,19 @@
+# India Part III detail (30 May 1453): Velamas (Rachakonda/Devarakonda),
+# Garhjat (Mayurbhanj/Keonjhar), Khukhra (Chota Nagpur), and Vijayanagara
+# western feudatories (Ummattur, Barkur, Keladi).
+
+@ VLM
+ruler  | lingama_vlm     | Lingama Nayaka  | Velama    | m | 1418 | | brave, strategist | Padmanayaka Velama chief of Devarakonda and Rachakonda (fl. 1450s-1460s); birth year?
+heir   | mada_vlm        | Mada Nayaka     | Velama    | m | 1438 | f:lingama_vlm | brave | Velama prince of Rachakonda; birth year?
+
+@ GRJ
+ruler  | harihara_bhanja | Harihara Bhanja | Bhanja    | m | 1415 | | patient, brave | Bhanja raja of Mayurbhanj and Keonjhar (Garhjat tributary of Orissa); 1453 raja and birth year?
+heir   | pratapa_bhanja  | Pratapa Bhanja  | Bhanja    | m | 1438 | f:harihara_bhanja | | heir of the Bhanja house of Mayurbhanj; birth year?
+
+@ ORI
+vassal | pratap_karna_nag| Pratap Karna    | Nagvanshi | m | 1418 | holds:Khukhra | brave, just | Nagvanshi Maharaja of Khukhra (Chota Nagpur, r. 1451-1469); birth year?
+
+@ VIJ
+vassal | somaraya_umm    | Somaraya Odeyar | Ummattur  | m | 1415 | holds:Ummattur | ambitious, brave | Odeyar chief of Ummattur in southern Mysore under Vijayanagara; birth year?
+vassal | bhairava_barkur | Bhairava Alupa  | Alupa     | m | 1420 | holds:Barkur | diplomat | Tuluva chief of Barkur and coastal Kanara under Vijayanagara; 1453 chief and birth year?
+vassal | chaudappa_keladi| Chaudappa Nayaka| Keladi    | m | 1425 | holds:Keladi | diligent, brave | Malnad Nayaka chief of Keladi/Ikkeri under Vijayanagara; early lineage and birth year?

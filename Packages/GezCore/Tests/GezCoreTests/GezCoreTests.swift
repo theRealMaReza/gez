@@ -1227,7 +1227,7 @@ final class MilitaryDataTests: XCTestCase {
 
     func testStartingStandingArmiesOf1453() {
         let w = Scenario1453.makeWorld()
-        XCTAssertEqual(w.military.armies.count, 89)
+        XCTAssertEqual(w.military.armies.count, 90)
 
         let tur = w.countries.id(forTag: "TUR")!
         let konst = w.provinces.id(named: "Konstantiniyye")!
