@@ -61,4 +61,132 @@ struct HRESystemTests {
         #expect(abs(empFx[.crownPower] - 0.02) < 1e-9)
         #expect(abs(empFx[.vassalOpinion] - 3.0) < 1e-9)
     }
+
+    @Test("Emperor death triggers election by the 7 electors and shifts when electors favour another prince")
+    func imperialElection() throws {
+        var world = Scenario1453.makeWorld()
+        var rng = GameRandom(seed: 1453)
+        let date = Scenario1453.startDate
+        let hab = try #require(world.countries.id(forTag: "HAB"))
+        let bra = try #require(world.countries.id(forTag: "BRA"))
+        let electors = RulingEngine.holders(world, "hre", "elector")
+        #expect(electors.count == 7)
+
+        // Default 1453: Habsburgs are favoured to retain the crown on Frederick III's death.
+        let frederick = try #require(world.countries.ruler[hab.index])
+        CharacterSystem.kill(&world, frederick, date: date, random: &rng, suppressEvent: true)
+        #expect(RulingEngine.leader(world, "hre") == hab)
+        #expect(RulingEngine.value(world, "hre", "authority") == 25)
+
+        // Now turn all 7 electors strongly against HAB and strongly in favour of Brandenburg.
+        for e in electors {
+            world.diplomacy.setOpinion(of: hab, by: e, value: -180)
+            world.diplomacy.setOpinion(of: bra, by: e, value: 180)
+        }
+        RulingEngine.setCountryValue(&world, "hre", "favour", bra, 100)
+
+        let leans = HRESystem.electorLeans(in: world)
+        #expect(leans.count == 7)
+        // A strong majority of electors (all Catholic electors) lean toward Brandenburg.
+        #expect(leans.filter { $0.lean == bra }.count >= 5)
+
+        let nextHabRuler = try #require(world.countries.ruler[hab.index])
+        CharacterSystem.kill(&world, nextHabRuler, date: date, random: &rng, suppressEvent: true)
+        #expect(RulingEngine.leader(world, "hre") == bra)
+    }
+
+    @Test("Monthly Imperial Authority rises in peace and falls with internal wars or foreign-held Imperial provinces")
+    func authorityDynamics() throws {
+        var world = Scenario1453.makeWorld()
+        var rng = GameRandom(seed: 77)
+        let date = GameDate(year: 1453, month: 7, day: 1)
+
+        // In 1453 peace, monthly delta is positive.
+        let peaceDelta = HRESystem.monthlyAuthorityDelta(in: world)
+        #expect(peaceDelta > 0.3)
+
+        let before = RulingEngine.value(world, "hre", "authority")
+        RulingEngine.runMonthly(&world, date: date, random: &rng)
+        #expect(RulingEngine.value(world, "hre", "authority") > before)
+
+        // Hand 25 Imperial provinces to France -> authority delta turns negative.
+        let fra = try #require(world.countries.id(forTag: "FRA"))
+        let def = try #require(world.rulingRules.system("hre"))
+        for pid in def.provinces.prefix(25) {
+            world.provinces.owner[pid.index] = fra
+        }
+        let foreignDelta = HRESystem.monthlyAuthorityDelta(in: world)
+        #expect(foreignDelta < peaceDelta)
+
+        // Authority stays within 0..100 after many months.
+        RulingEngine.setValue(&world, "hre", "authority", 99)
+        var wPeace = Scenario1453.makeWorld()
+        RulingEngine.setValue(&wPeace, "hre", "authority", 99)
+        for m in 1...40 {
+            RulingEngine.runMonthly(&wPeace, date: GameDate(year: 1454 + m / 12, month: (m % 12) + 1, day: 1), random: &rng)
+        }
+        #expect(RulingEngine.value(wPeace, "hre", "authority") <= 100)
+        #expect(RulingEngine.value(wPeace, "hre", "authority") >= 0)
+    }
+
+    @Test("Annexing an HRE member or Free City costs Imperial Authority and replenishes vacated electorates")
+    func annexedMembersAndElectorReplenishment() throws {
+        var world = Scenario1453.makeWorld()
+        var rng = GameRandom(seed: 99)
+        let date = GameDate(year: 1453, month: 7, day: 1)
+        let bav = try #require(world.countries.id(forTag: "BAV"))
+        let nur = try #require(world.countries.id(forTag: "NUR"))
+        let mai = try #require(world.countries.id(forTag: "MAI"))
+        let ans = try #require(world.countries.id(forTag: "ANS"))
+
+        // Annex Free Imperial City Nuremberg -> -8 authority.
+        RulingEngine.setValue(&world, "hre", "authority", 50)
+        for p in world.provinces.owner.indices where world.provinces.owner[p] == nur {
+            world.provinces.owner[p] = bav
+        }
+        RulingEngine.runMonthly(&world, date: date, random: &rng)
+        #expect(!RulingEngine.isMember(world, "hre", nur))
+        #expect(RulingEngine.value(world, "hre", "authority") < 43)
+
+        // Annex prince Ansbach -> -5 authority.
+        RulingEngine.setValue(&world, "hre", "authority", 50)
+        for p in world.provinces.owner.indices where world.provinces.owner[p] == ans {
+            world.provinces.owner[p] = bav
+        }
+        RulingEngine.runMonthly(&world, date: GameDate(year: 1453, month: 8, day: 1), random: &rng)
+        #expect(!RulingEngine.isMember(world, "hre", ans))
+        #expect(RulingEngine.value(world, "hre", "authority") < 46)
+
+        // Annex elector Mainz -> electorate is automatically replenished back to 7.
+        for p in world.provinces.owner.indices where world.provinces.owner[p] == mai {
+            world.provinces.owner[p] = bav
+        }
+        RulingEngine.runMonthly(&world, date: GameDate(year: 1453, month: 9, day: 1), random: &rng)
+        #expect(!RulingEngine.hasRole(world, "hre", mai, "elector"))
+        #expect(RulingEngine.holders(world, "hre", "elector").count == 7)
+    }
+
+    @Test("HRE simulation is deterministic over 24 months and survives save/restore identically")
+    func determinismAndSaveRoundTrip() throws {
+        let simA = Simulation(world: Scenario1453.makeWorld(), startDate: Scenario1453.startDate, seed: 208)
+        let simB = Simulation(world: Scenario1453.makeWorld(), startDate: Scenario1453.startDate, seed: 208)
+        simA.advance(days: 730)
+        simB.advance(days: 730)
+        #expect(simA.world.rulings == simB.world.rulings)
+
+        // Save/restore round-trip after modifying authority and favour.
+        let sax = try #require(simA.world.countries.id(forTag: "SAX"))
+        RulingEngine.setValue(&simA.world, "hre", "authority", 42)
+        RulingEngine.setCountryValue(&simA.world, "hre", "favour", sax, 35)
+
+        let snap = SaveSnapshot(capturing: simA)
+        let data = try JSONEncoder().encode(snap)
+        let decoded = try JSONDecoder().decode(SaveSnapshot.self, from: data)
+        let restored = try decoded.restore()
+        #expect(restored.world.rulings == simA.world.rulings)
+
+        simA.advance(days: 60)
+        restored.advance(days: 60)
+        #expect(simA.world.rulings == restored.world.rulings)
+    }
 }
