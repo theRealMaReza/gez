@@ -195,6 +195,7 @@ struct FormableTests {
         try Self.giveSpain(&sim.world, to: cas)
         #expect(FormableSystem.form(&sim.world, cas, "SPA", date: sim.date) == nil)
         RulingEngine.addValue(&sim.world, "hre", "authority", 12)
+        let savedAuthority = RulingEngine.value(sim.world, "hre", "authority")
         RulingEngine.removeRole(&sim.world, "hre", mai, "elector")
 
         let snapshot = SaveSnapshot(capturing: sim)
@@ -206,7 +207,7 @@ struct FormableTests {
         #expect(w.countries.shield[cas.index] == "SPA")
         #expect(w.countries.color[cas.index] == RGB(226, 186, 34))
         #expect(w.rulings == sim.world.rulings)
-        #expect(RulingEngine.value(w, "hre", "authority") == 12)
+        #expect(RulingEngine.value(w, "hre", "authority") == savedAuthority)
         #expect(!RulingEngine.hasRole(w, "hre", mai, "elector"))
 
         // Both games carry on the same way.
