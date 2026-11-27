@@ -732,6 +732,16 @@ royal elections, kurultai, mandala rings.
     crown power, +15% levy size, +10% tax). Accompanied by historical
     events for the Diet of Worms (1495), Ewiger Landfriede, the Swabian
     War (1499), and Free City *Römermonate*.
+  - **Reformation religious leagues (1517+):** Once the Reformation starts
+    and at least one elector (or 4+ members) turns Protestant/Reformed from
+    1530 onward (or via the *Schmalkaldic League* event), `leagues_active`
+    opens the `catholic_league` (+5% army quality, +5 clergy mood) and
+    `protestant_league` (+5% army quality, +5% learning) roles. AI estates
+    align by faith. Settling the confessional question (`catholic_official`,
+    `protestant_official`, or `religious_peace` via the *Peace of Augsburg*
+    event) disbands the leagues, enforces official-faith eligibility for
+    the Imperial crown (triggering an immediate election if needed), or
+    halves religious disunity authority drain under `religious_peace`.
 
 ## AI Behaviour Setting (Phase 15)
 

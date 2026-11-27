@@ -109,3 +109,63 @@ option:
   effect:
     ruling_value = hre:authority:8
     prestige = 5
+
+event hre_schmalkaldic_league
+title = The Schmalkaldic League
+text = Following the spread of the Reformation across Germany, Protestant princes and imperial cities band together in a defensive league at Schmalkalden, forcing the Emperor and Catholic estates to rally their own counter-league.
+category = religious
+date_from = 1531-02-27
+date_to = 1570-12-31
+mtth = 24
+fire_once = true
+major = true
+trigger:
+  reformation_started = true
+  ruling_active = hre
+  ruling_leader = hre
+  not_ruling_flag = hre:leagues_active
+  not_ruling_flag = hre:religious_peace
+  not_ruling_flag = hre:catholic_official
+  not_ruling_flag = hre:protestant_official
+option:
+  label = Rally the Catholic League in defence of the old faith
+  ai_weight = 75
+  effect:
+    ruling_set_flag = hre:leagues_active
+    ruling_add_role = hre:catholic_league
+    prestige = 5
+option:
+  label = Seek an immediate religious truce across the Empire
+  ai_weight = 25
+  effect:
+    ruling_set_flag = hre:religious_peace
+    ruling_value = hre:authority:-10
+    stability = 1
+
+event hre_peace_of_augsburg
+title = The Peace of Augsburg
+text = Exhausted by confessional strife, the estates gather at Augsburg to proclaim Cuius Regio, Eius Religio — allowing each prince to determine the faith of his own lands and ending the rival religious leagues.
+category = religious
+date_from = 1555-09-25
+date_to = 1660-12-31
+mtth = 36
+fire_once = true
+major = true
+trigger:
+  ruling_active = hre
+  ruling_leader = hre
+  ruling_flag = hre:leagues_active
+option:
+  label = Proclaim the Peace of Augsburg
+  ai_weight = 80
+  effect:
+    ruling_set_flag = hre:religious_peace
+    ruling_clear_flag = hre:leagues_active
+    ruling_value = hre:authority:10
+    stability = 1
+option:
+  label = Refuse compromise and keep the leagues armed
+  ai_weight = 20
+  effect:
+    ruling_value = hre:authority:-5
+    prestige = 8
