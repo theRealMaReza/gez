@@ -118,4 +118,46 @@ After each fix, run the six games again and add the results here as
 - The AI never changes a law.
 - A game day still slows from about 8 ms to 13–15 ms over the century,
   and the 1st of each month and 1 January stutter.
+
+## Run 3: 27 November 2026, after Phase 20.8 Holy Roman Empire (Parts 1–5)
+
+**How it was tested:** the same six AI-only games from 30 May 1453 to
+1 January 1550 (Historical AI seeds 1–3 and Free AI seeds 1–3, CI workflow
+`46074540952`), now on the 415-country / 2,097-province Old World map with
+the full Phase 20.8 HRE system active (63 Imperial estates, 7 electors,
+Imperial Authority, Historical Imperial shield protection, Reichstag
+reforms + events, and Reformation religious leagues).
+
+### Results at 1550
+
+| Game | Alive (of 415) | Vanished | HRE gone (A–M sample) | Free Cities gone (A–M: 6) | `HAB` provs | `BOH` provs | `FRA` / `BUR` provs | Oldest war | Speed (ms/day) |
+|---|---|---|---|---|---|---|---|---|---|
+| Historical, seed 1 | 317 | 98 | 12 | 4 (`BES`, `FFM`, `LUB`, `MTZ`) | 11 | 18 | 67 / 35 | 1 yr | 23.8 |
+| Historical, seed 2 | 306 | 109 | 7 | 0 | 6 | 18 | 51 / 36 | 2 yr | 24.4 |
+| Historical, seed 3 | 308 | 107 | 7 | 1 (`BES`) | 5 | 18 | 64 / 28 | 1 yr | 39.0 |
+| Free, seed 1 | 306 | 109 | 14 | 2 (`AUG`, `FFM`) | 4 | 18 | 71 / 26 | 2 yr | 36.0 |
+| Free, seed 2 | 311 | 104 | 10 | 3 (`AUG`, `BAS`, `BES`) | 6 | 18 | 60 / 30 | 1 yr | 24.8 |
+| Free, seed 3 | 316 | 99 | 8 | 3 (`BAS`, `BES`, `FFM`) | 4 | 18 | 60 / 31 | 2 yr | 18.9 |
+
+### How the Empire held together
+- **Small states and Free Imperial Cities survive much better:** overall
+  worldwide country disappearance dropped from ~33% (Run 1–2) to 24–26%.
+  Inside the Empire, ~70–81% of small estates in the A–M sample survived to
+  1550 (compared with most being swallowed before Phase 20.8). In
+  Historical seeds 2 and 3, almost every Free Imperial City survived (0 and
+  1 lost out of 6 in the A–M sample); the most frequently contested cities
+  were border cities like `BES` (Besançon, bordering Burgundy) and `FFM`.
+- **Core Imperial estates hold firm:** all electors in the A–M range
+  (`BOH`, `BRA`, `CLN`, `MAI`) survived in **all 6 games**. Bohemia held
+  all 18 of its provinces in all 6 games, Inner Austria (`HAB`) survived in
+  all 6 games (4–11 provinces), and neither France (51–71 provinces) nor
+  Burgundy (26–36 provinces) overran the German heartland.
+- **Stability & simulation health:** zero crashes across all 6 games;
+  oldest active war at 1550 was 1–2 years; world population remained steady
+  at 380–402 million (from 383M in 1453); technology reached levels 11–12
+  across Europe.
+- **Note for 20.5 part 2:** `HAB` occasionally shrinks slightly to 4–5
+  provinces (against Hungary/Venice/border rivals) and `treasury_max`
+  climbs to ~435k–513k on the larger 415-country map (Ming); both belong to
+  Phase 20.5 part 2 tuning.
 - The middle treasury is still around 2,000 by 1550.
