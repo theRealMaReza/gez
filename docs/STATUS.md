@@ -4,8 +4,8 @@ The short version of `docs/HANDOFF.md` and `docs/ROADMAP.md`, mirrored to
 the claude.ai Project as `claude/STATUS.md`. Everything else lives in the
 repo (`theRealMaReza/gez`): read only the parts a task needs.
 
-Last updated: 24 November 2026 (session 17: smooth borders #51, Hagia Sophia #54,
-review of Gemini's #46–#48).
+Last updated: 26 November 2026 (all Phase 20.7 Old World regions & Part III
+in-map detail merged through #68: 2,097 provinces, 415 countries, 62 regions).
 
 ## Repo move (21–22 Nov 2026)
 - Old account `yv28f5k922-dot` suspended (owner appealed). New repo
@@ -86,6 +86,21 @@ review of Gemini's #46–#48).
   birth year (#50); highland lakes were pits on the 3D map (#52); main
   was red after #48 (shipbuilding test, #53). Several shields are
   20th-century flags (owner's picks).
+- **20.7 Southeast Asia & Sub-Saharan Africa** (Gemini, #58 Burma/Shan,
+  #59 Siam/Indochina/Dai Viet, #60 Maritime SEA, #61 West Africa/Sahel/Guinea
+  Coast, #62 East Africa/Great Lakes/Swahili Coast, #63 Central/Southern
+  Africa & Madagascar; merged 25 Nov).
+- **20.7 Siberia & Part III in-map detail** (Gemini, reviewed and merged
+  26 Nov per owner): #64 Siberia (Khanate of Sibir, Pelym, Kod, Buryats,
+  Evenks, Yakuts — removes the last Old World placeholder region), #65 HRE &
+  Alps (8 new HRE tags, 21 provinces, 4 Silesian Piast great vassals; bumped
+  Linux/macOS CI test timeout to 75m), #66 Italy (Piombino, Forlì, Benevento,
+  Crema, Finale, Massa, Naples splits; bumped Windows CI timeout to 90m),
+  #67 Ireland (Monaghan/Oriel + 6 provinces), #68 India (Velamas, Garhjat
+  tributary, Khukhra, Ummattur, Barkur, Keladi). Map now stands at **2,097
+  provinces, 345 states, 62 regions, 415 countries, 69 markets, 90 starting
+  armies, and 110 great-vassal provinces**, with all Wikimedia Commons
+  shields fetched by CI.
 - **20.7 smooth borders** (Claude, #51): borders and coasts from a baked
   distance field (`tools/terrain/edge_field.py` → `edges.png`, made by
   `bake_terrain.py`), smooth curves at every zoom; far fewer texture reads.
@@ -115,11 +130,12 @@ review of Gemini's #46–#48).
    the Mac (`git pull`, `./godot/build_mac.sh`): frame rate on the M1 when
    zoomed out (painted chart) and when windows open; try the Chronicle,
    Ledger and Timelapse medallions in the left column.
-2. **20.7 region PRs** (Gemini writes, Claude reviews; guide in HANDOFF;
-   East Asia is done): Southeast Asia, Siberia, Africa south of the Equator, and the
-   still-empty Sahel and Guinea coast; then 20.8, then the rest of 20.5. Also on
-   the Mac: frame rate of the new battle view (smoke, more haze) and of
-   towns on first load.
+2. **20.7 Old World map regions ✅** (all regions and Part III HRE/Italy/Ireland/India
+   detail merged through #68; remaining 20.7 work is optional landmarks per
+   HANDOFF "Landmarks"). Next major phases: **20.8 ruling systems and
+   formables** (Claude writes the engine, Gemini writes flavour/formables/HRE),
+   then the rest of **20.5 balance and play-test**. Also on the Mac: frame rate
+   of the new battle view (smoke, more haze) and of towns on first load.
 3. **20.5 balance and play-test** (Gemini writes the fixes and builds
    "Kayser", Claude checks the screens; Phases 18 and 20 are both
    merged; part 1, the 1453 border fixes, is merged as #19; the first
