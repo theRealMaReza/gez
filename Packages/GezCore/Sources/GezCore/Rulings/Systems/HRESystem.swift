@@ -114,6 +114,37 @@ public enum HRESystem: RulingSystem {
         }
     }
 
+    // MARK: - Imperial protection (Historical Imperial shield)
+
+    /// Returns the Emperor if the Emperor will automatically join a defensive war
+    /// to protect `defender` from `attacker`:
+    /// - Always when `attacker` is an outsider (non-HRE) attacking any HRE member.
+    /// - Always when `defender` is a Free Imperial City (even against another HRE member).
+    public static func imperialDefender(
+        in world: World,
+        attacker: CountryID,
+        defender: CountryID
+    ) -> CountryID? {
+        guard RulingEngine.isActive(world, key),
+              RulingEngine.isMember(world, key, defender),
+              let emperor = RulingEngine.leader(world, key),
+              emperor != attacker,
+              emperor != defender,
+              !world.diplomacy.isAtWar(emperor, defender) else {
+            return nil
+        }
+        let attackerIsMember = RulingEngine.isMember(world, key, attacker)
+        if !attackerIsMember || RulingEngine.hasRole(world, key, defender, "free_city") {
+            return emperor
+        }
+        return nil
+    }
+
+    /// True once Ewiger Landfriede has been proclaimed, forbidding wars between HRE members.
+    public static func internalWarsForbidden(in world: World) -> Bool {
+        RulingEngine.isActive(world, key) && RulingEngine.hasFlag(world, key, "ewiger_landfriede")
+    }
+
     // MARK: - Authority breakdown (public for UI and tests)
 
     /// Computes the monthly Imperial Authority change for the current world state.

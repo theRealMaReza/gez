@@ -335,7 +335,7 @@ extension World {
         }
 
         let truceYears = diplomacy.truceDurationYears(forPeaceCost: totalCost)
-        let aeGenerated = diplomacy.aggressiveExpansionForPeace(offer, war: war, in: self)
+        var aeGenerated = diplomacy.aggressiveExpansionForPeace(offer, war: war, in: self)
 
         // 1. Apply each peace demand
         for demand in offer.demands {
@@ -393,8 +393,28 @@ extension World {
         }
 
         // Check if loser was fully annexed (0 provinces left)
-        if provinces(ownedBy: offer.loser).isEmpty {
+        let loserWasHREMember = RulingEngine.isActive(self, HRESystem.key)
+            && RulingEngine.isMember(self, HRESystem.key, offer.loser)
+        let loserWasFreeCity = loserWasHREMember
+            && RulingEngine.hasRole(self, HRESystem.key, offer.loser, "free_city")
+        let loserFullyAnnexed = provinces(ownedBy: offer.loser).isEmpty
+        if loserFullyAnnexed {
             cleanupAnnexedCountry(offer.loser)
+        }
+
+        // HRE Imperial shield: taking HRE territory carries +50% Aggressive Expansion,
+        // and annexing an Imperial estate angers all fellow members.
+        if loserWasHREMember && aeGenerated > 0 {
+            aeGenerated *= 1.5
+        }
+        if loserWasHREMember && loserFullyAnnexed {
+            let opinionDrop = loserWasFreeCity ? -40 : -25
+            for m in RulingEngine.members(self, HRESystem.key) where m != offer.winner && m != offer.loser {
+                diplomacy.modifyOpinion(of: offer.winner, by: m, delta: opinionDrop)
+            }
+            if RulingEngine.isMember(self, HRESystem.key, offer.winner) {
+                RulingEngine.addCountryValue(&self, HRESystem.key, "favour", offer.winner, -20)
+            }
         }
 
         // 2. Apply Aggressive Expansion and update coalitions immediately
