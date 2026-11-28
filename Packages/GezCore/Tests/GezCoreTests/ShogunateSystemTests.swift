@@ -103,4 +103,162 @@ struct ShogunateSystemTests {
         #expect(world.rulings.formedAs[ash.index] == "JPN")
         #expect(world.countries.name[ash.index] == "Japan")
     }
+
+    @Test("Bakufu Authority falls with hostile Kanrei and triggers Sengoku below 25")
+    func authorityAndSengokuTrigger() throws {
+        var world = Scenario1453.makeWorld()
+        var rng = GameRandom(seed: 1453)
+        let ash = try #require(world.countries.id(forTag: "ASH"))
+        let hsk = try #require(world.countries.id(forTag: "HSK"))
+        let ymn = try #require(world.countries.id(forTag: "YMN"))
+
+        // Loyal Kanrei + peace gives positive delta when ruler is capable.
+        world.diplomacy.setOpinion(of: ash, by: hsk, value: 80)
+        let loyalDelta = ShogunateSystem.monthlyAuthorityDelta(in: world)
+
+        // Hostile Kanrei drains authority.
+        world.diplomacy.setOpinion(of: ash, by: hsk, value: -60)
+        let hostileDelta = ShogunateSystem.monthlyAuthorityDelta(in: world)
+        #expect(hostileDelta < loyalDelta)
+
+        // Drop authority below 25 -> monthly tick activates Sengoku (stage 1) and applies effects.
+        RulingEngine.setValue(&world, "shogunate", "bakufu_authority", 22)
+        RulingEngine.runMonthly(&world, date: GameDate(year: 1454, month: 6, day: 1), random: &rng)
+        #expect(ShogunateSystem.internalWarsAllowed(in: world))
+        #expect(RulingEngine.hasFlag(world, "shogunate", "sengoku_active"))
+        #expect(RulingEngine.state(world, "shogunate")?.stage == 1)
+
+        var ymnFx = Effects(estates: 0)
+        ShogunateSystem.addEffects(world, ymn, into: &ymnFx)
+        #expect(abs(ymnFx[.armyQuality] - 0.05) < 1e-9)
+        #expect(abs(ymnFx[.levySize] - 0.10) < 1e-9)
+
+        var ashFx = Effects(estates: 0)
+        ShogunateSystem.addEffects(world, ash, into: &ashFx)
+        #expect(abs(ashFx[.crownPower] - (-0.08)) < 1e-9)
+    }
+
+    @Test("Kanrei rotates among Sankanrei on ruler death and falls back to strongest loyal shugo")
+    func kanreiRotation() throws {
+        var world = Scenario1453.makeWorld()
+        var rng = GameRandom(seed: 1453)
+        let date = Scenario1453.startDate
+        let ash = try #require(world.countries.id(forTag: "ASH"))
+        let hsk = try #require(world.countries.id(forTag: "HSK"))
+        let htk = try #require(world.countries.id(forTag: "HTK"))
+        let shb = try #require(world.countries.id(forTag: "SHB"))
+
+        // Make HSK hostile and HTK strongly favoured -> killing HSK's ruler rotates Kanrei to HTK.
+        world.diplomacy.setOpinion(of: ash, by: hsk, value: -120)
+        world.diplomacy.setOpinion(of: ash, by: htk, value: 150)
+        world.diplomacy.setOpinion(of: ash, by: shb, value: -20)
+        RulingEngine.setCountryValue(&world, "shogunate", "loyalty", htk, 90)
+
+        let hskRuler = try #require(world.countries.ruler[hsk.index])
+        CharacterSystem.kill(&world, hskRuler, date: date, random: &rng, suppressEvent: true)
+        #expect(ShogunateSystem.kanrei(in: world) == htk)
+
+        // If all three Sankanrei are hostile (<= -80), fallback picks a loyal non-Sankanrei shugo.
+        world.diplomacy.setOpinion(of: ash, by: hsk, value: -120)
+        world.diplomacy.setOpinion(of: ash, by: htk, value: -120)
+        world.diplomacy.setOpinion(of: ash, by: shb, value: -120)
+        let ouc = try #require(world.countries.id(forTag: "OUC"))
+        world.diplomacy.setOpinion(of: ash, by: ouc, value: 180)
+        RulingEngine.setCountryValue(&world, "shogunate", "loyalty", ouc, 100)
+
+        ShogunateSystem.appointKanrei(&world, date: date, random: &rng)
+        #expect(ShogunateSystem.kanrei(in: world) == ouc)
+    }
+
+    @Test("Taking Kyoto usurps the Shogunate, transfers shugo vassals, and resets Bakufu Authority to 40")
+    func kyotoUsurpation() throws {
+        var world = Scenario1453.makeWorld()
+        var rng = GameRandom(seed: 1453)
+        let date = GameDate(year: 1470, month: 3, day: 1)
+        let ash = try #require(world.countries.id(forTag: "ASH"))
+        let ymn = try #require(world.countries.id(forTag: "YMN"))
+        let ouc = try #require(world.countries.id(forTag: "OUC"))
+        let kyoto = try #require(world.provinces.id(named: "Kyoto"))
+
+        RulingEngine.setValue(&world, "shogunate", "bakufu_authority", 12)
+        world.transferProvince(kyoto, to: ymn, from: ash)
+        ShogunateSystem.checkKyotoUsurpation(&world, date: date, random: &rng)
+
+        #expect(RulingEngine.leader(world, "shogunate") == ymn)
+        #expect(!RulingEngine.hasRole(world, "shogunate", ymn, "shugo"))
+        #expect(world.countries.overlord[ymn.index] == nil)
+        #expect(RulingEngine.hasRole(world, "shogunate", ash, "shugo"))
+        #expect(world.countries.overlord[ouc.index] == ymn)
+        #expect(RulingEngine.value(world, "shogunate", "bakufu_authority") == 40)
+    }
+
+    @Test("Shogun death and shugo annexation reduce Bakufu Authority")
+    func successionAndAnnexPenalties() throws {
+        var world = Scenario1453.makeWorld()
+        var rng = GameRandom(seed: 1453)
+        let date = Scenario1453.startDate
+        let ash = try #require(world.countries.id(forTag: "ASH"))
+        let shn = try #require(world.countries.id(forTag: "SHN"))
+
+        let before = RulingEngine.value(world, "shogunate", "bakufu_authority")
+        let shogunRuler = try #require(world.countries.ruler[ash.index])
+        CharacterSystem.kill(&world, shogunRuler, date: date, random: &rng, suppressEvent: true)
+        #expect(RulingEngine.value(world, "shogunate", "bakufu_authority") == before - 5)
+
+        ShogunateSystem.countryVanished(&world, country: shn, date: date)
+        #expect(RulingEngine.value(world, "shogunate", "bakufu_authority") == before - 8)
+    }
+
+    @Test("Tenka Toitsu ends Sengoku when Shogun holds Kyoto, 75%+ of Japan, and 60+ Bakufu Authority")
+    func tenkaToitsu() throws {
+        var world = Scenario1453.makeWorld()
+        let date = GameDate(year: 1490, month: 1, day: 1)
+        let ash = try #require(world.countries.id(forTag: "ASH"))
+
+        // In 1453 ASH + its 15 shugo vassals control 100% of the 60 Shogunate provinces.
+        #expect(ShogunateSystem.shogunControlledFraction(in: world) >= 0.99)
+
+        // Authority is 40 (< 60), so Tenka Toitsu is not yet available.
+        #expect(!ShogunateSystem.canProclaimTenkaToitsu(in: world))
+
+        RulingEngine.setFlag(&world, "shogunate", "sengoku_active")
+        RulingEngine.setValue(&world, "shogunate", "bakufu_authority", 65)
+        #expect(ShogunateSystem.canProclaimTenkaToitsu(in: world))
+
+        let proclaimed = ShogunateSystem.proclaimTenkaToitsu(&world, by: ash, date: date)
+        #expect(proclaimed)
+        #expect(RulingEngine.hasFlag(world, "shogunate", "tenka_toitsu"))
+        #expect(!RulingEngine.hasFlag(world, "shogunate", "sengoku_active"))
+        #expect(!ShogunateSystem.internalWarsAllowed(in: world))
+        #expect(RulingEngine.state(world, "shogunate")?.stage == 2)
+    }
+
+    @Test("Shogunate simulation is deterministic and survives save/load round-trip")
+    func determinismAndSaveLoad() throws {
+        let sim1 = Simulation(world: Scenario1453.makeWorld(), seed: 2026)
+        let sim2 = Simulation(world: Scenario1453.makeWorld(), seed: 2026)
+
+        // Run 24 months (730 days) and verify identical ruling state and clamped bounds.
+        sim1.advance(days: 730)
+        sim2.advance(days: 730)
+        #expect(sim1.world.rulings == sim2.world.rulings)
+        let auth = RulingEngine.value(sim1.world, "shogunate", "bakufu_authority")
+        #expect(auth >= 0 && auth <= 100)
+
+        // Mutate Shogunate state, round-trip via SaveSnapshot, and run 60 more days.
+        let hsk = try #require(sim1.world.countries.id(forTag: "HSK"))
+        RulingEngine.setFlag(&sim1.world, "shogunate", "sengoku_active")
+        RulingEngine.setValue(&sim1.world, "shogunate", "bakufu_authority", 18)
+        RulingEngine.setCountryValue(&sim1.world, "shogunate", "loyalty", hsk, 42)
+
+        let snap = SaveSnapshot(capturing: sim1)
+        let data = try JSONEncoder().encode(snap)
+        let decoded = try JSONDecoder().decode(SaveSnapshot.self, from: data)
+        let restored = try decoded.restore()
+        #expect(restored.world.rulings == sim1.world.rulings)
+
+        sim1.advance(days: 60)
+        restored.advance(days: 60)
+        #expect(sim1.world.rulings == restored.world.rulings)
+    }
 }

@@ -774,6 +774,22 @@ royal elections, kurultai, mandala rings.
       vassals) with `bakufu_authority >= 60` proclaims *Tenka Tōitsu*
       (ending internal Sengoku wars) and unlocks the unified **Japan
       (`JPN`)** formable (`data/rulings/formables/02_japan.txt`).
+  - **Bakufu Authority, Kanrei & Transitions (`ShogunateSystem.swift`):**
+    - Monthly authority delta: Shogun competence (`stewardship + diplomacy >= 14`
+      gives `+0.15`, `<= 8` gives `-0.12`), Kanrei loyalty (`+0.15` if
+      opinion `>= 20`, `-0.20` if hostile/at war), internal Shogunate wars
+      (`-0.18` each, cap `-0.72`; or `+0.10` pre-Sengoku peace dividend),
+      disloyal shugo (`-0.04` each with opinion `<= -50`, cap `-0.32`),
+      foreign-held Shogunate provinces (`-0.04` each, cap `-0.40`), and
+      `+0.25` under `tenka_toitsu`. Shogun succession costs `-5` authority
+      (before `tenka_toitsu`); annexing a shugo costs `-3`.
+    - Yearly `loyalty` drift: `+3` (`+5` for Kanrei) when opinion `>= 25`,
+      `-3` when `<= -30`, `-12` when at war with the Shogun.
+    - Stage effects: during `sengoku_active` (stage 1), `shugo` gain `+5%`
+      army quality and `+10%` levy size while the Shogun suffers `-8%`
+      crown power. Under `tenka_toitsu` (stage 2), the Shogun gains `+10%`
+      crown power, `+10%` tax, `-10%` stability cost, and all members gain
+      `+5%` trade.
 
 ## AI Behaviour Setting (Phase 15)
 
