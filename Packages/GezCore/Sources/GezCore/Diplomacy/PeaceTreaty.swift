@@ -402,6 +402,9 @@ extension World {
             cleanupAnnexedCountry(offer.loser)
         }
 
+        // Japanese Shogunate: if Kyoto changed hands in this peace treaty, transfer the Shogunate immediately.
+        ShogunateSystem.handleKyotoCaptureInPeace(&self, date: date)
+
         // HRE Imperial shield: taking HRE territory carries +50% Aggressive Expansion,
         // and annexing an Imperial estate angers all fellow members.
         if loserWasHREMember && aeGenerated > 0 {

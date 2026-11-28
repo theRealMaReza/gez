@@ -261,4 +261,74 @@ struct ShogunateSystemTests {
         restored.advance(days: 60)
         #expect(sim1.world.rulings == restored.world.rulings)
     }
+
+    @Test("Internal shugo wars unlock during Sengoku, exclude the Shogun, and re-lock after Tenka Toitsu")
+    func sengokuInternalWarsAndKyotoMarch() throws {
+        var world = Scenario1453.makeWorld()
+        let date = GameDate(year: 1468, month: 5, day: 1)
+        let ash = try #require(world.countries.id(forTag: "ASH"))
+        let hsk = try #require(world.countries.id(forTag: "HSK"))
+        let ymn = try #require(world.countries.id(forTag: "YMN"))
+        let ouc = try #require(world.countries.id(forTag: "OUC"))
+        let kyoto = try #require(world.provinces.id(named: "Kyoto"))
+
+        // 1. Pre-Sengoku: shugo vassals cannot declare war on each other.
+        let preCheck = world.diplomacy.canDeclareWar(attacker: hsk, defender: ymn, world: world)
+        #expect(!preCheck.isValid)
+
+        // 2. Activate Sengoku: HSK can declare war on neighbouring YMN with Sengoku CB, without calling in ASH.
+        RulingEngine.setFlag(&world, "shogunate", "sengoku_active")
+        let sengokuCheck = world.diplomacy.canDeclareWar(attacker: hsk, defender: ymn, world: world)
+        #expect(sengokuCheck.isValid)
+
+        let cbs = world.diplomacy.availableCasusBelli(attacker: hsk, defender: ymn, in: world)
+        let sengokuCB = try #require(cbs.first)
+        let shugoWar = try world.declareWar(
+            attacker: hsk,
+            defender: ymn,
+            casusBelli: sengokuCB.type,
+            warGoal: sengokuCB.warGoal,
+            date: date
+        ).get()
+        #expect(shugoWar.attackers.contains(hsk))
+        #expect(shugoWar.defenders.contains(ymn))
+        #expect(!shugoWar.defenders.contains(ash))
+
+        // 3. March on Kyoto: YMN attacks ASH; loyal Kanrei (HSK) defends ASH, disloyal shugo (OUC) does not.
+        var w2 = Scenario1453.makeWorld()
+        RulingEngine.setFlag(&w2, "shogunate", "sengoku_active")
+        w2.diplomacy.setOpinion(of: ash, by: hsk, value: 30)
+        w2.diplomacy.setOpinion(of: ash, by: ouc, value: -10)
+        let marchCBs = w2.diplomacy.availableCasusBelli(attacker: ymn, defender: ash, in: w2)
+        #expect(marchCBs.contains { $0.targetProvince == kyoto })
+        let kyotoWar = try w2.declareWar(
+            attacker: ymn,
+            defender: ash,
+            casusBelli: .claim,
+            warGoal: .conquerProvince(kyoto),
+            date: date
+        ).get()
+        #expect(kyotoWar.defenders.contains(ash))
+        #expect(kyotoWar.defenders.contains(hsk))
+        #expect(!kyotoWar.defenders.contains(ouc))
+
+        // 4. Peace treaty transferring Kyoto immediately usurps the Shogunate.
+        let offer = PeaceOffer(
+            warID: kyotoWar.id,
+            winner: ymn,
+            loser: ash,
+            demands: [.cedeProvince(province: kyoto, to: ymn)]
+        )
+        _ = try w2.executePeaceTreaty(offer, date: date, forceAccept: true).get()
+        #expect(RulingEngine.leader(w2, "shogunate") == ymn)
+        #expect(world.provinces.owner[kyoto.index] == ash)
+        #expect(w2.provinces.owner[kyoto.index] == ymn)
+        #expect(RulingEngine.value(w2, "shogunate", "bakufu_authority") == 40)
+
+        // 5. After Tenka Toitsu, internal shugo wars are forbidden again.
+        RulingEngine.setFlag(&w2, "shogunate", "tenka_toitsu")
+        RulingEngine.setFlag(&w2, "shogunate", "sengoku_active", false)
+        let postCheck = w2.diplomacy.canDeclareWar(attacker: hsk, defender: ouc, world: w2)
+        #expect(!postCheck.isValid)
+    }
 }
