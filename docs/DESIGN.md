@@ -790,6 +790,14 @@ royal elections, kurultai, mandala rings.
       crown power. Under `tenka_toitsu` (stage 2), the Shogun gains `+10%`
       crown power, `+10%` tax, `-10%` stability cost, and all members gain
       `+5%` trade.
+  - **Historical events (`data/events/07_shogunate.txt`):** Six events
+    driving the Muromachi-to-Sengoku arc: *The Kyōtoku Incident* (1454+,
+    `KMK` vs. `UES`/`ASH`), *The Hatakeyama Succession Crisis* (1454+,
+    `HTK` splitting Hosokawa and Yamana), *The Ōnin War* (1467+, sets
+    `sengoku_active` and drops `bakufu_authority` by 25), *The Ikkō-ikki
+    Rising in Kaga* (1488+), *Gekokujō* (shugo military empowerment vs.
+    Bakufu authority), and *Tenka Tōitsu* (pacification event ending
+    `sengoku_active` once Kyoto is secure and authority reaches 60+).
 
 ## AI Behaviour Setting (Phase 15)
 
