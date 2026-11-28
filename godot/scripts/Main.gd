@@ -21,6 +21,7 @@ const ReligionPanelScript := preload("res://scripts/ReligionPanel.gd")
 const RebelsPanelScript := preload("res://scripts/RebelsPanel.gd")
 const TechnologyPanelScript := preload("res://scripts/TechnologyPanel.gd")
 const ChroniclePanelScript := preload("res://scripts/ChroniclePanel.gd")
+const ImperialDietPanelScript := preload("res://scripts/ImperialDietPanel.gd")
 const LedgerPanelScript := preload("res://scripts/LedgerPanel.gd")
 const TimelapsePanelScript := preload("res://scripts/TimelapsePanel.gd")
 const DiplomacyPanelScript := preload("res://scripts/DiplomacyPanel.gd")
@@ -100,6 +101,7 @@ var religion_ui: Control
 var rebels_ui: Control
 var tech_ui: Control
 var chronicle_ui: Control
+var imperial_diet_ui: Control
 var ledger_ui: Control
 var timelapse_ui: Control
 var diplomacy_ui: Control
@@ -533,6 +535,14 @@ func _build_scene_ui() -> void:
 	add_window(chronicle_ui)
 	chronicle_ui.call("setup", self)
 
+	imperial_diet_ui = Control.new()
+	imperial_diet_ui.name = "ImperialDietUI"
+	imperial_diet_ui.set_script(ImperialDietPanelScript)
+	imperial_diet_ui.set_anchors_preset(Control.PRESET_FULL_RECT)
+	imperial_diet_ui.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_window(imperial_diet_ui)
+	imperial_diet_ui.call("setup", self)
+
 	ledger_ui = Control.new()
 	ledger_ui.name = "LedgerUI"
 	ledger_ui.set_script(LedgerPanelScript)
@@ -784,6 +794,8 @@ func _build_side_bar() -> void:
 	add_side_button("chronicle", "Chronicle", "The history of your realm, chapter by chapter, reign by reign.", _toggle_chronicle_window)
 	add_side_button("ledger", "Ledger & Graphs", "Compare countries over time: population, income, armies, navies, technology, faiths and cultures.", _toggle_ledger_window)
 	add_side_button("timelapse", "Map Timelapse", "Replay how borders and religions changed year by year since 1453.", _toggle_timelapse_window)
+	# Phase 20.8 HRE screen
+	add_side_button("capital", "Imperial Diet", "The Holy Roman Emperor, Imperial Authority, the seven Prince-Electors, and the Reichstag reforms.", _toggle_imperial_diet_window)
 	# old names, still used by the refresh code
 	trade_btn = null
 	court_btn = null
@@ -847,6 +859,7 @@ func _sync_side_bar() -> void:
 		"technology": _window_open(tech_ui, "tech_panel"), "diplomacy": diplomacy_ui != null and diplomacy_ui.visible,
 		"wars": _window_open(wars_ui, "wars_panel"), "armies": _window_open(army_ui, "armies_window_panel"),
 		"fleets": _window_open(fleet_ui, "fleets_window_panel"),
+		"capital": _window_open(imperial_diet_ui, "diet_panel"),
 	}
 	var sig := str(open)
 	if sig == _last_side_sig:
@@ -2589,6 +2602,8 @@ func _close_top_left_windows(except_key: String = "") -> void:
 		tech_ui.call("close_window")
 	if except_key != "chronicle" and chronicle_ui != null:
 		chronicle_ui.call("close_window")
+	if except_key != "imperial_diet" and imperial_diet_ui != null:
+		imperial_diet_ui.call("close_window")
 	if except_key != "ledger" and ledger_ui != null:
 		ledger_ui.call("close_window")
 	if except_key != "timelapse" and timelapse_ui != null:
@@ -2681,6 +2696,14 @@ func _toggle_chronicle_window() -> void:
 	if opening:
 		_close_top_left_windows("chronicle")
 	chronicle_ui.call("toggle_window")
+
+func _toggle_imperial_diet_window() -> void:
+	if imperial_diet_ui == null:
+		return
+	var opening: bool = not bool(imperial_diet_ui.call("is_open"))
+	if opening:
+		_close_top_left_windows("imperial_diet")
+	imperial_diet_ui.call("toggle_window")
 
 func _toggle_ledger_window() -> void:
 	if ledger_ui == null:

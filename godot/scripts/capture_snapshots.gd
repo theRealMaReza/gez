@@ -104,6 +104,7 @@ func _run_captures() -> void:
 		["_toggle_diplomacy_window", "godot_diplomacy.png"],
 		["_toggle_wars_window", "godot_wars.png"],
 		["_toggle_armies_window", "godot_armies.png"],
+		["_toggle_imperial_diet_window", "godot_imperial_diet.png"],
 	]
 	for entry in windows:
 		root_node.call(entry[0])
