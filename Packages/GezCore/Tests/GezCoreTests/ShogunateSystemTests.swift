@@ -129,12 +129,12 @@ struct ShogunateSystemTests {
         #expect(RulingEngine.state(world, "shogunate")?.stage == 1)
 
         var ymnFx = Effects(estates: 0)
-        ShogunateSystem.addEffects(world, ymn, into: &ymnFx)
+        ShogunateSystem.addEffects(world, country: ymn, into: &ymnFx)
         #expect(abs(ymnFx[.armyQuality] - 0.05) < 1e-9)
         #expect(abs(ymnFx[.levySize] - 0.10) < 1e-9)
 
         var ashFx = Effects(estates: 0)
-        ShogunateSystem.addEffects(world, ash, into: &ashFx)
+        ShogunateSystem.addEffects(world, country: ash, into: &ashFx)
         #expect(abs(ashFx[.crownPower] - (-0.08)) < 1e-9)
     }
 
@@ -235,8 +235,8 @@ struct ShogunateSystemTests {
 
     @Test("Shogunate simulation is deterministic and survives save/load round-trip")
     func determinismAndSaveLoad() throws {
-        let sim1 = Simulation(world: Scenario1453.makeWorld(), seed: 2026)
-        let sim2 = Simulation(world: Scenario1453.makeWorld(), seed: 2026)
+        let sim1 = Simulation(world: Scenario1453.makeWorld(), startDate: Scenario1453.startDate, seed: 2026)
+        let sim2 = Simulation(world: Scenario1453.makeWorld(), startDate: Scenario1453.startDate, seed: 2026)
 
         // Run 24 months (730 days) and verify identical ruling state and clamped bounds.
         sim1.advance(days: 730)
@@ -254,7 +254,7 @@ struct ShogunateSystemTests {
         let snap = SaveSnapshot(capturing: sim1)
         let data = try JSONEncoder().encode(snap)
         let decoded = try JSONDecoder().decode(SaveSnapshot.self, from: data)
-        let restored = try decoded.restore()
+        let restored = decoded.restore()
         #expect(restored.world.rulings == sim1.world.rulings)
 
         sim1.advance(days: 60)
