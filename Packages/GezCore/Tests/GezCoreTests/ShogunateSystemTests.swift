@@ -66,26 +66,27 @@ struct ShogunateSystemTests {
     @Test("Japan (JPN) formable requires Tenka Toitsu and transforms the Shogun in place")
     func japanFormable() throws {
         var world = Scenario1453.makeWorld()
-        var rng = GameRandom(seed: 1453)
         let date = Scenario1453.startDate
         let ash = try #require(world.countries.id(forTag: "ASH"))
         let ryu = try #require(world.countries.id(forTag: "RYU"))
 
         // Ineligible country cannot form Japan.
-        #expect(FormableSystem.form(&world, country: ryu, formableID: "JPN", date: date, random: &rng) == .notEligible)
+        #expect(FormableSystem.form(&world, ryu, "JPN", date: date) == .notEligible)
 
         // Ashikaga cannot form Japan before Tenka Toitsu is proclaimed.
-        #expect(FormableSystem.form(&world, country: ash, formableID: "JPN", date: date, random: &rng) == .requirementsNotMet)
+        #expect(FormableSystem.form(&world, ash, "JPN", date: date) == .requirementsNotMet)
 
         // Once Tenka Toitsu is achieved, Ashikaga can form Japan.
         RulingEngine.setFlag(&world, "shogunate", "tenka_toitsu")
-        let result = FormableSystem.form(&world, country: ash, formableID: "JPN", date: date, random: &rng)
-        #expect(result == .formed)
+        let result = FormableSystem.form(&world, ash, "JPN", date: date)
+        #expect(result == nil)
         #expect(world.countries.name[ash.index] == "Japan")
         #expect(world.countries.color[ash.index] == RGB(185, 45, 55))
         #expect(world.countries.shield[ash.index] == "JPN")
-        #expect(world.countries.missionTree[ash.index] == "japan")
-        #expect(world.rulings.formed["JPN"]?.country == ash)
+        #expect(world.rulings.missionTree[ash.index] == "japan")
+        #expect(world.rulings.formedAs[ash.index] == "JPN")
+        let record = try #require(world.rulings.formed.last)
+        #expect(record.country == ash && record.formable == "JPN")
         #expect(RulingEngine.value(world, "shogunate", "bakufu_authority") == 60)
     }
 
@@ -97,9 +98,9 @@ struct ShogunateSystemTests {
         let ash = try #require(world.countries.id(forTag: "ASH"))
 
         RulingEngine.setFlag(&world, "shogunate", "tenka_toitsu")
-        FormableSystem.runMonthly(&world, date: date, random: &rng)
+        RulingEngine.runMonthly(&world, date: date, random: &rng)
 
-        #expect(world.rulings.formed["JPN"]?.country == ash)
+        #expect(world.rulings.formedAs[ash.index] == "JPN")
         #expect(world.countries.name[ash.index] == "Japan")
     }
 }
