@@ -346,11 +346,11 @@ struct ShogunateSystemTests {
             "shogunate_tenka_toitsu",
         ]
         for id in expectedIDs {
-            #expect(world.eventRules.event(id) != nil, "Missing event \(id)")
+            #expect(world.eventRules.event(id: id) != nil, "Missing event \(id)")
         }
 
         // Apply option 0 of the Onin War -> activates Sengoku and drops Bakufu Authority by 25.
-        let onin = try #require(world.eventRules.event("shogunate_onin_war_1467"))
+        let onin = try #require(world.eventRules.event(id: "shogunate_onin_war_1467"))
         let oninDate = GameDate(year: 1467, month: 6, day: 1)
         #expect(EventSystem.evaluate(onin.trigger, in: world, for: ash, date: oninDate))
         EventSystem.apply(onin.options[0].effects, to: &world, country: ash, date: oninDate)
@@ -360,7 +360,7 @@ struct ShogunateSystemTests {
 
         // Raise authority to 65 and apply option 0 of Tenka Toitsu -> ends Sengoku.
         RulingEngine.setValue(&world, "shogunate", "bakufu_authority", 65)
-        let tenka = try #require(world.eventRules.event("shogunate_tenka_toitsu"))
+        let tenka = try #require(world.eventRules.event(id: "shogunate_tenka_toitsu"))
         let tenkaDate = GameDate(year: 1490, month: 1, day: 1)
         #expect(EventSystem.evaluate(tenka.trigger, in: world, for: ash, date: tenkaDate))
         EventSystem.apply(tenka.options[0].effects, to: &world, country: ash, date: tenkaDate)
