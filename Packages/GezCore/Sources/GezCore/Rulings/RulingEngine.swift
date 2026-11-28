@@ -75,6 +75,7 @@ public enum RulingSystems {
     /// (file name order in `data/rulings/systems/`), not this list's.
     public static let builtIn: [any RulingSystem.Type] = [
         HRESystem.self,
+        ShogunateSystem.self,
     ]
 
     private static let lock = NSLock()
