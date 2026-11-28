@@ -4,9 +4,10 @@ The short version of `docs/HANDOFF.md` and `docs/ROADMAP.md`, mirrored to
 the claude.ai Project as `claude/STATUS.md`. Everything else lives in the
 repo (`theRealMaReza/gez`): read only the parts a task needs.
 
-Last updated: 26 November 2026 (Phase 20.8 part 1, the ruling-systems
-engine, merged as #70; all 20.7 regions merged through #68: 2,097
-provinces, 415 countries, 62 regions).
+Last updated: 27 November 2026 (Phase 20.8 Holy Roman Empire merged as
+#71–#77: full 1453 HRE data, elections/authority, Historical Imperial
+shield, Reichstag reforms + events, Reformation religious leagues, Run 3
+balance report, and Imperial Diet window; next: Shogunate).
 
 ## Repo move (21–22 Nov 2026)
 - Old account `yv28f5k922-dot` suspended (owner appealed). New repo
@@ -135,6 +136,20 @@ provinces, 415 countries, 62 regions).
   play yet. Guide for Gemini: `docs/RULING_SYSTEMS.md`. Owner's order:
   **HRE, then Shogunate**. Screens picked: **HRE "Imperial Diet"
   window** and **"Crowns to claim" formables list** (both mock-up A).
+- **20.8 Holy Roman Empire ✅** (Gemini, #71–#77, merged 27 Nov): full
+  1453 data (#71: 63 Imperial estates, 157 provinces, authority 20, favour,
+  role effects), `HRESystem.swift` (#72: 7-elector voting via
+  `RulingEngine.elect`, monthly authority rise/fall, `-5`/`-8` annex
+  penalties, electorate replenishment), **Historical Imperial shield**
+  (#73, owner's pick: Emperor defends members from outsiders & Free Cities
+  from everyone, +50% AE & member opinion penalties), 6 Reichstag reforms
+  & events (#74: Diet of Worms 1495, Ewiger Landfriede, Swabian War 1499,
+  Erbreich), Reformation religious leagues (#75: Catholic/Protestant
+  leagues, Schmalkaldic League & Peace of Augsburg events), Run 3 balance
+  report (#76: 6/6 games to 1550 passed; ~70–81% small HRE estates
+  survived, all A–M electors & `HAB` survived), and the **"Imperial Diet"
+  window** (#77: mock-up A in Phase 20 Theme, `godot_imperial_diet.png`
+  verified).
 
 ## Next
 1. Owner, when convenient: on the M1, `./godot/build_mac.sh`, then
@@ -142,13 +157,13 @@ provinces, 415 countries, 62 regions).
    res://tools/profile_map.gd` (border speed before/after); the paintings; a look at the new interface on
    the Mac (`git pull`, `./godot/build_mac.sh`): frame rate on the M1 when
    zoomed out (painted chart) and when windows open; try the Chronicle,
-   Ledger and Timelapse medallions in the left column.
+   Ledger, Timelapse and Imperial Diet medallions in the left column.
 2. **20.7 Old World map regions ✅** (all regions and Part III HRE/Italy/Ireland/India
    detail merged through #68; remaining 20.7 work is optional landmarks per
-   HANDOFF "Landmarks"). Next: **20.8 on top of the engine (Gemini)**:
-   HRE data and rules, then the Shogunate and the other systems,
-   formables and flavour, and the two picked screens (Claude checks the
-   screenshots); then the rest of **20.5 balance and play-test**. Also on the Mac: frame rate
+   HANDOFF "Landmarks"). **20.8 HRE ✅** (#71–#77). Next: **20.8 Shogunate**
+   (Ashikaga *Bakufu* + *shugo* vassals + Ōnin War), then the other ruling
+   systems, formables catalog + "Crowns to claim" screen, and regional
+   flavour; then the rest of **20.5 balance and play-test**. Also on the Mac: frame rate
    of the new battle view (smoke, more haze) and of towns on first load.
 3. **20.5 balance and play-test** (Gemini writes the fixes and builds
    "Kayser", Claude checks the screens; Phases 18 and 20 are both
