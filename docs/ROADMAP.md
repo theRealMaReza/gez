@@ -468,10 +468,15 @@ requests.
   `tools/rulings/rulinggen.py`, event words, saves, tests; guide for
   Gemini in `docs/RULING_SYSTEMS.md`. Starter HRE data (emperor, electors,
   free cities) and a Spain example.
-- **Next (Gemini):** HRE data and `HRESystem` (elections, authority,
-  Reichstag reforms, leagues), then the Shogunate, the other systems,
-  formables catalog and data-driven flavour. HRE screen and decisions
-  list: Claude's mock-ups, owner picks, then Gemini builds.
+- **Holy Roman Empire ✅** (Gemini, #71–#77, 27 Nov 2026): 1453 HRE data
+  (63 estates, 157 provinces, authority 20, favour, role effects),
+  `HRESystem.swift` (elections, authority, annex penalties), Historical
+  Imperial shield protection (owner's pick), 6 Reichstag reforms + events,
+  Reformation religious leagues + Peace of Augsburg, Run 3 balance report
+  (6 games to 1550), and the "Imperial Diet" window (mock-up A).
+- **Next (Gemini):** the Shogunate (Ashikaga *Bakufu*, *shugo* vassals,
+  Ōnin War), then the other ruling systems, formables catalog + "Crowns to
+  claim" screen (mock-up A), and data-driven regional flavour.
 
 ### Phase 21: Mission trees
 After the Old World map (20.7) and ruling systems and formables (20.8);
