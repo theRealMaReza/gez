@@ -1,0 +1,53 @@
+# Ashikaga Shogunate on 30 May 1453 (Phase 20.8).
+# Compiled by tools/rulings/rulinggen.py -> rulings1453.json.
+# Format and rules: docs/RULING_SYSTEMS.md.
+
+system shogunate
+name = Japanese Shogunate
+
+# Ashikaga Yoshimasa, 8th Muromachi Shogun in Kyoto.
+leader = ASH
+
+roles = shugo, kanrei, sankanrei, kanto_kubo
+
+# The 15 major shugo vassal houses on the 1453 map (PR #44).
+role shugo = HSK, YMN, HTK, SHB, OUC, SMZ, OTM, SHN, KNO, KMK, UES, TKD, IMG, DTE, AND
+
+# Hosokawa Katsumoto holds the office of Kanrei (Deputy Shogun) in May 1453.
+role kanrei = HSK
+
+# The three Sankanrei houses eligible to rotate the Kanrei office:
+# Hosokawa, Hatakeyama, and Shiba.
+role sankanrei = HSK, HTK, SHB
+
+# Ashikaga Shigeuji holds the Kamakura Kubo viceroyalty in the Kanto.
+role kanto_kubo = KMK
+
+# Bakufu Authority (0..100), starting at 40 under young Shogun Yoshimasa.
+# Drops below 25 (or the Onin War) unlock internal Sengoku warfare.
+value bakufu_authority = 40 | 0..100
+
+# Per-shugo loyalty to the Bakufu (0..100).
+country_value loyalty = 0..100
+
+# Fixed constants for ShogunateSystem.
+param sengoku_threshold = 25
+param usurp_authority = 40
+param unification_pct = 75
+param unification_authority = 60
+param shugo_annex_penalty = 3
+
+# Shogunate provinces (60 provinces held by ASH and the 15 shugo in May 1453).
+provinces = Satsuma, Osumi, Hyuga, Bungo, Chikugo, Higo, Hizen, Tsushima, Chikuzen, Buzen
+provinces = Sanuki, Tokushima, Tosa, Iyo, Suo, Nagato, Iwami, Aki, Bingo, Bizen
+provinces = Harima, Inaba, Hoki, Tajima, Bitchu, Izumo, Kyoto, Settsu, Tanba, Kawachi
+provinces = Kii, Yamato, Omi, Ise, Tango, Owari, Totomi, Echizen, Mino, Suruga
+provinces = Kai, Shinano, Noto, Etchu, Kaga, Echigo, Sagami, Shimosa, Kazusa, Shimotsuke
+provinces = Hitachi, Musashi, Kozuke, Yonezawa, Sendai, Yamagata, Morioka, Akita, Tsugaru, Oshima
+
+# Role effects.
+effect shugo: levy_size=0.10, fort_defence=0.05
+effect kanrei: crown_power=0.05, tax=0.08, stability_cost=-0.05
+effect kanto_kubo: levy_size=0.05, army_quality=0.05
+effect leader: manpower=0.10, tax=0.05
+effect leader scaled bakufu_authority/100: crown_power=0.12, vassal_opinion=20, tax=0.10

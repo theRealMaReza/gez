@@ -933,3 +933,19 @@ Enniskillen.
   members in 1453; **Schleswig** (Danish fief) and the **Teutonic Order**
   are outside.
 
+### Ruling systems: Japanese Shogunate (Phase 20.8, 30 May 1453)
+- **Shogun and Kanrei:** Ashikaga Yoshimasa (`ASH`) is Shogun in Kyoto;
+  **Hosokawa Katsumoto** (`HSK`) holds the office of **Kanrei** in May
+  1453 (having succeeded Hatakeyama Mochikuni in late 1452). The three
+  *Sankanrei* houses (`HSK`, `HTK`, `SHB`) form the historical rotation
+  pool for the Kanrei office.
+- **Kamakura Kubō:** Ashikaga Shigeuji (`KMK`) holds the eastern
+  viceroyalty (`kanto_kubo`) in Sagami/Kamakura on the eve of the
+  Kyōtoku Incident (1454–1455) against his Kantō Kanrei, Uesugi Noritada
+  (`UES`).
+- **Shogunate borders:** All 60 provinces held by `ASH` and the 15
+  shugo vassals (`HSK`, `YMN`, `HTK`, `SHB`, `OUC`, `SMZ`, `OTM`, `SHN`,
+  `KNO`, `KMK`, `UES`, `TKD`, `IMG`, `DTE`, `AND`) are counted in the
+  Shogunate's lands, including Andō's southern Ezo foothold at `Oshima`.
+  **Ryukyu** (`RYU`) and the **Ainu** (`AIN`) are outside the Shogunate.
+

@@ -742,6 +742,38 @@ royal elections, kurultai, mandala rings.
     event) disbands the leagues, enforces official-faith eligibility for
     the Imperial crown (triggering an immediate election if needed), or
     halves religious disunity authority drain under `religious_peace`.
+- **Japanese Shogunate (`shogunate`):**
+  - **1453 membership (`data/rulings/systems/shogunate.txt`):** 16
+    countries across 60 Shogunate provinces — Shogun `ASH` (Ashikaga
+    Yoshimasa in Kyoto) and 15 `shugo` vassal houses (`HSK`, `YMN`,
+    `HTK`, `SHB`, `OUC`, `SMZ`, `OTM`, `SHN`, `KNO`, `KMK`, `UES`,
+    `TKD`, `IMG`, `DTE`, `AND`). `HSK` (Hosokawa Katsumoto) holds the
+    `kanrei` (Deputy Shogun) office among the three `sankanrei` houses
+    (`HSK`, `HTK`, `SHB`), and `KMK` (Ashikaga Shigeuji) holds the
+    `kanto_kubo` viceroyalty. `RYU` and `AIN` are outside the system.
+  - **Values & role effects:** `bakufu_authority` starts at 40 (0–100);
+    per-shugo `loyalty` (0–100). `shugo` get +10% levy size and +5% fort
+    defence; `kanrei` gets +5% crown power, +8% tax, -5% stability cost;
+    `kanto_kubo` gets +5% levy size, +5% army quality; the Shogun gets
+    +10% manpower, +5% tax, plus up to +12% crown power, +20 vassal
+    opinion, and +10% tax scaled by `bakufu_authority / 100`.
+  - **Owner's design choices (27 Nov 2026):**
+    - *Sengoku warfare:* Shugo remain nominal vassals of the Shogun;
+      internal shugo-vs-shugo wars (without calling in the Shogun) and
+      marching on Kyoto to challenge the Shogun unlock once the Ōnin War
+      fires or `bakufu_authority` drops below 25 (`sengoku_active`).
+    - *Kanrei rotation:* Starts with `HSK` and rotates among the three
+      `sankanrei` houses (`HSK`, `HTK`, `SHB`, falling back to the
+      strongest loyal shugo if none remain) on succession or dismissal;
+      a loyal Kanrei props up Bakufu Authority while a hostile Kanrei
+      drains it.
+    - *Claiming the Shogunate & Unification (`JPN`):* Any shugo or
+      Japanese lord who takes Kyoto becomes the new Shogun (inheriting
+      remaining shugo vassals, `bakufu_authority` reset to 40). Holding
+      Kyoto and 75%+ of the 60 Shogunate provinces (directly or via
+      vassals) with `bakufu_authority >= 60` proclaims *Tenka Tōitsu*
+      (ending internal Sengoku wars) and unlocks the unified **Japan
+      (`JPN`)** formable (`data/rulings/formables/02_japan.txt`).
 
 ## AI Behaviour Setting (Phase 15)
 

@@ -1,0 +1,24 @@
+# Formable nations: Japan (Phase 20.8).
+# Compiled by tools/rulings/rulinggen.py -> rulings1453.json.
+# Format and rules: docs/RULING_SYSTEMS.md.
+
+formable JPN
+name = Japan
+text = The warring provinces have been pacified and Kyoto stands secure under one sword. From Kyushu to Tohoku, the realm bows to a single ruler: shall we proclaim the unified realm of Japan?
+color = 185 45 55
+shield = JPN
+eligible = ASH, HSK, YMN, HTK, SHB, OUC, SMZ, OTM, SHN, KNO, KMK, UES, TKD, IMG, DTE, AND
+government = monarchy
+mission_tree = japan
+ai = true
+unique = true
+trigger:
+  owns = Kyoto
+  ruling_active = shogunate
+  ruling_leader = shogunate
+  ruling_flag = shogunate:tenka_toitsu
+  not_formed = JPN
+effect:
+  prestige = 25
+  stability = 1
+  ruling_value = shogunate:bakufu_authority:20
