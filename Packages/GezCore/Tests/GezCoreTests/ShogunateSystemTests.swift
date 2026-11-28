@@ -331,4 +331,41 @@ struct ShogunateSystemTests {
         let postCheck = w2.diplomacy.canDeclareWar(attacker: hsk, defender: ouc, world: w2)
         #expect(!postCheck.isValid)
     }
+
+    @Test("Historical Shogunate events load and drive the Onin War -> Sengoku -> Tenka Toitsu arc")
+    func shogunateEvents() throws {
+        var world = Scenario1453.makeWorld()
+        let ash = try #require(world.countries.id(forTag: "ASH"))
+
+        let expectedIDs = [
+            "shogunate_kyotoku_incident_1454",
+            "shogunate_hatakeyama_crisis_1454",
+            "shogunate_onin_war_1467",
+            "shogunate_ikko_ikki_1488",
+            "shogunate_gekokujo",
+            "shogunate_tenka_toitsu",
+        ]
+        for id in expectedIDs {
+            #expect(world.eventRules.event(id) != nil, "Missing event \(id)")
+        }
+
+        // Apply option 0 of the Onin War -> activates Sengoku and drops Bakufu Authority by 25.
+        let onin = try #require(world.eventRules.event("shogunate_onin_war_1467"))
+        let oninDate = GameDate(year: 1467, month: 6, day: 1)
+        #expect(EventSystem.evaluate(onin.trigger, in: world, for: ash, date: oninDate))
+        EventSystem.apply(onin.options[0].effects, to: &world, country: ash, date: oninDate)
+        #expect(RulingEngine.hasFlag(world, "shogunate", "sengoku_active"))
+        #expect(ShogunateSystem.internalWarsAllowed(in: world))
+        #expect(RulingEngine.value(world, "shogunate", "bakufu_authority") == 15)
+
+        // Raise authority to 65 and apply option 0 of Tenka Toitsu -> ends Sengoku.
+        RulingEngine.setValue(&world, "shogunate", "bakufu_authority", 65)
+        let tenka = try #require(world.eventRules.event("shogunate_tenka_toitsu"))
+        let tenkaDate = GameDate(year: 1490, month: 1, day: 1)
+        #expect(EventSystem.evaluate(tenka.trigger, in: world, for: ash, date: tenkaDate))
+        EventSystem.apply(tenka.options[0].effects, to: &world, country: ash, date: tenkaDate)
+        #expect(RulingEngine.hasFlag(world, "shogunate", "tenka_toitsu"))
+        #expect(!RulingEngine.hasFlag(world, "shogunate", "sengoku_active"))
+        #expect(!ShogunateSystem.internalWarsAllowed(in: world))
+    }
 }

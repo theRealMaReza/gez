@@ -6942,6 +6942,581 @@
           ]
         }
       ]
+    },
+    {
+      "id": "shogunate_kyotoku_incident_1454",
+      "title": "The Kyōtoku Incident",
+      "text": "In Kamakura, tensions between the Kamakura Kubō Ashikaga Shigeuji and his Kantō Kanrei, Uesugi Noritada, erupt into open bloodshed. The assassination of the Uesugi deputy plunges the entire Kantō plain into war and defies the Shogun in Kyoto.",
+      "category": "historical",
+      "countries": [
+        "KMK"
+      ],
+      "dateFrom": {
+        "year": 1454,
+        "month": 12,
+        "day": 1
+      },
+      "dateTo": {
+        "year": 1462,
+        "month": 12,
+        "day": 31
+      },
+      "exactDate": null,
+      "mtth": 12.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": true,
+      "trigger": [
+        {
+          "kind": "ruling_active",
+          "str": "shogunate"
+        },
+        {
+          "kind": "ruling_member",
+          "str": "shogunate"
+        }
+      ],
+      "options": [
+        {
+          "label": "Strike down the Uesugi and defy Kyoto's interference",
+          "aiWeight": 80.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "ruling_value",
+              "str": "shogunate",
+              "str2": "bakufu_authority",
+              "num": -10.0
+            },
+            {
+              "kind": "ruling_country_value",
+              "str": "shogunate",
+              "str2": "loyalty",
+              "num": -25.0
+            },
+            {
+              "kind": "change_opinion_both",
+              "str": "UES",
+              "int": -90
+            },
+            {
+              "kind": "change_opinion_both",
+              "str": "ASH",
+              "int": -70
+            },
+            {
+              "kind": "prestige",
+              "num": 8.0
+            }
+          ]
+        },
+        {
+          "label": "Yield to the Uesugi and petition the Shogun for mediation",
+          "aiWeight": 20.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "ruling_value",
+              "str": "shogunate",
+              "str2": "bakufu_authority",
+              "num": 5.0
+            },
+            {
+              "kind": "ruling_country_value",
+              "str": "shogunate",
+              "str2": "loyalty",
+              "num": 15.0
+            },
+            {
+              "kind": "change_opinion_both",
+              "str": "UES",
+              "int": 30
+            },
+            {
+              "kind": "prestige",
+              "num": -5.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shogunate_hatakeyama_crisis_1454",
+      "title": "The Hatakeyama Succession Crisis",
+      "text": "Rival heirs split the house of Hatakeyama, one of the three Sankanrei deputy clans. Hosokawa Katsumoto and Yamana Sōzen back opposing claimants, turning a family feud into a struggle for control of the Muromachi Bakufu.",
+      "category": "historical",
+      "countries": [
+        "HTK"
+      ],
+      "dateFrom": {
+        "year": 1454,
+        "month": 6,
+        "day": 1
+      },
+      "dateTo": {
+        "year": 1464,
+        "month": 12,
+        "day": 31
+      },
+      "exactDate": null,
+      "mtth": 18.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": true,
+      "trigger": [
+        {
+          "kind": "ruling_active",
+          "str": "shogunate"
+        },
+        {
+          "kind": "ruling_member",
+          "str": "shogunate"
+        }
+      ],
+      "options": [
+        {
+          "label": "Refuse Kyoto's mediation and rally Yamana's backing",
+          "aiWeight": 75.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "ruling_value",
+              "str": "shogunate",
+              "str2": "bakufu_authority",
+              "num": -8.0
+            },
+            {
+              "kind": "ruling_country_value",
+              "str": "shogunate",
+              "str2": "loyalty",
+              "num": -15.0
+            },
+            {
+              "kind": "change_opinion_both",
+              "str": "HSK",
+              "int": -50
+            },
+            {
+              "kind": "change_opinion_both",
+              "str": "YMN",
+              "int": 40
+            },
+            {
+              "kind": "stability",
+              "int": -1
+            }
+          ]
+        },
+        {
+          "label": "Submit the succession to the Kanrei's arbitration",
+          "aiWeight": 25.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "ruling_value",
+              "str": "shogunate",
+              "str2": "bakufu_authority",
+              "num": 4.0
+            },
+            {
+              "kind": "ruling_country_value",
+              "str": "shogunate",
+              "str2": "loyalty",
+              "num": 15.0
+            },
+            {
+              "kind": "change_opinion_both",
+              "str": "HSK",
+              "int": 40
+            },
+            {
+              "kind": "prestige",
+              "num": -5.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shogunate_onin_war_1467",
+      "title": "The Ōnin War",
+      "text": "The rivalry between Hosokawa Katsumoto's Eastern Army and Yamana Sōzen's Western Army erupts into street fighting across Kyoto over the Ashikaga succession. Great temples burn, the Bakufu loses its grip on the provinces, and shugo lords sharpen their blades across Japan.",
+      "category": "historical",
+      "countries": [],
+      "dateFrom": {
+        "year": 1467,
+        "month": 5,
+        "day": 1
+      },
+      "dateTo": {
+        "year": 1485,
+        "month": 12,
+        "day": 31
+      },
+      "exactDate": null,
+      "mtth": 12.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": true,
+      "trigger": [
+        {
+          "kind": "ruling_active",
+          "str": "shogunate"
+        },
+        {
+          "kind": "ruling_leader",
+          "str": "shogunate"
+        },
+        {
+          "kind": "not_ruling_flag",
+          "str": "shogunate:sengoku_active"
+        },
+        {
+          "kind": "not_ruling_flag",
+          "str": "shogunate:tenka_toitsu"
+        }
+      ],
+      "options": [
+        {
+          "label": "The Bakufu cannot restrain the clans — the Sengoku period begins",
+          "aiWeight": 85.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "ruling_set_flag",
+              "str": "shogunate",
+              "str2": "sengoku_active"
+            },
+            {
+              "kind": "ruling_value",
+              "str": "shogunate",
+              "str2": "bakufu_authority",
+              "num": -25.0
+            },
+            {
+              "kind": "stability",
+              "int": -1
+            },
+            {
+              "kind": "unrest",
+              "target": "province",
+              "int": 1609,
+              "num": 15.0
+            },
+            {
+              "kind": "change_opinion_both",
+              "str": "YMN",
+              "int": -60
+            }
+          ]
+        },
+        {
+          "label": "Empty the treasury to buy an uneasy truce in Kyoto",
+          "aiWeight": 15.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "ducats",
+              "num": -250.0
+            },
+            {
+              "kind": "ruling_value",
+              "str": "shogunate",
+              "str2": "bakufu_authority",
+              "num": -10.0
+            },
+            {
+              "kind": "prestige",
+              "num": -10.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shogunate_ikko_ikki_1488",
+      "title": "The Ikkō-ikki Rising in Kaga",
+      "text": "Militant Jōdo Shinshū leagues of warrior monks, local gentry, and armed peasants rise in Kaga, overthrowing the shugo administration and declaring a province governed by the faithful.",
+      "category": "religious",
+      "countries": [],
+      "dateFrom": {
+        "year": 1488,
+        "month": 1,
+        "day": 1
+      },
+      "dateTo": {
+        "year": 1550,
+        "month": 12,
+        "day": 31
+      },
+      "exactDate": null,
+      "mtth": 24.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": true,
+      "trigger": [
+        {
+          "kind": "ruling_active",
+          "str": "shogunate"
+        },
+        {
+          "kind": "ruling_flag",
+          "str": "shogunate:sengoku_active"
+        },
+        {
+          "kind": "owns",
+          "str": "Kaga",
+          "int": 1627
+        }
+      ],
+      "options": [
+        {
+          "label": "Muster the samurai to crush the militant leagues",
+          "aiWeight": 70.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "unrest",
+              "target": "province",
+              "int": 1627,
+              "num": 30.0
+            },
+            {
+              "kind": "manpower",
+              "num": -1500.0
+            },
+            {
+              "kind": "ruling_value",
+              "str": "shogunate",
+              "str2": "bakufu_authority",
+              "num": -5.0
+            },
+            {
+              "kind": "prestige",
+              "num": 5.0
+            }
+          ]
+        },
+        {
+          "label": "Concede local autonomy to the temple leagues",
+          "aiWeight": 30.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "unrest",
+              "target": "province",
+              "int": 1627,
+              "num": 10.0
+            },
+            {
+              "kind": "ducats",
+              "num": -80.0
+            },
+            {
+              "kind": "ruling_value",
+              "str": "shogunate",
+              "str2": "bakufu_authority",
+              "num": -8.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shogunate_gekokujo",
+      "title": "Gekokujō: The Low Overthrow the High",
+      "text": "Across the warring provinces, ambitious deputy retainers and provincial captains eclipse the old courtly shugo houses, mobilizing ashigaru levies and fortifying mountain strongholds.",
+      "category": "military",
+      "countries": [],
+      "dateFrom": {
+        "year": 1470,
+        "month": 1,
+        "day": 1
+      },
+      "dateTo": {
+        "year": 1600,
+        "month": 12,
+        "day": 31
+      },
+      "exactDate": null,
+      "mtth": 96.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": false,
+      "trigger": [
+        {
+          "kind": "ruling_active",
+          "str": "shogunate"
+        },
+        {
+          "kind": "ruling_role",
+          "str": "shogunate:shugo"
+        },
+        {
+          "kind": "ruling_flag",
+          "str": "shogunate:sengoku_active"
+        },
+        {
+          "kind": "not_ruling_flag",
+          "str": "shogunate:tenka_toitsu"
+        }
+      ],
+      "options": [
+        {
+          "label": "Elevate proven captains and embrace Sengoku warfare",
+          "aiWeight": 75.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "manpower",
+              "num": 2000.0
+            },
+            {
+              "kind": "prestige",
+              "num": 8.0
+            },
+            {
+              "kind": "ruling_value",
+              "str": "shogunate",
+              "str2": "bakufu_authority",
+              "num": -5.0
+            },
+            {
+              "kind": "ruling_country_value",
+              "str": "shogunate",
+              "str2": "loyalty",
+              "num": -15.0
+            }
+          ]
+        },
+        {
+          "label": "Uphold the ancient Muromachi hierarchy",
+          "aiWeight": 25.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "stability",
+              "int": 1
+            },
+            {
+              "kind": "ruling_country_value",
+              "str": "shogunate",
+              "str2": "loyalty",
+              "num": 10.0
+            },
+            {
+              "kind": "ruling_value",
+              "str": "shogunate",
+              "str2": "bakufu_authority",
+              "num": 3.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shogunate_tenka_toitsu",
+      "title": "Tenka Tōitsu: Pacification of the Realm",
+      "text": "Kyoto stands secure and the great houses bow once more to a single sword. Messengers ride down every highway to proclaim the end of the warring states and the restoration of peace across Japan.",
+      "category": "historical",
+      "countries": [],
+      "dateFrom": {
+        "year": 1475,
+        "month": 1,
+        "day": 1
+      },
+      "dateTo": {
+        "year": 1650,
+        "month": 12,
+        "day": 31
+      },
+      "exactDate": null,
+      "mtth": 18.0,
+      "mtthModifiers": [],
+      "fireOnce": true,
+      "perCountry": false,
+      "triggeredOnly": false,
+      "major": true,
+      "trigger": [
+        {
+          "kind": "ruling_active",
+          "str": "shogunate"
+        },
+        {
+          "kind": "ruling_leader",
+          "str": "shogunate"
+        },
+        {
+          "kind": "owns",
+          "str": "Kyoto",
+          "int": 1609
+        },
+        {
+          "kind": "ruling_flag",
+          "str": "shogunate:sengoku_active"
+        },
+        {
+          "kind": "not_ruling_flag",
+          "str": "shogunate:tenka_toitsu"
+        },
+        {
+          "kind": "ruling_value_min",
+          "str": "shogunate:bakufu_authority",
+          "num": 60.0
+        }
+      ],
+      "options": [
+        {
+          "label": "Proclaim Tenka Tōitsu and end the Sengoku period",
+          "aiWeight": 90.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "ruling_set_flag",
+              "str": "shogunate",
+              "str2": "tenka_toitsu"
+            },
+            {
+              "kind": "ruling_clear_flag",
+              "str": "shogunate",
+              "str2": "sengoku_active"
+            },
+            {
+              "kind": "stability",
+              "int": 1
+            },
+            {
+              "kind": "prestige",
+              "num": 20.0
+            }
+          ]
+        },
+        {
+          "label": "Keep the samurai mobilized for further campaigns",
+          "aiWeight": 10.0,
+          "aiModifiers": [],
+          "effects": [
+            {
+              "kind": "manpower",
+              "num": 3000.0
+            },
+            {
+              "kind": "prestige",
+              "num": 5.0
+            }
+          ]
+        }
+      ]
     }
   ]
 }

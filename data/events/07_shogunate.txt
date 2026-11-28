@@ -1,0 +1,184 @@
+# Japanese Shogunate — Muromachi Crises and Sengoku Period Events (Phase 20.8).
+# Compiled by tools/events/eventgen.py -> events1453.json.
+
+event shogunate_kyotoku_incident_1454
+title = The Kyōtoku Incident
+text = In Kamakura, tensions between the Kamakura Kubō Ashikaga Shigeuji and his Kantō Kanrei, Uesugi Noritada, erupt into open bloodshed. The assassination of the Uesugi deputy plunges the entire Kantō plain into war and defies the Shogun in Kyoto.
+category = historical
+countries = KMK
+date_from = 1454-12-01
+date_to = 1462-12-31
+mtth = 12
+fire_once = true
+major = true
+trigger:
+  ruling_active = shogunate
+  ruling_member = shogunate
+option:
+  label = Strike down the Uesugi and defy Kyoto's interference
+  ai_weight = 80
+  effect:
+    ruling_value = shogunate:bakufu_authority:-10
+    ruling_country_value = shogunate:loyalty:-25
+    change_opinion_both = UES:-90
+    change_opinion_both = ASH:-70
+    prestige = 8
+option:
+  label = Yield to the Uesugi and petition the Shogun for mediation
+  ai_weight = 20
+  effect:
+    ruling_value = shogunate:bakufu_authority:5
+    ruling_country_value = shogunate:loyalty:15
+    change_opinion_both = UES:30
+    prestige = -5
+
+event shogunate_hatakeyama_crisis_1454
+title = The Hatakeyama Succession Crisis
+text = Rival heirs split the house of Hatakeyama, one of the three Sankanrei deputy clans. Hosokawa Katsumoto and Yamana Sōzen back opposing claimants, turning a family feud into a struggle for control of the Muromachi Bakufu.
+category = historical
+countries = HTK
+date_from = 1454-06-01
+date_to = 1464-12-31
+mtth = 18
+fire_once = true
+major = true
+trigger:
+  ruling_active = shogunate
+  ruling_member = shogunate
+option:
+  label = Refuse Kyoto's mediation and rally Yamana's backing
+  ai_weight = 75
+  effect:
+    ruling_value = shogunate:bakufu_authority:-8
+    ruling_country_value = shogunate:loyalty:-15
+    change_opinion_both = HSK:-50
+    change_opinion_both = YMN:40
+    stability = -1
+option:
+  label = Submit the succession to the Kanrei's arbitration
+  ai_weight = 25
+  effect:
+    ruling_value = shogunate:bakufu_authority:4
+    ruling_country_value = shogunate:loyalty:15
+    change_opinion_both = HSK:40
+    prestige = -5
+
+event shogunate_onin_war_1467
+title = The Ōnin War
+text = The rivalry between Hosokawa Katsumoto's Eastern Army and Yamana Sōzen's Western Army erupts into street fighting across Kyoto over the Ashikaga succession. Great temples burn, the Bakufu loses its grip on the provinces, and shugo lords sharpen their blades across Japan.
+category = historical
+date_from = 1467-05-01
+date_to = 1485-12-31
+mtth = 12
+fire_once = true
+major = true
+trigger:
+  ruling_active = shogunate
+  ruling_leader = shogunate
+  not_ruling_flag = shogunate:sengoku_active
+  not_ruling_flag = shogunate:tenka_toitsu
+option:
+  label = The Bakufu cannot restrain the clans — the Sengoku period begins
+  ai_weight = 85
+  effect:
+    ruling_set_flag = shogunate:sengoku_active
+    ruling_value = shogunate:bakufu_authority:-25
+    stability = -1
+    unrest = Kyoto:15
+    change_opinion_both = YMN:-60
+option:
+  label = Empty the treasury to buy an uneasy truce in Kyoto
+  ai_weight = 15
+  effect:
+    ducats = -250
+    ruling_value = shogunate:bakufu_authority:-10
+    prestige = -10
+
+event shogunate_ikko_ikki_1488
+title = The Ikkō-ikki Rising in Kaga
+text = Militant Jōdo Shinshū leagues of warrior monks, local gentry, and armed peasants rise in Kaga, overthrowing the shugo administration and declaring a province governed by the faithful.
+category = religious
+date_from = 1488-01-01
+date_to = 1550-12-31
+mtth = 24
+fire_once = true
+major = true
+trigger:
+  ruling_active = shogunate
+  ruling_flag = shogunate:sengoku_active
+  owns = Kaga
+option:
+  label = Muster the samurai to crush the militant leagues
+  ai_weight = 70
+  effect:
+    unrest = Kaga:30
+    manpower = -1500
+    ruling_value = shogunate:bakufu_authority:-5
+    prestige = 5
+option:
+  label = Concede local autonomy to the temple leagues
+  ai_weight = 30
+  effect:
+    unrest = Kaga:10
+    ducats = -80
+    ruling_value = shogunate:bakufu_authority:-8
+
+event shogunate_gekokujo
+title = Gekokujō: The Low Overthrow the High
+text = Across the warring provinces, ambitious deputy retainers and provincial captains eclipse the old courtly shugo houses, mobilizing ashigaru levies and fortifying mountain strongholds.
+category = military
+date_from = 1470-01-01
+date_to = 1600-12-31
+mtth = 96
+fire_once = true
+trigger:
+  ruling_active = shogunate
+  ruling_role = shogunate:shugo
+  ruling_flag = shogunate:sengoku_active
+  not_ruling_flag = shogunate:tenka_toitsu
+option:
+  label = Elevate proven captains and embrace Sengoku warfare
+  ai_weight = 75
+  effect:
+    manpower = 2000
+    prestige = 8
+    ruling_value = shogunate:bakufu_authority:-5
+    ruling_country_value = shogunate:loyalty:-15
+option:
+  label = Uphold the ancient Muromachi hierarchy
+  ai_weight = 25
+  effect:
+    stability = 1
+    ruling_country_value = shogunate:loyalty:10
+    ruling_value = shogunate:bakufu_authority:3
+
+event shogunate_tenka_toitsu
+title = Tenka Tōitsu: Pacification of the Realm
+text = Kyoto stands secure and the great houses bow once more to a single sword. Messengers ride down every highway to proclaim the end of the warring states and the restoration of peace across Japan.
+category = historical
+date_from = 1475-01-01
+date_to = 1650-12-31
+mtth = 18
+fire_once = true
+major = true
+trigger:
+  ruling_active = shogunate
+  ruling_leader = shogunate
+  owns = Kyoto
+  ruling_flag = shogunate:sengoku_active
+  not_ruling_flag = shogunate:tenka_toitsu
+  ruling_value_min = shogunate:bakufu_authority:60
+option:
+  label = Proclaim Tenka Tōitsu and end the Sengoku period
+  ai_weight = 90
+  effect:
+    ruling_set_flag = shogunate:tenka_toitsu
+    ruling_clear_flag = shogunate:sengoku_active
+    stability = 1
+    prestige = 20
+option:
+  label = Keep the samurai mobilized for further campaigns
+  ai_weight = 10
+  effect:
+    manpower = 3000
+    prestige = 5
