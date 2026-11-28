@@ -254,7 +254,7 @@ struct ShogunateSystemTests {
         let snap = SaveSnapshot(capturing: sim1)
         let data = try JSONEncoder().encode(snap)
         let decoded = try JSONDecoder().decode(SaveSnapshot.self, from: data)
-        let restored = decoded.restore()
+        let restored = try decoded.restore()
         #expect(restored.world.rulings == sim1.world.rulings)
 
         sim1.advance(days: 60)
