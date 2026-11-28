@@ -317,7 +317,7 @@ struct ShogunateSystemTests {
             warID: kyotoWar.id,
             winner: ymn,
             loser: ash,
-            demands: [.cedeProvince(kyoto)]
+            demands: [.cedeProvince(province: kyoto, to: ymn)]
         )
         _ = try w2.executePeaceTreaty(offer, date: date, forceAccept: true).get()
         #expect(RulingEngine.leader(w2, "shogunate") == ymn)
