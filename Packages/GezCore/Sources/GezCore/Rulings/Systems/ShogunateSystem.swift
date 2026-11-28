@@ -138,6 +138,88 @@ public enum ShogunateSystem: RulingSystem {
         RulingEngine.isActive(world, key) && RulingEngine.hasRole(world, key, country, "shugo")
     }
 
+    /// True when `attacker` (a shugo vassal) may declare an internal Sengoku war
+    /// against `defender` (either another shugo or the Shogun to seize Kyoto).
+    public static func canDeclareSengokuWar(
+        attacker: CountryID,
+        defender: CountryID,
+        in world: World
+    ) -> Bool {
+        guard internalWarsAllowed(in: world),
+              isShugo(world, attacker),
+              RulingEngine.isMember(world, key, defender) else {
+            return false
+        }
+        return true
+    }
+
+    /// Subjects of the Shogun who will rally to defend Kyoto when a shugo marches on the Shogun
+    /// during the Sengoku period (loyal shugo with opinion >= 40, or a non-hostile Kanrei).
+    public static func shogunDefenders(
+        in world: World,
+        attacker: CountryID,
+        shogun: CountryID
+    ) -> [CountryID] {
+        let currentKanrei = kanrei(in: world)
+        return world.countries.subjects(of: shogun).filter { s in
+            guard s != attacker && s != shogun else { return false }
+            let op = world.diplomacy.opinion(of: shogun, by: s)
+            if s == currentKanrei {
+                return op >= 0
+            }
+            return op >= 40
+        }
+    }
+
+    /// Returns a Sengoku internal conquest or March on Kyoto CB when `attacker` and `defender`
+    /// are neighbouring Shogunate members during `sengoku_active`.
+    public static func sengokuCasusBelli(
+        attacker: CountryID,
+        defender: CountryID,
+        defenderProvinces: [ProvinceID],
+        in world: World
+    ) -> CasusBelliInstance? {
+        guard canDeclareSengokuWar(attacker: attacker, defender: defender, in: world),
+              !defenderProvinces.isEmpty else { return nil }
+
+        if RulingEngine.leader(world, key) == defender,
+           let kyoto = world.provinces.id(named: "Kyoto"),
+           world.provinces.owner[kyoto.index] == defender {
+            return CasusBelliInstance(
+                type: .claim,
+                target: defender,
+                warGoal: .conquerProvince(kyoto),
+                targetProvince: kyoto,
+                name: "March on Kyoto",
+                description: "Challenge the weakened Bakufu and seize Kyoto to claim the Shogunate."
+            )
+        }
+
+        guard let targetProv = defenderProvinces.max(by: { a, b in
+            let da = world.provinces.development[a.index]
+            let db = world.provinces.development[b.index]
+            return da == db ? a.index > b.index : da < db
+        }) else { return nil }
+
+        let pName = world.provinces.name[targetProv.index]
+        return CasusBelliInstance(
+            type: .claim,
+            target: defender,
+            warGoal: .conquerProvince(targetProv),
+            targetProvince: targetProv,
+            name: "Sengoku Struggle for \(pName)",
+            description: "Contest \(pName) in the warring provinces of the Sengoku period."
+        )
+    }
+
+    /// Immediately checks for Kyoto usurpation after a peace treaty using the rulings RNG stream.
+    public static func handleKyotoCaptureInPeace(_ world: inout World, date: GameDate) {
+        guard RulingEngine.isActive(world, key) else { return }
+        var rng = GameRandom(seed: world.rulings.rngState)
+        checkKyotoUsurpation(&world, date: date, random: &rng)
+        world.rulings.rngState = rng.rawState
+    }
+
     /// Current holder of the Kanrei (Deputy Shogun) office, if any.
     public static func kanrei(in world: World) -> CountryID? {
         RulingEngine.holders(world, key, "kanrei").first

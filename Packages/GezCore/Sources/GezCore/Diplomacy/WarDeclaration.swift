@@ -167,6 +167,19 @@ extension Diplomacy {
             }
         }
 
+        // 2b. Sengoku Jidai internal shugo struggle / March on Kyoto CB
+        if world.areNeighbors(attacker, defender),
+           let sengokuCB = ShogunateSystem.sengokuCasusBelli(
+               attacker: attacker,
+               defender: defender,
+               defenderProvinces: defenderProvinces,
+               in: world
+           ) {
+            if !result.contains(where: { $0.targetProvince == sengokuCB.targetProvince }) {
+                result.append(sengokuCB)
+            }
+        }
+
         // 3. Holy War: Different religious families and neighboring border
         let relA = world.countries.religion[attacker.index]
         let relB = world.countries.religion[defender.index]
@@ -306,7 +319,8 @@ extension Diplomacy {
         if isAtWar(attacker, defender) {
             return .invalid(reason: "Countries are already at war.")
         }
-        if world.countries.overlord[attacker.index] != nil {
+        if world.countries.overlord[attacker.index] != nil,
+           !ShogunateSystem.canDeclareSengokuWar(attacker: attacker, defender: defender, in: world) {
             return .invalid(reason: "Subject countries cannot declare external wars.")
         }
         if world.countries.overlord[defender.index] == attacker {
@@ -487,10 +501,18 @@ extension World {
         var defenders = [defender]
 
         for s in countries.subjects(of: attacker) {
-            if !attackers.contains(s) { attackers.append(s) }
+            if !attackers.contains(s) && s != defender { attackers.append(s) }
         }
-        for s in countries.subjects(of: defender) {
-            if !defenders.contains(s) { defenders.append(s) }
+        if ShogunateSystem.canDeclareSengokuWar(attacker: attacker, defender: defender, in: self),
+           RulingEngine.leader(self, ShogunateSystem.key) == defender {
+            // During Sengoku, only loyal shugo (or a non-hostile Kanrei) rally to defend Kyoto.
+            for s in ShogunateSystem.shogunDefenders(in: self, attacker: attacker, shogun: defender) {
+                if !defenders.contains(s) && !attackers.contains(s) { defenders.append(s) }
+            }
+        } else {
+            for s in countries.subjects(of: defender) {
+                if !defenders.contains(s) && !attackers.contains(s) { defenders.append(s) }
+            }
         }
 
         // Coalition call-ins: offensive punitive coalition against defender

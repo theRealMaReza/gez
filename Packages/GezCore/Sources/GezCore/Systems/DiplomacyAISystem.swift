@@ -90,20 +90,26 @@ public enum DiplomacyAISystem {
 
         // 2. Peacetime treaties (every country) & war declarations (staggered half per month for speed)
         let loanCounts = computeLoanCounts(world, countryCount: n)
+        let sengokuOpen = ShogunateSystem.internalWarsAllowed(in: world)
         for c in world.countries.ids {
             guard !world.humanCountries.contains(c),
-                  !ownedProvinces[c.index].isEmpty,
-                  world.countries.overlord[c.index] == nil else { continue }
+                  !ownedProvinces[c.index].isEmpty else { continue }
 
-            manageAlliancesAndPacts(
-                &world,
-                country: c,
-                landNeighbors: landNeighbors[c.index],
-                allNeighbors: landNeighbors,
-                ownedProvinces: ownedProvinces,
-                date: date,
-                random: &random
-            )
+            let isSubject = world.countries.overlord[c.index] != nil
+            let isSengokuShugo = isSubject && sengokuOpen && ShogunateSystem.isShugo(world, c)
+            guard !isSubject || isSengokuShugo else { continue }
+
+            if !isSubject {
+                manageAlliancesAndPacts(
+                    &world,
+                    country: c,
+                    landNeighbors: landNeighbors[c.index],
+                    allNeighbors: landNeighbors,
+                    ownedProvinces: ownedProvinces,
+                    date: date,
+                    random: &random
+                )
+            }
 
             guard (c.index + date.month) % 2 == 0 else { continue }
 
@@ -753,6 +759,15 @@ public enum DiplomacyAISystem {
                     )
                 }
             }
+            // Sengoku Jidai internal shugo struggle / March on Kyoto CB
+            if chosenCB == nil && cbNeighbors.contains(target) {
+                chosenCB = ShogunateSystem.sengokuCasusBelli(
+                    attacker: attacker,
+                    defender: target,
+                    defenderProvinces: cbOwned[target.index],
+                    in: world
+                )
+            }
             guard let chosenCB else { continue }
 
             let check = world.diplomacy.canDeclareWar(
@@ -777,7 +792,16 @@ public enum DiplomacyAISystem {
                     enemyStrength += soldiersByCountry[h.index]
                 }
             }
-            if let ov = world.countries.overlord[target.index] {
+            let isSengokuWar = ShogunateSystem.canDeclareSengokuWar(attacker: attacker, defender: target, in: world)
+            if isSengokuWar {
+                if RulingEngine.leader(world, ShogunateSystem.key) == target {
+                    for s in ShogunateSystem.shogunDefenders(in: world, attacker: attacker, shogun: target)
+                        where s.index < soldiersByCountry.count && counted.insert(s).inserted {
+                        enemyStrength += soldiersByCountry[s.index]
+                    }
+                }
+                // Shugo-vs-shugo Sengoku wars do not call in the Shogun.
+            } else if let ov = world.countries.overlord[target.index] {
                 enemyStrength += soldiersByCountry[ov.index]
             }
             // HRE Imperial shield: account for the Emperor (and Emperor's subjects/allies) when defending.
